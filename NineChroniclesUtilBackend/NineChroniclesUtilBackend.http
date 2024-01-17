@@ -1,0 +1,6 @@
+@NineChroniclesUtilBackend_HostAddress = http://localhost:5195
+
+GET {{NineChroniclesUtilBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
