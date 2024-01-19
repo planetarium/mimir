@@ -33,3 +33,5 @@ jobs:
           push: true
           platforms: linux/arm/v8,linux/amd64
           tags: planetariumhq/9cutil-backend:git-${{ github.sha }}
+        env:
+          BUILDKIT_PROGRESS: "plain"

@@ -1,11 +1,14 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS build-env
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS build-env
 ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+WORKDIR /app
 
 # Copy everything else and build
 COPY . ./
 RUN <<EOF
 #!/bin/bash
+echo "TARGETPLATFROM=$TARGETPLATFORM"
+echo "BUILDPLATFORM=$BUILDPLATFORM"
 if [[ "$TARGETPLATFORM" = "linux/amd64" ]]
 then
   dotnet publish NineChroniclesUtilBackend/NineChroniclesUtilBackend.csproj \
