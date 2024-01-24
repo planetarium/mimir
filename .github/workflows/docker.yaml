@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          platforms: linux/arm/v8,linux/amd64
+          platforms: linux/arm64,linux/amd64
           tags: planetariumhq/9cutil-backend:git-${{ github.sha }}
         env:
           BUILDKIT_PROGRESS: "plain"

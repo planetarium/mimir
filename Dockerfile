@@ -16,7 +16,7 @@ then
     -r linux-x64 \
     -o out \
     --self-contained
-elif [[ "$TARGETPLATFORM" = "linux/arm/v8" ]]
+elif [[ "$TARGETPLATFORM" = "linux/arm64" ]]
 then
   dotnet publish NineChroniclesUtilBackend/NineChroniclesUtilBackend.csproj \
     -c Release \
