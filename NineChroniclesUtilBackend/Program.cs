@@ -1,11 +1,12 @@
 using System.Text.Json.Serialization;
 using NineChroniclesUtilBackend.Services;
+using NineChroniclesUtilBackend.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.Configure<HeadlessStateServiceOptions>(builder.Configuration.GetRequiredSection("StateService"));
+builder.Services.Configure<HeadlessStateServiceOption>(builder.Configuration.GetRequiredSection("StateService"));
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 

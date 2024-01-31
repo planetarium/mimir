@@ -4,10 +4,11 @@ using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
+using NineChroniclesUtilBackend.Options;
 
 namespace NineChroniclesUtilBackend.Services;
 
-public class HeadlessStateService(IOptions<HeadlessStateServiceOptions> options) : IStateService
+public class HeadlessStateService(IOptions<HeadlessStateServiceOption> options) : IStateService
 {
     private readonly Uri _headlessEndpoint = options.Value.HeadlessEndpoint;
     private readonly HttpClient _httpClient = new();
