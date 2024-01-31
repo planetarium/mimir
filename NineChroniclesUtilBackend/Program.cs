@@ -13,6 +13,7 @@ using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using NineChroniclesUtilBackend.Models.Arena;
 using NineChroniclesUtilBackend.Services;
+using NineChroniclesUtilBackend.Arena;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -114,20 +115,28 @@ app.MapPost("/arena/simulate",
                 return runes;
             }
 
-            var seed = arenaSimulateRequest.Seed ?? new Random().Next();
+
             var myAvatarAddress = new Address(arenaSimulateRequest.MyAvatarAddress);
             var enemyAvatarAddress = new Address(arenaSimulateRequest.EnemyAvatarAddress);
-            var random = new NineChroniclesUtilBackend.Random(seed);
-            var simulator = new ArenaSimulator(random, 5);
             var myAvatarState = await GetAvatarState(myAvatarAddress);
             var myAvatarItemSlotState = await GetItemSlotState(myAvatarAddress);
             var myAvatarRuneStates = await GetRuneStates(myAvatarAddress);
             var enemyAvatarState = await GetAvatarState(enemyAvatarAddress);
             var enemyAvatarItemSlotState = await GetItemSlotState(enemyAvatarAddress);
             var enemyAvatarRuneStates = await GetRuneStates(enemyAvatarAddress);
-            var arenaLog = simulator.Simulate(
-                new ArenaPlayerDigest(myAvatarState, myAvatarItemSlotState.Equipments, myAvatarItemSlotState.Costumes, myAvatarRuneStates),
-                new ArenaPlayerDigest(enemyAvatarState, enemyAvatarItemSlotState.Equipments, enemyAvatarItemSlotState.Costumes, enemyAvatarRuneStates),
+
+            var bulkSimulator = new ArenaBulkSimulator();
+            var result = await bulkSimulator.BulkSimulate(
+                new AvatarStatesForArena(
+                    myAvatarState,
+                    myAvatarItemSlotState,
+                    myAvatarRuneStates
+                ),                
+                new AvatarStatesForArena(
+                    enemyAvatarState,
+                    enemyAvatarItemSlotState,
+                    enemyAvatarRuneStates
+                ),
                 new ArenaSimulatorSheets(
                     await GetSheet<MaterialItemSheet>(),
                     await GetSheet<SkillSheet>(),
@@ -141,14 +150,10 @@ app.MapPost("/arena/simulate",
                     await GetSheet<CostumeStatSheet>(),
                     await GetSheet<WeeklyArenaRewardSheet>(),
                     await GetSheet<RuneOptionSheet>()
-                ),
-                true);
-            return new ArenaSimulateResponse(arenaLog.Result switch
-            {
-                ArenaLog.ArenaResult.Lose => ArenaResult.Lose,
-                ArenaLog.ArenaResult.Win => ArenaResult.Win,
-                _ => throw new ArgumentOutOfRangeException()
-            });
+                )
+            );
+
+            return new ArenaSimulateResponse(result);
         })
     .WithOpenApi();
 
