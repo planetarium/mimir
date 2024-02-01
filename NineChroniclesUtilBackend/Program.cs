@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 using NineChroniclesUtilBackend.Services;
 using NineChroniclesUtilBackend.Options;
 
@@ -17,6 +18,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
 builder.Services.AddControllers();
+builder.Services.AddHeadlessGQLClient()
+    .ConfigureHttpClient((provider, client) =>
+        client.BaseAddress = provider.GetRequiredService<IOptions<HeadlessStateServiceOption>>().Value.HeadlessEndpoint);
 
 var app = builder.Build();
 

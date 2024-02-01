@@ -1,0 +1,11 @@
+query GetTip {
+    nodeStatus {
+        tip {
+            index
+        }
+    }
+}
+
+query GetState($address: Address!) {
+    state(address: $address)
+}

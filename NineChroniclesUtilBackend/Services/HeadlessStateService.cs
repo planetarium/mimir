@@ -1,19 +1,19 @@
-using System.Text;
-using System.Text.Json;
 using Bencodex;
 using Bencodex.Types;
+using HeadlessGQL;
 using Libplanet.Crypto;
-using Microsoft.Extensions.Options;
-using NineChroniclesUtilBackend.Options;
+using Libplanet.Types.Blocks;
+using StrawberryShake;
 
 namespace NineChroniclesUtilBackend.Services;
 
-public class HeadlessStateService(IOptions<HeadlessStateServiceOption> options) : IStateService
+public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 {
-    private readonly Uri _headlessEndpoint = options.Value.HeadlessEndpoint;
-    private readonly HttpClient _httpClient = new();
-
     private static readonly Codec Codec = new();
+
+    private (long, BlockHash) TipInfo { get; set; }
+
+    public long TipIndex => TipInfo.Item1;
 
     public Task<IValue?[]> GetStates(Address[] addresses)
     {
@@ -22,28 +22,19 @@ public class HeadlessStateService(IOptions<HeadlessStateServiceOption> options) 
 
     public async Task<IValue?> GetState(Address address)
     {
-        using StringContent jsonContent = new
-        (JsonSerializer.Serialize(new
-        {
-            query = @"query GetState($address: Address!) { state(address: $address) }",
-            variables = new {
-                address = address.ToString(),
-            },
-            operationName = "GetState",
-        }),
-            Encoding.UTF8,
-            "application/json");
-        using var response = await _httpClient.PostAsync(_headlessEndpoint, jsonContent);
-        var resp = await response.Content.ReadFromJsonAsync<GetStateResponse>();
+        var result = await client.GetState.ExecuteAsync(address.ToString());
+        result.EnsureNoErrors();
 
-        if (resp.Data.State is null)
+        if (result.Data?.State is null)
         {
             return null;
         }
 
-        return Codec.Decode(Convert.FromHexString(resp.Data.State));
+        return Codec.Decode(Convert.FromHexString(result.Data.State));
+    }
+
+    private static void UpdateTipIndex()
+    {
+        
     }
 }
-
-record GetStateResponse(GetStateResponseData Data, object Errors);
-record GetStateResponseData(string? State);
