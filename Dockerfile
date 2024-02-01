@@ -5,6 +5,8 @@ WORKDIR /app
 
 # Copy everything else and build
 COPY . ./
+RUN dotnet tool restore
+RUN dotnet graphql generate NineChroniclesUtilBackend
 RUN <<EOF
 #!/bin/bash
 echo "TARGETPLATFROM=$TARGETPLATFORM"
