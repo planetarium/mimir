@@ -1,5 +1,5 @@
 namespace NineChroniclesUtilBackend.Models.Agent;
 
 public record AvatarsResponse(
-    List<Avatar> avatars
+    List<Avatar> Avatars
 );
