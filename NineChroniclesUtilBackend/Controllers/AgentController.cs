@@ -20,7 +20,7 @@ namespace NineChroniclesUtilBackend.Controllers;
 [Route("agent")]
 public class AccountController : ControllerBase
 {
-    [HttpGet("avatars/{agentAddress}")]
+    [HttpGet("{agentAddress}/avatars")]
     public async Task<AvatarsResponse> GetAvatars(string agentAddress, IStateService stateService)
     {
         async Task<List<AvatarState>> GetAvatarsState(Address agentAddress)
