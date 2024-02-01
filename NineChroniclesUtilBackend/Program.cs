@@ -1,11 +1,13 @@
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 using NineChroniclesUtilBackend.Services;
+using NineChroniclesUtilBackend.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.Configure<HeadlessStateServiceOptions>(builder.Configuration.GetRequiredSection("StateService"));
+builder.Services.Configure<HeadlessStateServiceOption>(builder.Configuration.GetRequiredSection("StateService"));
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -16,6 +18,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
 builder.Services.AddControllers();
+builder.Services.AddHeadlessGQLClient()
+    .ConfigureHttpClient((provider, client) =>
+        client.BaseAddress = provider.GetRequiredService<IOptions<HeadlessStateServiceOption>>().Value.HeadlessEndpoint);
 
 var app = builder.Build();
 
