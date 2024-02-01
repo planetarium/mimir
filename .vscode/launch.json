@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+          "name": "Debug NineChroniclesUtilBackend",
+          "type": "coreclr",
+          "request": "launch",
+          "program": "${workspaceFolder}/NineChroniclesUtilBackend/bin/Debug/net8.0/NineChroniclesUtilBackend.dll",
+          "cwd": "${workspaceFolder}/NineChroniclesUtilBackend",
+          "stopAtEntry": false,
+          "console": "internalConsole",
+          "preLaunchTask": "build",
+        }
+    ]
+}
