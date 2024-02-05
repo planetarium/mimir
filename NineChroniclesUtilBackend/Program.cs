@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.Configure<HeadlessStateServiceOption>(builder.Configuration.GetRequiredSection("StateService"));
+builder.Services.Configure<DataProviderOption>(builder.Configuration.GetRequiredSection("DataProvider"));
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -21,6 +22,8 @@ builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
         client.BaseAddress = provider.GetRequiredService<IOptions<HeadlessStateServiceOption>>().Value.HeadlessEndpoint);
+builder.Services.AddCors();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -28,5 +31,11 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.MapControllers();
+app.UseCors(policy =>
+{
+    policy.AllowAnyMethod();
+    policy.AllowAnyOrigin();
+    policy.AllowAnyHeader();
+});
 
 app.Run();
