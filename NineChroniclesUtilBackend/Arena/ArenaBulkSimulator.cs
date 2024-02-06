@@ -10,7 +10,7 @@ namespace NineChroniclesUtilBackend.Arena;
 public class ArenaBulkSimulator
 {
     private readonly int _rounds;
-    private const int TotalSimulations = 10;
+    private const int TotalSimulations = 700;
 
     public ArenaBulkSimulator(int rounds = 5)
     {
