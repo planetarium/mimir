@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
 using Libplanet.Crypto;
+using Libplanet.Action.State;
 using Libplanet.Types.Blocks;
 using StrawberryShake;
 
@@ -22,7 +23,7 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 
     public async Task<IValue?> GetState(Address address)
     {
-        var result = await client.GetState.ExecuteAsync(address.ToString());
+        var result = await client.GetState.ExecuteAsync(ReservedAddresses.LegacyAccount.ToString(), address.ToString());
         result.EnsureNoErrors();
 
         if (result.Data?.State is null)
