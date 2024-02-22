@@ -10,13 +10,20 @@ using Nekoyume.TableData;
 using NineChroniclesUtilBackend.Models.Arena;
 using NineChroniclesUtilBackend.Services;
 using NineChroniclesUtilBackend.Arena;
+using NineChroniclesUtilBackend.Repositories;
 
 namespace NineChroniclesUtilBackend.Controllers;
 
 [ApiController]
 [Route("arena")]
-public class ArenaController : ControllerBase
+public class ArenaController(ArenaRankingRepository arenaRankingRepository) : ControllerBase
 {
+    [HttpGet("ranking")]
+    public async Task<List<dynamic>> GetRanking(int limit, int offset)
+    {
+        return await arenaRankingRepository.GetRanking(limit, offset);
+    }
+
     [HttpPost("simulate")]
     public async Task<ArenaSimulateResponse> Simulate([FromBody] ArenaSimulateRequest arenaSimulateRequest, IStateService stateService)
     {
@@ -110,7 +117,7 @@ public class ArenaController : ControllerBase
                 myAvatarState,
                 myAvatarItemSlotState,
                 myAvatarRuneStates
-            ),                
+            ),
             new AvatarStatesForArena(
                 enemyAvatarState,
                 enemyAvatarItemSlotState,

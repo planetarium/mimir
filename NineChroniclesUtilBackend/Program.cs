@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using NineChroniclesUtilBackend.Services;
 using NineChroniclesUtilBackend.Options;
+using NineChroniclesUtilBackend.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,8 @@ builder.Services.AddSwaggerGen(options =>
     options.SupportNonNullableReferenceTypes();
 });
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
+builder.Services.AddSingleton<MongoDBCollectionService>();
+builder.Services.AddSingleton<ArenaRankingRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
