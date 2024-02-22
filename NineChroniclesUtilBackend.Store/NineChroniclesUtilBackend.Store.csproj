@@ -11,5 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Lib9c" Version="1.8.0-dev.4e2f5d9bfed5366a94e67b88c4b0e7171c0cd0d6" />
     <PackageReference Include="Libplanet" Version="4.1.0-dev.20242745721" />
+    <PackageReference Include="MongoDB.Driver" Version="2.24.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>
