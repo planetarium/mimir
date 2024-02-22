@@ -13,6 +13,7 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.Configure<HeadlessStateServiceOption>(builder.Configuration.GetRequiredSection("StateService"));
 builder.Services.Configure<DataProviderOption>(builder.Configuration.GetRequiredSection("DataProvider"));
+builder.Services.Configure<DatabaseOption>(builder.Configuration.GetRequiredSection("Database"));
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
