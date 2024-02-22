@@ -1,6 +1,8 @@
 using System.Numerics;
 using Newtonsoft.Json;
 
+namespace NineChroniclesUtilBackend.Store.Util;
+
 public class BigIntegerToStringConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)
