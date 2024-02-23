@@ -19,7 +19,7 @@ namespace NineChroniclesUtilBackend.Controllers;
 public class ArenaController(ArenaRankingRepository arenaRankingRepository) : ControllerBase
 {
     [HttpGet("ranking")]
-    public async Task<List<dynamic>> GetRanking(int limit, int offset)
+    public async Task<List<ArenaRanking>> GetRanking(int limit, int offset)
     {
         return await arenaRankingRepository.GetRanking(limit, offset);
     }
