@@ -16,7 +16,7 @@ public class EmptyChroniclesClient
 
     public async Task<StateResponse> GetStateByAddressAsync(string address, string? accountAddress = null)
     {
-        var url = $"{_baseUrl}/api/states/{address}";
+        var url = $"{_baseUrl}/api/states/{address}/raw";
         if (accountAddress != null)
         {
             url += $"?account={Uri.EscapeDataString(accountAddress)}";
