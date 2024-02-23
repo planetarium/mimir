@@ -10,7 +10,41 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
 {
     private readonly IMongoCollection<dynamic> ArenaCollection = mongoDBCollectionService.GetCollection<dynamic>("arena_0_10");
 
-    public async Task<List<ArenaRanking>> GetRanking(int limit, int offset)
+    public async Task<long> GetRankByAvatarAddress(string avatarAddress)
+    {
+        var pipelines = new BsonDocument[]
+        {
+            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
+            new("$group", new BsonDocument
+            {
+                { "_id", BsonNull.Value },
+                { "docs", new BsonDocument("$push", "$$ROOT") },
+            }),
+            new("$unwind", new BsonDocument
+            {
+                { "path", "$docs" },
+                { "includeArrayIndex", "Rank" },
+            }),
+            new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress)),
+            new("$replaceRoot", new BsonDocument
+            {
+                { "newRoot", new BsonDocument
+                {
+                    { "$mergeObjects", new BsonArray
+                    {
+                        "$docs",
+                        new BsonDocument("Rank", "$Rank"),
+                    } },
+                } },
+            }),
+        };
+
+        var aggregation = await ArenaCollection.Aggregate<dynamic>(pipelines).ToListAsync();
+
+        return aggregation.First().Rank + 1;
+    }
+
+    public async Task<List<ArenaRanking>> GetRanking(long limit, long offset)
     {
         // TODO: Implement CP Calculation
         var pipelines = new BsonDocument[]
