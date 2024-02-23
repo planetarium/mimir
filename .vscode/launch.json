@@ -1,15 +1,25 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-          "name": "Debug NineChroniclesUtilBackend",
-          "type": "coreclr",
-          "request": "launch",
-          "program": "${workspaceFolder}/NineChroniclesUtilBackend/bin/Debug/net8.0/NineChroniclesUtilBackend.dll",
-          "cwd": "${workspaceFolder}/NineChroniclesUtilBackend",
-          "stopAtEntry": false,
-          "console": "internalConsole",
-          "preLaunchTask": "build",
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug NineChroniclesUtilBackend",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/NineChroniclesUtilBackend/bin/Debug/net8.0/NineChroniclesUtilBackend.dll",
+      "cwd": "${workspaceFolder}/NineChroniclesUtilBackend",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "preLaunchTask": "build-backend"
+    },
+    {
+      "name": "Debug NineChroniclesUtilBackend.Store",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/NineChroniclesUtilBackend.Store/bin/Debug/net8.0/NineChroniclesUtilBackend.Store.dll",
+      "cwd": "${workspaceFolder}/NineChroniclesUtilBackend.Store",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "preLaunchTask": "build-store"
+    }
+  ]
 }
