@@ -1,7 +1,7 @@
+using NineChroniclesUtilBackend.Store.Events;
 using NineChroniclesUtilBackend.Store.Services;
 using NineChroniclesUtilBackend.Store.Models;
 using Nekoyume.TableData;
-using Nekoyume.Model.Arena;
 using Libplanet.Crypto;
 
 namespace NineChroniclesUtilBackend.Store.Scrapper;
@@ -9,10 +9,16 @@ namespace NineChroniclesUtilBackend.Store.Scrapper;
 public class ArenaScrapper
 {
     private StateGetter _stateGetter;
+    public event EventHandler<ArenaDataCollectedEventArgs> OnDataCollected;
     
     public ArenaScrapper(IStateService service)
     {
         _stateGetter = new StateGetter(service);
+    }
+
+    protected virtual void RaiseDataCollected(ArenaData arenaData, AvatarData avatarData)
+    {
+        OnDataCollected?.Invoke(this, new ArenaDataCollectedEventArgs(arenaData, avatarData));
     }
 
     public async Task ExecuteAsync()
@@ -24,8 +30,10 @@ public class ArenaScrapper
         foreach(var avatarAddress in arenaParticipants.AvatarAddresses)
         {
             var arenaData = await GetArenaData(roundData, avatarAddress);
-            var avataData = await GetAvatarData(avatarAddress);
-            Console.WriteLine();
+            var avatarData = await GetAvatarData(avatarAddress);
+
+            RaiseDataCollected(arenaData, avatarData);
+            break;
         }
     }
 

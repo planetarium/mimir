@@ -18,6 +18,12 @@ builder.Services.AddSingleton(serviceProvider =>
     return new EmptyChroniclesClient(config.EmptyChronicleBaseUrl);
 });
 
+builder.Services.AddSingleton(serviceProvider =>
+{
+    var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+    return new MongoDbStore(config.MongoDbConnectionString, config.DatabaseName);
+});
+
 builder.Services.AddSingleton<IStateService, EmptyChronicleStateService>();
 
 builder.Services.AddHostedService<Worker>();
