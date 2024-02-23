@@ -1,5 +1,3 @@
-using Bencodex.Types;
-
 namespace NineChroniclesUtilBackend.Store.Models;
 
 public class StateResponse
