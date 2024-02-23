@@ -28,13 +28,14 @@ public class Worker : BackgroundService
         }
 
         await _scrapper.ExecuteAsync();
+        await _store.FlushAsync();
     }
 
     private async void HandleDataCollected(object sender, ArenaDataCollectedEventArgs e)
     {
         _logger.LogInformation("{avatarAddress} Data Collected", e.AvatarData.Avatar.address);
         
-        await _store.SaveArenaDataAsync(e.ArenaData);
-        await _store.SaveAvatarDataAsync(e.AvatarData);
+        _store.AddArenaData(e.ArenaData);
+        _store.AddAvatarData(e.AvatarData);
     }
 }

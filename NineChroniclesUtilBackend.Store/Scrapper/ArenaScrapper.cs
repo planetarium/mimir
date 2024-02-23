@@ -33,7 +33,6 @@ public class ArenaScrapper
             var avatarData = await GetAvatarData(avatarAddress);
 
             RaiseDataCollected(arenaData, avatarData);
-            break;
         }
     }
 
@@ -50,7 +49,7 @@ public class ArenaScrapper
         var arenaScore = await _stateGetter.GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
         var arenaInfo = await _stateGetter.GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
 
-        return new ArenaData(arenaScore, arenaInfo);
+        return new ArenaData(arenaScore, arenaInfo, roundData, avatarAddress);
     }
 
     public async Task<AvatarData> GetAvatarData(Address avatarAddress)

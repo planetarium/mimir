@@ -1,29 +1,21 @@
 using Nekoyume.Model.Arena;
-using Newtonsoft.Json;
-using NineChroniclesUtilBackend.Store.Util;
+using Nekoyume.TableData;
+using Libplanet.Crypto;
 
 namespace NineChroniclesUtilBackend.Store.Models;
 
-public class ArenaData
+public class ArenaData : BaseData
 {
     public ArenaScore Score { get; }
     public ArenaInformation Information { get; }
+    public ArenaSheet.RoundData RoundData { get; }
+    public Address AvatarAddress { get; }
 
-    public ArenaData(ArenaScore score, ArenaInformation information)
+    public ArenaData(ArenaScore score, ArenaInformation information, ArenaSheet.RoundData roundData, Address avatarAddress)
     {
         Score = score;
         Information = information;
-    }
-
-    public string ToJson()
-    {
-        var settings = new JsonSerializerSettings
-        {
-            Converters = new[] { new BigIntegerToStringConverter() },
-            Formatting = Formatting.Indented
-        };
-
-        string jsonString = JsonConvert.SerializeObject(this, settings);
-        return jsonString;
+        RoundData = roundData;
+        AvatarAddress = avatarAddress;
     }
 }
