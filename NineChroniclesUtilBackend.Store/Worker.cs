@@ -11,31 +11,32 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly IStateService _stateService;
 
-    public Worker(ILogger<Worker> logger, IStateService stateService, MongoDbStore store)
+    public Worker(ILogger<Worker> logger,  ILogger<ArenaScrapper> scrapperLogger, IStateService stateService, MongoDbStore store)
     {
         _logger = logger;
         _stateService = stateService;
         _store = store;
-        _scrapper = new ArenaScrapper(_stateService);
+        _scrapper = new ArenaScrapper(scrapperLogger, _stateService);
         _scrapper.OnDataCollected += HandleDataCollected;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (_logger.IsEnabled(LogLevel.Information))
-        {
-            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-        }
-
         await _scrapper.ExecuteAsync();
-        await _store.FlushAsync();
+        // await _store.FlushAsync();
+        await _store.LinkAvatarsToArenaAsync();
+
+        _store.Result.TotalElapsedMinutes = DateTime.UtcNow.Subtract(_store.Result.StartTime).Minutes;
+
+        _logger.LogInformation($"Scrapper Result: {_scrapper.Result}");
+        _logger.LogInformation($"Store Result: {_store.Result}");
     }
 
     private async void HandleDataCollected(object sender, ArenaDataCollectedEventArgs e)
     {
-        _logger.LogInformation("{avatarAddress} Data Collected", e.AvatarData.Avatar.address);
-        
         _store.AddArenaData(e.ArenaData);
         _store.AddAvatarData(e.AvatarData);
+
+        _logger.LogInformation("{avatarAddress} Data Collected", e.AvatarData.Avatar.address);
     }
 }

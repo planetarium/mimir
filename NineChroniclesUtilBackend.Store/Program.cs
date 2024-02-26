@@ -21,7 +21,8 @@ builder.Services.AddSingleton(serviceProvider =>
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    return new MongoDbStore(config.MongoDbConnectionString, config.DatabaseName);
+    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbStore>>();
+    return new MongoDbStore(logger, config.MongoDbConnectionString, config.DatabaseName);
 });
 
 builder.Services.AddSingleton<IStateService, EmptyChronicleStateService>();
