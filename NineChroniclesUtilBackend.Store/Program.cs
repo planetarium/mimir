@@ -15,7 +15,7 @@ builder.Services.Configure<Configuration>(builder.Configuration.GetSection("Conf
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    return new EmptyChroniclesClient(config.EmptyChronicleBaseUrl);
+    return new EmptyChronicleClient(config.EmptyChronicleBaseUrl);
 });
 
 builder.Services.AddSingleton(serviceProvider =>

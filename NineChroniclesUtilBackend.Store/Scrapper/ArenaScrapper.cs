@@ -1,6 +1,7 @@
 using NineChroniclesUtilBackend.Store.Events;
 using NineChroniclesUtilBackend.Store.Services;
 using NineChroniclesUtilBackend.Store.Models;
+using NineChroniclesUtilBackend.Store.Client;
 using Nekoyume.TableData;
 using Libplanet.Crypto;
 
@@ -12,12 +13,14 @@ public class ArenaScrapper
     public readonly ScrapperResult Result = new ScrapperResult();
 
     private StateGetter _stateGetter;
+    private EmptyChronicleClient _client;
     public event EventHandler<ArenaDataCollectedEventArgs> OnDataCollected;
     
-    public ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service)
+    public ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service, EmptyChronicleClient client)
     {
         _stateGetter = new StateGetter(service);
         _logger = logger;
+        _client = client;
     }
 
     protected virtual void RaiseDataCollected(ArenaData arenaData, AvatarData avatarData)
@@ -28,8 +31,9 @@ public class ArenaScrapper
     public async Task ExecuteAsync()
     {
         Result.StartTime = DateTime.UtcNow;
+        var latestBlock = await _client.GetLatestBlock();
 
-        var roundData = await GetArenaRoundData(900000);
+        var roundData = await GetArenaRoundData(latestBlock.Index);
 
         var arenaParticipants = await _stateGetter.GetArenaParticipantsState(roundData.ChampionshipId, roundData.Round);
         
@@ -47,7 +51,7 @@ public class ArenaScrapper
         Result.TotalElapsedMinutes = DateTime.UtcNow.Subtract(Result.StartTime).Minutes;
     }
 
-    public async Task<ArenaSheet.RoundData> GetArenaRoundData(int index)
+    public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
     {
         var arenaSheet = await _stateGetter.GetSheet<ArenaSheet>();
         var roundData = arenaSheet.GetRoundByBlockIndex(index);

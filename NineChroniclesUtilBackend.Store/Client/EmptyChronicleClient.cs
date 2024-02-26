@@ -3,12 +3,12 @@ using NineChroniclesUtilBackend.Store.Models;
 
 namespace NineChroniclesUtilBackend.Store.Client;
 
-public class EmptyChroniclesClient
+public class EmptyChronicleClient
 {
     private readonly HttpClient _httpClient;
     private readonly string _baseUrl;
 
-    public EmptyChroniclesClient(string baseUrl)
+    public EmptyChronicleClient(string baseUrl)
     {
         _baseUrl = baseUrl;
         _httpClient = new HttpClient();
@@ -36,4 +36,28 @@ public class EmptyChroniclesClient
 
         return stateResponse;
     }
+
+    public async Task<BlockResponse> GetLatestBlock()
+    {
+        var url = $"{_baseUrl}/api/blocks/latest";
+
+        var response = await _httpClient.GetAsync(url);
+
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var stateResponse = JsonConvert.DeserializeObject<BlockResponse>(content);
+        if (stateResponse == null)
+        {
+            throw new InvalidOperationException("StateResponse is null.");
+        }
+
+        return stateResponse;
+    }
+
+    // public async Task<StateResponse> GetBlock(int index)
+    // {
+    //     return stateResponse;
+    // }
 }

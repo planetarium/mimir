@@ -9,10 +9,10 @@ namespace NineChroniclesUtilBackend.Store.Services;
 
 public class EmptyChronicleStateService : IStateService
 {
-    private readonly EmptyChroniclesClient client;
+    private readonly EmptyChronicleClient client;
     private static readonly Codec Codec = new();
 
-    public EmptyChronicleStateService(EmptyChroniclesClient client)
+    public EmptyChronicleStateService(EmptyChronicleClient client)
     {
         this.client = client;
     }
