@@ -23,7 +23,7 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await _scrapper.ExecuteAsync();
-        // await _store.FlushAsync();
+        await _store.FlushAsync();
         await _store.LinkAvatarsToArenaAsync();
 
         _store.Result.TotalElapsedMinutes = DateTime.UtcNow.Subtract(_store.Result.StartTime).Minutes;

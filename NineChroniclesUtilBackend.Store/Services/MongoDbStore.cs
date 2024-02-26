@@ -156,12 +156,12 @@ public class MongoDbStore
 
             foreach (var address in batchAddresses)
             {
-                var avatarFilter = Builders<BsonDocument>.Filter.Eq("address", address.ToHex());
+                var avatarFilter = Builders<BsonDocument>.Filter.Eq("Avatar.address", address.ToHex());
                 var avatar = await _avatarCollection.Find(avatarFilter).FirstOrDefaultAsync();
                 if (avatar != null)
                 {
                     var objectId = avatar["_id"].AsObjectId;
-                    var arenaFilter = Builders<BsonDocument>.Filter.Eq("avatarAddress", address.ToHex());
+                    var arenaFilter = Builders<BsonDocument>.Filter.Eq("AvatarAddress", address.ToHex());
                     var update = Builders<BsonDocument>.Update.Set("avatarObjectId", objectId);
                     var updateModel = new UpdateOneModel<BsonDocument>(arenaFilter, update) { IsUpsert = false };
                     bulkOps.Add(updateModel);
