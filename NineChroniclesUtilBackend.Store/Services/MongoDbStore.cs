@@ -92,7 +92,7 @@ public class MongoDbStore
         var bulkOps = new List<WriteModel<BsonDocument>>();
 
         try
-            {
+        {
             foreach (var arenaData in arenaDatas)
             {
                 var filter = Builders<BsonDocument>.Filter.Eq("AvatarAddress", arenaData.AvatarAddress.ToHex());
