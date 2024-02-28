@@ -17,9 +17,14 @@ public class EmptyChronicleStateService : IStateService
         this.client = client;
     }
 
-    public async Task<IValue?> GetState(Address address)
+    public Task<IValue?> GetState(Address address)
     {
-        return await GetState(address, ReservedAddresses.LegacyAccount);
+        return GetState(address, ReservedAddresses.LegacyAccount);
+    }
+
+    public Task<IValue?[]> GetStates(Address[] addresses)
+    {
+        return Task.WhenAll(addresses.Select(GetState));
     }
 
     public async Task<IValue?> GetState(Address address, Address accountAddress)
