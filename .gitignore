@@ -284,3 +284,5 @@ obj/
 
 # StrawberryShake
 Generated
+
+appsettings.local.json

@@ -7,23 +7,37 @@ using Nekoyume.Model.EnumType;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
 using Nekoyume.TableData;
-using NineChroniclesUtilBackend.Models.Arena;
-using NineChroniclesUtilBackend.Services;
 using NineChroniclesUtilBackend.Arena;
+using NineChroniclesUtilBackend.Models.Arena;
+using NineChroniclesUtilBackend.Repositories;
+using NineChroniclesUtilBackend.Services;
 
 namespace NineChroniclesUtilBackend.Controllers;
 
 [ApiController]
 [Route("arena")]
-public class ArenaController : ControllerBase
+public class ArenaController(ArenaRankingRepository arenaRankingRepository) : ControllerBase
 {
+    [HttpGet("ranking")]
+    public async Task<List<ArenaRanking>> GetRanking(int limit, int offset, string avatarAddress)
+    {
+        var addressOffset = await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+
+        return await arenaRankingRepository.GetRanking(limit, offset + addressOffset);
+    }
+
     [HttpPost("simulate")]
-    public async Task<ArenaSimulateResponse> Simulate([FromBody] ArenaSimulateRequest arenaSimulateRequest, IStateService stateService)
+    public async Task<ArenaSimulateResponse> Simulate(
+        [FromBody] ArenaSimulateRequest arenaSimulateRequest,
+        IStateService stateService
+    )
     {
         async Task<T> GetSheet<T>()
             where T : ISheet, new()
         {
-            var sheetState = await stateService.GetState(Addresses.TableSheet.Derive(typeof(T).Name));
+            var sheetState = await stateService.GetState(
+                Addresses.TableSheet.Derive(typeof(T).Name)
+            );
             if (sheetState is not Text sheetValue)
             {
                 throw new ArgumentException(nameof(T));
@@ -51,10 +65,7 @@ public class ArenaController : ControllerBase
 
             var inventory = new Inventory(list);
 
-            var avatarState = new AvatarState(dictionary)
-            {
-                inventory = inventory
-            };
+            var avatarState = new AvatarState(dictionary) { inventory = inventory };
 
             return avatarState;
         }
@@ -62,7 +73,8 @@ public class ArenaController : ControllerBase
         async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
         {
             var state = await stateService.GetState(
-                ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+                ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena)
+            );
             return state switch
             {
                 List list => new ItemSlotState(list),
@@ -74,7 +86,8 @@ public class ArenaController : ControllerBase
         async Task<List<RuneState>> GetRuneStates(Address avatarAddress)
         {
             var state = await stateService.GetState(
-                RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+                RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena)
+            );
             var runeSlotState = state switch
             {
                 List list => new RuneSlotState(list),
@@ -83,7 +96,11 @@ public class ArenaController : ControllerBase
             };
 
             var runes = new List<RuneState>();
-            foreach (var runeStateAddress in runeSlotState.GetEquippedRuneSlotInfos().Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId)))
+            foreach (
+                var runeStateAddress in runeSlotState
+                    .GetEquippedRuneSlotInfos()
+                    .Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId))
+            )
             {
                 if (await stateService.GetState(runeStateAddress) is List list)
                 {
@@ -93,7 +110,6 @@ public class ArenaController : ControllerBase
 
             return runes;
         }
-
 
         var myAvatarAddress = new Address(arenaSimulateRequest.MyAvatarAddress);
         var enemyAvatarAddress = new Address(arenaSimulateRequest.EnemyAvatarAddress);
@@ -106,11 +122,7 @@ public class ArenaController : ControllerBase
 
         var bulkSimulator = new ArenaBulkSimulator();
         var result = await bulkSimulator.BulkSimulate(
-            new AvatarStatesForArena(
-                myAvatarState,
-                myAvatarItemSlotState,
-                myAvatarRuneStates
-            ),                
+            new AvatarStatesForArena(myAvatarState, myAvatarItemSlotState, myAvatarRuneStates),
             new AvatarStatesForArena(
                 enemyAvatarState,
                 enemyAvatarItemSlotState,
