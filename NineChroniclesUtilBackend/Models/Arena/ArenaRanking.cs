@@ -5,6 +5,7 @@ namespace NineChroniclesUtilBackend.Models.Arena;
 public class ArenaRanking(
     string AvatarAddress,
     string ArenaAddress,
+    int Cp,
     int Win,
     int Lose,
     long Rank,
@@ -12,10 +13,12 @@ public class ArenaRanking(
     int TicketResetCount,
     int PurchasedTicketCount,
     int Score,
-    Avatar Avatar)
+    Avatar Avatar
+)
 {
     public string AvatarAddress { get; set; } = AvatarAddress;
     public string ArenaAddress { get; set; } = ArenaAddress;
+    public int Cp { get; set; } = Cp;
     public int Win { get; set; } = Win;
     public int Lose { get; set; } = Lose;
     public long Rank { get; set; } = Rank;
