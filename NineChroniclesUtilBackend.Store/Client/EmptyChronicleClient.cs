@@ -55,9 +55,4 @@ public class EmptyChronicleClient
 
         return stateResponse;
     }
-
-    // public async Task<StateResponse> GetBlock(int index)
-    // {
-    //     return stateResponse;
-    // }
 }

@@ -72,27 +72,45 @@ public class StateGetter
 
     public async Task<AvatarState> GetAvatarState(Address avatarAddress)
     {
-        var state = await _service.GetState(avatarAddress);
-        if (state is not Dictionary dictionary)
+        var state = await GetStateWithLegacyAccount(avatarAddress, Addresses.Avatar);
+        var inventory = await GetInventoryState(avatarAddress);
+        
+        AvatarState avatarState;
+        if (state is Dictionary dictionary)
         {
-            throw new ArgumentException(nameof(avatarAddress));
+            avatarState = new AvatarState(dictionary)
+            {
+                inventory = inventory
+            };
         }
-
-        var inventoryAddress = avatarAddress.Derive("inventory");
-        var inventoryState = await _service.GetState(inventoryAddress);
-        if (inventoryState is not List list)
+        else if (state is List alist)
         {
-            throw new ArgumentException(nameof(avatarAddress));
+            avatarState = new AvatarState(alist)
+            {
+                inventory = inventory
+            };
         }
-
-        var inventory = new Inventory(list);
-
-        var avatarState = new AvatarState(dictionary)
+        else
         {
-            inventory = inventory
-        };
+            throw new ArgumentException($"Unsupported state type for address: {avatarAddress}");
+        }
 
         return avatarState;
+    }
+
+    public async Task<Inventory> GetInventoryState(Address avatarAddress)
+    {
+
+        var legacyInventoryAddress = avatarAddress.Derive("inventory");
+        var rawState = await GetStateWithLegacyAccount(
+            avatarAddress, Addresses.Inventory, legacyInventoryAddress);
+
+        if (rawState is not List list)
+        {
+            throw new ArgumentException(nameof(avatarAddress));
+        }
+
+        return new Inventory(list);
     }
 
     public async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
@@ -129,4 +147,31 @@ public class StateGetter
 
         return runes;
     }
+
+    private async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
+    {
+        try
+        {
+            return await _service.GetState(address, accountAddress);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return await _service.GetState(address);
+        }
+    }
+
+    private async Task<IValue?> GetStateWithLegacyAccount(Address avatarAddress, Address accountAddress, Address legacyAddress)
+    {
+        IValue? rawState;
+        try
+        {
+            rawState = await _service.GetState(avatarAddress, accountAddress);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            rawState = await _service.GetState(legacyAddress);
+        }
+        return rawState;
+    }
+
 }
