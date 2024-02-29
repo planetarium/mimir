@@ -95,7 +95,7 @@ public class MongoDbStore
             {
             foreach (var arenaData in arenaDatas)
             {
-                var filter = Builders<BsonDocument>.Filter.Eq("avatarAddress", arenaData.AvatarAddress.ToHex());
+                var filter = Builders<BsonDocument>.Filter.Eq("AvatarAddress", arenaData.AvatarAddress.ToHex());
                 var bsonDocument = BsonDocument.Parse(arenaData.ToJson());
                 var upsertOne = new ReplaceOneModel<BsonDocument>(filter, bsonDocument) { IsUpsert = true };
                 bulkOps.Add(upsertOne);
@@ -123,7 +123,7 @@ public class MongoDbStore
         {
             foreach (var avatarData in avatarDatas)
             {
-                var filter = Builders<BsonDocument>.Filter.Eq("avatar.address", avatarData.Avatar.address.ToHex());
+                var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarData.Avatar.address.ToHex());
                 var bsonDocument = BsonDocument.Parse(avatarData.ToJson());
                 var upsertOne = new ReplaceOneModel<BsonDocument>(filter, bsonDocument) { IsUpsert = true };
                 bulkOps.Add(upsertOne);
@@ -162,7 +162,7 @@ public class MongoDbStore
                 {
                     var objectId = avatar["_id"].AsObjectId;
                     var arenaFilter = Builders<BsonDocument>.Filter.Eq("AvatarAddress", address.ToHex());
-                    var update = Builders<BsonDocument>.Update.Set("avatarObjectId", objectId);
+                    var update = Builders<BsonDocument>.Update.Set("AvatarObjectId", objectId);
                     var updateModel = new UpdateOneModel<BsonDocument>(arenaFilter, update) { IsUpsert = false };
                     bulkOps.Add(updateModel);
                 }
