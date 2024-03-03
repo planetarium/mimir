@@ -7,48 +7,32 @@ using Libplanet.Crypto;
 
 namespace NineChroniclesUtilBackend.Store.Scrapper;
 
-public class ArenaScrapper
+public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service, EmptyChronicleClient client, MongoDbStore store)
 {
-    private readonly ILogger<ArenaScrapper> _logger;
-    public readonly ScrapperResult Result = new ScrapperResult();
+    private readonly ILogger<ArenaScrapper> _logger = logger;
 
-    private StateGetter _stateGetter;
-    private EmptyChronicleClient _client;
-    public event EventHandler<ArenaDataCollectedEventArgs> OnDataCollected;
-    
-    public ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service, EmptyChronicleClient client)
-    {
-        _stateGetter = new StateGetter(service);
-        _logger = logger;
-        _client = client;
-    }
-
-    protected virtual void RaiseDataCollected(ArenaData arenaData, AvatarData avatarData)
-    {
-        OnDataCollected?.Invoke(this, new ArenaDataCollectedEventArgs(arenaData, avatarData));
-    }
+    private readonly StateGetter _stateGetter = new StateGetter(service);
+    private readonly EmptyChronicleClient _client = client;
+    private readonly MongoDbStore _store = store;
 
     public async Task ExecuteAsync()
     {
-        Result.StartTime = DateTime.UtcNow;
         var latestBlock = await _client.GetLatestBlock();
-
         var roundData = await GetArenaRoundData(latestBlock.Index);
-
         var arenaParticipants = await _stateGetter.GetArenaParticipantsState(roundData.ChampionshipId, roundData.Round);
-        
-        foreach(var avatarAddress in arenaParticipants.AvatarAddresses)
+
+        foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
         {
             var arenaData = await GetArenaData(roundData, avatarAddress);
             var avatarData = await GetAvatarData(avatarAddress);
 
             if (arenaData != null && avatarData != null)
             {
-                RaiseDataCollected(arenaData, avatarData);
+                await _store.AddArenaData(arenaData);
+                await _store.AddAvatarData(avatarData);
+                await _store.LinkAvatarWithArenaAsync(avatarAddress);
             }
         }
-        
-        Result.TotalElapsedMinutes = DateTime.UtcNow.Subtract(Result.StartTime).Minutes;
     }
 
     public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
@@ -66,13 +50,11 @@ public class ArenaScrapper
             var arenaScore = await _stateGetter.GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
             var arenaInfo = await _stateGetter.GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
 
-            Result.ArenaScrappedCount += 1;
             return new ArenaData(arenaScore, arenaInfo, roundData, avatarAddress);
         }
         catch (Exception ex)
         {
             _logger.LogError($"An error occurred during GetArenaData: {ex.Message}");
-            Result.FailedArenaAddresses.Add(avatarAddress);
             return null;
         }
     }
@@ -85,13 +67,11 @@ public class ArenaScrapper
             var avatarItemSlotState = await _stateGetter.GetItemSlotState(avatarAddress);
             var avatarRuneStates = await _stateGetter.GetRuneStates(avatarAddress);
 
-            Result.AvatarScrappedCount += 1;
             return new AvatarData(avatarState, avatarItemSlotState, avatarRuneStates);
         }
         catch (Exception ex)
         {
             _logger.LogError($"An error occurred during GetAvatarData: {ex.Message}");
-            Result.FailedAvatarAddresses.Add(avatarAddress);
             return null;
         }
     }

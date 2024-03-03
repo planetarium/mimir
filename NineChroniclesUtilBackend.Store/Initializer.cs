@@ -1,4 +1,3 @@
-using NineChroniclesUtilBackend.Store.Events;
 using NineChroniclesUtilBackend.Store.Scrapper;
 using NineChroniclesUtilBackend.Store.Client;
 using NineChroniclesUtilBackend.Store.Services;
@@ -22,27 +21,19 @@ public class Initializer : BackgroundService
         _logger = logger;
         _stateService = stateService;
         _store = store;
-        _scrapper = new ArenaScrapper(scrapperLogger, _stateService, client);
-        _scrapper.OnDataCollected += HandleDataCollected;
+        _scrapper = new ArenaScrapper(scrapperLogger, _stateService, client, _store);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _scrapper.ExecuteAsync();
-        await _store.FlushAsync();
-        await _store.LinkAvatarsToArenaAsync();
+        var started = DateTime.UtcNow;
 
-        _store.Result.TotalElapsedMinutes = DateTime.UtcNow.Subtract(_store.Result.StartTime).Minutes;
+        if (!await _store.IsInitialized())
+        {
+            await _scrapper.ExecuteAsync();   
+        }
 
-        _logger.LogInformation($"Scrapper Result: {_scrapper.Result}");
-        _logger.LogInformation($"Store Result: {_store.Result}");
-    }
-
-    private async void HandleDataCollected(object sender, ArenaDataCollectedEventArgs e)
-    {
-        _store.AddArenaData(e.ArenaData);
-        _store.AddAvatarData(e.AvatarData);
-
-        _logger.LogInformation("{avatarAddress} Data Collected", e.AvatarData.Avatar.address);
+        var totalElapsedMinutes = DateTime.UtcNow.Subtract(started).Minutes;
+        _logger.LogInformation($"Finished Initializer background service. Elapsed {totalElapsedMinutes} minutes.");
     }
 }
