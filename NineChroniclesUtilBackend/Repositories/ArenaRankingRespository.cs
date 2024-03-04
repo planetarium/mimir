@@ -39,93 +39,58 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
 
     public async Task<List<ArenaRanking>> GetRanking(long limit, long offset)
     {
-        var pipelines = new BsonDocument[]
+        var pipelines = new[]
         {
-            new("$sort", new BsonDocument("Score.Score", -1)),
-            new(
-                "$group",
-                new BsonDocument
-                {
-                    { "_id", BsonNull.Value },
-                    { "docs", new BsonDocument("$push", "$$ROOT") },
-                }
-            ),
-            new(
-                "$unwind",
-                new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "Rank" }, }
-            ),
-            new("$skip", offset),
-            new("$limit", limit),
-            new(
-                "$replaceRoot",
-                new BsonDocument
-                {
-                    {
-                        "newRoot",
-                        new BsonDocument
-                        {
-                            {
-                                "$mergeObjects",
-                                new BsonArray { "$docs", new BsonDocument("Rank", "$Rank"), }
-                            },
-                        }
-                    },
-                }
-            ),
-            new(
-                "$lookup",
-                new BsonDocument
-                {
-                    { "from", "avatars" },
-                    { "localField", "AvatarAddress" },
-                    { "foreignField", "Avatar.address" },
-                    { "as", "Avatar" },
-                }
-            ),
-            new(
-                "$unwind",
-                new BsonDocument { { "path", "$Avatar" }, { "preserveNullAndEmptyArrays", true } }
-            ),
-        };
+            @"{ $sort: { 'Score.Score': -1 } }",
+            @"{ $group: { _id: null, docs: { $push: '$$ROOT' } } }",
+            @"{ $unwind: { path: '$docs', includeArrayIndex: 'Rank' } }",
+            $@"{{ $skip: {offset} }}",
+            $@"{{ $limit: {limit} }}",
+            @"{ $replaceRoot: { newRoot: { $mergeObjects: [ '$docs', { Rank: '$Rank' } ] } } }",
+            @"{ $lookup: { from: 'avatars', localField: 'AvatarAddress', foreignField: 'Avatar.address', as: 'Avatar' } }",
+            @"{ $unwind: { path: '$Avatar', preserveNullAndEmptyArrays: true } }",
+        }.Select(BsonDocument.Parse).ToArray();
 
-        var aggregation = await ArenaCollection.Aggregate<dynamic>(pipelines).ToListAsync();
+        var aggregation = await ArenaCollection.Aggregate<BsonDocument>(pipelines).ToListAsync();
 
-        var result = aggregation
-            .Select(x =>
-            {
-                var equipments = ((List<object>)x.Avatar.ItemSlot.Equipments).OfType<string>();
-                var costumes = ((List<object>)x.Avatar.ItemSlot.Costumes).OfType<string>();
-                var runeSlots = ((List<dynamic>)x.Avatar.RuneSlot).Select(rune =>
-                    ((int)rune.RuneId, (int)rune.Level)
-                );
+        var arenaRankings = await Task.WhenAll(aggregation.OfType<BsonDocument>().Select(BuildArenaRankingFromDocument));
 
-                var cp = CpRepository
-                    .CalculateCp(
-                        x.Avatar.Avatar.address,
-                        x.Avatar.Avatar.level,
-                        x.Avatar.Avatar.characterId,
-                        equipments,
-                        costumes,
-                        runeSlots
-                    )
-                    .Result;
+        return arenaRankings.ToList();
+    }
 
-                return new ArenaRanking(
-                    x.AvatarAddress,
-                    x.Information.Address,
-                    cp,
-                    x.Information.Win,
-                    x.Information.Lose,
-                    x.Rank + 1,
-                    x.Information.Ticket,
-                    x.Information.TicketResetCount,
-                    x.Information.PurchasedTicketCount,
-                    x.Score.Score,
-                    new Avatar(x.Avatar.Avatar.address, x.Avatar.Avatar.name, x.Avatar.Avatar.level)
-                );
-            })
-            .ToList();
+    private async Task<ArenaRanking> BuildArenaRankingFromDocument(BsonDocument document)
+    {
+        var arenaRanking = new ArenaRanking(
+            document["AvatarAddress"].AsString,
+            document["Information"]["Address"].AsString,
+            document["Information"]["Win"].AsInt32,
+            document["Information"]["Lose"].AsInt32,
+            document["Rank"].AsInt64 + 1,
+            document["Information"]["Ticket"].AsInt32,
+            document["Information"]["TicketResetCount"].AsInt32,
+            document["Information"]["PurchasedTicketCount"].AsInt32,
+            document["Score"]["Score"].AsInt32
+        );
 
-        return result;
+        if (!document.Contains("Avatar")) return arenaRanking;
+
+        var avatar = new Avatar(
+            document["Avatar"]["Avatar"]["address"].AsString,
+            document["Avatar"]["Avatar"]["name"].AsString,
+            document["Avatar"]["Avatar"]["level"].AsInt32
+        );
+        arenaRanking.Avatar = avatar;
+
+        var characterId = document["Avatar"]["Avatar"]["characterId"].AsInt32;
+        var equipmentids = document["Avatar"]["ItemSlot"]["Equipments"].AsBsonArray.Select(x => x.AsString);
+        var costumeids = document["Avatar"]["ItemSlot"]["Costumes"].AsBsonArray.Select(x => x.AsString);
+        var runeSlots = document["Avatar"]["RuneSlot"].AsBsonArray.Select(rune =>
+            (rune["RuneId"].AsInt32, rune["Level"].AsInt32)
+        );
+
+        var cp = await CpRepository.CalculateCp(avatar, characterId, equipmentids, costumeids, runeSlots);
+        arenaRanking.CP = cp;
+
+        return arenaRanking;
     }
 }
