@@ -14,12 +14,24 @@ public class EmptyChronicleClient
         _httpClient = new HttpClient();
     }
 
-    public async Task<StateResponse> GetStateByAddressAsync(string address, string? accountAddress = null)
+    public async Task<StateResponse> GetStateByAddressAsync(
+        string address, string? accountAddress = null, long? blockIndex = null)
     {
         var url = $"{_baseUrl}/api/states/{address}";
+        var queryParams = new List<string>();
         if (accountAddress != null)
         {
-            url += $"?account={Uri.EscapeDataString(accountAddress)}";
+            queryParams.Add($"account={Uri.EscapeDataString(accountAddress)}");
+        }
+
+        if (blockIndex is { } bi)
+        {
+            queryParams.Add($"blockIndex={bi}");
+        }
+
+        if (queryParams.Count > 0)
+        {
+            url += "?" + string.Join("&", queryParams);
         }
 
         var response = await _httpClient.GetAsync(url);

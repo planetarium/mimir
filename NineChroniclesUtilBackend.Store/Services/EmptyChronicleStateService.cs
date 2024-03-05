@@ -17,19 +17,19 @@ public class EmptyChronicleStateService : IStateService
         this.client = client;
     }
 
-    public Task<IValue?> GetState(Address address)
+    public Task<IValue?> GetState(Address address, long? blockIndex=null)
     {
-        return GetState(address, ReservedAddresses.LegacyAccount);
+        return GetState(address, ReservedAddresses.LegacyAccount, blockIndex);
     }
 
     public Task<IValue?[]> GetStates(Address[] addresses)
     {
-        return Task.WhenAll(addresses.Select(GetState));
+        return Task.WhenAll(addresses.Select(addr => GetState(addr)));
     }
 
-    public async Task<IValue?> GetState(Address address, Address accountAddress)
+    public async Task<IValue?> GetState(Address address, Address accountAddress, long? blockIndex=null)
     {
-        var result = await client.GetStateByAddressAsync(address.ToString(), accountAddress.ToString());
+        var result = await client.GetStateByAddressAsync(address.ToString(), accountAddress.ToString(), blockIndex);
 
         if (result.Value is null)
         {
