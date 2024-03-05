@@ -7,43 +7,50 @@ using Nekoyume.Battle;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
 using Nekoyume.TableData;
+using NineChroniclesUtilBackend.Models.Agent;
 
 namespace NineChroniclesUtilBackend.Repositories;
 
 public static class CpRepository
 {
-    public static async Task<int> CalculateCp(
-        string avatarAddress,
-        int avatarLevel,
+    public static async Task<int?> CalculateCp(
+        Avatar avatar,
         int characterId,
         IEnumerable<string> equipmentIds,
         IEnumerable<string> costumeIds,
         IEnumerable<(int id, int level)> runeOption
     )
     {
-        var inventory = await GetInventory(avatarAddress);
-        var equipments = equipmentIds
-            .Select(x => inventory.GetValueOrDefault(x))
-            .Where(x => x != null)
-            .Select(x => new Equipment(x))
-            .Where(x => x.Equipped);
-        var costumes = costumeIds
-            .Select(x => inventory.GetValueOrDefault(x))
-            .Where(x => x != null)
-            .Select(x => new Costume(x))
-            .Where(x => x.Equipped);
-        var runes = runeOption.Select(x => GetRuneOptionInfo(x.id, x.level).Result);
-        var characterRow = await GetCharacterRow(characterId);
-        var costumeStatSheet = await GetSheet(new CostumeStatSheet());
+        try
+        {
+            var inventory = await GetInventory(avatar.AvatarAddress);
+            var equipments = equipmentIds
+                .Select(x => inventory.GetValueOrDefault(x))
+                .Where(x => x != null)
+                .Select(x => new Equipment(x))
+                .Where(x => x.Equipped);
+            var costumes = costumeIds
+                .Select(x => inventory.GetValueOrDefault(x))
+                .Where(x => x != null)
+                .Select(x => new Costume(x))
+                .Where(x => x.Equipped);
+            var runes = runeOption.Select(x => GetRuneOptionInfo(x.id, x.level).Result);
+            var characterRow = await GetCharacterRow(characterId);
+            var costumeStatSheet = await GetSheet(new CostumeStatSheet());
 
-        return CPHelper.TotalCP(
-            equipments,
-            costumes,
-            runes,
-            avatarLevel,
-            characterRow,
-            costumeStatSheet
-        );
+            return CPHelper.TotalCP(
+                equipments,
+                costumes,
+                runes,
+                avatar.Level,
+                characterRow,
+                costumeStatSheet
+            );
+        }
+        catch (NullReferenceException)
+        {
+            return null;
+        }
     }
 
     private static async Task<Dictionary<string, Dictionary>> GetInventory(string address)
@@ -123,9 +130,9 @@ public static class CpRepository
         var response = await client.GetAsync(url);
         var json = JsonNode.Parse(await response.Content.ReadAsStringAsync());
         var rawValue = json["value"]?.GetValue<string>();
-        if (rawValue == null)
+        if (rawValue == null || rawValue == "")
         {
-            return default;
+            throw new NullReferenceException();
         }
         var value = codec.Decode(Convert.FromBase64String(rawValue));
 
