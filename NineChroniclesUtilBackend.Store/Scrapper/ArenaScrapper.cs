@@ -11,20 +11,21 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
 {
     private readonly ILogger<ArenaScrapper> _logger = logger;
 
-    private readonly StateGetter _stateGetter = new StateGetter(service);
+    private readonly IStateService _stateService = service;
     private readonly EmptyChronicleClient _client = client;
     private readonly MongoDbStore _store = store;
 
     public async Task ExecuteAsync()
     {
         var latestBlock = await _client.GetLatestBlock();
-        var roundData = await GetArenaRoundData(latestBlock.Index);
-        var arenaParticipants = await _stateGetter.GetArenaParticipantsState(roundData.ChampionshipId, roundData.Round);
+        var stateGetter = _stateService.At(latestBlock.Index);
+        var roundData = await stateGetter.GetArenaRoundData(latestBlock.Index);
+        var arenaParticipants = await stateGetter.GetArenaParticipantsState(roundData.ChampionshipId, roundData.Round);
 
         foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
         {
-            var arenaData = await GetArenaData(roundData, avatarAddress);
-            var avatarData = await GetAvatarData(avatarAddress);
+            var arenaData = await stateGetter.GetArenaData(roundData, avatarAddress);
+            var avatarData = await stateGetter.GetAvatarData(avatarAddress);
 
             if (arenaData != null && avatarData != null)
             {
@@ -32,47 +33,6 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
                 await _store.AddAvatarData(avatarData);
                 await _store.LinkAvatarWithArenaAsync(avatarAddress);
             }
-        }
-    }
-
-    public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
-    {
-        var arenaSheet = await _stateGetter.GetSheet<ArenaSheet>();
-        var roundData = arenaSheet.GetRoundByBlockIndex(index);
-
-        return roundData;
-    }
-
-    public async Task<ArenaData?> GetArenaData(ArenaSheet.RoundData roundData, Address avatarAddress)
-    {
-        try
-        {
-            var arenaScore = await _stateGetter.GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
-            var arenaInfo = await _stateGetter.GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
-
-            return new ArenaData(arenaScore, arenaInfo, roundData, avatarAddress);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"An error occurred during GetArenaData: {ex.Message}");
-            return null;
-        }
-    }
-
-    public async Task<AvatarData?> GetAvatarData(Address avatarAddress)
-    {
-        try
-        {
-            var avatarState = await _stateGetter.GetAvatarState(avatarAddress);
-            var avatarItemSlotState = await _stateGetter.GetItemSlotState(avatarAddress);
-            var avatarRuneStates = await _stateGetter.GetRuneStates(avatarAddress);
-
-            return new AvatarData(avatarState, avatarItemSlotState, avatarRuneStates);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"An error occurred during GetAvatarData: {ex.Message}");
-            return null;
         }
     }
 }
