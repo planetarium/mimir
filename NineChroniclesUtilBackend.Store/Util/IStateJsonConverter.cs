@@ -23,7 +23,9 @@ public class IStateJsonConverter : JsonConverter
     {
         JObject jo = JObject.FromObject(value, JsonSerializer.CreateDefault(new JsonSerializerSettings { 
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Converters = new List<JsonConverter>() { }
+            Converters = new List<JsonConverter>() { new BigIntegerToStringConverter() },
+            Formatting = Formatting.Indented,
+            NullValueHandling = NullValueHandling.Ignore
         }));
         
         IValue? ivalue = value switch
