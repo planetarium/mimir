@@ -7,7 +7,7 @@ using Bencodex.Types;
 
 namespace NineChroniclesUtilBackend.Store.Util;
 
-public class IStateJsonConverter : JsonConverter
+public class StateJsonConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)
     {

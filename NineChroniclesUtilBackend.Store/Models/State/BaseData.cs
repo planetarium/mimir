@@ -7,7 +7,7 @@ public class BaseData
 {
     protected static JsonSerializerSettings JsonSerializerSettings => new JsonSerializerSettings
     {
-        Converters = { new IStateJsonConverter() },
+        Converters = { new StateJsonConverter() },
         Formatting = Formatting.Indented,
         NullValueHandling = NullValueHandling.Ignore
     };
