@@ -7,9 +7,8 @@ public class BaseData
 {
     protected static JsonSerializerSettings JsonSerializerSettings => new JsonSerializerSettings
     {
-        Converters = new[] { new BigIntegerToStringConverter() },
+        Converters = { new StateJsonConverter() },
         Formatting = Formatting.Indented,
-        // ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver(),
         NullValueHandling = NullValueHandling.Ignore
     };
 
