@@ -18,12 +18,16 @@ namespace NineChroniclesUtilBackend.Controllers;
 [Route("arena")]
 public class ArenaController(ArenaRankingRepository arenaRankingRepository) : ControllerBase
 {
-    [HttpGet("ranking")]
-    public async Task<List<ArenaRanking>> GetRanking(int limit, int offset, string avatarAddress)
+    [HttpGet("ranking/{avatarAddress}/rank")]
+    public async Task<long> GetRankByAvatarAddress(string avatarAddress)
     {
-        var addressOffset = await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+        return await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+    }
 
-        return await arenaRankingRepository.GetRanking(limit, offset + addressOffset);
+    [HttpGet("ranking")]
+    public async Task<List<ArenaRanking>> GetRanking(int limit, int offset)
+    {
+        return await arenaRankingRepository.GetRanking(limit, offset);
     }
 
     [HttpPost("simulate")]
