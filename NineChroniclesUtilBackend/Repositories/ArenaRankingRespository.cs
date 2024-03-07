@@ -41,21 +41,18 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
     {
         var pipelines = new[]
         {
-            @"{ $sort: { 'Score.Score': -1 } }",
-            @"{ $group: { _id: null, docs: { $push: '$$ROOT' } } }",
-            @"{ $unwind: { path: '$docs', includeArrayIndex: 'Rank' } }",
+            @"{ $setWindowFields: { partitionBy: '', sortBy: { 'Score.Score': -1 }, output: { Rank: { $rank: {} } } } }",
             $@"{{ $skip: {offset} }}",
             $@"{{ $limit: {limit} }}",
-            @"{ $replaceRoot: { newRoot: { $mergeObjects: [ '$docs', { Rank: '$Rank' } ] } } }",
             @"{ $lookup: { from: 'avatars', localField: 'AvatarAddress', foreignField: 'Avatar.address', as: 'Avatar' } }",
             @"{ $unwind: { path: '$Avatar', preserveNullAndEmptyArrays: true } }",
+            $@"{{ $unset: ['Avatar.Avatar.inventory', 'Avatar.Avatar.mailBox', 'Avatar.Avatar.stageMap', 'Avatar.Avatar.monsterMap', 'Avatar.Avatar.itemMap', 'Avatar.Avatar.eventMap'] }}",
         }.Select(BsonDocument.Parse).ToArray();
 
-        var aggregation = await ArenaCollection.Aggregate<BsonDocument>(pipelines).ToListAsync();
-
+        var aggregation = ArenaCollection.Aggregate<BsonDocument>(pipelines).ToList();
         var arenaRankings = await Task.WhenAll(aggregation.OfType<BsonDocument>().Select(BuildArenaRankingFromDocument));
 
-        return arenaRankings.ToList();
+        return [.. arenaRankings];
     }
 
     private async Task<ArenaRanking> BuildArenaRankingFromDocument(BsonDocument document)
@@ -65,7 +62,7 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
             document["Information"]["Address"].AsString,
             document["Information"]["Win"].AsInt32,
             document["Information"]["Lose"].AsInt32,
-            document["Rank"].AsInt64 + 1,
+            document["Rank"].AsInt32 + 1,
             document["Information"]["Ticket"].AsInt32,
             document["Information"]["TicketResetCount"].AsInt32,
             document["Information"]["PurchasedTicketCount"].AsInt32,
@@ -90,6 +87,7 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
 
         var cp = await CpRepository.CalculateCp(avatar, characterId, equipmentids, costumeids, runeSlots);
         arenaRanking.CP = cp;
+        Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");
 
         return arenaRanking;
     }
