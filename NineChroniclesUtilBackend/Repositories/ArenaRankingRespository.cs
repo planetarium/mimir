@@ -46,7 +46,7 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
             $@"{{ $limit: {limit} }}",
             @"{ $lookup: { from: 'avatars', localField: 'AvatarAddress', foreignField: 'Avatar.address', as: 'Avatar' } }",
             @"{ $unwind: { path: '$Avatar', preserveNullAndEmptyArrays: true } }",
-            $@"{{ $unset: ['Avatar.Avatar.inventory', 'Avatar.Avatar.mailBox', 'Avatar.Avatar.stageMap', 'Avatar.Avatar.monsterMap', 'Avatar.Avatar.itemMap', 'Avatar.Avatar.eventMap'] }}",
+            @"{ $unset: ['Avatar.Avatar.inventory', 'Avatar.Avatar.mailBox', 'Avatar.Avatar.stageMap', 'Avatar.Avatar.monsterMap', 'Avatar.Avatar.itemMap', 'Avatar.Avatar.eventMap'] }",
         }.Select(BsonDocument.Parse).ToArray();
 
         var aggregation = ArenaCollection.Aggregate<BsonDocument>(pipelines).ToList();
