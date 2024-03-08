@@ -63,4 +63,6 @@ app.UseCors(policy =>
     policy.AllowAnyHeader();
 });
 
+app.MapGet("/", () => "Health Check");
+
 app.Run();
