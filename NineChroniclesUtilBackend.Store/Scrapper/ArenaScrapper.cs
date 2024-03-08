@@ -22,17 +22,20 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
         var roundData = await stateGetter.GetArenaRoundData(latestBlock.Index);
         var arenaParticipants = await stateGetter.GetArenaParticipantsState(roundData.ChampionshipId, roundData.Round);
 
-        foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
+        await _store.WithTransaction((async (storage, ct) =>
         {
-            var arenaData = await stateGetter.GetArenaData(roundData, avatarAddress);
-            var avatarData = await stateGetter.GetAvatarData(avatarAddress);
-
-            if (arenaData != null && avatarData != null)
+            foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
             {
-                await _store.AddArenaData(arenaData);
-                await _store.AddAvatarData(avatarData);
-                await _store.LinkAvatarWithArenaAsync(avatarAddress);
+                var arenaData = await stateGetter.GetArenaData(roundData, avatarAddress);
+                var avatarData = await stateGetter.GetAvatarData(avatarAddress);
+
+                if (arenaData != null && avatarData != null)
+                {
+                    await storage.AddArenaData(arenaData);
+                    await storage.AddAvatarData(avatarData);
+                    await storage.LinkAvatarWithArenaAsync(avatarAddress);
+                }
             }
-        }
+        }));
     }
 }
