@@ -22,7 +22,7 @@ public class StateStorage : IStateStorage
 
     public Task AddArenaData(ArenaData arenaData)
     {
-        return BulkUpsertArenaDataAsync(new List<ArenaData> { arenaData });
+        return BulkUpsertArenaDataAsync([arenaData]);
     }
     
     public Task AddArenaData(List<ArenaData> arenaData)
@@ -32,7 +32,7 @@ public class StateStorage : IStateStorage
 
     public Task AddAvatarData(AvatarData avatarData)
     {
-        return BulkUpsertAvatarDataAsync(new List<AvatarData> { avatarData });
+        return BulkUpsertAvatarDataAsync([avatarData]);
     }
     
     public Task AddAvatarData(List<AvatarData> avatarData)
