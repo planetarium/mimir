@@ -6,6 +6,13 @@ on:
 jobs:
   buildx:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        docker:
+          - repo: planetariumhq/9cutil-backend
+            dockerfile: Dockerfile
+          - repo: planetariumhq/9cutil-backend-store
+            dockerfile: Dockerfile.Store
     steps:
       -
         name: Checkout
@@ -32,6 +39,7 @@ jobs:
         with:
           push: true
           platforms: linux/arm64,linux/amd64
-          tags: planetariumhq/9cutil-backend:git-${{ github.sha }}
+          tags: planetariumhq/${{ matrix.docker.repo }}:git-${{ github.sha }}
+          file: ${{ matrix.docker.dockerfile }}
         env:
           BUILDKIT_PROGRESS: "plain"
