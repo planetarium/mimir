@@ -10,4 +10,6 @@ public interface IStateStorage
     Task AddAvatarData(AvatarData avatarData);
     Task AddAvatarData(List<AvatarData> avatarData);
     Task LinkAvatarWithArenaAsync(Address address);
+    Task UpdateLatestBlockIndex(long blockIndex);
+    Task<long> GetLatestBlockIndex();
 }

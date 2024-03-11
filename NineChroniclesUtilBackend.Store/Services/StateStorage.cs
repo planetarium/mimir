@@ -12,6 +12,7 @@ public class StateStorage : IStateStorage
 
     private IMongoCollection<BsonDocument> ArenaCollection => _database.GetCollection<BsonDocument>("arena");
     private IMongoCollection<BsonDocument> AvatarCollection => _database.GetCollection<BsonDocument>("avatars");
+    private IMongoCollection<BsonDocument> MetadataCollection => _database.GetCollection<BsonDocument>("metadata");
 
     public StateStorage(ILogger<StateStorage> logger, IMongoDatabase database)
     {
@@ -51,6 +52,24 @@ public class StateStorage : IStateStorage
             var updateModel = new UpdateOneModel<BsonDocument>(arenaFilter, update) { IsUpsert = false };
             await ArenaCollection.BulkWriteAsync(new List<WriteModel<BsonDocument>> { updateModel });
         }
+    }
+
+    public async Task UpdateLatestBlockIndex(long blockIndex)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
+        var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
+        var updateModel = new UpdateOneModel<BsonDocument>(filter, update);
+        await MetadataCollection.BulkWriteAsync(new[]
+        {
+            updateModel
+        });
+    }
+
+    public async Task<long> GetLatestBlockIndex()
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
+        var doc = await MetadataCollection.FindSync(filter).FirstAsync();
+        return doc.GetValue("LatestBlockIndex").AsInt64;
     }
 
     private async Task BulkUpsertArenaDataAsync(List<ArenaData> arenaDatas)

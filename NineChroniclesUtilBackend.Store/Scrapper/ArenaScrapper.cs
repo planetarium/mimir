@@ -24,6 +24,7 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
 
         await _store.WithTransaction((async (storage, ct) =>
         {
+            await storage.UpdateLatestBlockIndex(latestBlock.Index);
             foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
             {
                 var arenaData = await stateGetter.GetArenaData(roundData, avatarAddress);
