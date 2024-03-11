@@ -39,7 +39,7 @@ jobs:
         with:
           push: true
           platforms: linux/arm64,linux/amd64
-          tags: planetariumhq/${{ matrix.docker.repo }}:git-${{ github.sha }}
+          tags: ${{ matrix.docker.repo }}:git-${{ github.sha }}
           file: ${{ matrix.docker.dockerfile }}
         env:
           BUILDKIT_PROGRESS: "plain"
