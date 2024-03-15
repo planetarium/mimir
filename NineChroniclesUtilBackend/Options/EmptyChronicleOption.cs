@@ -1,6 +1,6 @@
 namespace NineChroniclesUtilBackend.Options;
 
-public class DataProviderOption
+public class EmptyChronicleOption
 {
     public Uri Endpoint { get; set; }
 }

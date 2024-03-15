@@ -47,7 +47,7 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
 
                 if (arenaData != null && avatarData != null)
                 {
-                    buffer.Add((arenaData, avatarData));
+                    buffer.Add((avatarAddress, arenaData, avatarData));
                 }
 
                 if (buffer.Count >= maxBufferSize)
