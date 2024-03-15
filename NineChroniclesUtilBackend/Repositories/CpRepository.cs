@@ -131,8 +131,8 @@ public class CpRepository
         var codec = new Codec();
         var url =
             account == null
-                ? $"${emptyChronicleEndpoint}/api/states/{address}/raw"
-                : $"${emptyChronicleEndpoint}/api/states/{address}/raw?account={account}";
+                ? $"{emptyChronicleEndpoint.AbsoluteUri}api/states/{address}/raw"
+                : $"{emptyChronicleEndpoint.AbsoluteUri}api/states/{address}/raw?account={account}";
         var client = new HttpClient();
         var response = await client.GetAsync(url);
         var json = JsonNode.Parse(await response.Content.ReadAsStringAsync());
@@ -141,7 +141,7 @@ public class CpRepository
         {
             throw new NullReferenceException();
         }
-        var value = codec.Decode(Convert.FromBase64String(rawValue));
+        var value = codec.Decode(Convert.FromHexString(rawValue));
 
         return (T)value;
     }
