@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.3.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.24.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-    <PackageReference Include="Lib9c" Version="1.8.0-dev.4e2f5d9bfed5366a94e67b88c4b0e7171c0cd0d6" />
+    <PackageReference Include="Lib9c" Version="1.8.0-dev.04d6656b74af6476768a0f1f9980340ecccf12ee" />
     <PackageReference Include="Libplanet" Version="4.1.0-dev.20242745721" />
     <PackageReference Include="StrawberryShake" Version="13.8.1" />
     <PackageReference Include="StrawberryShake.Transport.Http" Version="13.8.1" />
