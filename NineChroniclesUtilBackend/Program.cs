@@ -14,7 +14,6 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.Configure<HeadlessStateServiceOption>(builder.Configuration.GetRequiredSection("StateService"));
 builder.Services.Configure<DatabaseOption>(builder.Configuration.GetRequiredSection("Database"));
-builder.Services.Configure<EmptyChronicleOption>(builder.Configuration.GetRequiredSection("EmptyChronicle"));
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
