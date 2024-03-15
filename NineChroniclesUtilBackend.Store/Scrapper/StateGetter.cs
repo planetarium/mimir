@@ -1,6 +1,7 @@
 using NineChroniclesUtilBackend.Store.Services;
 using Libplanet.Crypto;
 using Bencodex.Types;
+using BTAI;
 using Nekoyume.TableData;
 using Nekoyume;
 using Nekoyume.Action;
@@ -8,22 +9,27 @@ using Nekoyume.Model.EnumType;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
 using Nekoyume.Model.Arena;
+using NineChroniclesUtilBackend.Store.Models;
 
 namespace NineChroniclesUtilBackend.Store.Scrapper;
 
 public class StateGetter
 {
+    private readonly ILogger<StateGetter> _logger;
     private readonly IStateService _service;
-    
-    public StateGetter(IStateService service)
+    private readonly long? _blockIndex;
+
+    public StateGetter(IStateService service, long? blockIndex)
     {
+        _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<StateGetter>();
         _service = service;
+        _blockIndex = blockIndex;
     }
 
     public async Task<T> GetSheet<T>()
         where T : ISheet, new()
     {
-        var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name));
+        var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name), _blockIndex);
         if (sheetState is not Text sheetValue)
         {
             throw new ArgumentException(nameof(T));
@@ -38,7 +44,7 @@ public class StateGetter
     {
         var arenaParticipantsAddress =
             ArenaParticipants.DeriveAddress(championshipId, roundId);
-        var state = await _service.GetState(arenaParticipantsAddress);
+        var state = await _service.GetState(arenaParticipantsAddress, _blockIndex);
         return state switch
         {
             List list => new ArenaParticipants(list),
@@ -50,7 +56,7 @@ public class StateGetter
     {
         var arenaScoreAddress =
             ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
-        var state = await _service.GetState(arenaScoreAddress);
+        var state = await _service.GetState(arenaScoreAddress, _blockIndex);
         return state switch
         {
             List list => new ArenaScore(list),
@@ -62,7 +68,7 @@ public class StateGetter
     {
         var arenaInfoAddress =
             ArenaInformation.DeriveAddress(avatarAddress, championshipId, roundId);
-        var state = await _service.GetState(arenaInfoAddress);
+        var state = await _service.GetState(arenaInfoAddress, _blockIndex);
         return state switch
         {
             List list => new ArenaInformation(list),
@@ -116,7 +122,7 @@ public class StateGetter
     public async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
     {
         var state = await _service.GetState(
-            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena), _blockIndex);
         return state switch
         {
             List list => new ItemSlotState(list),
@@ -128,7 +134,7 @@ public class StateGetter
     public async Task<List<RuneState>> GetRuneStates(Address avatarAddress)
     {
         var state = await _service.GetState(
-            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena), _blockIndex);
         var runeSlotState = state switch
         {
             List list => new RuneSlotState(list),
@@ -139,7 +145,7 @@ public class StateGetter
         var runes = new List<RuneState>();
         foreach (var runeStateAddress in runeSlotState.GetEquippedRuneSlotInfos().Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId)))
         {
-            if (await _service.GetState(runeStateAddress) is List list)
+            if (await _service.GetState(runeStateAddress, _blockIndex) is List list)
             {
                 runes.Add(new RuneState(list));
             }
@@ -152,11 +158,11 @@ public class StateGetter
     {
         try
         {
-            return await _service.GetState(address, accountAddress);
+            return await _service.GetState(address, accountAddress, _blockIndex);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            return await _service.GetState(address);
+            return await _service.GetState(address, _blockIndex);
         }
     }
 
@@ -165,13 +171,53 @@ public class StateGetter
         IValue? rawState;
         try
         {
-            rawState = await _service.GetState(avatarAddress, accountAddress);
+            rawState = await _service.GetState(avatarAddress, accountAddress, _blockIndex);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            rawState = await _service.GetState(legacyAddress);
+            rawState = await _service.GetState(legacyAddress, _blockIndex);
         }
         return rawState;
     }
+    
+    public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
+    {
+        var arenaSheet = await GetSheet<ArenaSheet>();
+        var roundData = arenaSheet.GetRoundByBlockIndex(index);
 
+        return roundData;
+    }
+
+    public async Task<ArenaData?> GetArenaData(ArenaSheet.RoundData roundData, Address avatarAddress)
+    {
+        try
+        {
+            var arenaScore = await GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
+            var arenaInfo = await GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
+
+            return new ArenaData(arenaScore, arenaInfo, roundData, avatarAddress);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"An error occurred during GetArenaData: {ex.Message}");
+            return null;
+        }
+    }
+
+    public async Task<AvatarData?> GetAvatarData(Address avatarAddress)
+    {
+        try
+        {
+            var avatarState = await GetAvatarState(avatarAddress);
+            var avatarItemSlotState = await GetItemSlotState(avatarAddress);
+            var avatarRuneStates = await GetRuneStates(avatarAddress);
+
+            return new AvatarData(avatarState, avatarItemSlotState, avatarRuneStates);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"An error occurred during GetAvatarData: {ex.Message}");
+            return null;
+        }
+    }
 }

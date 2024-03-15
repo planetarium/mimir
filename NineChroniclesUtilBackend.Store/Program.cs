@@ -27,7 +27,7 @@ builder.Services.AddSingleton(serviceProvider =>
 
 builder.Services.AddSingleton<IStateService, EmptyChronicleStateService>();
 
-builder.Services.AddHostedService<Worker>();
+builder.Services.AddHostedService<Initializer>();
 
 var host = builder.Build();
 host.Run();
