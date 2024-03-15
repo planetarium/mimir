@@ -24,7 +24,22 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
 
         await _store.WithTransaction((async (storage, ct) =>
         {
+            var buffer = new List<(Address AvatarAddress, ArenaData Arena, AvatarData Avatar)>();
+            const int maxBufferSize = 50;
+            async Task FlushBufferAsync()
+            {
+                await storage.AddArenaData(buffer.Select(x => x.Arena).ToList());
+                await storage.AddAvatarData(buffer.Select(x => x.Avatar).ToList());
+                foreach (var pair in buffer)
+                {
+                    await storage.LinkAvatarWithArenaAsync(pair.AvatarAddress);
+                }
+                
+                buffer.Clear();
+            }
+            
             await storage.UpdateLatestBlockIndex(latestBlock.Index);
+
             foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
             {
                 var arenaData = await stateGetter.GetArenaData(roundData, avatarAddress);
@@ -32,10 +47,18 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
 
                 if (arenaData != null && avatarData != null)
                 {
-                    await storage.AddArenaData(arenaData);
-                    await storage.AddAvatarData(avatarData);
-                    await storage.LinkAvatarWithArenaAsync(avatarAddress);
+                    buffer.Add((arenaData, avatarData));
                 }
+
+                if (buffer.Count >= maxBufferSize)
+                {
+                    await FlushBufferAsync();
+                }
+            }
+
+            if (buffer.Count > 0)
+            {
+                await FlushBufferAsync();
             }
         }));
     }
