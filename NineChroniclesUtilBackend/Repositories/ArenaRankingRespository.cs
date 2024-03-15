@@ -1,17 +1,15 @@
-using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.State;
 using NineChroniclesUtilBackend.Models.Agent;
 using NineChroniclesUtilBackend.Models.Arena;
-using NineChroniclesUtilBackend.Options;
 using NineChroniclesUtilBackend.Services;
 
 namespace NineChroniclesUtilBackend.Repositories;
 
-public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionService, IOptions<EmptyChronicleOption> options)
+public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionService, IStateService stateService)
 {
-    private CpRepository cpRepository = new CpRepository(options.Value.Endpoint);
+    private CpRepository cpRepository = new CpRepository(stateService);
 
     private readonly IMongoCollection<dynamic> ArenaCollection =
         mongoDBCollectionService.GetCollection<dynamic>("arena");

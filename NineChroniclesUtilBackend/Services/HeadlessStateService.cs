@@ -21,9 +21,19 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
         return Task.WhenAll(addresses.Select(GetState));
     }
 
+    public Task<IValue?[]> GetStates(Address[] addresses, Address accountAddress)
+    {
+        return Task.WhenAll(addresses.Select(addr => GetState(addr, accountAddress)));
+    }
+
     public async Task<IValue?> GetState(Address address)
     {
-        var result = await client.GetState.ExecuteAsync(ReservedAddresses.LegacyAccount.ToString(), address.ToString());
+        return await GetState(address, ReservedAddresses.LegacyAccount);
+    }
+
+    public async Task<IValue?> GetState(Address address, Address accountAddress)
+    {
+        var result = await client.GetState.ExecuteAsync(accountAddress.ToString(), address.ToString());
         result.EnsureNoErrors();
 
         if (result.Data?.State is null)
