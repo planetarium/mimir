@@ -1,14 +1,18 @@
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.State;
 using NineChroniclesUtilBackend.Models.Agent;
 using NineChroniclesUtilBackend.Models.Arena;
+using NineChroniclesUtilBackend.Options;
 using NineChroniclesUtilBackend.Services;
 
 namespace NineChroniclesUtilBackend.Repositories;
 
-public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionService)
+public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionService, IOptions<EmptyChronicleOption> options)
 {
+    private CpRepository cpRepository = new CpRepository(options.Value.Endpoint);
+
     private readonly IMongoCollection<dynamic> ArenaCollection =
         mongoDBCollectionService.GetCollection<dynamic>("arena");
 
@@ -85,7 +89,7 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
             (rune["RuneId"].AsInt32, rune["Level"].AsInt32)
         );
 
-        var cp = await CpRepository.CalculateCp(avatar, characterId, equipmentids, costumeids, runeSlots);
+        var cp = await cpRepository.CalculateCp(avatar, characterId, equipmentids, costumeids, runeSlots);
         arenaRanking.CP = cp;
         Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");
 

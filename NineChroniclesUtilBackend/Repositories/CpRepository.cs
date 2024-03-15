@@ -11,9 +11,16 @@ using NineChroniclesUtilBackend.Models.Agent;
 
 namespace NineChroniclesUtilBackend.Repositories;
 
-public static class CpRepository
+public class CpRepository
 {
-    public static async Task<int?> CalculateCp(
+    private Uri emptyChronicleEndpoint { get; set; }
+
+    public CpRepository(Uri _emptyChronicleEndpoint)
+    {
+        emptyChronicleEndpoint = _emptyChronicleEndpoint;
+    }
+
+    public async Task<int?> CalculateCp(
         Avatar avatar,
         int characterId,
         IEnumerable<string> equipmentIds,
@@ -53,7 +60,7 @@ public static class CpRepository
         }
     }
 
-    private static async Task<Dictionary<string, Dictionary>> GetInventory(string address)
+    private async Task<Dictionary<string, Dictionary>> GetInventory(string address)
     {
         var inventoryState = await GetInventoryState(address);
 
@@ -72,7 +79,7 @@ public static class CpRepository
             });
     }
 
-    private static async Task<RuneOptionSheet.Row.RuneOptionInfo> GetRuneOptionInfo(
+    private async Task<RuneOptionSheet.Row.RuneOptionInfo> GetRuneOptionInfo(
         int id,
         int level
     )
@@ -92,7 +99,7 @@ public static class CpRepository
         return option;
     }
 
-    private static async Task<CharacterSheet.Row> GetCharacterRow(int characterId)
+    private async Task<CharacterSheet.Row> GetCharacterRow(int characterId)
     {
         var sheets = await GetSheet(new CharacterSheet());
 
@@ -104,7 +111,7 @@ public static class CpRepository
         return row;
     }
 
-    private static async Task<T> GetSheet<T>(T sheets)
+    private async Task<T> GetSheet<T>(T sheets)
         where T : ISheet
     {
         var sheetsAddress = Addresses.GetSheetAddress<T>();
@@ -114,18 +121,18 @@ public static class CpRepository
         return sheets;
     }
 
-    private static async Task<T> GetState<T>(Address address, string? account = null)
+    private async Task<T> GetState<T>(Address address, string? account = null)
         where T : IValue => await GetState<T>(address.ToString(), account);
 
     // TODO: Cache
-    private static async Task<T?> GetState<T>(string address, string? account = null)
+    private async Task<T?> GetState<T>(string address, string? account = null)
         where T : IValue
     {
         var codec = new Codec();
         var url =
             account == null
-                ? $"http://localhost:5009/api/states/{address}/raw"
-                : $"http://localhost:5009/api/states/{address}/raw?account={account}";
+                ? $"${emptyChronicleEndpoint}/api/states/{address}/raw"
+                : $"${emptyChronicleEndpoint}/api/states/{address}/raw?account={account}";
         var client = new HttpClient();
         var response = await client.GetAsync(url);
         var json = JsonNode.Parse(await response.Content.ReadAsStringAsync());
@@ -139,6 +146,6 @@ public static class CpRepository
         return (T)value;
     }
 
-    private static async Task<List> GetInventoryState(string address) =>
+    private async Task<List> GetInventoryState(string address) =>
         await GetState<List?>(address, Addresses.Inventory.ToString()) ?? [];
 }
