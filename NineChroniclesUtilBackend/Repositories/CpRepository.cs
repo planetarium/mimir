@@ -45,12 +45,21 @@ public class CpRepository
                 .Costumes
                 .Where(x => x.Equipped).ToList();
             List<RuneOptionSheet.Row.RuneOptionInfo> runes = runeOption.Select(x => GetRuneOptionInfo(x.id, x.level).Result).ToList();
-            var collectionState = await _stateGetter.GetCollectionStates([avatarAddress]);
-
-            List<StatModifier> modifier = [];
-            foreach (var collectionId in collectionState[avatarAddress].Ids)
+            var collectionStates = await _stateGetter.GetCollectionStates([avatarAddress]);
+            var modifiers = new Dictionary<Address, List<StatModifier>>
             {
-                modifier.AddRange(collectionSheets[collectionId].StatModifiers);
+                [avatarAddress] = new(),
+            };
+            if (collectionStates.Count > 0)
+            {
+                foreach (var (address, state) in collectionStates)
+                {
+                    var modifier = modifiers[address];
+                    foreach (var collectionId in state.Ids)
+                    {
+                        modifier.AddRange(collectionSheets[collectionId].StatModifiers);
+                    }
+                }
             }
 
             return CPHelper.TotalCP(
@@ -60,7 +69,7 @@ public class CpRepository
                 avatar.Level,
                 characterRow,
                 costumeStatSheet,
-                modifier
+                modifiers[avatarAddress]
             );
         }
         catch (NullReferenceException)
