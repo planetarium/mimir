@@ -17,7 +17,7 @@ public class EmptyChronicleClient
     public async Task<StateResponse> GetStateByAddressAsync(
         string address, string? accountAddress = null, long? blockIndex = null)
     {
-        var url = $"{_baseUrl}/api/states/{address}";
+        var url = $"{_baseUrl}/api/states/{address}/raw";
         var queryParams = new List<string>();
         if (accountAddress != null)
         {
