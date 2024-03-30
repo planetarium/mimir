@@ -65,7 +65,8 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
                 await stateGetter.GetSheet<RuneOptionSheet>()
             ),
             await stateGetter.GetCollectionStates([myAvatarAddress, enemyAvatarAddress]),
-            await stateGetter.GetSheet<CollectionSheet>()
+            await stateGetter.GetSheet<CollectionSheet>(),
+            await stateGetter.GetSheet<DeBuffLimitSheet>()
         );
 
         return new ArenaSimulateResponse(result);
