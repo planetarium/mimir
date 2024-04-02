@@ -1,7 +1,6 @@
 using NineChroniclesUtilBackend.Store.Services;
 using Libplanet.Crypto;
 using Bencodex.Types;
-using BTAI;
 using Nekoyume.TableData;
 using Nekoyume;
 using Nekoyume.Action;
@@ -17,19 +16,17 @@ public class StateGetter
 {
     private readonly ILogger<StateGetter> _logger;
     private readonly IStateService _service;
-    private readonly long? _blockIndex;
 
-    public StateGetter(IStateService service, long? blockIndex)
+    public StateGetter(IStateService service)
     {
         _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<StateGetter>();
         _service = service;
-        _blockIndex = blockIndex;
     }
 
     public async Task<T> GetSheet<T>()
         where T : ISheet, new()
     {
-        var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name), _blockIndex);
+        var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name));
         if (sheetState is not Text sheetValue)
         {
             throw new ArgumentException(nameof(T));
@@ -44,7 +41,7 @@ public class StateGetter
     {
         var arenaParticipantsAddress =
             ArenaParticipants.DeriveAddress(championshipId, roundId);
-        var state = await _service.GetState(arenaParticipantsAddress, _blockIndex);
+        var state = await _service.GetState(arenaParticipantsAddress);
         return state switch
         {
             List list => new ArenaParticipants(list),
@@ -56,7 +53,7 @@ public class StateGetter
     {
         var arenaScoreAddress =
             ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
-        var state = await _service.GetState(arenaScoreAddress, _blockIndex);
+        var state = await _service.GetState(arenaScoreAddress);
         return state switch
         {
             List list => new ArenaScore(list),
@@ -68,7 +65,7 @@ public class StateGetter
     {
         var arenaInfoAddress =
             ArenaInformation.DeriveAddress(avatarAddress, championshipId, roundId);
-        var state = await _service.GetState(arenaInfoAddress, _blockIndex);
+        var state = await _service.GetState(arenaInfoAddress);
         return state switch
         {
             List list => new ArenaInformation(list),
@@ -122,7 +119,7 @@ public class StateGetter
     public async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
     {
         var state = await _service.GetState(
-            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena), _blockIndex);
+            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
         return state switch
         {
             List list => new ItemSlotState(list),
@@ -134,7 +131,7 @@ public class StateGetter
     public async Task<List<RuneState>> GetRuneStates(Address avatarAddress)
     {
         var state = await _service.GetState(
-            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena), _blockIndex);
+            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
         var runeSlotState = state switch
         {
             List list => new RuneSlotState(list),
@@ -145,7 +142,7 @@ public class StateGetter
         var runes = new List<RuneState>();
         foreach (var runeStateAddress in runeSlotState.GetEquippedRuneSlotInfos().Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId)))
         {
-            if (await _service.GetState(runeStateAddress, _blockIndex) is List list)
+            if (await _service.GetState(runeStateAddress) is List list)
             {
                 runes.Add(new RuneState(list));
             }
@@ -158,11 +155,11 @@ public class StateGetter
     {
         try
         {
-            return await _service.GetState(address, accountAddress, _blockIndex);
+            return await _service.GetState(address, accountAddress);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            return await _service.GetState(address, _blockIndex);
+            return await _service.GetState(address);
         }
     }
 
@@ -171,11 +168,11 @@ public class StateGetter
         IValue? rawState;
         try
         {
-            rawState = await _service.GetState(avatarAddress, accountAddress, _blockIndex);
+            rawState = await _service.GetState(avatarAddress, accountAddress);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            rawState = await _service.GetState(legacyAddress, _blockIndex);
+            rawState = await _service.GetState(legacyAddress);
         }
         return rawState;
     }

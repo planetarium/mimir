@@ -1,5 +1,4 @@
 using NineChroniclesUtilBackend.Store.Scrapper;
-using NineChroniclesUtilBackend.Store.Client;
 using NineChroniclesUtilBackend.Store.Services;
 
 namespace NineChroniclesUtilBackend.Store;
@@ -15,13 +14,12 @@ public class Initializer : BackgroundService
         ILogger<Initializer> logger,
         ILogger<ArenaScrapper> scrapperLogger,
         IStateService stateService,
-        MongoDbStore store,
-        EmptyChronicleClient client)
+        MongoDbStore store)
     {
         _logger = logger;
         _stateService = stateService;
         _store = store;
-        _scrapper = new ArenaScrapper(scrapperLogger, _stateService, client, _store);
+        _scrapper = new ArenaScrapper(scrapperLogger, _stateService, _store);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

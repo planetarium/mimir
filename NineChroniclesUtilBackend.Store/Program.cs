@@ -1,5 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using NineChroniclesUtilBackend.Store;
-using NineChroniclesUtilBackend.Store.Client;
 using NineChroniclesUtilBackend.Store.Services;
 using Microsoft.Extensions.Options;
 
@@ -12,11 +15,27 @@ builder.Configuration
 
 builder.Services.Configure<Configuration>(builder.Configuration.GetSection("Configuration"));
 
-builder.Services.AddSingleton(serviceProvider =>
-{
-    var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    return new EmptyChronicleClient(config.EmptyChronicleBaseUrl);
-});
+builder.Services.AddSingleton<IStateService, HeadlessStateService>();
+builder.Services.AddHeadlessGQLClient()
+    .ConfigureHttpClient((provider, client) =>
+    {
+        var headlessStateServiceOption = provider.GetRequiredService<IOptions<Configuration>>();
+        client.BaseAddress = headlessStateServiceOption.Value.HeadlessEndpoint;
+
+        if (headlessStateServiceOption.Value.JwtSecretKey is not null && headlessStateServiceOption.Value.JwtIssuer is not null)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(headlessStateServiceOption.Value.JwtSecretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: headlessStateServiceOption.Value.JwtIssuer,
+                expires: DateTime.UtcNow.AddMinutes(5),
+                signingCredentials: creds);
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
+        }
+    });
 
 builder.Services.AddSingleton(serviceProvider =>
 {
@@ -24,9 +43,6 @@ builder.Services.AddSingleton(serviceProvider =>
     var logger = serviceProvider.GetRequiredService<ILogger<MongoDbStore>>();
     return new MongoDbStore(logger, config.MongoDbConnectionString, config.DatabaseName);
 });
-
-builder.Services.AddSingleton<IStateService, EmptyChronicleStateService>();
-
 builder.Services.AddHostedService<Initializer>();
 
 var host = builder.Build();
