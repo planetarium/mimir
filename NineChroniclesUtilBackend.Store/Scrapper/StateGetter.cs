@@ -105,7 +105,7 @@ public class StateGetter
     {
 
         var legacyInventoryAddress = avatarAddress.Derive("inventory");
-        var rawState = await GetStateWithLegacyAccount(
+        var rawState = await GetAvatarStateWithLegacyAccount(
             avatarAddress, Addresses.Inventory, legacyInventoryAddress);
 
         if (rawState is not List list)
@@ -151,30 +151,26 @@ public class StateGetter
         return runes;
     }
 
-    private async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
+    public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
     {
-        try
+        var state = await _service.GetState(address, accountAddress);
+        
+        if (state == null)
         {
-            return await _service.GetState(address, accountAddress);
+            state = await _service.GetState(address);
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            return await _service.GetState(address);
-        }
+        return state;
     }
 
-    private async Task<IValue?> GetStateWithLegacyAccount(Address avatarAddress, Address accountAddress, Address legacyAddress)
+    public async Task<IValue?> GetAvatarStateWithLegacyAccount(Address avatarAddress, Address accountAddress, Address legacyAddress)
     {
-        IValue? rawState;
-        try
+        var state = await _service.GetState(avatarAddress, accountAddress);
+        
+        if (state == null)
         {
-            rawState = await _service.GetState(avatarAddress, accountAddress);
+            state = await _service.GetState(legacyAddress);
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            rawState = await _service.GetState(legacyAddress);
-        }
-        return rawState;
+        return state;
     }
     
     public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
