@@ -20,44 +20,41 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
         var roundData = await stateGetter.GetArenaRoundData(latestBlockIndex);
         var arenaParticipants = await stateGetter.GetArenaParticipantsState(roundData.ChampionshipId, roundData.Round);
 
-        await _store.WithTransaction((async (storage, ct) =>
+        var buffer = new List<(Address AvatarAddress, ArenaData Arena, AvatarData Avatar)>();
+        const int maxBufferSize = 10;
+        async Task FlushBufferAsync()
         {
-            var buffer = new List<(Address AvatarAddress, ArenaData Arena, AvatarData Avatar)>();
-            const int maxBufferSize = 50;
-            async Task FlushBufferAsync()
+            await _store.BulkUpsertArenaDataAsync(buffer.Select(x => x.Arena).ToList());
+            await _store.BulkUpsertAvatarDataAsync(buffer.Select(x => x.Avatar).ToList());
+            foreach (var pair in buffer)
             {
-                await storage.AddArenaData(buffer.Select(x => x.Arena).ToList());
-                await storage.AddAvatarData(buffer.Select(x => x.Avatar).ToList());
-                foreach (var pair in buffer)
-                {
-                    await storage.LinkAvatarWithArenaAsync(pair.AvatarAddress);
-                }
-                
-                buffer.Clear();
+                await _store.LinkAvatarWithArenaAsync(pair.AvatarAddress);
             }
             
-            await storage.UpdateLatestBlockIndex(latestBlockIndex);
+            buffer.Clear();
+        }
+        
+        await _store.UpdateLatestBlockIndex(latestBlockIndex);
 
-            foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
+        foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
+        {
+            var arenaData = await stateGetter.GetArenaData(roundData, avatarAddress);
+            var avatarData = await stateGetter.GetAvatarData(avatarAddress);
+
+            if (arenaData != null && avatarData != null)
             {
-                var arenaData = await stateGetter.GetArenaData(roundData, avatarAddress);
-                var avatarData = await stateGetter.GetAvatarData(avatarAddress);
-
-                if (arenaData != null && avatarData != null)
-                {
-                    buffer.Add((avatarAddress, arenaData, avatarData));
-                }
-
-                if (buffer.Count >= maxBufferSize)
-                {
-                    await FlushBufferAsync();
-                }
+                buffer.Add((avatarAddress, arenaData, avatarData));
             }
 
-            if (buffer.Count > 0)
+            if (buffer.Count >= maxBufferSize)
             {
                 await FlushBufferAsync();
             }
-        }));
+        }
+
+        if (buffer.Count > 0)
+        {
+            await FlushBufferAsync();
+        }
     }
 }
