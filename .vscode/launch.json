@@ -19,7 +19,10 @@
       "cwd": "${workspaceFolder}/NineChroniclesUtilBackend.Store",
       "stopAtEntry": false,
       "console": "internalConsole",
-      "preLaunchTask": "build-store"
+      "preLaunchTask": "build-store",
+      "env": {
+        "STORE_CONFIG_FILE": "appsettings.local.json"
+      }
     }
   ]
 }
