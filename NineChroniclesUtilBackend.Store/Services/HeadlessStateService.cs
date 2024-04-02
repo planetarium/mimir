@@ -46,6 +46,9 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 
     public async Task<int> GetLatestIndex()
     {
-        return 1;
+        var result = await client.GetTip.ExecuteAsync();
+        result.EnsureNoErrors();
+
+        return result.Data.NodeStatus.Tip.Index;
     }
 }
