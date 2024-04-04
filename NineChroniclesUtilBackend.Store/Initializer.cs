@@ -28,7 +28,7 @@ public class Initializer : BackgroundService
 
         if (!await _store.IsInitialized())
         {
-            await _scrapper.ExecuteAsync();   
+            await _scrapper.ExecuteAsync(stoppingToken);   
         }
 
         var totalElapsedMinutes = DateTime.UtcNow.Subtract(started).Minutes;
