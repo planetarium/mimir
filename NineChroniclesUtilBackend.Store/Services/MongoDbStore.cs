@@ -46,6 +46,7 @@ public class MongoDbStore
 
     public async Task UpdateLatestBlockIndex(long blockIndex)
     {
+        _logger.LogInformation($"Update latest block index to {blockIndex}");
         var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
         var updateModel = new UpdateOneModel<BsonDocument>(filter, update);
