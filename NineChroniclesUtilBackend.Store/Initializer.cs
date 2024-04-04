@@ -30,10 +30,7 @@ public class Initializer : BackgroundService
     {
         var started = DateTime.UtcNow;
 
-        if (!await _store.IsInitialized())
-        {
-            await _scrapper.ExecuteAsync(stoppingToken);   
-        }
+        await _scrapper.ExecuteAsync(stoppingToken);   
 
         var totalElapsedMinutes = DateTime.UtcNow.Subtract(started).Minutes;
         _logger.LogInformation($"Finished Initializer background service. Elapsed {totalElapsedMinutes} minutes.");
