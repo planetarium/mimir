@@ -25,24 +25,30 @@ public class AccountController : ControllerBase
     {
         async Task<List<AvatarState>> GetAvatarsState(Address agentAddress)
         {
-            var rawState = await stateService.GetState(agentAddress);
-            if (rawState is not Dictionary agentStateDictionary)
+            var rawState = await stateService.GetState(agentAddress, Addresses.Agent) ??
+                           await stateService.GetState(agentAddress);
+            var agentState = rawState switch
             {
-                throw new ArgumentException(nameof(agentAddress));
-            }
+                Dictionary agentStateDictionary => new AgentState(agentStateDictionary),
+                List agentStateList => new AgentState(agentStateList),
+                _ => throw new ArgumentException(nameof(agentAddress)),
+            };
+
             List<AvatarState> avatars = new List<AvatarState>();
 
-            var agentState = new AgentState(agentStateDictionary);
             foreach(var avatarAddressKey in agentState.avatarAddresses.Keys)
             {
-                var rawAvatarState = await stateService.GetState(agentState.avatarAddresses[avatarAddressKey]);
+                var avatarAddress = agentState.avatarAddresses[avatarAddressKey];
+                var rawAvatarState =
+                    await stateService.GetState(avatarAddress, Addresses.Avatar) ??
+                    await stateService.GetState(avatarAddress);
 
-                if (rawAvatarState is not Dictionary avatarStateDictionary)
+                var avatarState = rawAvatarState switch
                 {
-                    throw new ArgumentException(nameof(avatarStateDictionary));
-                }
-
-                var avatarState = new AvatarState(avatarStateDictionary);
+                    Dictionary avatarStateDictionary => new AvatarState(avatarStateDictionary),
+                    List avatarStateList => new AvatarState(avatarStateList),
+                    _ => throw new ArgumentException(nameof(avatarAddress))
+                };
                 avatars.Add(avatarState);
             }
 
