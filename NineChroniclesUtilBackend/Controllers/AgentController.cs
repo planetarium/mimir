@@ -22,40 +22,39 @@ public class AccountController : ControllerBase
 {
     [HttpGet("{agentAddress}/avatars")]
     public async Task<AvatarsResponse> GetAvatars(string agentAddress, IStateService stateService)
+    { 
+        var avatarStates = await GetAvatarStates(new Address(agentAddress), stateService);
+        return new AvatarsResponse(avatarStates
+            .Select(a => new Avatar(a.address.ToString(), a.name, a.level))
+            .ToList());
+    }
+    
+    private static async Task<List<AvatarState>> GetAvatarStates(Address agentAddress, IStateService stateService)
     {
-        async Task<List<AvatarState>> GetAvatarsState(Address agentAddress)
+        var rawState = await stateService.GetState(agentAddress, Addresses.Agent) ??
+                       await stateService.GetState(agentAddress);
+        var agentState = rawState switch
         {
-            var rawState = await stateService.GetState(agentAddress, Addresses.Agent) ??
-                           await stateService.GetState(agentAddress);
-            var agentState = rawState switch
+            Dictionary agentStateDictionary => new AgentState(agentStateDictionary),
+            List agentStateList => new AgentState(agentStateList),
+            _ => throw new ArgumentException(nameof(agentAddress)),
+        };
+
+        var avatars = new List<AvatarState>();
+        foreach(var avatarAddress in agentState.avatarAddresses.Values)
+        {
+            var rawAvatarState =
+                await stateService.GetState(avatarAddress, Addresses.Avatar) ??
+                await stateService.GetState(avatarAddress);
+            var avatarState = rawAvatarState switch
             {
-                Dictionary agentStateDictionary => new AgentState(agentStateDictionary),
-                List agentStateList => new AgentState(agentStateList),
-                _ => throw new ArgumentException(nameof(agentAddress)),
+                Dictionary avatarStateDictionary => new AvatarState(avatarStateDictionary),
+                List avatarStateList => new AvatarState(avatarStateList),
+                _ => throw new ArgumentException(nameof(avatarAddress))
             };
-
-            List<AvatarState> avatars = new List<AvatarState>();
-
-            foreach(var avatarAddressKey in agentState.avatarAddresses.Keys)
-            {
-                var avatarAddress = agentState.avatarAddresses[avatarAddressKey];
-                var rawAvatarState =
-                    await stateService.GetState(avatarAddress, Addresses.Avatar) ??
-                    await stateService.GetState(avatarAddress);
-
-                var avatarState = rawAvatarState switch
-                {
-                    Dictionary avatarStateDictionary => new AvatarState(avatarStateDictionary),
-                    List avatarStateList => new AvatarState(avatarStateList),
-                    _ => throw new ArgumentException(nameof(avatarAddress))
-                };
-                avatars.Add(avatarState);
-            }
-
-            return avatars;
+            avatars.Add(avatarState);
         }
-        var avatars = await GetAvatarsState(new Address(agentAddress));
 
-        return new AvatarsResponse(avatars.Select(a => new Avatar(a.address.ToString(), a.name, a.level)).ToList());
+        return avatars;
     }
 }
