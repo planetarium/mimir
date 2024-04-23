@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using NineChroniclesUtilBackend.Models.Agent;
 
 namespace NineChroniclesUtilBackend.Models.Arena;
 
@@ -28,5 +27,5 @@ public class ArenaRanking(
     public int Score { get; set; } = Score;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Avatar? Avatar { get; set; }
+    public Agent.Avatar? Avatar { get; set; }
 }
