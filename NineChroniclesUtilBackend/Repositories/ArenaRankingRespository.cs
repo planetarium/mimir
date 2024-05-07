@@ -1,6 +1,5 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Nekoyume.Model.State;
 using NineChroniclesUtilBackend.Models.Agent;
 using NineChroniclesUtilBackend.Models.Arena;
 using NineChroniclesUtilBackend.Services;
@@ -9,10 +8,9 @@ namespace NineChroniclesUtilBackend.Repositories;
 
 public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionService, IStateService stateService)
 {
-    private CpRepository cpRepository = new CpRepository(stateService);
-
-    private readonly IMongoCollection<dynamic> ArenaCollection =
+    private readonly IMongoCollection<dynamic> _arenaCollection =
         mongoDBCollectionService.GetCollection<dynamic>("arena");
+    private readonly CpRepository _cpRepository = new(stateService);
 
     public async Task<long> GetRankByAvatarAddress(string avatarAddress)
     {
@@ -33,10 +31,10 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
             ),
             new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress)),
         };
-
-        var aggregation = await ArenaCollection.Aggregate<dynamic>(pipelines).ToListAsync();
-
-        return aggregation.First().Rank;
+        var aggregation = await _arenaCollection.Aggregate<dynamic>(pipelines).ToListAsync();
+        return aggregation.Count == 0
+            ? 0
+            : (long)aggregation.First().Rank;
     }
 
     public async Task<List<ArenaRanking>> GetRanking(long limit, long offset)
@@ -50,10 +48,8 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
             @"{ $unwind: { path: '$Avatar', preserveNullAndEmptyArrays: true } }",
             @"{ $unset: ['Avatar.Avatar.inventory', 'Avatar.Avatar.mailBox', 'Avatar.Avatar.stageMap', 'Avatar.Avatar.monsterMap', 'Avatar.Avatar.itemMap', 'Avatar.Avatar.eventMap'] }",
         }.Select(BsonDocument.Parse).ToArray();
-
-        var aggregation = ArenaCollection.Aggregate<BsonDocument>(pipelines).ToList();
+        var aggregation = _arenaCollection.Aggregate<BsonDocument>(pipelines).ToList();
         var arenaRankings = await Task.WhenAll(aggregation.OfType<BsonDocument>().Select(BuildArenaRankingFromDocument));
-
         return [.. arenaRankings];
     }
 
@@ -71,7 +67,10 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
             document["Score"]["Score"].AsInt32
         );
 
-        if (!document.Contains("Avatar")) return arenaRanking;
+        if (!document.Contains("Avatar"))
+        {
+            return arenaRanking;
+        }
 
         var avatar = new Avatar(
             document["Avatar"]["Avatar"]["address"].AsString,
@@ -81,13 +80,13 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
         arenaRanking.Avatar = avatar;
 
         var characterId = document["Avatar"]["Avatar"]["characterId"].AsInt32;
-        var equipmentids = document["Avatar"]["ItemSlot"]["Equipments"].AsBsonArray.Select(x => x.AsString);
-        var costumeids = document["Avatar"]["ItemSlot"]["Costumes"].AsBsonArray.Select(x => x.AsString);
+        var equipmentIds = document["Avatar"]["ItemSlot"]["Equipments"].AsBsonArray.Select(x => x.AsString);
+        var costumeIds = document["Avatar"]["ItemSlot"]["Costumes"].AsBsonArray.Select(x => x.AsString);
         var runeSlots = document["Avatar"]["RuneSlot"].AsBsonArray.Select(rune =>
             (rune["RuneId"].AsInt32, rune["Level"].AsInt32)
         );
 
-        var cp = await cpRepository.CalculateCp(avatar, characterId, equipmentids, costumeids, runeSlots);
+        var cp = await _cpRepository.CalculateCp(avatar, characterId, equipmentIds, costumeIds, runeSlots);
         arenaRanking.CP = cp;
         Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");
 

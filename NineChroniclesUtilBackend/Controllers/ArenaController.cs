@@ -16,7 +16,14 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
     [HttpGet("ranking/{avatarAddress}/rank")]
     public async Task<long> GetRankByAvatarAddress(string avatarAddress)
     {
-        return await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+        var rank = await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+        if (rank == 0)
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+            return default;
+        }
+
+        return rank;
     }
 
     [HttpGet("ranking")]
@@ -28,19 +35,18 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
     [HttpPost("simulate")]
     public async Task<ArenaSimulateResponse> Simulate(
         [FromBody] ArenaSimulateRequest arenaSimulateRequest,
-        IStateService stateService
-    )
+        IStateService stateService)
     {
         var stateGetter = new StateGetter(stateService);
 
         var myAvatarAddress = new Address(arenaSimulateRequest.MyAvatarAddress);
         var enemyAvatarAddress = new Address(arenaSimulateRequest.EnemyAvatarAddress);
-        var myAvatarState = await stateGetter.GetAvatarState(myAvatarAddress);
-        var myAvatarItemSlotState = await stateGetter.GetItemSlotState(myAvatarAddress);
-        var myAvatarRuneStates = await stateGetter.GetRuneStates(myAvatarAddress);
-        var enemyAvatarState = await stateGetter.GetAvatarState(enemyAvatarAddress);
-        var enemyAvatarItemSlotState = await stateGetter.GetItemSlotState(enemyAvatarAddress);
-        var enemyAvatarRuneStates = await stateGetter.GetRuneStates(enemyAvatarAddress);
+        var myAvatarState = await stateGetter.GetAvatarStateAsync(myAvatarAddress);
+        var myAvatarItemSlotState = await stateGetter.GetItemSlotStateAsync(myAvatarAddress);
+        var myAvatarRuneStates = await stateGetter.GetRuneStatesAsync(myAvatarAddress);
+        var enemyAvatarState = await stateGetter.GetAvatarStateAsync(enemyAvatarAddress);
+        var enemyAvatarItemSlotState = await stateGetter.GetItemSlotStateAsync(enemyAvatarAddress);
+        var enemyAvatarRuneStates = await stateGetter.GetRuneStatesAsync(enemyAvatarAddress);
 
         var bulkSimulator = new ArenaBulkSimulator();
         var result = await bulkSimulator.BulkSimulate(
@@ -51,22 +57,22 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
                 enemyAvatarRuneStates
             ),
             new ArenaSimulatorSheets(
-                await stateGetter.GetSheet<MaterialItemSheet>(),
-                await stateGetter.GetSheet<SkillSheet>(),
-                await stateGetter.GetSheet<SkillBuffSheet>(),
-                await stateGetter.GetSheet<StatBuffSheet>(),
-                await stateGetter.GetSheet<SkillActionBuffSheet>(),
-                await stateGetter.GetSheet<ActionBuffSheet>(),
-                await stateGetter.GetSheet<CharacterSheet>(),
-                await stateGetter.GetSheet<CharacterLevelSheet>(),
-                await stateGetter.GetSheet<EquipmentItemSetEffectSheet>(),
-                await stateGetter.GetSheet<CostumeStatSheet>(),
-                await stateGetter.GetSheet<WeeklyArenaRewardSheet>(),
-                await stateGetter.GetSheet<RuneOptionSheet>()
+                await stateGetter.GetSheetAsync<MaterialItemSheet>(),
+                await stateGetter.GetSheetAsync<SkillSheet>(),
+                await stateGetter.GetSheetAsync<SkillBuffSheet>(),
+                await stateGetter.GetSheetAsync<StatBuffSheet>(),
+                await stateGetter.GetSheetAsync<SkillActionBuffSheet>(),
+                await stateGetter.GetSheetAsync<ActionBuffSheet>(),
+                await stateGetter.GetSheetAsync<CharacterSheet>(),
+                await stateGetter.GetSheetAsync<CharacterLevelSheet>(),
+                await stateGetter.GetSheetAsync<EquipmentItemSetEffectSheet>(),
+                await stateGetter.GetSheetAsync<CostumeStatSheet>(),
+                await stateGetter.GetSheetAsync<WeeklyArenaRewardSheet>(),
+                await stateGetter.GetSheetAsync<RuneOptionSheet>()
             ),
-            await stateGetter.GetCollectionStates([myAvatarAddress, enemyAvatarAddress]),
-            await stateGetter.GetSheet<CollectionSheet>(),
-            await stateGetter.GetSheet<DeBuffLimitSheet>()
+            await stateGetter.GetCollectionStatesAsync([myAvatarAddress, enemyAvatarAddress]),
+            await stateGetter.GetSheetAsync<CollectionSheet>(),
+            await stateGetter.GetSheetAsync<DeBuffLimitSheet>()
         );
 
         return new ArenaSimulateResponse(result);
