@@ -8,10 +8,10 @@ using Microsoft.Extensions.Options;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-string configPath = Environment.GetEnvironmentVariable("STORE_CONFIG_FILE") ?? "appsettings.json";
+string configPath = Environment.GetEnvironmentVariable("WORKER_CONFIG_FILE") ?? "appsettings.json";
 builder.Configuration
     .AddJsonFile(configPath, optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables("STORE_");
+    .AddEnvironmentVariables("WORKER_");
 
 builder.Services.Configure<Configuration>(builder.Configuration.GetSection("Configuration"));
 
