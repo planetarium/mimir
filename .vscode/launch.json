@@ -21,7 +21,7 @@
       "console": "internalConsole",
       "preLaunchTask": "build-worker",
       "env": {
-        "STORE_CONFIG_FILE": "appsettings.local.json"
+        "WORKER_CONFIG_FILE": "appsettings.local.json"
       }
     }
   ]
