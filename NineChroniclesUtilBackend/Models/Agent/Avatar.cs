@@ -1,5 +1,3 @@
-using MongoDB.Bson;
-
 namespace NineChroniclesUtilBackend.Models.Agent;
 
 public class Avatar(string avatarAddress, string avatarName, int level)
