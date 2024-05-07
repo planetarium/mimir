@@ -6,21 +6,21 @@ WORKDIR /app
 # Copy everything else and build
 COPY . ./
 RUN dotnet tool restore
-RUN dotnet graphql generate NineChroniclesUtilBackend.Store
+RUN dotnet graphql generate Mimir.Store
 RUN <<EOF
 #!/bin/bash
 echo "TARGETPLATFROM=$TARGETPLATFORM"
 echo "BUILDPLATFORM=$BUILDPLATFORM"
 if [[ "$TARGETPLATFORM" = "linux/amd64" ]]
 then
-  dotnet publish NineChroniclesUtilBackend.Store/NineChroniclesUtilBackend.Store.csproj \
+  dotnet publish Mimir.Store/Mimir.Store.csproj \
     -c Release \
     -r linux-x64 \
     -o out \
     --self-contained
 elif [[ "$TARGETPLATFORM" = "linux/arm64" ]]
 then
-  dotnet publish NineChroniclesUtilBackend.Store/NineChroniclesUtilBackend.Store.csproj \
+  dotnet publish Mimir.Store/Mimir.Store.csproj \
     -c Release \
     -r linux-arm64 \
     -o out \
@@ -43,4 +43,4 @@ RUN apt-get update \
         libc6-dev jq curl \
      && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["dotnet", "NineChroniclesUtilBackend.Store.dll"]
+ENTRYPOINT ["dotnet", "Mimir.Store.dll"]
