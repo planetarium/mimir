@@ -31,10 +31,10 @@ public class ArenaRankingRepository(MongoDBCollectionService mongoDBCollectionSe
             ),
             new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress)),
         };
-
-        var aggregation = await ArenaCollection.Aggregate<dynamic>(pipelines).ToListAsync();
-
-        return aggregation.First().Rank;
+        var aggregation = await _arenaCollection.Aggregate<dynamic>(pipelines).ToListAsync();
+        return aggregation.Count == 0
+            ? 0
+            : (long)aggregation.First().Rank;
     }
 
     public async Task<List<ArenaRanking>> GetRanking(long limit, long offset)

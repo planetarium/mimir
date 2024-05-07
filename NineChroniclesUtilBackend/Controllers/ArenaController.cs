@@ -16,7 +16,14 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
     [HttpGet("ranking/{avatarAddress}/rank")]
     public async Task<long> GetRankByAvatarAddress(string avatarAddress)
     {
-        return await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+        var rank = await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+        if (rank == 0)
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+            return default;
+        }
+
+        return rank;
     }
 
     [HttpGet("ranking")]
