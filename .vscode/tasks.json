@@ -38,38 +38,38 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "build-store",
+            "label": "build-worker",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Mimir.Store/Mimir.Store.csproj",
+                "${workspaceFolder}/Mimir.Worker/Mimir.Worker.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "publish-store",
+            "label": "publish-worker",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Mimir.Store/Mimir.Store.csproj",
+                "${workspaceFolder}/Mimir.Worker/Mimir.Worker.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "watch-store",
+            "label": "watch-worker",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/Mimir.Store/Mimir.Store.csproj"
+                "${workspaceFolder}/Mimir.Worker/Mimir.Worker.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

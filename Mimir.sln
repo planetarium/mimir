@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir", "Mimir\Mimir.csproj", "{1909E492-D010-4FB5-BC4B-DEF73025C41E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Store", "Mimir.Store\Mimir.Store.csproj", "{462CDFD3-650B-46A7-A937-8E3BCE7E527C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Worker", "Mimir.Worker\Mimir.Worker.csproj", "{462CDFD3-650B-46A7-A937-8E3BCE7E527C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

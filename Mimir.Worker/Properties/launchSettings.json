@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "http://json.schemaworker.org/launchsettings.json",
+  "profiles": {
+    "Mimir.Worker": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
