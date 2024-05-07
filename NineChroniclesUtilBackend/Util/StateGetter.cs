@@ -10,21 +10,23 @@ using NineChroniclesUtilBackend.Services;
 
 namespace NineChroniclesUtilBackend.Util;
 
-public class StateGetter
+public class StateGetter(IStateService stateService)
 {
-    private readonly IStateService _stateService;
+    public async Task<IValue?> GetStateAsync(Address address, Address accountAddress) =>
+        await stateService.GetState(address, accountAddress) ??
+        await stateService.GetState(address);
 
-    public StateGetter(IStateService stateService)
-    {
-        _stateService = stateService;
-    }
+    public async Task<IValue?> GetStateWithLegacyAccountAsync(
+        Address address,
+        Address accountAddress,
+        Address legacyAddress) =>
+        await stateService.GetState(address, accountAddress) ??
+        await stateService.GetState(legacyAddress);
 
-    public async Task<T> GetSheet<T>()
+    public async Task<T?> GetSheetAsync<T>()
         where T : ISheet, new()
     {
-        var sheetState = await _stateService.GetState(
-            Addresses.TableSheet.Derive(typeof(T).Name)
-        );
+        var sheetState = await stateService.GetState(Addresses.GetSheetAddress<T>());
         if (sheetState is not Text sheetValue)
         {
             throw new ArgumentException(nameof(T));
@@ -34,127 +36,131 @@ public class StateGetter
         sheet.Set(sheetValue.Value);
         return sheet;
     }
-
-    public async Task<AvatarState> GetAvatarState(Address avatarAddress)
+    
+    public async Task<List<AvatarState>?> GetAvatarStatesAsync(
+        Address agentAddress,
+        bool withInventory = true)
     {
-        var state = await GetStateWithLegacyAccount(avatarAddress, Addresses.Avatar);
-        var inventory = await GetInventoryState(avatarAddress);
-        
-        AvatarState avatarState;
-        if (state is Dictionary dictionary)
+        var rawState = await stateService.GetState(agentAddress, Addresses.Agent) ??
+                       await stateService.GetState(agentAddress);
+        var agentState = rawState switch
         {
-            avatarState = new AvatarState(dictionary)
-            {
-                inventory = inventory
-            };
-        }
-        else if (state is List alist)
+            List agentStateList => new AgentState(agentStateList),
+            Dictionary agentStateDictionary => new AgentState(agentStateDictionary),
+            _ => null,
+        };
+        if (agentState is null)
         {
-            avatarState = new AvatarState(alist)
-            {
-                inventory = inventory
-            };
-        }
-        else
-        {
-            throw new ArgumentException($"Unsupported state type for address: {avatarAddress}");
+            return null;
         }
 
+        var avatars = new List<AvatarState>();
+        foreach(var avatarAddress in agentState.avatarAddresses.Values)
+        {
+            var avatarState = await GetAvatarStateAsync(avatarAddress, withInventory);
+            if (avatarState is null)
+            {
+                continue;
+            }
+
+            avatars.Add(avatarState);
+        }
+
+        return avatars;
+    }
+
+    public async Task<AvatarState?> GetAvatarStateAsync(
+        Address avatarAddress,
+        bool withInventory = true)
+    {
+        var avatarValue = await GetStateAsync(avatarAddress, Addresses.Avatar);
+        var avatarState = avatarValue switch
+        {
+            List list => new AvatarState(list),
+            Dictionary dictionary => new AvatarState(dictionary),
+            _ => null,
+        };
+        if (avatarState is null)
+        {
+            return null;
+        }
+
+        if (withInventory)
+        {
+            var inventory = await GetInventoryStateAsync(avatarAddress);
+            if (inventory is not null)
+            {
+                avatarState.inventory = inventory;
+            }
+        }
+        
         return avatarState;
     }
 
-    public async Task<Inventory> GetInventoryState(Address avatarAddress)
+    public async Task<Inventory?> GetInventoryStateAsync(Address avatarAddress)
     {
-
-        var legacyInventoryAddress = avatarAddress.Derive("inventory");
-        var rawState = await GetAvatarStateWithLegacyAccount(
-            avatarAddress, Addresses.Inventory, legacyInventoryAddress);
-
-        if (rawState is not List list)
-        {
-            throw new ArgumentException(nameof(avatarAddress));
-        }
-
-        return new Inventory(list);
+        var rawState = await GetStateWithLegacyAccountAsync(
+            avatarAddress,
+            Addresses.Inventory,
+            avatarAddress.Derive("inventory"));
+        return rawState is List list
+            ? new Inventory(list)
+            : null;
     }
 
-    public async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
+    public async Task<ItemSlotState?> GetItemSlotStateAsync(Address avatarAddress)
     {
-        var state = await _stateService.GetState(
+        var state = await stateService.GetState(
             ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
         return state switch
         {
             List list => new ItemSlotState(list),
             null => new ItemSlotState(BattleType.Arena),
-            _ => throw new ArgumentException(nameof(avatarAddress))
+            _ => null,
         };
     }
 
-    public async Task<List<RuneState>> GetRuneStates(Address avatarAddress)
+    public async Task<List<RuneState>> GetRuneStatesAsync(Address avatarAddress)
     {
-        var state = await _stateService.GetState(
+        var state = await stateService.GetState(
             RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
         var runeSlotState = state switch
         {
             List list => new RuneSlotState(list),
             null => new RuneSlotState(BattleType.Arena),
-            _ => throw new ArgumentException(nameof(avatarAddress))
+            _ => null,
         };
-
-        var runes = new List<RuneState>();
-        foreach (var runeStateAddress in runeSlotState.GetEquippedRuneSlotInfos().Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId)))
+        if (runeSlotState is null)
         {
-            if (await _stateService.GetState(runeStateAddress) is List list)
-            {
-                runes.Add(new RuneState(list));
-            }
+            return [];
         }
 
-        return runes;
+        var runeAddresses = runeSlotState.GetEquippedRuneSlotInfos()
+            .Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId))
+            .ToArray();
+        var runeValues = await stateService.GetStates(runeAddresses);
+        return runeValues.OfType<List>()
+            .Select(e => new RuneState(e))
+            .ToList();
     }
 
-    public async Task<Dictionary<Address, CollectionState>> GetCollectionStates(List<Address> addresses)
+    public async Task<Dictionary<Address, CollectionState>> GetCollectionStatesAsync(List<Address> addresses)
     {
         var result = new Dictionary<Address, CollectionState>();
-
-        var values = await _stateService.GetStates(
+        var values = await stateService.GetStates(
             addresses.ToArray(),
             Addresses.Collection
         );
-
-        for (int i = 0; i < addresses.Count; i++)
+        for (var i = 0; i < addresses.Count; i++)
         {
-            var serialized = values[i];
             var address = addresses[i];
-
-            if (serialized is List bencoded)
+            var serialized = values[i];
+            if (serialized is List list)
             {
-                result.TryAdd(address, new CollectionState(bencoded));
+                result.TryAdd(address, new CollectionState(list));
             }
         }
-        
+
         return result;
-    }
-
-    public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
-    {
-        var state = await _stateService.GetState(address, accountAddress);
-        
-        if (state == null)
-        {
-            state = await _stateService.GetState(address);
-        }
-        return state;
-    }
-
-    public async Task<IValue?> GetAvatarStateWithLegacyAccount(Address avatarAddress, Address accountAddress, Address legacyAddress)
-    {
-        var state = await _stateService.GetState(avatarAddress, accountAddress);
-        
-        if (state == null)
-        {
-            state = await _stateService.GetState(legacyAddress);
-        }
-        return state;
     }
 }
