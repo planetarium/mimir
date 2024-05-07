@@ -1,6 +1,6 @@
 using Nekoyume.Model.State;
 
-namespace Mimir.Store.Models;
+namespace Mimir.Worker.Models;
 
 public class AvatarData : BaseData
 {

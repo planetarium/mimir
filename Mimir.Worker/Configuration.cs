@@ -1,4 +1,4 @@
-namespace Mimir.Store;
+namespace Mimir.Worker;
 
 public class Configuration
 {

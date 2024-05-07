@@ -1,15 +1,13 @@
 using Libplanet.Crypto;
 
-namespace Mimir.Store.Models;
+namespace Mimir.Worker.Models;
 
-public class StoreResult
+public class ScrapperResult
 {
     public DateTime StartTime { get; set; }
     public int TotalElapsedMinutes { get; set; }
-    public int StoreArenaRequestCount { get; set; }
-    public int StoreAvatarRequestCount { get; set; }
-    public int AvatarStoredCount { get; set; }
-    public int ArenaStoredCount { get; set; }
+    public int AvatarScrappedCount { get; set; }
+    public int ArenaScrappedCount { get; set; }
     public List<Address> FailedAvatarAddresses { get; } = new List<Address>();
     public List<Address> FailedArenaAddresses { get; } = new List<Address>();
 
@@ -20,10 +18,8 @@ public class StoreResult
 
         return $"StartTime: {StartTime}, " +
                 $"TotalElapsedMinutes: {TotalElapsedMinutes}, " +
-                $"StoreArenaRequestCount: {StoreArenaRequestCount}, " +
-                $"StoreAvatarRequestCount: {StoreAvatarRequestCount}, " +
-                $"AvatarStoredCount: {AvatarStoredCount}, " +
-                $"ArenaStoredCount: {ArenaStoredCount}, " +
+                $"AvatarScrappedCount: {AvatarScrappedCount}, " +
+                $"ArenaScrappedCount: {ArenaScrappedCount}, " +
                 $"FailedAvatarAddresses: [{failedAvatarAddresses}], " +
                 $"FailedArenaAddresses: [{failedArenaAddresses}]";
     }

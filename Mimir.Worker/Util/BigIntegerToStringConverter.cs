@@ -1,7 +1,7 @@
 using System.Numerics;
 using Newtonsoft.Json;
 
-namespace Mimir.Store.Util;
+namespace Mimir.Worker.Util;
 
 public class BigIntegerToStringConverter : JsonConverter
 {

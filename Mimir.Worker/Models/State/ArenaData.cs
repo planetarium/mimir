@@ -2,7 +2,7 @@ using Nekoyume.Model.Arena;
 using Nekoyume.TableData;
 using Libplanet.Crypto;
 
-namespace Mimir.Store.Models;
+namespace Mimir.Worker.Models;
 
 public class ArenaData : BaseData
 {

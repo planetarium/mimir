@@ -23,7 +23,7 @@ type StandaloneQuery {
     blockHash: ByteString!
     recipient: Address
   ): [TransferNCGHistoryType!]!
-  keyStore: KeyStoreType
+  keyWorker: KeyWorkerType
     @deprecated(
       reason: "Use `planet key` command instead.  https://www.npmjs.com/package/@planetarium/cli"
     )
@@ -1141,7 +1141,7 @@ type TransferNCGHistoryType {
   memo: String
 }
 
-type KeyStoreType {
+type KeyWorkerType {
   protectedPrivateKeys: [ProtectedPrivateKeyType!]!
   decryptedPrivateKey(address: Address!, passphrase: String!): ByteString!
 
@@ -2572,7 +2572,7 @@ type AddressQuery {
 }
 
 type StandaloneMutation {
-  keyStore: KeyStoreMutation
+  keyWorker: KeyWorkerMutation
     @deprecated(
       reason: "Use `planet key` command instead.  https://www.npmjs.com/package/@planetarium/cli"
     )
@@ -2622,7 +2622,7 @@ type StandaloneMutation {
   ): TxId!
 }
 
-type KeyStoreMutation {
+type KeyWorkerMutation {
   createPrivateKey(passphrase: String!, privateKey: ByteString): PrivateKeyType!
   revokePrivateKey(address: Address!): ProtectedPrivateKeyType!
 }

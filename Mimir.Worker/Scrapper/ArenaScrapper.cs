@@ -1,17 +1,17 @@
-using Mimir.Store.Events;
-using Mimir.Store.Services;
-using Mimir.Store.Models;
+using Mimir.Worker.Events;
+using Mimir.Worker.Services;
+using Mimir.Worker.Models;
 using Nekoyume.TableData;
 using Libplanet.Crypto;
 
-namespace Mimir.Store.Scrapper;
+namespace Mimir.Worker.Scrapper;
 
-public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service, MongoDbStore store)
+public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service, MongoDbWorker worker)
 {
     private readonly ILogger<ArenaScrapper> _logger = logger;
 
     private readonly IStateService _stateService = service;
-    private readonly MongoDbStore _store = store;
+    private readonly MongoDbWorker _worker = worker;
 
     public async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -24,17 +24,17 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
         const int maxBufferSize = 10;
         async Task FlushBufferAsync()
         {
-            await _store.BulkUpsertArenaDataAsync(buffer.Select(x => x.Arena).ToList());
-            await _store.BulkUpsertAvatarDataAsync(buffer.Select(x => x.Avatar).ToList());
+            await _worker.BulkUpsertArenaDataAsync(buffer.Select(x => x.Arena).ToList());
+            await _worker.BulkUpsertAvatarDataAsync(buffer.Select(x => x.Avatar).ToList());
             foreach (var pair in buffer)
             {
-                await _store.LinkAvatarWithArenaAsync(pair.AvatarAddress);
+                await _worker.LinkAvatarWithArenaAsync(pair.AvatarAddress);
             }
             
             buffer.Clear();
         }
         
-        await _store.UpdateLatestBlockIndex(latestBlockIndex);
+        await _worker.UpdateLatestBlockIndex(latestBlockIndex);
 
         foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
         {

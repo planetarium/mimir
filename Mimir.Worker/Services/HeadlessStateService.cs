@@ -6,7 +6,7 @@ using Libplanet.Action.State;
 using Libplanet.Types.Blocks;
 using StrawberryShake;
 
-namespace Mimir.Store.Services;
+namespace Mimir.Worker.Services;
 
 public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 {

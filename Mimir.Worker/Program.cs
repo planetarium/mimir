@@ -2,8 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Mimir.Store;
-using Mimir.Store.Services;
+using Mimir.Worker;
+using Mimir.Worker.Services;
 using Microsoft.Extensions.Options;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -40,8 +40,8 @@ builder.Services.AddHeadlessGQLClient()
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbStore>>();
-    return new MongoDbStore(logger, config.MongoDbConnectionString, config.DatabaseName);
+    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbWorker>>();
+    return new MongoDbWorker(logger, config.MongoDbConnectionString, config.DatabaseName);
 });
 builder.Services.AddHostedService<Initializer>();
 

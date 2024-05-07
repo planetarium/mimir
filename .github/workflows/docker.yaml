@@ -11,8 +11,8 @@ jobs:
         docker:
           - repo: planetariumhq/mimir
             dockerfile: Dockerfile
-          - repo: planetariumhq/mimir-store
-            dockerfile: Dockerfile.Store
+          - repo: planetariumhq/mimir-worker
+            dockerfile: Dockerfile.Worker
     steps:
       -
         name: Checkout

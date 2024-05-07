@@ -1,4 +1,4 @@
-using Mimir.Store.Services;
+using Mimir.Worker.Services;
 using Libplanet.Crypto;
 using Bencodex.Types;
 using Nekoyume.TableData;
@@ -8,9 +8,9 @@ using Nekoyume.Model.EnumType;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
 using Nekoyume.Model.Arena;
-using Mimir.Store.Models;
+using Mimir.Worker.Models;
 
-namespace Mimir.Store.Scrapper;
+namespace Mimir.Worker.Scrapper;
 
 public class StateGetter
 {

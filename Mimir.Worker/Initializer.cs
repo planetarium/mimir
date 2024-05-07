@@ -1,12 +1,12 @@
 using HeadlessGQL;
-using Mimir.Store.Scrapper;
-using Mimir.Store.Services;
+using Mimir.Worker.Scrapper;
+using Mimir.Worker.Services;
 
-namespace Mimir.Store;
+namespace Mimir.Worker;
 
 public class Initializer : BackgroundService
 {
-    private readonly MongoDbStore _store;
+    private readonly MongoDbWorker _worker;
     private readonly ArenaScrapper _scrapper;
     private readonly ILogger<Initializer> _logger;
     private readonly HeadlessGQLClient _headlessGqlClient;
@@ -17,13 +17,13 @@ public class Initializer : BackgroundService
         ILogger<ArenaScrapper> scrapperLogger,
         HeadlessGQLClient headlessGqlClient,
         IStateService stateService,
-        MongoDbStore store)
+        MongoDbWorker worker)
     {
         _logger = logger;
         _stateService = stateService;
-        _store = store;
+        _worker = worker;
         _headlessGqlClient = headlessGqlClient;
-        _scrapper = new ArenaScrapper(scrapperLogger, _stateService, _store);
+        _scrapper = new ArenaScrapper(scrapperLogger, _stateService, _worker);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,7 +35,7 @@ public class Initializer : BackgroundService
         var totalElapsedMinutes = DateTime.UtcNow.Subtract(started).Minutes;
         _logger.LogInformation($"Finished Initializer background service. Elapsed {totalElapsedMinutes} minutes.");
 
-        var poller = new BlockPoller(_stateService, _headlessGqlClient, _store);
+        var poller = new BlockPoller(_stateService, _headlessGqlClient, _worker);
         await poller.RunAsync(stoppingToken);
     }
 }

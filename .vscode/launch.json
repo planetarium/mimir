@@ -12,14 +12,14 @@
       "preLaunchTask": "build-backend"
     },
     {
-      "name": "Debug Mimir.Store",
+      "name": "Debug Mimir.Worker",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/Mimir.Store/bin/Debug/net8.0/Mimir.Store.dll",
-      "cwd": "${workspaceFolder}/Mimir.Store",
+      "program": "${workspaceFolder}/Mimir.Worker/bin/Debug/net8.0/Mimir.Worker.dll",
+      "cwd": "${workspaceFolder}/Mimir.Worker",
       "stopAtEntry": false,
       "console": "internalConsole",
-      "preLaunchTask": "build-store",
+      "preLaunchTask": "build-worker",
       "env": {
         "STORE_CONFIG_FILE": "appsettings.local.json"
       }

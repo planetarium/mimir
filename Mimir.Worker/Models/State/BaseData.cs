@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using Mimir.Store.Util;
+using Mimir.Worker.Util;
 
-namespace Mimir.Store.Models;
+namespace Mimir.Worker.Models;
 
 public class BaseData
 {

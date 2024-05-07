@@ -2,13 +2,13 @@ using MongoDB.Driver;
 using Libplanet.Crypto;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Mimir.Store.Models;
+using Mimir.Worker.Models;
 
-namespace Mimir.Store.Services;
+namespace Mimir.Worker.Services;
 
-public class MongoDbStore
+public class MongoDbWorker
 {
-    private readonly ILogger<MongoDbStore> _logger;
+    private readonly ILogger<MongoDbWorker> _logger;
 
     private readonly IMongoClient _client;
 
@@ -22,7 +22,7 @@ public class MongoDbStore
 
     private IMongoCollection<BsonDocument> MetadataCollection => _database.GetCollection<BsonDocument>("metadata");
 
-    public MongoDbStore(ILogger<MongoDbStore> logger, string connectionString, string databaseName)
+    public MongoDbWorker(ILogger<MongoDbWorker> logger, string connectionString, string databaseName)
     {
         _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);

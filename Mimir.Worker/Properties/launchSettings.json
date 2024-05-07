@@ -1,7 +1,7 @@
 ﻿{
-  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "$schema": "http://json.schemaworker.org/launchsettings.json",
   "profiles": {
-    "Mimir.Store": {
+    "Mimir.Worker": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "environmentVariables": {

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Bencodex.Types;
 using Libplanet.Crypto;
 
-namespace Mimir.Store.Services;
+namespace Mimir.Worker.Services;
 
 public interface IStateService
 {

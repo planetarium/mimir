@@ -5,7 +5,7 @@ using Libplanet.Common;
 using Bencodex;
 using Bencodex.Types;
 
-namespace Mimir.Store.Util;
+namespace Mimir.Worker.Util;
 
 public class StateJsonConverter : JsonConverter
 {

@@ -1,4 +1,4 @@
-namespace Mimir.Store.Models;
+namespace Mimir.Worker.Models;
 
 public class StateResponse
 {

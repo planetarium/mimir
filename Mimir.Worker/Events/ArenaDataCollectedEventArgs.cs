@@ -1,6 +1,6 @@
-using Mimir.Store.Models;
+using Mimir.Worker.Models;
 
-namespace Mimir.Store.Events;
+namespace Mimir.Worker.Events;
 
 public class ArenaDataCollectedEventArgs : EventArgs
 {

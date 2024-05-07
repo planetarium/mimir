@@ -1,6 +1,6 @@
-using Mimir.Store.Scrapper;
+using Mimir.Worker.Scrapper;
 
-namespace Mimir.Store.Services;
+namespace Mimir.Worker.Services;
 
 public static class StateServiceExtensions
 {
