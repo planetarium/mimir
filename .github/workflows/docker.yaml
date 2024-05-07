@@ -9,9 +9,9 @@ jobs:
     strategy:
       matrix:
         docker:
-          - repo: planetariumhq/9cutil-backend
+          - repo: planetariumhq/mimir
             dockerfile: Dockerfile
-          - repo: planetariumhq/9cutil-backend-store
+          - repo: planetariumhq/mimir-store
             dockerfile: Dockerfile.Store
     steps:
       -

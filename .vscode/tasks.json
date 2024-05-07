@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/NineChroniclesUtilBackend/NineChroniclesUtilBackend.csproj",
+                "${workspaceFolder}/Mimir/Mimir.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/NineChroniclesUtilBackend/NineChroniclesUtilBackend.csproj",
+                "${workspaceFolder}/Mimir/Mimir.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/NineChroniclesUtilBackend/NineChroniclesUtilBackend.csproj"
+                "${workspaceFolder}/Mimir/Mimir.csproj"
             ],
             "problemMatcher": "$msCompile"
         },
@@ -43,7 +43,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/NineChroniclesUtilBackend.Store/NineChroniclesUtilBackend.Store.csproj",
+                "${workspaceFolder}/Mimir.Store/Mimir.Store.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -55,7 +55,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/NineChroniclesUtilBackend.Store/NineChroniclesUtilBackend.Store.csproj",
+                "${workspaceFolder}/Mimir.Store/Mimir.Store.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -69,7 +69,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/NineChroniclesUtilBackend.Store/NineChroniclesUtilBackend.Store.csproj"
+                "${workspaceFolder}/Mimir.Store/Mimir.Store.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
