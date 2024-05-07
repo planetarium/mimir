@@ -3,28 +3,28 @@ using System.Text.Json.Serialization;
 namespace NineChroniclesUtilBackend.Models.Arena;
 
 public class ArenaRanking(
-    string AvatarAddress,
-    string ArenaAddress,
-    int Win,
-    int Lose,
-    long Rank,
-    int Ticket,
-    int TicketResetCount,
-    int PurchasedTicketCount,
-    int Score
+    string avatarAddress,
+    string arenaAddress,
+    int win,
+    int lose,
+    long rank,
+    int ticket,
+    int ticketResetCount,
+    int purchasedTicketCount,
+    int score
 )
 {
-    public string AvatarAddress { get; set; } = AvatarAddress;
-    public string ArenaAddress { get; set; } = ArenaAddress;
+    public string AvatarAddress { get; set; } = avatarAddress;
+    public string ArenaAddress { get; set; } = arenaAddress;
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? CP { get; set; }
-    public int Win { get; set; } = Win;
-    public int Lose { get; set; } = Lose;
-    public long Rank { get; set; } = Rank;
-    public int Ticket { get; set; } = Ticket;
-    public int TicketResetCount { get; set; } = TicketResetCount;
-    public int PurchasedTicketCount { get; set; } = PurchasedTicketCount;
-    public int Score { get; set; } = Score;
+    public int Win { get; set; } = win;
+    public int Lose { get; set; } = lose;
+    public long Rank { get; set; } = rank;
+    public int Ticket { get; set; } = ticket;
+    public int TicketResetCount { get; set; } = ticketResetCount;
+    public int PurchasedTicketCount { get; set; } = purchasedTicketCount;
+    public int Score { get; set; } = score;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Agent.Avatar? Avatar { get; set; }

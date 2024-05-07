@@ -33,10 +33,10 @@ public class CpRepository
             var avatarAddress = new Address(avatar.AvatarAddress);
 
             var characterRow = await GetCharacterRow(characterId);
-            var costumeStatSheet = await _stateGetter.GetSheet<CostumeStatSheet>();
-            var collectionSheets = await _stateGetter.GetSheet<CollectionSheet>();
+            var costumeStatSheet = await _stateGetter.GetSheetAsync<CostumeStatSheet>();
+            var collectionSheets = await _stateGetter.GetSheetAsync<CollectionSheet>();
 
-            var inventoryState = await _stateGetter.GetInventoryState(avatarAddress);
+            var inventoryState = await _stateGetter.GetInventoryStateAsync(avatarAddress);
 
             List<Equipment> equipments = inventoryState
                 .Equipments
@@ -45,7 +45,7 @@ public class CpRepository
                 .Costumes
                 .Where(x => x.Equipped).ToList();
             List<RuneOptionSheet.Row.RuneOptionInfo> runes = runeOption.Select(x => GetRuneOptionInfo(x.id, x.level).Result).ToList();
-            var collectionStates = await _stateGetter.GetCollectionStates([avatarAddress]);
+            var collectionStates = await _stateGetter.GetCollectionStatesAsync([avatarAddress]);
             var modifiers = new Dictionary<Address, List<StatModifier>>
             {
                 [avatarAddress] = new(),
@@ -83,7 +83,7 @@ public class CpRepository
         int level
     )
     {
-        var sheets = await _stateGetter.GetSheet<RuneOptionSheet>();
+        var sheets = await _stateGetter.GetSheetAsync<RuneOptionSheet>();
 
         if (!sheets.TryGetValue(id, out var optionRow))
         {
@@ -100,7 +100,7 @@ public class CpRepository
 
     private async Task<CharacterSheet.Row> GetCharacterRow(int characterId)
     {
-        var sheets = await _stateGetter.GetSheet<CharacterSheet>();
+        var sheets = await _stateGetter.GetSheetAsync<CharacterSheet>();
 
         if (!sheets.TryGetValue(characterId, out var row))
         {
