@@ -24,12 +24,28 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
         return "arena";
     }
 
-    public async Task<long> GetRankByAvatarAddress(string network, string avatarAddress)
+    public async Task<long> GetRankByAvatarAddress(
+        string network,
+        string avatarAddress,
+        int? championshipId,
+        int? round
+    )
     {
         var collection = GetCollection(network);
 
         var pipelines = new BsonDocument[]
         {
+            new BsonDocument(
+                "$match",
+                new BsonDocument(
+                    "$and",
+                    new BsonArray
+                    {
+                        new BsonDocument("RoundData.ChampionshipId", championshipId),
+                        new BsonDocument("RoundData.Round", round)
+                    }
+                )
+            ),
             new("$sort", new BsonDocument("Score.Score", -1)),
             new(
                 "$group",
@@ -50,21 +66,70 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
         return aggregation.Count == 0 ? 0 : (long)aggregation.First().Rank;
     }
 
-    public async Task<List<ArenaRanking>> GetRanking(string network, long limit, long offset)
+    public async Task<List<ArenaRanking>> GetRanking(
+        string network,
+        long limit,
+        long offset,
+        int? championshipId,
+        int? round
+    )
     {
         var collection = GetCollection(network);
 
-        var pipelines = new[]
+        var pipelines = new List<BsonDocument>
         {
-            @"{ $setWindowFields: { partitionBy: '', sortBy: { 'Score.Score': -1 }, output: { Rank: { $rank: {} } } } }",
-            $@"{{ $skip: {offset} }}",
-            $@"{{ $limit: {limit} }}",
-            @"{ $lookup: { from: 'avatars', localField: 'AvatarAddress', foreignField: 'Avatar.address', as: 'Avatar' } }",
-            @"{ $unwind: { path: '$Avatar', preserveNullAndEmptyArrays: true } }",
-            @"{ $unset: ['Avatar.Avatar.inventory', 'Avatar.Avatar.mailBox', 'Avatar.Avatar.stageMap', 'Avatar.Avatar.monsterMap', 'Avatar.Avatar.itemMap', 'Avatar.Avatar.eventMap'] }"
-        }
-            .Select(BsonDocument.Parse)
-            .ToArray();
+            new BsonDocument(
+                "$match",
+                new BsonDocument(
+                    "$and",
+                    new BsonArray
+                    {
+                        new BsonDocument("RoundData.ChampionshipId", championshipId),
+                        new BsonDocument("RoundData.Round", round)
+                    }
+                )
+            ),
+            new BsonDocument(
+                "$setWindowFields",
+                new BsonDocument
+                {
+                    { "partitionBy", "" },
+                    { "sortBy", new BsonDocument("Score.Score", -1) },
+                    {
+                        "output",
+                        new BsonDocument("Rank", new BsonDocument("$rank", new BsonDocument()))
+                    }
+                }
+            ),
+            new BsonDocument("$skip", offset),
+            new BsonDocument("$limit", limit),
+            new BsonDocument(
+                "$lookup",
+                new BsonDocument
+                {
+                    { "from", "avatars" },
+                    { "localField", "AvatarAddress" },
+                    { "foreignField", "Avatar.address" },
+                    { "as", "Avatar" }
+                }
+            ),
+            new BsonDocument(
+                "$unwind",
+                new BsonDocument { { "path", "$Avatar" }, { "preserveNullAndEmptyArrays", true } }
+            ),
+            new BsonDocument(
+                "$unset",
+                new BsonArray
+                {
+                    "Avatar.Avatar.inventory",
+                    "Avatar.Avatar.mailBox",
+                    "Avatar.Avatar.stageMap",
+                    "Avatar.Avatar.monsterMap",
+                    "Avatar.Avatar.itemMap",
+                    "Avatar.Avatar.eventMap"
+                }
+            )
+        };
 
         var aggregation = collection.Aggregate<BsonDocument>(pipelines).ToList();
         var arenaRankings = await Task.WhenAll(
