@@ -1,5 +1,6 @@
 using Libplanet.Crypto;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mimir.Arena;
 using Mimir.Models.Arena;
 using Mimir.Repositories;
@@ -14,9 +15,19 @@ namespace Mimir.Controllers;
 public class ArenaController(ArenaRankingRepository arenaRankingRepository) : ControllerBase
 {
     [HttpGet("ranking/{avatarAddress}/rank")]
-    public async Task<long> GetRankByAvatarAddress(string network, string avatarAddress)
+    public async Task<long> GetRankByAvatarAddress(
+        string network,
+        string avatarAddress,
+        int? championshipId,
+        int? round
+    )
     {
-        var rank = await arenaRankingRepository.GetRankByAvatarAddress(network, avatarAddress);
+        var rank = await arenaRankingRepository.GetRankByAvatarAddress(
+            network,
+            avatarAddress,
+            championshipId,
+            round
+        );
         if (rank == 0)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
@@ -27,9 +38,21 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
     }
 
     [HttpGet("ranking")]
-    public async Task<List<ArenaRanking>> GetRanking(string network, int limit, int offset)
+    public async Task<List<ArenaRanking>> GetRanking(
+        string network,
+        [BindRequired] int limit,
+        [BindRequired] int offset,
+        int? championshipId,
+        int? round
+    )
     {
-        return await arenaRankingRepository.GetRanking(network, limit, offset);
+        return await arenaRankingRepository.GetRanking(
+            network,
+            limit,
+            offset,
+            championshipId,
+            round
+        );
     }
 
     [HttpPost("simulate")]
