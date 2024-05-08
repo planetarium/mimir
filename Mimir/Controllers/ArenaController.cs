@@ -1,22 +1,22 @@
 using Libplanet.Crypto;
 using Microsoft.AspNetCore.Mvc;
-using Nekoyume.TableData;
 using Mimir.Arena;
 using Mimir.Models.Arena;
 using Mimir.Repositories;
 using Mimir.Services;
 using Mimir.Util;
+using Nekoyume.TableData;
 
 namespace Mimir.Controllers;
 
 [ApiController]
-[Route("arena")]
+[Route("{network}/arena")]
 public class ArenaController(ArenaRankingRepository arenaRankingRepository) : ControllerBase
 {
     [HttpGet("ranking/{avatarAddress}/rank")]
-    public async Task<long> GetRankByAvatarAddress(string avatarAddress)
+    public async Task<long> GetRankByAvatarAddress(string network, string avatarAddress)
     {
-        var rank = await arenaRankingRepository.GetRankByAvatarAddress(avatarAddress);
+        var rank = await arenaRankingRepository.GetRankByAvatarAddress(network, avatarAddress);
         if (rank == 0)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
@@ -27,15 +27,17 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
     }
 
     [HttpGet("ranking")]
-    public async Task<List<ArenaRanking>> GetRanking(int limit, int offset)
+    public async Task<List<ArenaRanking>> GetRanking(string network, int limit, int offset)
     {
-        return await arenaRankingRepository.GetRanking(limit, offset);
+        return await arenaRankingRepository.GetRanking(network, limit, offset);
     }
 
     [HttpPost("simulate")]
     public async Task<ArenaSimulateResponse> Simulate(
+        string network,
         [FromBody] ArenaSimulateRequest arenaSimulateRequest,
-        IStateService stateService)
+        IStateService stateService
+    )
     {
         var stateGetter = new StateGetter(stateService);
 
