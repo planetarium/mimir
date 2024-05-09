@@ -1,8 +1,6 @@
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Common;
-using Libplanet.Crypto;
-using Mimir.Worker.Events;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume;
@@ -38,6 +36,17 @@ public class TableSheetScrapper(
 
         foreach (var sheetType in sheetTypes)
         {
+            if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
+            {
+                continue;
+            }
+
+            if (sheetType == typeof(WorldBossKillRewardSheet) || sheetType == typeof(WorldBossBattleRewardSheet))
+            {
+                // Handle later;
+                continue;
+            }
+
             var sheetAddress = Addresses.TableSheet.Derive(sheetType.Name);
             var sheetState = await _stateService.GetState(sheetAddress);
             if (sheetState is not Text sheetValue)
@@ -52,6 +61,7 @@ public class TableSheetScrapper(
             }
 
             sheet.Set(sheetValue.Value);
+
             var sheetData = new TableSheetData(
                 sheetAddress,
                 sheetType.Name,
