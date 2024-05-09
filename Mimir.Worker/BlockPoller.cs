@@ -25,12 +25,13 @@ public class BlockPoller(IStateService stateService, HeadlessGQLClient headlessG
                 continue;
             }
 
-            var rawArenaTxsResp = await headlessGqlClient.GetBattleArenaTransactions.ExecuteAsync(processBlockIndex);
-
+            var rawArenaTxsResp = await headlessGqlClient.GetBattleArenaTransactions.ExecuteAsync(
+                processBlockIndex,
+                cancellationToken);
             if (rawArenaTxsResp.Data is null)
             {
-                Serilog.Log.Error("Failed to get arena txs. errors:\n" +
-                                  string.Join("\n", rawArenaTxsResp.Errors.Select(x => "- " + x.Message)));
+                var errors = rawArenaTxsResp.Errors.Select(e => e.Message);
+                Serilog.Log.Error("Failed to get arena txs. response data is null. errors:\n{Errors}", errors);
                 await mongoDbWorker.UpdateLatestBlockIndex(syncedBlockIndex + 1);
                 continue;
             }

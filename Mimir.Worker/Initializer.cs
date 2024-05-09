@@ -29,11 +29,10 @@ public class Initializer : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var started = DateTime.UtcNow;
-
         await _scrapper.ExecuteAsync(stoppingToken);   
-
-        var totalElapsedMinutes = DateTime.UtcNow.Subtract(started).Minutes;
-        _logger.LogInformation($"Finished Initializer background service. Elapsed {totalElapsedMinutes} minutes.");
+        _logger.LogInformation(
+            "Finished Initializer background service. Elapsed {TotalElapsedMinutes} minutes",
+            DateTime.UtcNow.Subtract(started).Minutes);
 
         var poller = new BlockPoller(_stateService, _headlessGqlClient, _worker);
         await poller.RunAsync(stoppingToken);
