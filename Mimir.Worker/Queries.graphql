@@ -17,3 +17,16 @@ query GetBattleArenaTransactions($blockIndex: Long!) {
         }
     }
 }
+
+query GetTransactions {
+    chainQuery {
+        blockQuery {
+            blocks(desc: true, limit: 1) {
+                index
+                transactions {
+                    signer
+                }
+            }
+        }
+    }
+}
