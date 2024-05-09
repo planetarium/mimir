@@ -6,36 +6,40 @@ namespace Mimir.Worker;
 
 public class Initializer : BackgroundService
 {
-    private readonly MongoDbWorker _worker;
-    private readonly ArenaScrapper _scrapper;
+    private readonly MongoDbStore _store;
+    private readonly ArenaScrapper _arenaScrapper;
+    private readonly TableSheetScrapper _tableSheetScrapper;
     private readonly ILogger<Initializer> _logger;
     private readonly HeadlessGQLClient _headlessGqlClient;
     private readonly IStateService _stateService;
 
     public Initializer(
         ILogger<Initializer> logger,
-        ILogger<ArenaScrapper> scrapperLogger,
+        ILogger<ArenaScrapper> arenaScrapperLogger,
+        ILogger<TableSheetScrapper> tableSheetScrapperLogger,
         HeadlessGQLClient headlessGqlClient,
         IStateService stateService,
-        MongoDbWorker worker)
+        MongoDbStore store)
     {
         _logger = logger;
         _stateService = stateService;
-        _worker = worker;
+        _store = store;
         _headlessGqlClient = headlessGqlClient;
-        _scrapper = new ArenaScrapper(scrapperLogger, _stateService, _worker);
+        _arenaScrapper = new ArenaScrapper(arenaScrapperLogger, _stateService, _store);
+        _tableSheetScrapper = new TableSheetScrapper(tableSheetScrapperLogger, _stateService, _store);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var started = DateTime.UtcNow;
 
-        await _scrapper.ExecuteAsync(stoppingToken);   
+        await _tableSheetScrapper.ExecuteAsync(stoppingToken);   
+        await _arenaScrapper.ExecuteAsync(stoppingToken);   
 
         var totalElapsedMinutes = DateTime.UtcNow.Subtract(started).Minutes;
         _logger.LogInformation($"Finished Initializer background service. Elapsed {totalElapsedMinutes} minutes.");
 
-        var poller = new BlockPoller(_stateService, _headlessGqlClient, _worker);
+        var poller = new BlockPoller(_stateService, _headlessGqlClient, _store);
         await poller.RunAsync(stoppingToken);
     }
 }

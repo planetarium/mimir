@@ -1,14 +1,16 @@
-using MongoDB.Driver;
 using Libplanet.Crypto;
+using Mimir.Worker.Models;
+using Mimir.Worker.Scrapper;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Mimir.Worker.Models;
+using MongoDB.Driver;
+using Nekoyume.TableData;
 
 namespace Mimir.Worker.Services;
 
-public class MongoDbWorker
+public class MongoDbStore
 {
-    private readonly ILogger<MongoDbWorker> _logger;
+    private readonly ILogger<MongoDbStore> _logger;
 
     private readonly IMongoClient _client;
 
@@ -16,20 +18,26 @@ public class MongoDbWorker
 
     private readonly string _databaseName;
 
-    private IMongoCollection<BsonDocument> ArenaCollection => _database.GetCollection<BsonDocument>("arena");
+    private IMongoCollection<BsonDocument> ArenaCollection =>
+        _database.GetCollection<BsonDocument>("arena");
 
-    private IMongoCollection<BsonDocument> AvatarCollection => _database.GetCollection<BsonDocument>("avatars");
+    private IMongoCollection<BsonDocument> AvatarCollection =>
+        _database.GetCollection<BsonDocument>("avatars");
 
-    private IMongoCollection<BsonDocument> MetadataCollection => _database.GetCollection<BsonDocument>("metadata");
+    private IMongoCollection<BsonDocument> MetadataCollection =>
+        _database.GetCollection<BsonDocument>("metadata");
 
-    public MongoDbWorker(ILogger<MongoDbWorker> logger, string connectionString, string databaseName)
+    private IMongoCollection<BsonDocument> TableSheetsCollection =>
+        _database.GetCollection<BsonDocument>("tableSheets");
+
+    public MongoDbStore(ILogger<MongoDbStore> logger, string connectionString, string databaseName)
     {
         _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
         _logger = logger;
         _databaseName = databaseName;
     }
-    
+
     public async Task LinkAvatarWithArenaAsync(Address address)
     {
         var avatarFilter = Builders<BsonDocument>.Filter.Eq("Avatar.address", address.ToHex());
@@ -39,8 +47,13 @@ public class MongoDbWorker
             var objectId = avatar["_id"].AsObjectId;
             var arenaFilter = Builders<BsonDocument>.Filter.Eq("AvatarAddress", address.ToHex());
             var update = Builders<BsonDocument>.Update.Set("AvatarObjectId", objectId);
-            var updateModel = new UpdateOneModel<BsonDocument>(arenaFilter, update) { IsUpsert = false };
-            await ArenaCollection.BulkWriteAsync(new List<WriteModel<BsonDocument>> { updateModel });
+            var updateModel = new UpdateOneModel<BsonDocument>(arenaFilter, update)
+            {
+                IsUpsert = false
+            };
+            await ArenaCollection.BulkWriteAsync(
+                new List<WriteModel<BsonDocument>> { updateModel }
+            );
         }
     }
 
@@ -50,10 +63,7 @@ public class MongoDbWorker
         var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
         var updateModel = new UpdateOneModel<BsonDocument>(filter, update);
-        await MetadataCollection.BulkWriteAsync(new[]
-        {
-            updateModel
-        });
+        await MetadataCollection.BulkWriteAsync(new[] { updateModel });
     }
 
     public async Task<long> GetLatestBlockIndex()
@@ -71,9 +81,15 @@ public class MongoDbWorker
         {
             foreach (var arenaData in arenaDatas)
             {
-                var filter = Builders<BsonDocument>.Filter.Eq("AvatarAddress", arenaData.AvatarAddress.ToHex());
+                var filter = Builders<BsonDocument>.Filter.Eq(
+                    "AvatarAddress",
+                    arenaData.AvatarAddress.ToHex()
+                );
                 var bsonDocument = BsonDocument.Parse(arenaData.ToJson());
-                var upsertOne = new ReplaceOneModel<BsonDocument>(filter, bsonDocument) { IsUpsert = true };
+                var upsertOne = new ReplaceOneModel<BsonDocument>(filter, bsonDocument)
+                {
+                    IsUpsert = true
+                };
                 bulkOps.Add(upsertOne);
             }
             if (bulkOps.Count > 0)
@@ -84,7 +100,7 @@ public class MongoDbWorker
 
             _logger.LogInformation($"Stored {bulkOps.Count} arena data");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError($"An error occurred during BulkUpsertArenaDataAsync: {ex.Message}");
         }
@@ -98,9 +114,15 @@ public class MongoDbWorker
         {
             foreach (var avatarData in avatarDatas)
             {
-                var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarData.Avatar.address.ToHex());
+                var filter = Builders<BsonDocument>.Filter.Eq(
+                    "Avatar.address",
+                    avatarData.Avatar.address.ToHex()
+                );
                 var bsonDocument = BsonDocument.Parse(avatarData.ToJson());
-                var upsertOne = new ReplaceOneModel<BsonDocument>(filter, bsonDocument) { IsUpsert = true };
+                var upsertOne = new ReplaceOneModel<BsonDocument>(filter, bsonDocument)
+                {
+                    IsUpsert = true
+                };
                 bulkOps.Add(upsertOne);
             }
             if (bulkOps.Count > 0)
@@ -110,15 +132,28 @@ public class MongoDbWorker
 
             _logger.LogInformation($"Stored {bulkOps.Count} avatar data");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError($"An error occurred during BulkUpsertAvatarDataAsync: {ex.Message}");
         }
     }
 
+    public async Task InsertTableSheets(TableSheetData sheetData)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", sheetData.Address.ToHex());
+        var bsonDocument = BsonDocument.Parse(sheetData.ToJson());
+        await TableSheetsCollection.ReplaceOneAsync(
+            filter,
+            bsonDocument,
+            new ReplaceOptions { IsUpsert = true }
+        );
+    }
+
     public async Task<bool> IsInitialized()
     {
-        var names = await (await _client.GetDatabase(_databaseName).ListCollectionNamesAsync()).ToListAsync();
+        var names = await (
+            await _client.GetDatabase(_databaseName).ListCollectionNamesAsync()
+        ).ToListAsync();
         return names is not { } ns || !(ns.Contains("arena") && ns.Contains("avatars"));
     }
 }

@@ -8,14 +8,14 @@ using Mimir.Worker.Services;
 
 namespace Mimir.Worker;
 
-public class BlockPoller(IStateService stateService, HeadlessGQLClient headlessGqlClient, MongoDbWorker mongoDbWorker)
+public class BlockPoller(IStateService stateService, HeadlessGQLClient headlessGqlClient, MongoDbStore mongoDbStore)
 {
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         var stateGetter = new StateGetter(stateService);
         while (!cancellationToken.IsCancellationRequested)
         {
-            var syncedBlockIndex = await mongoDbWorker.GetLatestBlockIndex();
+            var syncedBlockIndex = await mongoDbStore.GetLatestBlockIndex();
             var currentBlockIndex = await stateService.GetLatestIndex();
             var processBlockIndex = syncedBlockIndex + 1;
 
@@ -31,7 +31,7 @@ public class BlockPoller(IStateService stateService, HeadlessGQLClient headlessG
             {
                 Serilog.Log.Error("Failed to get arena txs. errors:\n" +
                                   string.Join("\n", rawArenaTxsResp.Errors.Select(x => "- " + x.Message)));
-                await mongoDbWorker.UpdateLatestBlockIndex(syncedBlockIndex + 1);
+                await mongoDbStore.UpdateLatestBlockIndex(syncedBlockIndex + 1);
                 continue;
             }
 
@@ -56,13 +56,13 @@ public class BlockPoller(IStateService stateService, HeadlessGQLClient headlessG
                     var myArenaData = await stateGetter.GetArenaData(roundData, myAvatarAddress);
                     var enemyArenaData = await stateGetter.GetArenaData(roundData, enemyAvatarAddress);
 
-                    await mongoDbWorker.BulkUpsertAvatarDataAsync(new List<AvatarData> { myAvatarData, enemyAvatarData });
-                    await mongoDbWorker.BulkUpsertArenaDataAsync(new List<ArenaData> { myArenaData, enemyArenaData });
+                    await mongoDbStore.BulkUpsertAvatarDataAsync(new List<AvatarData> { myAvatarData, enemyAvatarData });
+                    await mongoDbStore.BulkUpsertArenaDataAsync(new List<ArenaData> { myArenaData, enemyArenaData });
                 }
             }
             finally
             {
-                await mongoDbWorker.UpdateLatestBlockIndex(syncedBlockIndex + 1);
+                await mongoDbStore.UpdateLatestBlockIndex(syncedBlockIndex + 1);
             }
         }
     }
