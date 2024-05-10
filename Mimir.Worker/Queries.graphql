@@ -18,15 +18,10 @@ query GetBattleArenaTransactions($blockIndex: Long!) {
     }
 }
 
-query GetTransactions {
-    chainQuery {
-        blockQuery {
-            blocks(desc: true, limit: 1) {
-                index
-                transactions {
-                    signer
-                }
-            }
+query GetTransactionSigners($blockIndex: Long!) {
+    transaction {
+        ncTransactions(startingBlockIndex: $blockIndex, limit: 1, actionType: "^[a-zA-Z0-9]*$") {
+            signer
         }
     }
 }

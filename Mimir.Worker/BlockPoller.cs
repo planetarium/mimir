@@ -37,28 +37,29 @@ public class BlockPoller(IStateService stateService, IHeadlessGQLClient headless
         StateGetter stateGetter,
         CancellationToken cancellationToken)
     {
-        var operationResult = await headlessGqlClient.GetTransactions.ExecuteAsync(cancellationToken);
+        var operationResult = await headlessGqlClient.GetTransactionSigners.ExecuteAsync(
+            processBlockIndex,
+            cancellationToken);
         if (operationResult.Data is null)
         {
             HandleErrors(operationResult);
             return;
         }
 
-        if (operationResult.Data.ChainQuery.BlockQuery is null ||
-            operationResult.Data.ChainQuery.BlockQuery.Blocks.Count == 0)
+        var txs = operationResult.Data.Transaction.NcTransactions;
+        if (txs is null || txs.Count == 0)
         {
             return;
         }
 
-        var block = operationResult.Data.ChainQuery.BlockQuery.Blocks[0];
-        if (block.Index < processBlockIndex)
+        foreach (var tx in txs)
         {
-            return;
-        }
+            if (tx is null)
+            {
+                continue;
+            }
 
-        foreach (var transaction in block.Transactions)
-        {
-            var agentAddress = new Address(transaction.Signer);
+            var agentAddress = new Address(tx.Signer);
             var avatarAddresses = Enumerable.Range(0, GameConfig.SlotCount)
                 .Select(e => Addresses.GetAvatarAddress(agentAddress, e));
             var avatarDataArray = await Task.WhenAll(avatarAddresses.Select(stateGetter.GetAvatarData));
