@@ -25,6 +25,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
 builder.Services.AddSingleton<MongoDBCollectionService>();
 builder.Services.AddSingleton<ArenaRankingRepository>();
+builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
