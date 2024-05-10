@@ -17,3 +17,11 @@ query GetBattleArenaTransactions($blockIndex: Long!) {
         }
     }
 }
+
+query GetTransactionSigners($blockIndex: Long!) {
+    transaction {
+        ncTransactions(startingBlockIndex: $blockIndex, limit: 1, actionType: "^[a-zA-Z0-9]*$") {
+            signer
+        }
+    }
+}
