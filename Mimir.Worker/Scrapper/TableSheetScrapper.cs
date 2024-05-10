@@ -5,6 +5,7 @@ using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume;
 using Nekoyume.Action;
+using Nekoyume.Model.State;
 using Nekoyume.TableData;
 
 namespace Mimir.Worker.Scrapper;
@@ -66,8 +67,10 @@ public class TableSheetScrapper(
                 sheetAddress,
                 sheetType.Name,
                 sheet,
+                sheetState.ToDotnetString(),
                 ByteUtil.Hex(new Codec().Encode(sheetState))
             );
+            
             await _store.InsertTableSheets(sheetData);
         }
     }

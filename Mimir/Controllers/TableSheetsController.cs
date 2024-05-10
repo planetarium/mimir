@@ -1,9 +1,6 @@
-using Libplanet.Crypto;
 using Microsoft.AspNetCore.Mvc;
-using Mimir.Models.Agent;
+using Mimir.Enums;
 using Mimir.Repositories;
-using Mimir.Services;
-using Mimir.Util;
 
 namespace Mimir.Controllers;
 
@@ -12,9 +9,7 @@ namespace Mimir.Controllers;
 public class TableSheetsController(TableSheetsRepository tableSheetsRepository) : ControllerBase
 {
     [HttpGet("names")]
-    public async Task<string[]> GetSheetNames(
-        string network
-    )
+    public async Task<string[]> GetSheetNames(string network)
     {
         var sheetNames = tableSheetsRepository.GetSheetNames(network);
 
@@ -22,13 +17,26 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
     }
 
     [HttpGet("{sheetName}")]
-    public async Task<ContentResult> GetSheet(
+    public async Task<IActionResult> GetSheet(
         string network,
-        string sheetName
+        string sheetName,
+        string? format = "csv"
     )
     {
-        var sheet = tableSheetsRepository.GetSheet(network, sheetName);
+        if (!Enum.TryParse(format, true, out SheetFormat sheetFormat))
+        {
+            return BadRequest(
+                new { message = "Invalid format. Supported formats are 'json' and 'csv'." }
+            );
+        }
 
-        return Content(sheet, "application/json");;
+        var sheet = tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
+        string contentType = sheetFormat switch
+        {
+            SheetFormat.Csv => "text/csv",
+            _ => "application/json"
+        };
+
+        return Content(sheet, contentType);
     }
 }

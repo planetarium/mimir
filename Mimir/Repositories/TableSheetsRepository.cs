@@ -1,10 +1,9 @@
-using Mimir.Models.Avatar;
+using System.Text;
+using Mimir.Enums;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Mimir.Repositories;
 
@@ -37,20 +36,36 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
         return names.ToArray();
     }
 
-    public string GetSheet(string network, string sheetName)
+    public string GetSheet(string network, string sheetName, SheetFormat sheetFormat)
     {
         var collection = GetCollection(network);
 
-        var projection = Builders<BsonDocument>.Projection.Include("Sheet").Exclude("_id");
+        string fieldToInclude = sheetFormat switch
+        {
+            SheetFormat.Csv => "SheetCsv",
+            _ => "SheetJson"
+        };
+
+        var projection = Builders<BsonDocument>.Projection.Include(fieldToInclude).Exclude("_id");
 
         var filter = Builders<BsonDocument>.Filter.Eq("Name", sheetName);
         var document = collection.Find(filter).Project(projection).FirstOrDefault();
 
-        if (document == null)
+        if (
+            document == null
+            || !document.Contains(fieldToInclude)
+            || document[fieldToInclude].IsBsonNull
+        )
         {
-            return "{}";
+            return sheetFormat == SheetFormat.Csv ? "" : "{}";
         }
 
-        return document["Sheet"].ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
+        return sheetFormat switch
+        {
+            SheetFormat.Csv => document[fieldToInclude].AsString,
+            _
+                => document[fieldToInclude]
+                    .ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict })
+        };
     }
 }
