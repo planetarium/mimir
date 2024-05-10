@@ -10,14 +10,14 @@ using StrawberryShake;
 
 namespace Mimir.Worker;
 
-public class BlockPoller(IStateService stateService, IHeadlessGQLClient headlessGqlClient, MongoDbWorker mongoDbWorker)
+public class BlockPoller(IStateService stateService, IHeadlessGQLClient headlessGqlClient, MongoDbStore mongoDbStore)
 {
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         var stateGetter = new StateGetter(stateService);
         while (!cancellationToken.IsCancellationRequested)
         {
-            var syncedBlockIndex = await mongoDbWorker.GetLatestBlockIndex();
+            var syncedBlockIndex = await mongoDbStore.GetLatestBlockIndex();
             var currentBlockIndex = await stateService.GetLatestIndex();
             var processBlockIndex = syncedBlockIndex + 1;
             if (processBlockIndex >= currentBlockIndex)
@@ -28,7 +28,7 @@ public class BlockPoller(IStateService stateService, IHeadlessGQLClient headless
 
             await EveryAvatarAsync(processBlockIndex, stateGetter, cancellationToken);
             await BattleArenaAsync(processBlockIndex, stateGetter, cancellationToken);
-            await mongoDbWorker.UpdateLatestBlockIndex(processBlockIndex);
+            await mongoDbStore.UpdateLatestBlockIndex(processBlockIndex);
         }
     }
 
@@ -63,7 +63,7 @@ public class BlockPoller(IStateService stateService, IHeadlessGQLClient headless
             var avatarAddresses = Enumerable.Range(0, GameConfig.SlotCount)
                 .Select(e => Addresses.GetAvatarAddress(agentAddress, e));
             var avatarDataArray = await Task.WhenAll(avatarAddresses.Select(stateGetter.GetAvatarData));
-            await mongoDbWorker.BulkUpsertAvatarDataAsync(
+            await mongoDbStore.BulkUpsertAvatarDataAsync(
                 avatarDataArray
                     .Where(e => e is not null)
                     .OfType<AvatarData>()
@@ -108,12 +108,12 @@ public class BlockPoller(IStateService stateService, IHeadlessGQLClient headless
             var myArenaData = await stateGetter.GetArenaData(roundData, myAvatarAddress);
             var enemyArenaData = await stateGetter.GetArenaData(roundData, enemyAvatarAddress);
 
-            await mongoDbWorker.BulkUpsertAvatarDataAsync(
+            await mongoDbStore.BulkUpsertAvatarDataAsync(
                 new[] { myAvatarData, enemyAvatarData }
                     .Where(e => e is not null)
                     .OfType<AvatarData>()
                     .ToList());
-            await mongoDbWorker.BulkUpsertArenaDataAsync(
+            await mongoDbStore.BulkUpsertArenaDataAsync(
                 new[] { myArenaData, enemyArenaData }
                     .Where(e => e is not null)
                     .OfType<ArenaData>()
