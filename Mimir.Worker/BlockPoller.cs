@@ -26,13 +26,13 @@ public class BlockPoller(IStateService stateService, IHeadlessGQLClient headless
                 continue;
             }
 
-            await AllInventoryAsync(processBlockIndex, stateGetter, cancellationToken);
+            await EveryAvatarAsync(processBlockIndex, stateGetter, cancellationToken);
             await BattleArenaAsync(processBlockIndex, stateGetter, cancellationToken);
             await mongoDbWorker.UpdateLatestBlockIndex(processBlockIndex);
         }
     }
 
-    private async Task AllInventoryAsync(
+    private async Task EveryAvatarAsync(
         long processBlockIndex,
         StateGetter stateGetter,
         CancellationToken cancellationToken)
