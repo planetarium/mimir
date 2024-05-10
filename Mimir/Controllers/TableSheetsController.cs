@@ -30,7 +30,7 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
             );
         }
 
-        var sheet = tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
+        var sheet = await tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
         string contentType = sheetFormat switch
         {
             SheetFormat.Csv => "text/csv",

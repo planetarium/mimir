@@ -1,10 +1,9 @@
+using System.Text;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
-using Mimir.Worker.Scrapper;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver;
-using Nekoyume.TableData;
+using MongoDB.Driver.GridFS;
 
 namespace Mimir.Worker.Services;
 
@@ -17,6 +16,8 @@ public class MongoDbStore
     private readonly IMongoDatabase _database;
 
     private readonly string _databaseName;
+
+    private readonly GridFSBucket _gridFs;
 
     private IMongoCollection<BsonDocument> ArenaCollection =>
         _database.GetCollection<BsonDocument>("arena");
@@ -36,6 +37,7 @@ public class MongoDbStore
         _database = _client.GetDatabase(databaseName);
         _logger = logger;
         _databaseName = databaseName;
+        _gridFs = new GridFSBucket(_database);
     }
 
     public async Task LinkAvatarWithArenaAsync(Address address)
@@ -141,10 +143,22 @@ public class MongoDbStore
     public async Task InsertTableSheets(TableSheetData sheetData)
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", sheetData.Address.ToHex());
-        var bsonDocument = BsonDocument.Parse(sheetData.ToJson());
+
+        var sheetCsvBytes = Encoding.UTF8.GetBytes(sheetData.SheetCsv);
+        var sheetCsvId = await _gridFs.UploadFromBytesAsync($"{sheetData.Name}-csv", sheetCsvBytes);
+        var sheetRawBytes = Encoding.UTF8.GetBytes(sheetData.Raw);
+        var sheetRawId = await _gridFs.UploadFromBytesAsync($"{sheetData.Name}-raw", sheetRawBytes);
+
+        var document = BsonDocument.Parse(sheetData.ToJson());
+
+        document.Remove("SheetCsv");
+        document.Add("SheetCsvFileId", sheetCsvId);
+        document.Remove("Raw");
+        document.Add("SheetRawFileId", sheetRawId);
+        
         await TableSheetsCollection.ReplaceOneAsync(
             filter,
-            bsonDocument,
+            document,
             new ReplaceOptions { IsUpsert = true }
         );
     }

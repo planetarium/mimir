@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using Mimir.Options;
+using MongoDB.Driver;
 
 namespace Mimir.Services;
 
@@ -10,8 +10,13 @@ public class MongoDBCollectionService(IOptions<DatabaseOption> databaseOption)
 
     public IMongoCollection<T> GetCollection<T>(string collectionName, string databaseName)
     {
-        var client = new MongoClient(_databaseOption.Value.ConnectionString);
-        var database = client.GetDatabase(databaseName);
+        var database = GetDatabase(databaseName);
         return database.GetCollection<T>(collectionName);
+    }
+
+    public IMongoDatabase GetDatabase(string databaseName)
+    {
+        var client = new MongoClient(_databaseOption.Value.ConnectionString);
+        return client.GetDatabase(databaseName);
     }
 }
