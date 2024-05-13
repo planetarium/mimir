@@ -21,22 +21,22 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
     public async Task<IActionResult> GetSheet(string network, string sheetName)
     {
         var acceptHeader = Request.Headers["Accept"].ToString();
+        SheetFormat? sheetFormatNullable = acceptHeader switch
+        {
+            "text/csv" => SheetFormat.Csv,
+            "application/json" => SheetFormat.Json,
+            _ => null,
+        };
 
-        SheetFormat sheetFormat = acceptHeader.Contains("text/csv")
-            ? SheetFormat.Csv
-            : SheetFormat.Json;
+        if (sheetFormatNullable is not { } sheetFormat)
+        {
+            return StatusCode(StatusCodes.Status406NotAcceptable);
+        }
 
         try
         {
             var sheet = await tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
-
-            string contentType = sheetFormat switch
-            {
-                SheetFormat.Csv => "text/csv",
-                _ => "application/json"
-            };
-
-            return Content(sheet, contentType);
+            return Content(sheet, sheetFormat.ToMimeType());
         }
         catch (KeyNotFoundException ex)
         {
