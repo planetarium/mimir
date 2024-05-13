@@ -1,6 +1,16 @@
+using System.Numerics;
+using Bencodex;
+using Libplanet.Common;
+using Libplanet.Crypto;
 using Microsoft.AspNetCore.Mvc;
 using Mimir.Models.Avatar;
 using Mimir.Repositories;
+using Mimir.Services;
+using Mimir.Util;
+using MongoDB.Bson;
+using Nekoyume.Model.State;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Mimir.Controllers;
 
@@ -90,12 +100,34 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
     #endregion snippets
 
     [HttpGet("{avatarAddress}/inventory")]
-    public Inventory? GetInventory(string network, string avatarAddress)
+    public async Task<Inventory?> GetInventory(
+        string network,
+        string avatarAddress,
+        IStateService stateService)
     {
         var inventory = avatarRepository.GetInventory(network, avatarAddress);
-        if (inventory is null)
+        if (inventory is not null)
+        {
+            return inventory;
+        }
+
+        var stateGetter = new StateGetter(stateService);
+        var inventoryState = await stateGetter.GetInventoryStateAsync(new Address(avatarAddress));
+        if (inventoryState is null)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
+            return null;
+        }
+
+        try
+        {
+            var jsonString = JsonConvert.SerializeObject(inventoryState, JsonSerializerSettings);
+            var bsonDocument = BsonDocument.Parse(jsonString);
+            inventory = new Inventory(bsonDocument);
+        }
+        catch
+        {
+            Response.StatusCode = StatusCodes.Status500InternalServerError;
             return null;
         }
 
