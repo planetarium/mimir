@@ -7,14 +7,16 @@ public class TableSheetData : BaseData
 {
     public Address Address { get; }
     public string Name { get; }
-    public ISheet Sheet { get; }
+    public ISheet SheetJson { get; }
+    public string SheetCsv { get; }
     public string Raw { get; }
 
-    public TableSheetData(Address address, string name, ISheet sheet, string raw)
+    public TableSheetData(Address address, string name, ISheet sheetJson, string sheetCsv, string raw)
     {
         Address = address;
         Name = name;
-        Sheet = sheet;
+        SheetJson = sheetJson;
+        SheetCsv = sheetCsv;
         Raw = raw;
     }
 }
