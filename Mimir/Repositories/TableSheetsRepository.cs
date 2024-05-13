@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using Mimir.Enums;
 using Mimir.Services;
@@ -59,7 +60,7 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
             || document[fieldToInclude].IsBsonNull
         )
         {
-            return sheetFormat == SheetFormat.Json ? "{}" : "";
+            throw new KeyNotFoundException(sheetName);
         }
 
         return sheetFormat switch

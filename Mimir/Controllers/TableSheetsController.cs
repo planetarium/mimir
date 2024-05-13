@@ -18,10 +18,7 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
 
     [HttpGet("{sheetName}")]
     [Produces("application/json", "text/csv")]
-    public async Task<IActionResult> GetSheet(
-        string network,
-        string sheetName
-    )
+    public async Task<IActionResult> GetSheet(string network, string sheetName)
     {
         var acceptHeader = Request.Headers["Accept"].ToString();
 
@@ -29,13 +26,21 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
             ? SheetFormat.Csv
             : SheetFormat.Json;
 
-        var sheet = await tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
-        string contentType = sheetFormat switch
+        try
         {
-            SheetFormat.Csv => "text/csv",
-            _ => "application/json"
-        };
+            var sheet = await tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
 
-        return Content(sheet, contentType);
+            string contentType = sheetFormat switch
+            {
+                SheetFormat.Csv => "text/csv",
+                _ => "application/json"
+            };
+
+            return Content(sheet, contentType);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 }
