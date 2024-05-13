@@ -66,11 +66,19 @@ public class MongoDbStore
         await MetadataCollection.BulkWriteAsync(new[] { updateModel });
     }
 
-    public async Task<long> GetLatestBlockIndex()
+    public async Task<long?> GetLatestBlockIndex()
     {
         var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
-        var doc = await MetadataCollection.FindSync(filter).FirstAsync();
-        return doc.GetValue("LatestBlockIndex").AsInt64;
+        try
+        {
+            var doc = await MetadataCollection.FindSync(filter).FirstAsync();
+            return doc.GetValue("LatestBlockIndex").AsInt64;
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }
     }
 
     public async Task BulkUpsertArenaDataAsync(List<ArenaData> arenaDatas)

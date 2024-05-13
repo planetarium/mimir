@@ -17,10 +17,10 @@ public class BlockPoller(IStateService stateService, IHeadlessGQLClient headless
         var stateGetter = new StateGetter(stateService);
         while (!cancellationToken.IsCancellationRequested)
         {
-            var syncedBlockIndex = await mongoDbStore.GetLatestBlockIndex();
             var currentBlockIndex = await stateService.GetLatestIndex();
+            var syncedBlockIndex = await mongoDbStore.GetLatestBlockIndex() ?? currentBlockIndex - 1;
             var processBlockIndex = syncedBlockIndex + 1;
-            if (processBlockIndex >= currentBlockIndex)
+            if (processBlockIndex > currentBlockIndex)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(3000), cancellationToken);
                 continue;
