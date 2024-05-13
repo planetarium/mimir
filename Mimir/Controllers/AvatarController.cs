@@ -7,7 +7,6 @@ using Mimir.Models.Avatar;
 using Mimir.Repositories;
 using Mimir.Services;
 using Mimir.Util;
-using MongoDB.Bson;
 using Nekoyume.Model.State;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -119,18 +118,6 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             return null;
         }
 
-        try
-        {
-            var jsonString = JsonConvert.SerializeObject(inventoryState, JsonSerializerSettings);
-            var bsonDocument = BsonDocument.Parse(jsonString);
-            inventory = new Inventory(bsonDocument);
-        }
-        catch
-        {
-            Response.StatusCode = StatusCodes.Status500InternalServerError;
-            return null;
-        }
-
-        return inventory;
+        return new Inventory(inventoryState);
     }
 }
