@@ -17,18 +17,17 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
     }
 
     [HttpGet("{sheetName}")]
+    [Produces("application/json", "text/csv")]
     public async Task<IActionResult> GetSheet(
         string network,
-        string sheetName,
-        string? format = "csv"
+        string sheetName
     )
     {
-        if (!Enum.TryParse(format, true, out SheetFormat sheetFormat))
-        {
-            return BadRequest(
-                new { message = "Invalid format. Supported formats are 'json' and 'csv'." }
-            );
-        }
+        var acceptHeader = Request.Headers["Accept"].ToString();
+
+        SheetFormat sheetFormat = acceptHeader.Contains("text/csv")
+            ? SheetFormat.Csv
+            : SheetFormat.Json;
 
         var sheet = await tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
         string contentType = sheetFormat switch
