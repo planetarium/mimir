@@ -26,7 +26,7 @@ public class AccountController : ControllerBase
         }
 
         return new AvatarsResponse(
-            avatars.Select(e => new Avatar(e.address.ToString(), e.name, e.level)).ToList()
+            avatars.Select(e => new Avatar(e.address.ToString(), e.name, e.level, e.actionPoint)).ToList()
         );
     }
 }

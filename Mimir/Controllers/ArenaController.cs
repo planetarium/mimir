@@ -6,7 +6,9 @@ using Mimir.Models.Arena;
 using Mimir.Repositories;
 using Mimir.Services;
 using Mimir.Util;
+using Nekoyume.Model.EnumType;
 using Nekoyume.TableData;
+using Nekoyume.TableData.Rune;
 
 namespace Mimir.Controllers;
 
@@ -69,17 +71,20 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
         var myAvatarState = await stateGetter.GetAvatarStateAsync(myAvatarAddress);
         var myAvatarItemSlotState = await stateGetter.GetItemSlotStateAsync(myAvatarAddress);
         var myAvatarRuneStates = await stateGetter.GetRuneStatesAsync(myAvatarAddress);
+        var myAvatarRuneSlotState = await stateGetter.GetRuneSlotStateAsync(myAvatarAddress, BattleType.Arena);
         var enemyAvatarState = await stateGetter.GetAvatarStateAsync(enemyAvatarAddress);
         var enemyAvatarItemSlotState = await stateGetter.GetItemSlotStateAsync(enemyAvatarAddress);
         var enemyAvatarRuneStates = await stateGetter.GetRuneStatesAsync(enemyAvatarAddress);
+        var enemyAvatarRuneSlotState = await stateGetter.GetRuneSlotStateAsync(enemyAvatarAddress, BattleType.Arena);
 
         var bulkSimulator = new ArenaBulkSimulator();
         var result = await bulkSimulator.BulkSimulate(
-            new AvatarStatesForArena(myAvatarState, myAvatarItemSlotState, myAvatarRuneStates),
+            new AvatarStatesForArena(myAvatarState, myAvatarItemSlotState, myAvatarRuneStates, myAvatarRuneSlotState),
             new AvatarStatesForArena(
                 enemyAvatarState,
                 enemyAvatarItemSlotState,
-                enemyAvatarRuneStates
+                enemyAvatarRuneStates,
+                enemyAvatarRuneSlotState
             ),
             new ArenaSimulatorSheets(
                 await stateGetter.GetSheetAsync<MaterialItemSheet>(),
@@ -93,7 +98,9 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
                 await stateGetter.GetSheetAsync<EquipmentItemSetEffectSheet>(),
                 await stateGetter.GetSheetAsync<CostumeStatSheet>(),
                 await stateGetter.GetSheetAsync<WeeklyArenaRewardSheet>(),
-                await stateGetter.GetSheetAsync<RuneOptionSheet>()
+                await stateGetter.GetSheetAsync<RuneOptionSheet>(),
+                await stateGetter.GetSheetAsync<RuneListSheet>(),
+                await stateGetter.GetSheetAsync<RuneLevelBonusSheet>()
             ),
             await stateGetter.GetCollectionStatesAsync([myAvatarAddress, enemyAvatarAddress]),
             await stateGetter.GetSheetAsync<CollectionSheet>(),

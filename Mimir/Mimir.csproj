@@ -15,8 +15,8 @@
     <PackageReference Include="MongoDB.Driver.GridFS" Version="2.25.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-    <PackageReference Include="Lib9c" Version="1.8.0-dev.c6a17ceb8856f4c7c6bdc7a7288be58479d9d006" />
-    <PackageReference Include="Libplanet" Version="4.1.0-dev.20242745721" />
+    <PackageReference Include="Lib9c" Version="1.8.0-dev.c5644aff871034a92042833edca03b85c2a24a1c" />
+    <PackageReference Include="Libplanet" Version="4.4.1" />
     <PackageReference Include="StrawberryShake" Version="13.8.1" />
     <PackageReference Include="StrawberryShake.Transport.Http" Version="13.8.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.3.1" />

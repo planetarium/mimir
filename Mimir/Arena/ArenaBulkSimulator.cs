@@ -72,10 +72,10 @@ public class ArenaBulkSimulator
                 }
             }
         }
-        
+
         var arenaLog = simulator.Simulate(
-            new ArenaPlayerDigest(myAvatar.AvatarState, myAvatar.ItemSlotState.Equipments, myAvatar.ItemSlotState.Costumes, myAvatar.RuneStates),
-            new ArenaPlayerDigest(enemyAvatar.AvatarState, enemyAvatar.ItemSlotState.Equipments, enemyAvatar.ItemSlotState.Costumes, enemyAvatar.RuneStates),
+            new ArenaPlayerDigest(myAvatar.AvatarState, myAvatar.ItemSlotState.Equipments, myAvatar.ItemSlotState.Costumes, myAvatar.RuneStates, myAvatar.RuneSlotState),
+            new ArenaPlayerDigest(enemyAvatar.AvatarState, enemyAvatar.ItemSlotState.Equipments, enemyAvatar.ItemSlotState.Costumes, enemyAvatar.RuneStates, enemyAvatar.RuneSlotState),
             simulatorSheets,
             modifiers[myAvatar.AvatarState.address],
             modifiers[enemyAvatar.AvatarState.address],
