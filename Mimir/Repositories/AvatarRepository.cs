@@ -8,7 +8,9 @@ namespace Mimir.Repositories;
 public class AvatarRepository : BaseRepository<BsonDocument>
 {
     public AvatarRepository(MongoDBCollectionService mongoDBCollectionService)
-        : base(mongoDBCollectionService) { }
+        : base(mongoDBCollectionService)
+    {
+    }
 
     protected override string GetCollectionName()
     {
@@ -21,7 +23,18 @@ public class AvatarRepository : BaseRepository<BsonDocument>
         var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress);
         var projection = Builders<BsonDocument>.Projection.Include("Avatar.inventory.Equipments");
         var document = collection.Find(filter).Project(projection).FirstOrDefault();
+        if (document is null)
+        {
+            return null;
+        }
 
-        return document is null ? null : new Inventory(document["Avatar"]["inventory"]);
+        try
+        {
+            return new Inventory(document["Avatar"]["inventory"].AsBsonDocument);
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
     }
 }
