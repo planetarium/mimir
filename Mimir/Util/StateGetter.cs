@@ -96,7 +96,12 @@ public class StateGetter(IStateService stateService)
                 avatarState.inventory = inventory;
             }
         }
-        
+
+        if (await GetStateAsync(avatarAddress, Addresses.ActionPoint) is Integer actionPoint)
+        {
+            avatarState.actionPoint = actionPoint;
+        }
+
         return avatarState;
     }
 
