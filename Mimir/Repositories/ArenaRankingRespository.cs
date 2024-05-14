@@ -162,7 +162,6 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
             document["Avatar"]["Avatar"]["name"].AsString,
             document["Avatar"]["Avatar"]["level"].AsInt32,
             document["Avatar"]["Avatar"]["actionPoint"].AsInt32
-            
         );
         arenaRanking.Avatar = avatar;
 
