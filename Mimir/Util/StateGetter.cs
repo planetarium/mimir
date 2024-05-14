@@ -1,5 +1,6 @@
 using Libplanet.Crypto;
 using Bencodex.Types;
+using Libplanet.Action.State;
 using Nekoyume.TableData;
 using Nekoyume;
 using Nekoyume.Action;
@@ -7,6 +8,8 @@ using Nekoyume.Model.EnumType;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
 using Mimir.Services;
+using Nekoyume.Model.Arena;
+using Nekoyume.TableData.Rune;
 
 namespace Mimir.Util;
 
@@ -119,29 +122,44 @@ public class StateGetter(IStateService stateService)
             _ => null,
         };
     }
-
-    public async Task<List<RuneState>> GetRuneStatesAsync(Address avatarAddress)
+    
+    public async Task<AllRuneState> GetRuneStatesAsync(Address avatarAddress)
     {
-        var state = await stateService.GetState(
-            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
-        var runeSlotState = state switch
+        var serialized = await GetStateAsync(avatarAddress, Addresses.RuneState);
+        AllRuneState allRuneState;
+        if (serialized is null)
         {
-            List list => new RuneSlotState(list),
-            null => new RuneSlotState(BattleType.Arena),
-            _ => null,
-        };
-        if (runeSlotState is null)
+            // Get legacy rune states
+            var runeListSheet = await GetSheetAsync<RuneListSheet>();
+            allRuneState = new AllRuneState();
+            foreach (var rune in runeListSheet.Values)
+            {
+                var runeAddress = RuneState.DeriveAddress(avatarAddress, rune.Id);
+                if (await GetStateAsync(runeAddress, ReservedAddresses.LegacyAccount) is List rawState)
+                {
+                    var runeState = new RuneState(rawState);
+                    allRuneState.AddRuneState(runeState);
+                }
+            }
+        }
+        else
         {
-            return [];
+            allRuneState = new AllRuneState((List)serialized);
         }
 
-        var runeAddresses = runeSlotState.GetEquippedRuneSlotInfos()
-            .Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId))
-            .ToArray();
-        var runeValues = await stateService.GetStates(runeAddresses);
-        return runeValues.OfType<List>()
-            .Select(e => new RuneState(e))
-            .ToList();
+        return allRuneState;
+    }
+    
+    public async Task<RuneSlotState> GetRuneSlotStateAsync(Address avatarAddress, BattleType battleType)
+    {
+        var runeSlotStateAddress = RuneSlotState.DeriveAddress(avatarAddress, battleType);
+        var serialized = await GetStateAsync(runeSlotStateAddress, ReservedAddresses.LegacyAccount);
+        if (serialized is List list)
+        {
+            return new RuneSlotState(list);
+        }
+
+        return new RuneSlotState(battleType);
     }
 
     public async Task<Dictionary<Address, CollectionState>> GetCollectionStatesAsync(List<Address> addresses)

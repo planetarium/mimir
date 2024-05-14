@@ -8,6 +8,9 @@ using Nekoyume.TableData;
 using Mimir.Models.Agent;
 using Mimir.Services;
 using Mimir.Util;
+using Nekoyume;
+using Nekoyume.Helper;
+using Nekoyume.TableData.Rune;
 
 namespace Mimir.Repositories;
 
@@ -61,6 +64,12 @@ public class CpRepository
                     }
                 }
             }
+            
+            var runeListSheet = await _stateGetter.GetSheetAsync<RuneListSheet>();
+            var runeStates = await _stateGetter.GetRuneStatesAsync(avatarAddress);
+            var runeLevelBonusSheet = await _stateGetter.GetSheetAsync<RuneLevelBonusSheet>();
+            var runeLevelBonus =
+                RuneHelper.CalculateRuneLevelBonus(runeStates, runeListSheet, runeLevelBonusSheet);
 
             return CPHelper.TotalCP(
                 equipments,
@@ -69,7 +78,8 @@ public class CpRepository
                 avatar.Level,
                 characterRow,
                 costumeStatSheet,
-                modifiers[avatarAddress]
+                modifiers[avatarAddress],
+                runeLevelBonus
             );
         }
         catch (NullReferenceException)
