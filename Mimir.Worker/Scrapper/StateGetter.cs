@@ -98,6 +98,11 @@ public class StateGetter
             throw new ArgumentException($"Unsupported state type for address: {avatarAddress}");
         }
 
+        if (await GetStateWithLegacyAccount(avatarAddress, Addresses.ActionPoint) is Integer actionPoint)
+        {
+            avatarState.actionPoint = actionPoint;
+        }
+
         return avatarState;
     }
 
