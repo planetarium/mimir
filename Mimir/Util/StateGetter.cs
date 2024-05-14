@@ -130,9 +130,12 @@ public class StateGetter(IStateService stateService)
     
     public async Task<AllRuneState> GetRuneStatesAsync(Address avatarAddress)
     {
-        var serialized = await GetStateAsync(avatarAddress, Addresses.RuneState);
         AllRuneState allRuneState;
-        if (serialized is null)
+        if (await GetStateAsync(avatarAddress, Addresses.RuneState) is List list)
+        {
+            allRuneState = new AllRuneState(list);
+        }
+        else
         {
             // Get legacy rune states
             var runeListSheet = await GetSheetAsync<RuneListSheet>();
@@ -146,10 +149,6 @@ public class StateGetter(IStateService stateService)
                     allRuneState.AddRuneState(runeState);
                 }
             }
-        }
-        else
-        {
-            allRuneState = new AllRuneState((List)serialized);
         }
 
         return allRuneState;
