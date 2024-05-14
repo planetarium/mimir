@@ -3,9 +3,21 @@ using Mimir.Models.Items;
 
 namespace Mimir.Models.Avatar;
 
-public class Inventory(BsonValue inventory)
+public class Inventory
 {
-    public List<Equipment> Equipments { get; set; } = inventory["Equipments"].AsBsonArray
-        .Select(e => new Equipment(e.AsBsonDocument))
-        .ToList();
+    public List<Equipment> Equipments { get; set; }
+
+    public Inventory(Nekoyume.Model.Item.Inventory inventory)
+    {
+        Equipments = inventory.Equipments
+            .Select(e => new Equipment(e))
+            .ToList();
+    }
+    
+    public Inventory(BsonValue inventory)
+    {
+        Equipments = inventory["Equipments"].AsBsonArray
+            .Select(e => new Equipment(e.AsBsonDocument))
+            .ToList();
+    }
 }

@@ -3,7 +3,17 @@ using Nekoyume.Model.Item;
 
 namespace Mimir.Models.Items;
 
-public class Item(BsonValue item)
+public class Item
 {
-    public ItemSubType ItemSubType { get; set; } = (ItemSubType)item["ItemSubType"].AsInt32;
+    public ItemSubType ItemSubType { get; set; }
+
+    public Item(IItem item)
+    {
+        ItemSubType = item.ItemSubType;
+    }
+
+    public Item(BsonValue item)
+    {
+        ItemSubType = (ItemSubType)item["ItemSubType"].AsInt32;
+    }
 }
