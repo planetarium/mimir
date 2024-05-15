@@ -102,6 +102,11 @@ public class StateGetter
         {
             avatarState.actionPoint = actionPoint;
         }
+        
+        if (await GetStateWithLegacyAccount(avatarAddress, Addresses.DailyReward) is Integer dailyRewardReceivedIndex)
+        {
+            avatarState.dailyRewardReceivedIndex = dailyRewardReceivedIndex;
+        }
 
         return avatarState;
     }

@@ -101,6 +101,11 @@ public class StateGetter(IStateService stateService)
         {
             avatarState.actionPoint = actionPoint;
         }
+        
+        if (await GetStateAsync(avatarAddress, Addresses.DailyReward) is Integer dailyRewardReceivedIndex)
+        {
+            avatarState.dailyRewardReceivedIndex = dailyRewardReceivedIndex;
+        }
 
         return avatarState;
     }
