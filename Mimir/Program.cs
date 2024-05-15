@@ -27,6 +27,7 @@ builder.Services.AddSingleton<MongoDBCollectionService>();
 builder.Services.AddSingleton<ArenaRankingRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<AvatarRepository>();
+builder.Services.AddSingleton<MetadataRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
