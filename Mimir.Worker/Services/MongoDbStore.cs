@@ -65,9 +65,8 @@ public class MongoDbStore
         var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
         
-        var updateModel = new UpdateOneModel<BsonDocument>(filter, update);
-        var response = await MetadataCollection.BulkWriteAsync(new[] { updateModel });
-        if (response.ModifiedCount < 1)
+        var response = await MetadataCollection.UpdateOneAsync(filter, update);
+        if (response?.ModifiedCount < 1)
         {
             await MetadataCollection.InsertOneAsync(
                 new SyncContext
