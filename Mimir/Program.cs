@@ -22,7 +22,8 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SupportNonNullableReferenceTypes();
 });
-builder.Services.AddSingleton<IStateService, HeadlessStateService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IStateService, HeadlessStateService>();
 builder.Services.AddSingleton<MongoDBCollectionService>();
 builder.Services.AddSingleton<ArenaRankingRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
@@ -33,15 +34,21 @@ builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
     {
         var headlessStateServiceOption = provider.GetRequiredService<IOptions<HeadlessStateServiceOption>>();
-        client.BaseAddress = headlessStateServiceOption.Value.HeadlessEndpoint;
+        var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+        if (httpContextAccessor.HttpContext is null
+            || !httpContextAccessor.HttpContext.Request.RouteValues.TryGetValue("network", out object? value)
+            || value is not string network
+            || !headlessStateServiceOption.Value.Endpoints.TryGetValue(network, out var endpoint)) return;
+        client.BaseAddress = endpoint.Endpoint;
 
-        if (headlessStateServiceOption.Value.JwtSecretKey is not null && headlessStateServiceOption.Value.JwtIssuer is not null)
+        if (endpoint.JwtSecretKey is not null && endpoint.JwtIssuer is not null)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(headlessStateServiceOption.Value.JwtSecretKey));
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(endpoint.JwtSecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: headlessStateServiceOption.Value.JwtIssuer,
+                issuer: endpoint.JwtIssuer,
                 expires: DateTime.UtcNow.AddMinutes(5),
                 signingCredentials: creds);
 
