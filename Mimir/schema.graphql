@@ -8,10 +8,16 @@ type StandaloneQuery {
   stateQuery(
     # Offset block hash for query.
     hash: ByteString
+
+    # Offset block index for query.
+    index: Long
   ): StateQuery!
   state(
     # The hash of the block used to fetch state from chain.
     hash: ByteString
+
+    # The index of the block used to fetch state from chain.
+    index: Long
 
     # The address of account to fetch from the chain.
     accountAddress: Address!
@@ -23,7 +29,7 @@ type StandaloneQuery {
     blockHash: ByteString!
     recipient: Address
   ): [TransferNCGHistoryType!]!
-  keyWorker: KeyWorkerType
+  keyStore: KeyStoreType
     @deprecated(
       reason: "Use `planet key` command instead.  https://www.npmjs.com/package/@planetarium/cli"
     )
@@ -1141,7 +1147,7 @@ type TransferNCGHistoryType {
   memo: String
 }
 
-type KeyWorkerType {
+type KeyStoreType {
   protectedPrivateKeys: [ProtectedPrivateKeyType!]!
   decryptedPrivateKey(address: Address!, passphrase: String!): ByteString!
 
@@ -1248,14 +1254,24 @@ type ExplorerQuery {
   stateQuery: LibplanetStateQuery
   nodeState: NodeState!
   helperQuery: HelperQuery
+  rawStateQuery: RawStateQuery
 }
 
 type BlockQuery {
   blocks(
-    desc: Boolean = false
-    offset: Int = 0
+    # Whether to query blocks in descending order or not.
+    desc: Boolean! = false
+
+    # The offset of the first queried block.
+    offset: Int! = 0
+
+    # The maximum number of blocks to return.  This limits the offset index range to query, not the result, i.e. excluded blocks due to a block being empty or not matching the miner (if specified in other arguments) are still counted.
     limit: Int
-    excludeEmptyTxs: Boolean = false
+
+    # Whether to include empty blocks with no transactions or not. Default is set to false, i.e. to return empty blocks.
+    excludeEmptyTxs: Boolean! = false
+
+    # If not null, returns blocks only by mined by the address given. Default is set to null.
     miner: Address
   ): [Block!]!
   block(hash: ID, index: ID): Block
@@ -1507,6 +1523,9 @@ type WorldState {
   # The legacy flag of the world state.
   legacy: Boolean!
 
+  # The version of the bakcing data model.
+  version: Int!
+
   # Gets the account associated with given address.
   account(
     # The address of an account to retrieve.
@@ -1598,8 +1617,8 @@ type Validator {
 
 type NodeState {
   preloaded: Boolean!
-  peers: [BoundPeer!]
-  validators: [BoundPeer!]
+  peers: [BoundPeer!]!
+  validators: [BoundPeer!]!
 }
 
 type BoundPeer {
@@ -1626,6 +1645,33 @@ type HelperQuery {
     # The byte array in hex representation to decode.
     hex: String!
   ): IValue!
+
+  # Converts string to key hex representation
+  keyHex(
+    # The string value to convert to key hex.
+    value: String!
+  ): KeyBytes!
+}
+
+scalar KeyBytes
+
+type RawStateQuery {
+  # Retrieves trie from given state root hash.
+  trie(stateRootHash: HashDigest_SHA256): Trie!
+}
+
+type Trie {
+  # Gets the value stored at given key.
+  value(
+    # The key to search.
+    key: KeyBytes!
+  ): IValue
+
+  # Gets the values stored at given multiple keys.
+  values(
+    # The list of keys to search.
+    keys: [KeyBytes!]!
+  ): IValue
 }
 
 type ValidationQuery {
@@ -2119,6 +2165,10 @@ type ActionQuery {
     # Memo to attach to this action.
     memo: String
   ): ByteString!
+  retrieveAvatarAssets(
+    # Avatar address to retrieve assets
+    avatarAddress: Address!
+  ): ByteString!
 
   # Query to craft/enhance items/foods
   craftQuery: CraftQuery!
@@ -2522,6 +2572,10 @@ type ActionTxQuery {
     # Memo to attach to this action.
     memo: String
   ): ByteString!
+  retrieveAvatarAssets(
+    # Avatar address to retrieve assets
+    avatarAddress: Address!
+  ): ByteString!
 
   # Query to craft/enhance items/foods
   craftQuery: CraftQuery!
@@ -2572,7 +2626,7 @@ type AddressQuery {
 }
 
 type StandaloneMutation {
-  keyWorker: KeyWorkerMutation
+  keyStore: KeyStoreMutation
     @deprecated(
       reason: "Use `planet key` command instead.  https://www.npmjs.com/package/@planetarium/cli"
     )
@@ -2622,7 +2676,7 @@ type StandaloneMutation {
   ): TxId!
 }
 
-type KeyWorkerMutation {
+type KeyStoreMutation {
   createPrivateKey(passphrase: String!, privateKey: ByteString): PrivateKeyType!
   revokePrivateKey(address: Address!): ProtectedPrivateKeyType!
 }
