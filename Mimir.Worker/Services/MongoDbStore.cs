@@ -64,8 +64,16 @@ public class MongoDbStore
         _logger.LogInformation($"Update latest block index to {blockIndex}");
         var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
-        var updateModel = new UpdateOneModel<BsonDocument>(filter, update);
-        await MetadataCollection.BulkWriteAsync(new[] { updateModel });
+        
+        var response = await MetadataCollection.UpdateOneAsync(filter, update);
+        if (response?.ModifiedCount < 1)
+        {
+            await MetadataCollection.InsertOneAsync(
+                new SyncContext
+                {
+                    LatestBlockIndex = blockIndex,
+                }.ToBsonDocument());
+        }
     }
 
     public async Task<long> GetLatestBlockIndex()
