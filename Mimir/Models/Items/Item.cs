@@ -12,10 +12,12 @@ public class Item
     public ItemSubType ItemSubType { get; set; }
     public ElementalType ElementalType { get; set; }
 
-    public int? Count { get; set; }
+    public int Count { get; set; }
+
+    public Guid? NonFungibleId { get; set; }
     public long? RequiredBlockIndex { get; set; }
 
-    public Item(ItemBase item, int? count)
+    public Item(ItemBase item, int count)
     {
         ItemSheetId = item.Id;
         Grade = item.Grade;
@@ -24,10 +26,14 @@ public class Item
         ElementalType = item.ElementalType;
 
         Count = count;
+
+        NonFungibleId = item is INonFungibleItem nonFungibleItem
+            ? nonFungibleItem.NonFungibleId
+            : null;
         RequiredBlockIndex = item switch
         {
-            INonFungibleItem nonFungibleItem => nonFungibleItem.RequiredBlockIndex,
-            ITradableItem tradableItem => tradableItem.RequiredBlockIndex,
+            INonFungibleItem nfi => nfi.RequiredBlockIndex,
+            ITradableItem ti => ti.RequiredBlockIndex,
             _ => null
         };
     }
@@ -40,7 +46,9 @@ public class Item
         ItemSubType = (ItemSubType)item["ItemSubType"].AsInt32;
         ElementalType = (ElementalType)item["ElementalType"].AsInt32;
 
-        Count = item["Count"].AsNullableInt32;
+        Count = item["Count"].AsInt32;
+
+        NonFungibleId = item["NonFungibleId"].AsNullableGuid;
         RequiredBlockIndex = item["RequiredBlockIndex"].AsNullableInt64;
     }
 }
