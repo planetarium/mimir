@@ -110,8 +110,19 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             return inventory;
         }
 
+        Address inventoryAddress;
+        try
+        {
+            inventoryAddress = new Address(avatarAddress);
+        }
+        catch (ArgumentException e)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return null;
+        }
+
         var stateGetter = new StateGetter(stateService);
-        var inventoryState = await stateGetter.GetInventoryStateAsync(new Address(avatarAddress));
+        var inventoryState = await stateGetter.GetInventoryStateAsync(inventoryAddress);
         if (inventoryState is null)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
