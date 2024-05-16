@@ -11,11 +11,10 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
     private readonly IStateService _stateService = service;
     private readonly MongoDbStore _store = store;
 
-    public async Task ExecuteAsync(CancellationToken cancellationToken)
+    public async Task ExecuteAsync(long blockIndex, CancellationToken cancellationToken)
     {
-        var latestBlockIndex = await service.GetLatestIndex();
-        var stateGetter = _stateService.At();
-        var roundData = await stateGetter.GetArenaRoundData(latestBlockIndex);
+        var stateGetter = _stateService.At(blockIndex);
+        var roundData = await stateGetter.GetArenaRoundData(blockIndex);
         var arenaParticipants = await stateGetter.GetArenaParticipantsState(roundData.ChampionshipId, roundData.Round);
 
         var buffer = new List<(Address AvatarAddress, ArenaData Arena, AvatarData Avatar)>();
@@ -31,8 +30,6 @@ public class ArenaScrapper(ILogger<ArenaScrapper> logger, IStateService service,
             
             buffer.Clear();
         }
-        
-        await _store.UpdateLatestBlockIndex(latestBlockIndex);
 
         foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
         {

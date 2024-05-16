@@ -21,10 +21,9 @@ public class TableSheetScrapper(
     private readonly IStateService _stateService = service;
     private readonly MongoDbStore _store = store;
 
-    public async Task ExecuteAsync(CancellationToken cancellationToken)
+    public async Task ExecuteAsync(long blockIndex, CancellationToken cancellationToken)
     {
-        var latestBlockIndex = await service.GetLatestIndex();
-        var stateGetter = _stateService.At();
+        var stateGetter = _stateService.At(blockIndex);
 
         var sheetTypes = typeof(ISheet)
             .Assembly.GetTypes()
@@ -49,7 +48,7 @@ public class TableSheetScrapper(
             }
 
             var sheetAddress = Addresses.TableSheet.Derive(sheetType.Name);
-            var sheetState = await _stateService.GetState(sheetAddress);
+            var sheetState = await _stateService.GetState(sheetAddress, blockIndex);
             if (sheetState is not Text sheetValue)
             {
                 throw new ArgumentException(nameof(sheetType));
