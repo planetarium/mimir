@@ -6,6 +6,6 @@ query GetTip {
     }
 }
 
-query GetState($accountAddress: Address! $address: Address!, $index: Long) {
-    state(accountAddress: $accountAddress, address: $address, index: $index)
+query GetState($accountAddress: Address! $address: Address!) {
+    state(accountAddress: $accountAddress, address: $address)
 }
