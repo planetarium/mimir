@@ -3,6 +3,7 @@ using Bencodex;
 using Libplanet.Common;
 using Libplanet.Crypto;
 using Microsoft.AspNetCore.Mvc;
+using Mimir.Models.Agent;
 using Mimir.Models.Avatar;
 using Mimir.Repositories;
 using Mimir.Services;
@@ -14,7 +15,7 @@ using Newtonsoft.Json.Linq;
 namespace Mimir.Controllers;
 
 [ApiController]
-[Route("{network}/avatars")]
+[Route("{network}/avatars/{address}")]
 public class AvatarController(AvatarRepository avatarRepository) : ControllerBase
 {
     #region temporary snippets
@@ -98,13 +99,47 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
 
     #endregion snippets
 
-    [HttpGet("{avatarAddress}/inventory")]
-    public async Task<Inventory?> GetInventory(
+    [HttpGet]
+    public async Task<Avatar?> GetState(
         string network,
-        string avatarAddress,
+        string address,
         IStateService stateService)
     {
-        var inventory = avatarRepository.GetInventory(network, avatarAddress);
+        var avatar = avatarRepository.GetAvatar(network, address);
+        if (avatar is not null)
+        {
+            return avatar;
+        }
+
+        Address addr;
+        try
+        {
+            addr = new Address(address);
+        }
+        catch (ArgumentException)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return null;
+        }
+
+        var stateGetter = new StateGetter(stateService);
+        var avatarState = await stateGetter.GetAvatarStateAsync(addr);
+        if (avatarState is null)
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+            return null;
+        }
+
+        return new Avatar(avatarState);
+    }
+
+    [HttpGet("inventory")]
+    public async Task<Inventory?> GetInventory(
+        string network,
+        string address,
+        IStateService stateService)
+    {
+        var inventory = avatarRepository.GetInventory(network, address);
         if (inventory is not null)
         {
             return inventory;
@@ -113,9 +148,9 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         Address inventoryAddress;
         try
         {
-            inventoryAddress = new Address(avatarAddress);
+            inventoryAddress = new Address(address);
         }
-        catch (ArgumentException e)
+        catch (ArgumentException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
             return null;
