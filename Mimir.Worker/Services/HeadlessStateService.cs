@@ -16,24 +16,24 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 
     public long TipIndex => TipInfo.Item1;
 
-    public Task<IValue?[]> GetStates(Address[] addresses)
+    public Task<IValue?[]> GetStates(Address[] addresses, long? index)
     {
-        return Task.WhenAll(addresses.Select(GetState));
+        return Task.WhenAll(addresses.Select(addr => GetState(addr, index)));
     }
 
-    public Task<IValue?[]> GetStates(Address[] addresses, Address accountAddress)
+    public Task<IValue?[]> GetStates(Address[] addresses, Address accountAddress, long? index)
     {
-        return Task.WhenAll(addresses.Select(addr => GetState(addr, accountAddress)));
+        return Task.WhenAll(addresses.Select(addr => GetState(addr, accountAddress, index)));
     }
 
-    public async Task<IValue?> GetState(Address address)
+    public async Task<IValue?> GetState(Address address, long? index)
     {
-        return await GetState(address, ReservedAddresses.LegacyAccount);
+        return await GetState(address, ReservedAddresses.LegacyAccount, index);
     }
 
-    public async Task<IValue?> GetState(Address address, Address accountAddress)
+    public async Task<IValue?> GetState(Address address, Address accountAddress, long? index)
     {
-        var result = await client.GetState.ExecuteAsync(accountAddress.ToString(), address.ToString());
+        var result = await client.GetState.ExecuteAsync(accountAddress.ToString(), address.ToString(), index);
         result.EnsureNoErrors();
 
         if (result.Data?.State is null)

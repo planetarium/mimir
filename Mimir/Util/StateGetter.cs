@@ -13,23 +13,23 @@ using Nekoyume.TableData.Rune;
 
 namespace Mimir.Util;
 
-public class StateGetter(IStateService stateService)
+public class StateGetter(IStateService stateService, long? index=null)
 {
     public async Task<IValue?> GetStateAsync(Address address, Address accountAddress) =>
-        await stateService.GetState(address, accountAddress) ??
-        await stateService.GetState(address);
+        await stateService.GetState(address, accountAddress, index) ??
+        await stateService.GetState(address, index);
 
     public async Task<IValue?> GetStateWithLegacyAccountAsync(
         Address address,
         Address accountAddress,
         Address legacyAddress) =>
-        await stateService.GetState(address, accountAddress) ??
-        await stateService.GetState(legacyAddress);
+        await stateService.GetState(address, accountAddress, index) ??
+        await stateService.GetState(legacyAddress, index);
 
     public async Task<T?> GetSheetAsync<T>()
         where T : ISheet, new()
     {
-        var sheetState = await stateService.GetState(Addresses.GetSheetAddress<T>());
+        var sheetState = await stateService.GetState(Addresses.GetSheetAddress<T>(), index);
         if (sheetState is not Text sheetValue)
         {
             throw new ArgumentException(nameof(T));
@@ -44,8 +44,8 @@ public class StateGetter(IStateService stateService)
         Address agentAddress,
         bool withInventory = true)
     {
-        var rawState = await stateService.GetState(agentAddress, Addresses.Agent) ??
-                       await stateService.GetState(agentAddress);
+        var rawState = await stateService.GetState(agentAddress, Addresses.Agent, index) ??
+                       await stateService.GetState(agentAddress, index);
         var agentState = rawState switch
         {
             List agentStateList => new AgentState(agentStateList),
@@ -124,7 +124,7 @@ public class StateGetter(IStateService stateService)
     public async Task<ItemSlotState?> GetItemSlotStateAsync(Address avatarAddress)
     {
         var state = await stateService.GetState(
-            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena), index);
         return state switch
         {
             List list => new ItemSlotState(list),
@@ -176,7 +176,8 @@ public class StateGetter(IStateService stateService)
         var result = new Dictionary<Address, CollectionState>();
         var values = await stateService.GetStates(
             addresses.ToArray(),
-            Addresses.Collection
+            Addresses.Collection,
+            index
         );
         for (var i = 0; i < addresses.Count; i++)
         {
