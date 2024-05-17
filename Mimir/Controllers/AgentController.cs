@@ -26,7 +26,7 @@ public class AgentController : ControllerBase
         }
 
         return new AvatarsResponse(
-            avatars.Select(e => new Avatar(e.address.ToString(), e.name, e.level, e.actionPoint, e.dailyRewardReceivedIndex)).ToList()
+            avatars.Select(e => new Avatar(e)).ToList()
         );
     }
 }

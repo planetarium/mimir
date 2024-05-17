@@ -158,6 +158,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
         }
 
         var avatar = new Avatar(
+            document["Avatar"]["Avatar"]["agentAddress"].AsString,
             document["Avatar"]["Avatar"]["address"].AsString,
             document["Avatar"]["Avatar"]["name"].AsString,
             document["Avatar"]["Avatar"]["level"].AsInt32,
