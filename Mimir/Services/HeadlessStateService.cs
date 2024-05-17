@@ -44,8 +44,17 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
         return Codec.Decode(Convert.FromHexString(result.Data.State));
     }
 
-    private static void UpdateTipIndex()
+    public async Task<string> GetBalance(Address address, CurrencyInput currencyInput)
     {
-        
+        var result = await client.GetBalance.ExecuteAsync(
+            address.ToString(),
+            currencyInput);
+        result.EnsureNoErrors();
+        if (result.Data is null)
+        {
+            return "0";
+        }
+
+        return result.Data.StateQuery.Balance.Quantity;
     }
 }
