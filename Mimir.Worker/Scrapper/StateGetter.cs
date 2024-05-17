@@ -16,19 +16,17 @@ public class StateGetter
 {
     private readonly ILogger<StateGetter> _logger;
     private readonly IStateService _service;
-    private readonly long? _index;
 
-    public StateGetter(IStateService service, long? index=null)
+    public StateGetter(IStateService service)
     {
         _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<StateGetter>();
         _service = service;
-        _index = index;
     }
 
     public async Task<T> GetSheet<T>()
         where T : ISheet, new()
     {
-        var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name), _index);
+        var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name));
         if (sheetState is not Text sheetValue)
         {
             throw new ArgumentException(nameof(T));
@@ -43,7 +41,7 @@ public class StateGetter
     {
         var arenaParticipantsAddress =
             ArenaParticipants.DeriveAddress(championshipId, roundId);
-        var state = await _service.GetState(arenaParticipantsAddress, _index);
+        var state = await _service.GetState(arenaParticipantsAddress);
         return state switch
         {
             List list => new ArenaParticipants(list),
@@ -55,7 +53,7 @@ public class StateGetter
     {
         var arenaScoreAddress =
             ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
-        var state = await _service.GetState(arenaScoreAddress, _index);
+        var state = await _service.GetState(arenaScoreAddress);
         return state switch
         {
             List list => new ArenaScore(list),
@@ -67,7 +65,7 @@ public class StateGetter
     {
         var arenaInfoAddress =
             ArenaInformation.DeriveAddress(avatarAddress, championshipId, roundId);
-        var state = await _service.GetState(arenaInfoAddress, _index);
+        var state = await _service.GetState(arenaInfoAddress);
         return state switch
         {
             List list => new ArenaInformation(list),
@@ -131,7 +129,7 @@ public class StateGetter
     public async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
     {
         var state = await _service.GetState(
-            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena), _index);
+            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
         return state switch
         {
             List list => new ItemSlotState(list),
@@ -143,7 +141,7 @@ public class StateGetter
     public async Task<List<RuneState>> GetRuneStates(Address avatarAddress)
     {
         var state = await _service.GetState(
-            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena), _index);
+            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
         var runeSlotState = state switch
         {
             List list => new RuneSlotState(list),
@@ -154,7 +152,7 @@ public class StateGetter
         var runes = new List<RuneState>();
         foreach (var runeStateAddress in runeSlotState.GetEquippedRuneSlotInfos().Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId)))
         {
-            if (await _service.GetState(runeStateAddress, _index) is List list)
+            if (await _service.GetState(runeStateAddress) is List list)
             {
                 runes.Add(new RuneState(list));
             }
@@ -165,22 +163,22 @@ public class StateGetter
 
     public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
     {
-        var state = await _service.GetState(address, accountAddress, _index);
+        var state = await _service.GetState(address, accountAddress);
         
         if (state == null)
         {
-            state = await _service.GetState(address, _index);
+            state = await _service.GetState(address);
         }
         return state;
     }
 
     public async Task<IValue?> GetAvatarStateWithLegacyAccount(Address avatarAddress, Address accountAddress, Address legacyAddress)
     {
-        var state = await _service.GetState(avatarAddress, accountAddress, _index);
+        var state = await _service.GetState(avatarAddress, accountAddress);
         
         if (state == null)
         {
-            state = await _service.GetState(legacyAddress, _index);
+            state = await _service.GetState(legacyAddress);
         }
         return state;
     }

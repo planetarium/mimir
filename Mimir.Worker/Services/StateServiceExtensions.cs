@@ -4,8 +4,8 @@ namespace Mimir.Worker.Services;
 
 public static class StateServiceExtensions
 {
-    public static StateGetter At(this IStateService service, long index)
+    public static StateGetter At(this IStateService service)
     {
-        return new StateGetter(service, index);
+        return new StateGetter(service);
     }
 }

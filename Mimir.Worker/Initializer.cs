@@ -32,13 +32,8 @@ public class Initializer : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var started = DateTime.UtcNow;
-        var latestBlockIndex = await _stateService.GetLatestIndex();
-
-        await _tableSheetScrapper.ExecuteAsync(latestBlockIndex, stoppingToken);   
-        await _arenaScrapper.ExecuteAsync(latestBlockIndex, stoppingToken);
-        
-        await _store.UpdateLatestBlockIndex(latestBlockIndex);
-
+        await _tableSheetScrapper.ExecuteAsync(stoppingToken);   
+        await _arenaScrapper.ExecuteAsync(stoppingToken);   
         _logger.LogInformation(
                 "Finished Initializer background service. Elapsed {TotalElapsedMinutes} minutes",
                 DateTime.UtcNow.Subtract(started).Minutes);
