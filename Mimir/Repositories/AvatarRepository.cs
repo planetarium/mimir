@@ -1,3 +1,4 @@
+using Mimir.Models.Agent;
 using Mimir.Models.Avatar;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -15,6 +16,33 @@ public class AvatarRepository : BaseRepository<BsonDocument>
     protected override string GetCollectionName()
     {
         return "avatars";
+    }
+    
+    public Avatar? GetAvatar(string network, string avatarAddress)
+    {
+        var collection = GetCollection(network);
+        var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress);
+        var document = collection.Find(filter).FirstOrDefault();
+        if (document is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return new Avatar(
+                document["Avatar"]["agentAddress"].AsString,
+                document["Avatar"]["address"].AsString,
+                document["Avatar"]["name"].AsString,
+                document["Avatar"]["level"].AsInt32,
+                document["Avatar"]["actionPoint"].AsInt32,
+                document["Avatar"]["dailyRewardReceivedIndex"].AsInt64
+            );
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
     }
 
     public Inventory? GetInventory(string network, string avatarAddress)
