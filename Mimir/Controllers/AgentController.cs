@@ -8,7 +8,7 @@ namespace Mimir.Controllers;
 
 [ApiController]
 [Route("{network}/agent")]
-public class AccountController : ControllerBase
+public class AgentController : ControllerBase
 {
     [HttpGet("{agentAddress}/avatars")]
     public async Task<AvatarsResponse> GetAvatars(
