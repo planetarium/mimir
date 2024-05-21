@@ -1,7 +1,9 @@
 using System.Numerics;
 using Bencodex;
+using Lib9c;
 using Libplanet.Common;
 using Libplanet.Crypto;
+using Libplanet.Types.Assets;
 using Microsoft.AspNetCore.Mvc;
 using Mimir.Models.Agent;
 using Mimir.Models.Avatar;
@@ -111,10 +113,10 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             return avatar;
         }
 
-        Address addr;
+        Address avatarAddress;
         try
         {
-            addr = new Address(address);
+            avatarAddress = new Address(address);
         }
         catch (ArgumentException)
         {
@@ -123,7 +125,7 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         }
 
         var stateGetter = new StateGetter(stateService);
-        var avatarState = await stateGetter.GetAvatarStateAsync(addr);
+        var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress);
         if (avatarState is null)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
@@ -131,6 +133,40 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         }
 
         return new Avatar(avatarState);
+    }
+
+    [HttpGet("balances/{currency}")]
+    public async Task<string> GetBalances(
+        string network,
+        string address,
+        string currency,
+        IStateService stateService)
+    {
+        Address agentAddress;
+        try
+        {
+            agentAddress = new Address(address);
+        }
+        catch (FormatException)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return string.Empty;
+        }
+
+        Currency c;
+        try
+        {
+            c = Currencies.GetMinterlessCurrency(currency);
+        }
+        catch (ArgumentException)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return string.Empty;
+        }
+
+        var stateGetter = new StateGetter(stateService);
+        var balance = await stateGetter.GetBalanceAsync(agentAddress, c);
+        return $"{balance} {c.Ticker}";
     }
 
     [HttpGet("inventory")]
