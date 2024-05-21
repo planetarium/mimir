@@ -64,10 +64,10 @@ public class AgentController : ControllerBase
             return string.Empty;
         }
 
-        Currency? c = currency.ToLowerInvariant() switch
+        Currency? c = currency switch
         {
-            "ncg" => _ncg,
-            "crystal" => Currencies.Crystal,
+            "NCG" => _ncg,
+            "CRYSTAL" => Currencies.Crystal,
             _ => null,
         };
         if (c is null)
