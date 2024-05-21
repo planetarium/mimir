@@ -1,6 +1,5 @@
 using Libplanet.Crypto;
 using Bencodex.Types;
-using HeadlessGQL;
 using Libplanet.Action.State;
 using Libplanet.Types.Assets;
 using Nekoyume.TableData;
@@ -16,22 +15,8 @@ namespace Mimir.Util;
 
 public class StateGetter(IStateService stateService)
 {
-    public async Task<string> GetBalanceAsync(Address address, Currency currency)
-    {
-        var currencyInput = new CurrencyInput
-        {
-            Ticker = currency.Ticker,
-            DecimalPlaces = currency.DecimalPlaces,
-            Minters = currency.Minters?.Select(minter => minter.ToString()).ToList() ?? null,
-            MaximumSupplyMajorUnit = currency.MaximumSupply?.MajorUnit.ToString() ?? null,
-            MaximumSupplyMinorUnit = currency.MaximumSupply?.MinorUnit.ToString() ?? null,
-            TotalSupplyTrackable = currency.TotalSupplyTrackable,
-        };
-        return await stateService.GetBalance(address, currencyInput);
-    }
-
-    public async Task<string> GetBalanceAsync(Address address, CurrencyInput currencyInput) =>
-        await stateService.GetBalance(address, currencyInput);
+    public async Task<string> GetBalanceAsync(Address address, Currency currency) =>
+        await stateService.GetBalance(address, currency);
 
     public async Task<IValue?> GetStateAsync(Address address, Address accountAddress) =>
         await stateService.GetState(address, accountAddress) ??

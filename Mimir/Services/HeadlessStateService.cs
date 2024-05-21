@@ -3,6 +3,7 @@ using Bencodex.Types;
 using HeadlessGQL;
 using Libplanet.Crypto;
 using Libplanet.Action.State;
+using Libplanet.Types.Assets;
 using Libplanet.Types.Blocks;
 using StrawberryShake;
 
@@ -44,8 +45,17 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
         return Codec.Decode(Convert.FromHexString(result.Data.State));
     }
 
-    public async Task<string> GetBalance(Address address, CurrencyInput currencyInput)
+    public async Task<string> GetBalance(Address address, Currency currency)
     {
+        var currencyInput = new CurrencyInput
+        {
+            Ticker = currency.Ticker,
+            DecimalPlaces = currency.DecimalPlaces,
+            Minters = currency.Minters?.Select(minter => minter.ToString()).ToList() ?? null,
+            MaximumSupplyMajorUnit = currency.MaximumSupply?.MajorUnit.ToString() ?? null,
+            MaximumSupplyMinorUnit = currency.MaximumSupply?.MinorUnit.ToString() ?? null,
+            TotalSupplyTrackable = currency.TotalSupplyTrackable,
+        };
         var result = await client.GetBalance.ExecuteAsync(
             address.ToString(),
             currencyInput);
