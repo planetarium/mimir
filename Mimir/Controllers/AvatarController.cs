@@ -106,12 +106,6 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         string address,
         IStateService stateService)
     {
-        var avatar = avatarRepository.GetAvatar(network, address);
-        if (avatar is not null)
-        {
-            return avatar;
-        }
-
         if (!AddressValidator.TryValidate(
                 address,
                 out var avatarAddress,
@@ -121,6 +115,12 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             Response.ContentType = "application/json";
             await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
+        }
+
+        var avatar = avatarRepository.GetAvatar(network, avatarAddress);
+        if (avatar is not null)
+        {
+            return avatar;
         }
 
         var stateGetter = new StateGetter(stateService);
@@ -140,12 +140,6 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         string address,
         IStateService stateService)
     {
-        var inventory = avatarRepository.GetInventory(network, address);
-        if (inventory is not null)
-        {
-            return inventory;
-        }
-
         if (!AddressValidator.TryValidate(
                 address,
                 out var inventoryAddress,
@@ -155,6 +149,12 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             Response.ContentType = "application/json";
             await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
+        }
+
+        var inventory = avatarRepository.GetInventory(network, inventoryAddress);
+        if (inventory is not null)
+        {
+            return inventory;
         }
 
         var stateGetter = new StateGetter(stateService);

@@ -14,8 +14,25 @@ namespace Mimir.Controllers;
 
 [ApiController]
 [Route("{network}/arena")]
-public class ArenaController(ArenaRankingRepository arenaRankingRepository) : ControllerBase
+public class ArenaController(
+    ArenaRankingRepository arenaRankingRepository,
+    TableSheetsRepository tableSheetsRepository
+) : ControllerBase
 {
+    [HttpGet("season")]
+    public async Task<ArenaSeason> GetLatestSeason(
+        string network,
+        MetadataRepository metadataRepository
+    )
+    {
+        var (championshipId, round) = await tableSheetsRepository.GetLatestArenaSeason(
+            network,
+            await metadataRepository.GetLatestBlockIndex(network)
+        );
+
+        return new ArenaSeason(championshipId, round);
+    }
+
     [HttpGet("ranking/{avatarAddress}/rank")]
     public async Task<long> GetRankByAvatarAddress(
         string network,
@@ -26,7 +43,7 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
     {
         var rank = await arenaRankingRepository.GetRankByAvatarAddress(
             network,
-            avatarAddress,
+            new Address(avatarAddress),
             championshipId,
             round
         );
@@ -71,15 +88,26 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
         var myAvatarState = await stateGetter.GetAvatarStateAsync(myAvatarAddress);
         var myAvatarItemSlotState = await stateGetter.GetItemSlotStateAsync(myAvatarAddress);
         var myAvatarRuneStates = await stateGetter.GetRuneStatesAsync(myAvatarAddress);
-        var myAvatarRuneSlotState = await stateGetter.GetRuneSlotStateAsync(myAvatarAddress, BattleType.Arena);
+        var myAvatarRuneSlotState = await stateGetter.GetRuneSlotStateAsync(
+            myAvatarAddress,
+            BattleType.Arena
+        );
         var enemyAvatarState = await stateGetter.GetAvatarStateAsync(enemyAvatarAddress);
         var enemyAvatarItemSlotState = await stateGetter.GetItemSlotStateAsync(enemyAvatarAddress);
         var enemyAvatarRuneStates = await stateGetter.GetRuneStatesAsync(enemyAvatarAddress);
-        var enemyAvatarRuneSlotState = await stateGetter.GetRuneSlotStateAsync(enemyAvatarAddress, BattleType.Arena);
+        var enemyAvatarRuneSlotState = await stateGetter.GetRuneSlotStateAsync(
+            enemyAvatarAddress,
+            BattleType.Arena
+        );
 
         var bulkSimulator = new ArenaBulkSimulator();
         var result = await bulkSimulator.BulkSimulate(
-            new AvatarStatesForArena(myAvatarState, myAvatarItemSlotState, myAvatarRuneStates, myAvatarRuneSlotState),
+            new AvatarStatesForArena(
+                myAvatarState,
+                myAvatarItemSlotState,
+                myAvatarRuneStates,
+                myAvatarRuneSlotState
+            ),
             new AvatarStatesForArena(
                 enemyAvatarState,
                 enemyAvatarItemSlotState,
