@@ -98,6 +98,14 @@ public class BlockPoller(
             HandleErrors(rawPatchTableTxsResp);
             return;
         }
+        var sheetTypes = typeof(ISheet)
+            .Assembly.GetTypes()
+            .Where(type =>
+                type.Namespace is { } @namespace
+                && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
+                && !type.IsAbstract
+                && typeof(ISheet).IsAssignableFrom(type)
+            );
 
         var patchTableTxs = rawPatchTableTxsResp
             .Data?.Transaction?.NcTransactions.Where(raw => raw is not null)
@@ -113,16 +121,7 @@ public class BlockPoller(
             var patchTableActionValues = (Dictionary)patchTableAction["values"];
             var tableName = ((Text)patchTableActionValues["table_name"]).ToDotnetString();
 
-            var sheetType = typeof(ISheet)
-                .Assembly.GetTypes()
-                .Where(type =>
-                    type.Namespace is { } @namespace
-                    && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
-                    && !type.IsAbstract
-                    && typeof(ISheet).IsAssignableFrom(type)
-                    && type.Name == tableName
-                )
-                .FirstOrDefault();
+            var sheetType = sheetTypes.Where(type => type.Name == tableName).FirstOrDefault();
 
             if (sheetType == null)
             {
@@ -130,20 +129,16 @@ public class BlockPoller(
                     $"Unable to find a class type matching the table name '{tableName}' in the specified namespace."
                 );
             }
-
-            var sheetAddress = Addresses.TableSheet.Derive(tableName);
-            var sheetState = await stateService.GetState(sheetAddress);
-            if (sheetState is not Text sheetValue)
-            {
-                throw new InvalidOperationException(
-                    $"Expected sheet state to be of type 'Text'."
-                );
-            }
-
             var sheetInstance = Activator.CreateInstance(sheetType);
             if (sheetInstance is not ISheet sheet)
             {
                 throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
+            }
+            var sheetAddress = Addresses.TableSheet.Derive(tableName);
+            var sheetState = await stateService.GetState(sheetAddress);
+            if (sheetState is not Text sheetValue)
+            {
+                throw new InvalidOperationException($"Expected sheet state to be of type 'Text'.");
             }
 
             sheet.Set(sheetValue.Value);
