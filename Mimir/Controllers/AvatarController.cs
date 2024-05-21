@@ -136,45 +136,6 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         return new Avatar(avatarState);
     }
 
-    [HttpGet("balances/{currency}")]
-    public async Task<Balance?> GetBalances(
-        string network,
-        string address,
-        string currency,
-        IStateService stateService)
-    {
-        Address agentAddress;
-        try
-        {
-            agentAddress = new Address(address);
-        }
-        catch (ArgumentException)
-        {
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return null;
-        }
-
-        Currency c;
-        try
-        {
-            c = Currencies.GetMinterlessCurrency(currency);
-        }
-        catch (ArgumentNullException)
-        {
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return null;
-        }
-        catch (ArgumentException)
-        {
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return null;
-        }
-
-        var stateGetter = new StateGetter(stateService);
-        var balance = await stateGetter.GetBalanceAsync(agentAddress, c);
-        return new Balance(c, balance);
-    }
-
     [HttpGet("inventory")]
     public async Task<Inventory?> GetInventory(
         string network,

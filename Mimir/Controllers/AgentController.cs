@@ -47,53 +47,6 @@ public class AgentController : ControllerBase
         };
     }
 
-    [HttpGet("balances/{currency}")]
-    public async Task<Balance?> GetBalances(
-        string network,
-        string address,
-        string currency,
-        IStateService stateService)
-    {
-        Address agentAddress;
-        try
-        {
-            agentAddress = new Address(address);
-        }
-        catch (ArgumentException)
-        {
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return null;
-        }
-
-        Currency? c = currency switch
-        {
-            "NCG" => _ncg,
-            "CRYSTAL" => Currencies.Crystal,
-            _ => null,
-        };
-        if (c is null)
-        {
-            try
-            {
-                c = Currencies.GetMinterlessCurrency(currency);
-            }
-            catch (ArgumentNullException)
-            {
-                Response.StatusCode = StatusCodes.Status400BadRequest;
-                return null;
-            }
-            catch (ArgumentException)
-            {
-                Response.StatusCode = StatusCodes.Status400BadRequest;
-                return null;
-            }
-        }
-
-        var stateGetter = new StateGetter(stateService);
-        var balance = await stateGetter.GetBalanceAsync(agentAddress, c.Value);
-        return new Balance(c.Value, balance);
-    }
-
     [HttpGet("avatars")]
     public async Task<AvatarsResponse> GetAvatars(
         string network,
