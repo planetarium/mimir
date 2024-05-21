@@ -26,7 +26,7 @@ public class ArenaController(ArenaRankingRepository arenaRankingRepository) : Co
     {
         var rank = await arenaRankingRepository.GetRankByAvatarAddress(
             network,
-            avatarAddress,
+            new Address(avatarAddress),
             championshipId,
             round
         );

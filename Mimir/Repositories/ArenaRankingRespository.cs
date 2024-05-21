@@ -1,3 +1,4 @@
+using Libplanet.Crypto;
 using Mimir.Models.Agent;
 using Mimir.Models.Arena;
 using Mimir.Services;
@@ -26,7 +27,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
 
     public async Task<long> GetRankByAvatarAddress(
         string network,
-        string avatarAddress,
+        Address avatarAddress,
         int? championshipId,
         int? round
     )
@@ -59,7 +60,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
                 "$unwind",
                 new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "Rank" } }
             ),
-            new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress))
+            new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress.ToHex()))
         };
 
         var aggregation = await collection.Aggregate<dynamic>(pipelines).ToListAsync();
