@@ -18,6 +18,14 @@ query GetBattleArenaTransactions($blockIndex: Long!) {
     }
 }
 
+query GetPatchTableTransactions($blockIndex: Long!) {
+    transaction {
+        ncTransactions(startingBlockIndex: $blockIndex, limit: 1, actionType: "^patch_table_sheet") {
+            serializedPayload
+        }
+    }
+}
+
 query GetTransactionSigners($blockIndex: Long!) {
     transaction {
         ncTransactions(startingBlockIndex: $blockIndex, limit: 1, actionType: "^[a-zA-Z0-9]*$") {
