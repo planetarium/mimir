@@ -46,12 +46,46 @@ public class AgentController : ControllerBase
         ];
     }
 
+    [HttpGet("balances/{currency}")]
+    public async Task<string> GetBalances(
+        string network,
+        string address,
+        string currency,
+        IStateService stateService)
+    {
+        Address agentAddress;
+        try
+        {
+            agentAddress = new Address(address);
+        }
+        catch (FormatException)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return string.Empty;
+        }
+
+        Currency? c = currency.ToLowerInvariant() switch
+        {
+            "ncg" => _ncg,
+            "crystal" => Currencies.Crystal,
+            _ => null,
+        };
+        if (c is null)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return string.Empty;
+        }
+
+        var stateGetter = new StateGetter(stateService);
+        var balance = await stateGetter.GetBalanceAsync(agentAddress, c.Value);
+        return $"{balance} {c.Value.Ticker}";
+    }
+
     [HttpGet("avatars")]
     public async Task<AvatarsResponse> GetAvatars(
         string network,
         string address,
-        IStateService stateService
-    )
+        IStateService stateService)
     {
         Address agentAddress;
         try
