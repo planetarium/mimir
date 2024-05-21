@@ -6,6 +6,7 @@ using Mimir.Models.Agent;
 using Mimir.Models.Assets;
 using Mimir.Services;
 using Mimir.Util;
+using Mimir.Validators;
 
 namespace Mimir.Controllers;
 
@@ -26,14 +27,14 @@ public class AgentController : ControllerBase
         string address,
         IStateService stateService)
     {
-        Address agentAddress;
-        try
-        {
-            agentAddress = new Address(address);
-        }
-        catch (ArgumentException)
+        if (!AddressValidator.TryValidate(
+                address,
+                out var agentAddress,
+                out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
+            Response.ContentType = "application/json";
+            await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }
 
@@ -53,14 +54,14 @@ public class AgentController : ControllerBase
         string address,
         IStateService stateService)
     {
-        Address agentAddress;
-        try
-        {
-            agentAddress = new Address(address);
-        }
-        catch (ArgumentException)
+        if (!AddressValidator.TryValidate(
+                address,
+                out var agentAddress,
+                out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
+            Response.ContentType = "application/json";
+            await Response.WriteAsJsonAsync(new { message = errorMessage });
             return new AvatarsResponse([]);
         }
 

@@ -1,16 +1,14 @@
 using System.Numerics;
 using Bencodex;
-using Lib9c;
 using Libplanet.Common;
 using Libplanet.Crypto;
-using Libplanet.Types.Assets;
 using Microsoft.AspNetCore.Mvc;
 using Mimir.Models.Agent;
-using Mimir.Models.Assets;
 using Mimir.Models.Avatar;
 using Mimir.Repositories;
 using Mimir.Services;
 using Mimir.Util;
+using Mimir.Validators;
 using Nekoyume.Model.State;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -114,14 +112,14 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             return avatar;
         }
 
-        Address avatarAddress;
-        try
-        {
-            avatarAddress = new Address(address);
-        }
-        catch (ArgumentException)
+        if (!AddressValidator.TryValidate(
+                address,
+                out var avatarAddress,
+                out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
+            Response.ContentType = "application/json";
+            await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }
 
@@ -148,14 +146,14 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             return inventory;
         }
 
-        Address inventoryAddress;
-        try
-        {
-            inventoryAddress = new Address(address);
-        }
-        catch (ArgumentException)
+        if (!AddressValidator.TryValidate(
+                address,
+                out var inventoryAddress,
+                out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
+            Response.ContentType = "application/json";
+            await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Mimir.Models.Assets;
 using Mimir.Services;
 using Mimir.Util;
+using Mimir.Validators;
 
 namespace Mimir.Controllers;
 
@@ -26,14 +27,14 @@ public class BalanceController : ControllerBase
         string currencyTicker,
         IStateService stateService)
     {
-        Address agentAddress;
-        try
-        {
-            agentAddress = new Address(address);
-        }
-        catch (ArgumentException)
+        if (!AddressValidator.TryValidate(
+                address,
+                out var balanceAddress,
+                out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
+            Response.ContentType = "application/json";
+            await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }
 
@@ -62,7 +63,7 @@ public class BalanceController : ControllerBase
         }
 
         var stateGetter = new StateGetter(stateService);
-        var balance = await stateGetter.GetBalanceAsync(agentAddress, c.Value);
+        var balance = await stateGetter.GetBalanceAsync(balanceAddress, c.Value);
         return new Balance(c.Value, balance);
     }
 }
