@@ -6,6 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using static Nekoyume.TableData.ArenaSheet;
 
 namespace Mimir.Repositories;
 
@@ -17,6 +18,56 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
     protected override string GetCollectionName()
     {
         return "tableSheets";
+    }
+
+    public async Task<(int, int)> GetLatestArenaSeason(string network, long blockIndex)
+    {
+        var collection = GetCollection(network);
+
+        var pipelines = new BsonDocument[]
+        {
+            new BsonDocument("$match", new BsonDocument("Name", "ArenaSheet")),
+            new BsonDocument(
+                "$addFields",
+                new BsonDocument("SheetJsonArray", new BsonDocument("$objectToArray", "$SheetJson"))
+            ),
+            new BsonDocument("$unwind", new BsonDocument("path", "$SheetJsonArray")),
+            new BsonDocument("$unwind", new BsonDocument("path", "$SheetJsonArray.v.Round")),
+            new BsonDocument(
+                "$match",
+                new BsonDocument(
+                    "$and",
+                    new BsonArray
+                    {
+                        new BsonDocument(
+                            "SheetJsonArray.v.Round.StartBlockIndex",
+                            new BsonDocument("$lte", blockIndex)
+                        ),
+                        new BsonDocument(
+                            "SheetJsonArray.v.Round.EndBlockIndex",
+                            new BsonDocument("$gte", blockIndex)
+                        )
+                    }
+                )
+            ),
+            new BsonDocument(
+                "$project",
+                new BsonDocument
+                {
+                    { "_id", 0 },
+                    { "ChampionshipId", "$SheetJsonArray.v.Round.ChampionshipId" },
+                    { "Round", "$SheetJsonArray.v.Round.Round" }
+                }
+            )
+        };
+
+        var document = collection.Aggregate<BsonDocument>(pipelines).FirstOrDefault();
+        if (document == null)
+        {
+            throw new InvalidOperationException("No matching document found.");
+        }
+
+        return (document["ChampionshipId"].ToInt32(), document["Round"].ToInt32());
     }
 
     public string[] GetSheetNames(string network)
