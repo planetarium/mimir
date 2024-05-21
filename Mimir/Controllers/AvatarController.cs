@@ -6,6 +6,7 @@ using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Microsoft.AspNetCore.Mvc;
 using Mimir.Models.Agent;
+using Mimir.Models.Assets;
 using Mimir.Models.Avatar;
 using Mimir.Repositories;
 using Mimir.Services;
@@ -136,7 +137,7 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
     }
 
     [HttpGet("balances/{currency}")]
-    public async Task<string> GetBalances(
+    public async Task<Balance?> GetBalances(
         string network,
         string address,
         string currency,
@@ -150,7 +151,7 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         catch (FormatException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            return string.Empty;
+            return null;
         }
 
         Currency c;
@@ -161,12 +162,12 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         catch (ArgumentException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            return string.Empty;
+            return null;
         }
 
         var stateGetter = new StateGetter(stateService);
         var balance = await stateGetter.GetBalanceAsync(agentAddress, c);
-        return $"{balance} {c.Ticker}";
+        return new Balance(c, balance);
     }
 
     [HttpGet("inventory")]

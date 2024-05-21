@@ -3,6 +3,7 @@ using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Microsoft.AspNetCore.Mvc;
 using Mimir.Models.Agent;
+using Mimir.Models.Assets;
 using Mimir.Services;
 using Mimir.Util;
 
@@ -20,7 +21,7 @@ public class AgentController : ControllerBase
 #pragma warning restore CS0618 // Type or member is obsolete
 
     [HttpGet("balances")]
-    public async Task<List<string>> GetBalances(
+    public async Task<List<Balance>?> GetBalances(
         string network,
         string address,
         IStateService stateService)
@@ -33,21 +34,21 @@ public class AgentController : ControllerBase
         catch (FormatException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            return [];
+            return null;
         }
 
         var stateGetter = new StateGetter(stateService);
         var ncg = await stateGetter.GetBalanceAsync(agentAddress, _ncg);
         var crystal = await stateGetter.GetBalanceAsync(agentAddress, Currencies.Crystal);
-        return
-        [
-            $"{ncg} {_ncg.Ticker}",
-            $"{crystal} {Currencies.Crystal.Ticker}",
-        ];
+        return new List<Balance>
+        {
+            new(_ncg, ncg),
+            new(Currencies.Crystal, crystal),
+        };
     }
 
     [HttpGet("balances/{currency}")]
-    public async Task<string> GetBalances(
+    public async Task<Balance?> GetBalances(
         string network,
         string address,
         string currency,
@@ -61,7 +62,7 @@ public class AgentController : ControllerBase
         catch (FormatException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            return string.Empty;
+            return null;
         }
 
         Currency? c = currency switch
@@ -73,12 +74,12 @@ public class AgentController : ControllerBase
         if (c is null)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            return string.Empty;
+            return null;
         }
 
         var stateGetter = new StateGetter(stateService);
         var balance = await stateGetter.GetBalanceAsync(agentAddress, c.Value);
-        return $"{balance} {c.Value.Ticker}";
+        return new Balance(c.Value, balance);
     }
 
     [HttpGet("avatars")]
