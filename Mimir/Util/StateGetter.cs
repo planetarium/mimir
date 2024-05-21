@@ -1,6 +1,7 @@
 using Libplanet.Crypto;
 using Bencodex.Types;
 using Libplanet.Action.State;
+using Libplanet.Types.Assets;
 using Nekoyume.TableData;
 using Nekoyume;
 using Nekoyume.Action;
@@ -8,13 +9,15 @@ using Nekoyume.Model.EnumType;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
 using Mimir.Services;
-using Nekoyume.Model.Arena;
 using Nekoyume.TableData.Rune;
 
 namespace Mimir.Util;
 
 public class StateGetter(IStateService stateService)
 {
+    public async Task<string> GetBalanceAsync(Address address, Currency currency) =>
+        await stateService.GetBalance(address, currency);
+
     public async Task<IValue?> GetStateAsync(Address address, Address accountAddress) =>
         await stateService.GetState(address, accountAddress) ??
         await stateService.GetState(address);
@@ -39,7 +42,7 @@ public class StateGetter(IStateService stateService)
         sheet.Set(sheetValue.Value);
         return sheet;
     }
-    
+
     public async Task<List<AvatarState>?> GetAvatarStatesAsync(
         Address agentAddress,
         bool withInventory = true)
@@ -58,7 +61,7 @@ public class StateGetter(IStateService stateService)
         }
 
         var avatars = new List<AvatarState>();
-        foreach(var avatarAddress in agentState.avatarAddresses.Values)
+        foreach (var avatarAddress in agentState.avatarAddresses.Values)
         {
             var avatarState = await GetAvatarStateAsync(avatarAddress, withInventory);
             if (avatarState is null)
@@ -101,7 +104,7 @@ public class StateGetter(IStateService stateService)
         {
             avatarState.actionPoint = actionPoint;
         }
-        
+
         if (await GetStateAsync(avatarAddress, Addresses.DailyReward) is Integer dailyRewardReceivedIndex)
         {
             avatarState.dailyRewardReceivedIndex = dailyRewardReceivedIndex;
@@ -132,7 +135,7 @@ public class StateGetter(IStateService stateService)
             _ => null,
         };
     }
-    
+
     public async Task<AllRuneState> GetRuneStatesAsync(Address avatarAddress)
     {
         AllRuneState allRuneState;
@@ -158,7 +161,7 @@ public class StateGetter(IStateService stateService)
 
         return allRuneState;
     }
-    
+
     public async Task<RuneSlotState> GetRuneSlotStateAsync(Address avatarAddress, BattleType battleType)
     {
         var runeSlotStateAddress = RuneSlotState.DeriveAddress(avatarAddress, battleType);

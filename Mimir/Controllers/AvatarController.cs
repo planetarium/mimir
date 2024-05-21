@@ -1,13 +1,13 @@
 using System.Numerics;
 using Bencodex;
 using Libplanet.Common;
-using Libplanet.Crypto;
 using Microsoft.AspNetCore.Mvc;
 using Mimir.Models.Agent;
 using Mimir.Models.Avatar;
 using Mimir.Repositories;
 using Mimir.Services;
 using Mimir.Util;
+using Mimir.Validators;
 using Nekoyume.Model.State;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -105,25 +105,25 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         string address,
         IStateService stateService)
     {
-        Address addr;
-        try
-        {
-            addr = new Address(address);
-        }
-        catch (ArgumentException)
+        if (!AddressValidator.TryValidate(
+                address,
+                out var avatarAddress,
+                out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
+            Response.ContentType = "application/json";
+            await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }
 
-        var avatar = avatarRepository.GetAvatar(network, addr);
+        var avatar = avatarRepository.GetAvatar(network, avatarAddress);
         if (avatar is not null)
         {
             return avatar;
         }
 
         var stateGetter = new StateGetter(stateService);
-        var avatarState = await stateGetter.GetAvatarStateAsync(addr);
+        var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress);
         if (avatarState is null)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;
@@ -139,14 +139,14 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         string address,
         IStateService stateService)
     {
-        Address inventoryAddress;
-        try
-        {
-            inventoryAddress = new Address(address);
-        }
-        catch (ArgumentException)
+        if (!AddressValidator.TryValidate(
+                address,
+                out var inventoryAddress,
+                out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
+            Response.ContentType = "application/json";
+            await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }
 
