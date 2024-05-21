@@ -1,3 +1,4 @@
+using Libplanet.Crypto;
 using Mimir.Models.Agent;
 using Mimir.Models.Avatar;
 using Mimir.Services;
@@ -18,10 +19,10 @@ public class AvatarRepository : BaseRepository<BsonDocument>
         return "avatars";
     }
     
-    public Avatar? GetAvatar(string network, string avatarAddress)
+    public Avatar? GetAvatar(string network, Address avatarAddress)
     {
         var collection = GetCollection(network);
-        var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress);
+        var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
@@ -36,7 +37,7 @@ public class AvatarRepository : BaseRepository<BsonDocument>
                 document["Avatar"]["name"].AsString,
                 document["Avatar"]["level"].AsInt32,
                 document["Avatar"]["actionPoint"].AsInt32,
-                document["Avatar"]["dailyRewardReceivedIndex"].AsInt64
+                document["Avatar"]["dailyRewardReceivedIndex"].ToInt64()
             );
         }
         catch (KeyNotFoundException)
@@ -45,10 +46,10 @@ public class AvatarRepository : BaseRepository<BsonDocument>
         }
     }
 
-    public Inventory? GetInventory(string network, string avatarAddress)
+    public Inventory? GetInventory(string network, Address avatarAddress)
     {
         var collection = GetCollection(network);
-        var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress);
+        var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress.ToHex());
         var projection = Builders<BsonDocument>.Projection.Include("Avatar.inventory.Equipments");
         var document = collection.Find(filter).Project(projection).FirstOrDefault();
         if (document is null)

@@ -105,12 +105,6 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         string address,
         IStateService stateService)
     {
-        var avatar = avatarRepository.GetAvatar(network, address);
-        if (avatar is not null)
-        {
-            return avatar;
-        }
-
         Address addr;
         try
         {
@@ -120,6 +114,12 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
             return null;
+        }
+
+        var avatar = avatarRepository.GetAvatar(network, addr);
+        if (avatar is not null)
+        {
+            return avatar;
         }
 
         var stateGetter = new StateGetter(stateService);
@@ -139,12 +139,6 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         string address,
         IStateService stateService)
     {
-        var inventory = avatarRepository.GetInventory(network, address);
-        if (inventory is not null)
-        {
-            return inventory;
-        }
-
         Address inventoryAddress;
         try
         {
@@ -154,6 +148,12 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
             return null;
+        }
+
+        var inventory = avatarRepository.GetInventory(network, inventoryAddress);
+        if (inventory is not null)
+        {
+            return inventory;
         }
 
         var stateGetter = new StateGetter(stateService);
