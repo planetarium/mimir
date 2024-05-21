@@ -19,11 +19,11 @@ public class BalanceController : ControllerBase
         new Address("0x47D082a115c63E7b58B1532d20E631538eaFADde"));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-    [HttpGet("{currency}")]
+    [HttpGet("{currencyTicker}")]
     public async Task<Balance?> GetBalance(
         string network,
         string address,
-        string currency,
+        string currencyTicker,
         IStateService stateService)
     {
         Address agentAddress;
@@ -37,7 +37,7 @@ public class BalanceController : ControllerBase
             return null;
         }
 
-        Currency? c = currency switch
+        Currency? c = currencyTicker switch
         {
             "NCG" => _ncg,
             "CRYSTAL" => Currencies.Crystal,
@@ -47,7 +47,7 @@ public class BalanceController : ControllerBase
         {
             try
             {
-                c = Currencies.GetMinterlessCurrency(currency);
+                c = Currencies.GetMinterlessCurrency(currencyTicker);
             }
             catch (ArgumentNullException)
             {
