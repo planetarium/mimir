@@ -33,3 +33,14 @@ query GetTransactionSigners($blockIndex: Long!) {
         }
     }
 }
+
+query GetDiffs($baseIndex: Long $changedIndex: Long){
+  diffs(baseIndex: $baseIndex, changedIndex: $changedIndex) {
+    path
+    diffs {
+      path
+      baseState
+      changedState
+    }
+  }
+}
