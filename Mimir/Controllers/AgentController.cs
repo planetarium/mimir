@@ -31,7 +31,7 @@ public class AgentController : ControllerBase
         {
             agentAddress = new Address(address);
         }
-        catch (FormatException)
+        catch (ArgumentException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
             return null;
@@ -59,7 +59,7 @@ public class AgentController : ControllerBase
         {
             agentAddress = new Address(address);
         }
-        catch (FormatException)
+        catch (ArgumentException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
             return null;
@@ -73,8 +73,20 @@ public class AgentController : ControllerBase
         };
         if (c is null)
         {
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return null;
+            try
+            {
+                c = Currencies.GetMinterlessCurrency(currency);
+            }
+            catch (ArgumentNullException)
+            {
+                Response.StatusCode = StatusCodes.Status400BadRequest;
+                return null;
+            }
+            catch (ArgumentException)
+            {
+                Response.StatusCode = StatusCodes.Status400BadRequest;
+                return null;
+            }
         }
 
         var stateGetter = new StateGetter(stateService);
@@ -93,7 +105,7 @@ public class AgentController : ControllerBase
         {
             agentAddress = new Address(address);
         }
-        catch (FormatException)
+        catch (ArgumentException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
             return new AvatarsResponse([]);

@@ -148,7 +148,7 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         {
             agentAddress = new Address(address);
         }
-        catch (FormatException)
+        catch (ArgumentException)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
             return null;
@@ -158,6 +158,11 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
         try
         {
             c = Currencies.GetMinterlessCurrency(currency);
+        }
+        catch (ArgumentNullException)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return null;
         }
         catch (ArgumentException)
         {
