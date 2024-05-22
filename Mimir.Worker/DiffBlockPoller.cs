@@ -4,7 +4,7 @@ using Mimir.Worker.Services;
 
 namespace Mimir.Worker;
 
-public class DiffBlockPoller : BackgroundService
+public class DiffBlockPoller
 {
     private readonly DiffMongoDbService _store;
     private readonly DiffScrapper _diffScrapper;
@@ -13,7 +13,6 @@ public class DiffBlockPoller : BackgroundService
 
     public DiffBlockPoller(
         ILogger<DiffBlockPoller> logger,
-        ILogger<DiffScrapper> scrapperLogger,
         HeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         DiffMongoDbService store
@@ -22,10 +21,10 @@ public class DiffBlockPoller : BackgroundService
         _logger = logger;
         _stateService = stateService;
         _store = store;
-        _diffScrapper = new DiffScrapper(scrapperLogger, headlessGqlClient, _store);
+        _diffScrapper = new DiffScrapper(headlessGqlClient, _store);
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task RunAsync(CancellationToken stoppingToken)
     {
         var started = DateTime.UtcNow;
 
@@ -33,16 +32,8 @@ public class DiffBlockPoller : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            var syncedBlockIndex = await _store.GetLatestBlockIndex();
             var currentBlockIndex = await _stateService.GetLatestIndex();
-            long syncedBlockIndex;
-            try
-            {
-                syncedBlockIndex = await _store.GetLatestBlockIndex();
-            }
-            catch (InvalidOperationException)
-            {
-                syncedBlockIndex = currentBlockIndex - 2;
-            }
             var processBlockIndex = syncedBlockIndex + 1;
 
             _logger.LogInformation(

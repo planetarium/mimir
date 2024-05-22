@@ -3,23 +3,17 @@ using Libplanet.Crypto;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
-using Newtonsoft.Json;
+using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Scrapper;
 
 public class DiffScrapper
 {
-    private readonly ILogger<DiffScrapper> _logger;
     private readonly HeadlessGQLClient _headlessGqlClient;
     private readonly DiffMongoDbService _store;
 
-    public DiffScrapper(
-        ILogger<DiffScrapper> logger,
-        HeadlessGQLClient headlessGqlClient,
-        DiffMongoDbService store
-    )
+    public DiffScrapper(HeadlessGQLClient headlessGqlClient, DiffMongoDbService store)
     {
-        _logger = logger;
         _headlessGqlClient = headlessGqlClient;
         _store = store;
     }
@@ -28,19 +22,41 @@ public class DiffScrapper
     {
         var diffResult = await _headlessGqlClient.GetDiffs.ExecuteAsync(baseIndex, targetIndex);
 
-        foreach (var rootDiffs in diffResult.Data.Diffs)
+        if (diffResult.Data?.Diffs != null)
         {
-            var handler = AddressHandlerMappings.HandlerMappings[new Address(rootDiffs.Path)];
+            foreach (var diff in diffResult.Data.Diffs)
+            {
+                switch (diff)
+                {
+                    case IGetDiffs_Diffs_RootStateDiff rootDiff:
+                        ProcessRootStateDiff(rootDiff);
+                        break;
+
+                    case IGetDiffs_Diffs_StateDiff stateDiff:
+                        ProcessStateDiff(stateDiff);
+                        break;
+                }
+            }
+        }
+    }
+
+    private async void ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
+    {
+        var handler = AddressHandlerMappings.HandlerMappings[new Address(rootDiff.Path)];
+        foreach (var subDiff in rootDiff.Diffs)
+        {
             if (handler is not null)
             {
-                foreach (var diff in rootDiffs.Diffs)
+                if (subDiff.ChangedState is not null)
                 {
-                    var state = handler.ConvertToState(diff.ChangedState);
-                    await _store.BulkUpsertAvatarDataAsync(
-                        new List<AvatarData>() { new AvatarData(state) }
+                    var state = handler.ConvertToState(subDiff.ChangedState);
+                    await _store.UpsertAvatarDataAsync(
+                        new OnlyAvatarData(new Address(subDiff.Path), new AvatarState(state))
                     );
                 }
             }
         }
     }
+
+    private void ProcessStateDiff(IGetDiffs_Diffs_StateDiff stateDiff) { }
 }

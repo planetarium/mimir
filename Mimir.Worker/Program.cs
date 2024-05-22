@@ -50,7 +50,7 @@ builder.Services.AddSingleton(serviceProvider =>
     return new DiffMongoDbService(logger, config.MongoDbConnectionString, config.DatabaseName + "_diff_test");
 });
 builder.Services.AddHostedService<Initializer>();
-builder.Services.AddHostedService<DiffBlockPoller>();
+builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
 host.Run();

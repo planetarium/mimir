@@ -8,16 +8,19 @@ type StandaloneQuery {
   stateQuery(
     # Offset block hash for query.
     hash: ByteString
-
-    # Offset block index for query.
-    index: Long
   ): StateQuery!
+
+  # This field allows you to query the diffs between two blocks. `baseIndex` is the reference block index, and changedIndex is the block index from which to check what changes have occurred relative to `baseIndex`. Both indices must not be higher than the current block on the chain nor lower than the genesis block index (0). The difference between the two blocks must be greater than zero for a valid comparison and less than ten for performance reasons.
+  diffs(
+    # The index of the reference block from which the state is retrieved.
+    baseIndex: Long!
+
+    # The index of the target block for comparison.
+    changedIndex: Long!
+  ): [Diff!]!
   state(
     # The hash of the block used to fetch state from chain.
     hash: ByteString
-
-    # The index of the block used to fetch state from chain.
-    index: Long
 
     # The address of account to fetch from the chain.
     accountAddress: Address!
@@ -25,13 +28,6 @@ type StandaloneQuery {
     # The address of state to fetch from the account.
     address: Address!
   ): ByteString
-  diffs(
-    # The index of the block used to fetch state from chain.
-    baseIndex: Long
-
-    # The index of the block used to fetch state from chain.
-    changedIndex: Long
-  ): [RootStateDiff]
   transferNCGHistories(
     blockHash: ByteString!
     recipient: Address
@@ -1145,12 +1141,14 @@ type ArenaParticipantType {
   nameWithHash: String!
 }
 
+union Diff = RootStateDiff | StateDiff
+
 type RootStateDiff {
   # The path to the root state difference.
   path: String!
 
   # List of state differences under this root.
-  diffs: [StateDiff]
+  diffs: [StateDiff!]!
 }
 
 type StateDiff {
@@ -1158,7 +1156,7 @@ type StateDiff {
   path: String!
 
   # The base state before changes.
-  baseState: String
+  baseState: String!
 
   # The state after changes.
   changedState: String
@@ -1280,7 +1278,6 @@ type ExplorerQuery {
   stateQuery: LibplanetStateQuery
   nodeState: NodeState!
   helperQuery: HelperQuery
-  rawStateQuery: RawStateQuery
 }
 
 type BlockQuery {
@@ -1671,33 +1668,6 @@ type HelperQuery {
     # The byte array in hex representation to decode.
     hex: String!
   ): IValue!
-
-  # Converts string to key hex representation
-  keyHex(
-    # The string value to convert to key hex.
-    value: String!
-  ): KeyBytes!
-}
-
-scalar KeyBytes
-
-type RawStateQuery {
-  # Retrieves trie from given state root hash.
-  trie(stateRootHash: HashDigest_SHA256): Trie!
-}
-
-type Trie {
-  # Gets the value stored at given key.
-  value(
-    # The key to search.
-    key: KeyBytes!
-  ): IValue
-
-  # Gets the values stored at given multiple keys.
-  values(
-    # The list of keys to search.
-    keys: [KeyBytes!]!
-  ): IValue
 }
 
 type ValidationQuery {
