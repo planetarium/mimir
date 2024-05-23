@@ -20,23 +20,39 @@ public class DiffScrapper
 
     public async Task ExecuteAsync(long baseIndex, long targetIndex)
     {
-        var diffResult = await _headlessGqlClient.GetDiffs.ExecuteAsync(baseIndex, targetIndex);
+        long indexDifference = Math.Abs(targetIndex - baseIndex);
 
-        if (diffResult.Data?.Diffs != null)
+        long currentBaseIndex = baseIndex;
+
+        while (indexDifference > 0)
         {
-            foreach (var diff in diffResult.Data.Diffs)
-            {
-                switch (diff)
-                {
-                    case IGetDiffs_Diffs_RootStateDiff rootDiff:
-                        ProcessRootStateDiff(rootDiff);
-                        break;
+            long currentTargetIndex =
+                currentBaseIndex + (indexDifference > 9 ? 9 : indexDifference);
 
-                    case IGetDiffs_Diffs_StateDiff stateDiff:
-                        ProcessStateDiff(stateDiff);
-                        break;
+            var diffResult = await _headlessGqlClient.GetDiffs.ExecuteAsync(
+                currentBaseIndex,
+                currentTargetIndex
+            );
+
+            if (diffResult.Data?.Diffs != null)
+            {
+                foreach (var diff in diffResult.Data.Diffs)
+                {
+                    switch (diff)
+                    {
+                        case IGetDiffs_Diffs_RootStateDiff rootDiff:
+                            ProcessRootStateDiff(rootDiff);
+                            break;
+
+                        case IGetDiffs_Diffs_StateDiff stateDiff:
+                            ProcessStateDiff(stateDiff);
+                            break;
+                    }
                 }
             }
+
+            currentBaseIndex = currentTargetIndex;
+            indexDifference -= 9;
         }
     }
 
