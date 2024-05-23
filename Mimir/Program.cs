@@ -71,7 +71,6 @@ app.MapGraphQL();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UsePlayground();
 app.UseHttpsRedirection();
 app.UseCors(policy =>
 {
