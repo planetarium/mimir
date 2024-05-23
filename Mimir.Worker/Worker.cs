@@ -45,7 +45,7 @@ public class Worker : BackgroundService
         );
 
         await initializer.RunAsync(stoppingToken);
-        // await poller.RunAsync(stoppingToken);
+        await poller.RunAsync(stoppingToken);
 
         _logger.LogInformation(
             "Finished Worker background service. Elapsed {TotalElapsedMinutes} minutes",
