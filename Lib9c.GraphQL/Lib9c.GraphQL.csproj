@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <OutputPath>.bin</OutputPath>
+        <IntermediateOutputPath>.obj</IntermediateOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="GraphQL" Version="7.8.0" />
+        <PackageReference Include="HotChocolate.AspNetCore" Version="13.8.1" />
+        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.8.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Lib9c" Version="1.8.0-dev.c5644aff871034a92042833edca03b85c2a24a1c" />
+        <PackageReference Include="Libplanet" Version="4.4.1" />
+    </ItemGroup>
+    
+</Project>

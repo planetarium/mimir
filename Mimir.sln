@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir", "Mimir\Mimir.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Worker", "Mimir.Worker\Mimir.Worker.csproj", "{462CDFD3-650B-46A7-A937-8E3BCE7E527C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib9c.GraphQL", "Lib9c.GraphQL\Lib9c.GraphQL.csproj", "{F5480D2F-8048-4255-981F-7103A112B88C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{462CDFD3-650B-46A7-A937-8E3BCE7E527C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{462CDFD3-650B-46A7-A937-8E3BCE7E527C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{462CDFD3-650B-46A7-A937-8E3BCE7E527C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5480D2F-8048-4255-981F-7103A112B88C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5480D2F-8048-4255-981F-7103A112B88C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5480D2F-8048-4255-981F-7103A112B88C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5480D2F-8048-4255-981F-7103A112B88C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
