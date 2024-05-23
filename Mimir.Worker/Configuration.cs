@@ -4,6 +4,8 @@ public class Configuration
 {
     public string MongoDbConnectionString { get; init; }
 
+    public string SnapshotPath { get; init; }
+
     public string DatabaseName { get; set; }
     
     public Uri HeadlessEndpoint { get; set; }

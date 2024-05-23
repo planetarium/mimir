@@ -1,8 +1,10 @@
-using Nekoyume.Model.State;
+using Bencodex.Types;
+using Mimir.Worker.Models;
 
 namespace Mimir.Worker.Handler;
 
-public interface IStateHandler<T> where T : State
+public interface IStateHandler<T> where T : StateData
 {
-    T ConvertToState(string rawState);
+    T ConvertToStateData(string rawState);
+    T ConvertToStateData(IValue rawState);
 }

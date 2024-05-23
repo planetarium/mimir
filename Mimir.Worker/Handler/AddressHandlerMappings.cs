@@ -1,15 +1,15 @@
 using Libplanet.Action.State;
 using Libplanet.Crypto;
 using Mimir.Worker.Constants;
+using Mimir.Worker.Models;
 using Nekoyume;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Handler;
 
 public static class AddressHandlerMappings
 {
-    public static Dictionary<Address, IStateHandler<AvatarState>> HandlerMappings =
-        new Dictionary<Address, IStateHandler<AvatarState>>();
+    public static Dictionary<Address, IStateHandler<StateData>> HandlerMappings =
+        new Dictionary<Address, IStateHandler<StateData>>();
 
     static AddressHandlerMappings()
     {

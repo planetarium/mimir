@@ -1,5 +1,6 @@
 using HeadlessGQL;
 using Libplanet.Crypto;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
@@ -58,16 +59,18 @@ public class DiffScrapper
 
     private async void ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
     {
-        var handler = AddressHandlerMappings.HandlerMappings[new Address(rootDiff.Path)];
+        var accountAddress = new Address(rootDiff.Path);
+        var handler = AddressHandlerMappings.HandlerMappings[accountAddress];
         foreach (var subDiff in rootDiff.Diffs)
         {
             if (handler is not null)
             {
                 if (subDiff.ChangedState is not null)
                 {
-                    var state = handler.ConvertToState(subDiff.ChangedState);
-                    await _store.UpsertAvatarDataAsync(
-                        new OnlyAvatarData(new Address(subDiff.Path), new AvatarState(state))
+                    var stateData = handler.ConvertToStateData(subDiff.ChangedState);
+                    await _store.UpsertStateDataAsync(
+                        stateData,
+                        CollectionNames.CollectionMappings[accountAddress]
                     );
                 }
             }
