@@ -94,12 +94,4 @@ public class DiffMongoDbService
             _logger.LogError($"An error occurred during UpsertAvatarDataAsync: {ex.Message}");
         }
     }
-
-    public async Task<bool> IsInitialized()
-    {
-        var names = await (
-            await _client.GetDatabase(_databaseName).ListCollectionNamesAsync()
-        ).ToListAsync();
-        return names is not { } ns || !(ns.Contains("arena") && ns.Contains("avatars"));
-    }
 }

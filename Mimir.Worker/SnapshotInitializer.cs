@@ -39,12 +39,23 @@ public class SnapshotInitializer
     {
         var started = DateTime.UtcNow;
 
+        (BlockChain blockChain, IStore store, IStateStore stateStore) = ChainUtil.LoadBlockChain(
+            _chainStorePath
+        );
+
         foreach (var (address, _) in CollectionNames.CollectionMappings)
         {
             var handler = AddressHandlerMappings.HandlerMappings[address];
             if (handler is not null)
             {
-                await ProcessByAccountAddress(address, handler, stoppingToken);
+                await ProcessByAccountAddress(
+                    blockChain,
+                    store,
+                    stateStore,
+                    address,
+                    handler,
+                    stoppingToken
+                );
             }
 
             if (stoppingToken.IsCancellationRequested)
@@ -53,6 +64,8 @@ public class SnapshotInitializer
             }
         }
 
+        await _store.UpdateLatestBlockIndex(blockChain.Tip.Index);
+
         _logger.LogInformation(
             "Finished SnapshotInitializer. Elapsed {TotalElapsedMinutes} minutes",
             DateTime.UtcNow.Subtract(started).Minutes
@@ -60,15 +73,14 @@ public class SnapshotInitializer
     }
 
     private async Task ProcessByAccountAddress(
+        BlockChain blockChain,
+        IStore store,
+        IStateStore stateStore,
         Address accountAddress,
         IStateHandler<StateData> handler,
         CancellationToken stoppingToken
     )
     {
-        (BlockChain blockChain, IStore store, IStateStore stateStore) = ChainUtil.LoadBlockChain(
-            _chainStorePath
-        );
-
         int predicateLength = Address.Size * 2;
 
         ITrie worldTrie = ChainUtil.GetWorldTrie(blockChain);
