@@ -65,7 +65,7 @@ builder.Services.AddSingleton(serviceProvider =>
         config.DatabaseName + "_diff_test"
     );
 });
-builder.Services.AddSingleton<Worker>(serviceProvider =>
+builder.Services.AddHostedService(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     var logger = serviceProvider.GetRequiredService<ILogger<Worker>>();

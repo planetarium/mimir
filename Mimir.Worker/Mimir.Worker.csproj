@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Libplanet.RocksDBStore" Version="4.6.0-dev.202452184238" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Lib9c" Version="1.8.0-dev.c5644aff871034a92042833edca03b85c2a24a1c" />
+    <PackageReference Include="Libplanet.RocksDBStore" Version="4.4.1" />
     <PackageReference Include="Libplanet" Version="4.4.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.25.0" />
     <PackageReference Include="MongoDB.Driver.GridFS" Version="2.25.0" />
