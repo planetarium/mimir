@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
+using HotChocolate.AspNetCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using Mimir.Services;
@@ -58,20 +59,26 @@ builder.Services.AddHeadlessGQLClient()
     });
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
+builder.Services
+    .AddGraphQLServer()
+    .AddLib9cGraphQLTypes()
+    .AddMimirGraphQLTypes();
 
 var app = builder.Build();
+app.MapGet("/", () => "Health Check");
+app.MapControllers();
+app.MapGraphQL();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UsePlayground();
 app.UseHttpsRedirection();
-app.MapControllers();
 app.UseCors(policy =>
 {
     policy.AllowAnyMethod();
     policy.AllowAnyOrigin();
     policy.AllowAnyHeader();
 });
-
-app.MapGet("/", () => "Health Check");
+app.UseRouting();
 
 app.Run();
