@@ -10,7 +10,7 @@ public class SheetNamesQueryTypeExtension : ObjectTypeExtension<Query>
     {
         descriptor
             .Field("sheetNames")
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameType>>())
+            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
             .Type<NonNullType<ListType<NonNullType<StringType>>>>()
             .ResolveWith<SheetNamesQueryTypeExtension>(t => GetSheetNames(default!, default!));
     }

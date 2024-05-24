@@ -12,7 +12,7 @@ public class SheetQueryTypeExtension : ObjectTypeExtension<Query>
     {
         descriptor
             .Field("sheet")
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameType>>())
+            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
             .Argument("sheetName", a => a.Type<NonNullType<SheetNameType>>())
             .Type<NonNullType<SheetType>>()
             .ResolveWith<SheetQueryTypeExtension>(t => GetSheet(default!, default!, default!));
