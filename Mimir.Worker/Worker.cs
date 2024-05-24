@@ -12,6 +12,7 @@ public class Worker : BackgroundService
     private readonly IStateService _stateService;
     private readonly HeadlessGQLClient _headlessGqlClient;
     private readonly string _snapshotPath;
+    private readonly bool _enableInitializing;
 
     public Worker(
         ILogger<Worker> logger,
@@ -20,7 +21,8 @@ public class Worker : BackgroundService
         HeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         DiffMongoDbService store,
-        string snapshotPath
+        string snapshotPath,
+        bool enableInitializing
     )
     {
         _logger = logger;
@@ -30,6 +32,7 @@ public class Worker : BackgroundService
         _store = store;
         _headlessGqlClient = headlessGqlClient;
         _snapshotPath = snapshotPath;
+        _enableInitializing = enableInitializing;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -42,7 +45,7 @@ public class Worker : BackgroundService
             _store
         );
 
-        if (!await IsInitialized())
+        if (_enableInitializing && !await IsInitialized())
         {
             var initializer = new SnapshotInitializer(_initializerLogger, _store, _snapshotPath);
             await initializer.RunAsync(stoppingToken);

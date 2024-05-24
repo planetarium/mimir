@@ -32,8 +32,8 @@ public class DiffBlockPoller
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var syncedBlockIndex = await _store.GetLatestBlockIndex();
             var currentBlockIndex = await _stateService.GetLatestIndex();
+            var syncedBlockIndex = await GetSyncedBlockIndex(currentBlockIndex);
             var processBlockIndex = syncedBlockIndex + 1;
 
             _logger.LogInformation(
@@ -53,5 +53,19 @@ public class DiffBlockPoller
             "Finished DiffBlockPoller background service. Elapsed {TotalElapsedMinutes} minutes",
             DateTime.UtcNow.Subtract(started).Minutes
         );
+    }
+
+    public async Task<long> GetSyncedBlockIndex(long currentBlockIndex)
+    {
+        try
+        {
+            var syncedBlockIndex = await _store.GetLatestBlockIndex();
+            return syncedBlockIndex;
+        }
+        catch (System.InvalidOperationException)
+        {
+            _logger.LogError($"Failed to get block indexes from db, Set `syncedBlockIndex` {currentBlockIndex} - 1");
+            return currentBlockIndex - 1;
+        }
     }
 }

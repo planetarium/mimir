@@ -82,7 +82,8 @@ builder.Services.AddHostedService(serviceProvider =>
         headlessGqlClient,
         stateService,
         store,
-        config.SnapshotPath
+        config.SnapshotPath,
+        config.EnableInitializing
     );
 });
 // builder.Services.AddHostedService<Initializer>();
