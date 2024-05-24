@@ -65,6 +65,7 @@ builder.Services
     .AddMimirGraphQLTypes();
 
 var app = builder.Build();
+app.UseRouting();
 app.MapGet("/", () => "Health Check");
 app.MapControllers();
 app.MapGraphQL();
@@ -78,6 +79,5 @@ app.UseCors(policy =>
     policy.AllowAnyOrigin();
     policy.AllowAnyHeader();
 });
-app.UseRouting();
 
 app.Run();
