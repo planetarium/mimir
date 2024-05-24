@@ -17,11 +17,6 @@ namespace Lib9c.GraphQL.Types
                 .Name("csv")
                 .Description("The CSV content of the sheet.")
                 .Type<StringType>();
-            descriptor
-                .Field(f => f.Json)
-                .Name("json")
-                .Description("The JSON content of the sheet.")
-                .Type<StringType>();
         }
     }
 }

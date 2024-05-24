@@ -4,5 +4,4 @@ public class SheetObject
 {
     public string Name { get; set; } = string.Empty;
     public string? Csv { get; set; }
-    public string? Json { get; set; }
 }
