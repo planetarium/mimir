@@ -18,7 +18,7 @@ namespace Mimir.Worker.Constants
             MapAddressToCollectionName("GameConfig", Addresses.GameConfig);
             MapAddressToCollectionName("RedeemCode", Addresses.RedeemCode);
             // mongodb already have admin collection
-            MapAddressToCollectionName("NineChroniclesAdmin", Addresses.Admin);
+            // MapAddressToCollectionName("NineChroniclesAdmin", Addresses.Admin);
             MapAddressToCollectionName("PendingActivation", Addresses.PendingActivation);
             MapAddressToCollectionName("ActivatedAccount", Addresses.ActivatedAccount);
             MapAddressToCollectionName("Blacksmith", Addresses.Blacksmith);
