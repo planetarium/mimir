@@ -66,7 +66,7 @@ public class Item
             ? item["level"].AsInt32
             : null;
         RequiredBlockIndex = item.Contains("RequiredBlockIndex")
-            ? item["RequiredBlockIndex"].AsInt32
+            ? item["RequiredBlockIndex"].ToInt64()
             : null;
 
         try
