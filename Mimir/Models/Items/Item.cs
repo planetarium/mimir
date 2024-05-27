@@ -40,15 +40,21 @@ public class Item
 
     public Item(BsonDocument item)
     {
-        ItemSheetId = item["ItemSheetId"].AsInt32;
+        ItemSheetId = item["Id"].AsInt32;
         Grade = item["Grade"].AsInt32;
         ItemType = (ItemType)item["ItemType"].AsInt32;
         ItemSubType = (ItemSubType)item["ItemSubType"].AsInt32;
         ElementalType = (ElementalType)item["ElementalType"].AsInt32;
 
-        Count = item["Count"].AsInt32;
+        Count = item.Contains("Count")
+            ? item["Count"].AsInt32
+            : 1;
 
-        NonFungibleId = item["NonFungibleId"].AsNullableGuid;
-        RequiredBlockIndex = item["RequiredBlockIndex"].AsNullableInt64;
+        NonFungibleId = item["ItemId"].AsString switch
+        {
+            { } s => Guid.TryParse(s, out var guid) ? guid : null,
+            _ => null
+        };
+        RequiredBlockIndex = item["RequiredBlockIndex"].AsNullableInt32;
     }
 }

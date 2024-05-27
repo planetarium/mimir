@@ -29,17 +29,25 @@ public class Inventory
 
     public Inventory(BsonDocument inventory)
     {
-        Consumables = inventory["Consumables"].AsBsonArray
-            .Select(c => new Consumable(c.AsBsonDocument))
-            .ToList();
-        Costumes = inventory["Costumes"].AsBsonArray
-            .Select(c => new Costume(c.AsBsonDocument))
-            .ToList();
-        Equipments = inventory["Equipments"].AsBsonArray
-            .Select(e => new Equipment(e.AsBsonDocument))
-            .ToList();
-        Materials = inventory["Materials"].AsBsonArray
-            .Select(m => new Material(m.AsBsonDocument))
-            .ToList();
+        Consumables = inventory.Contains("Consumables")
+            ? inventory["Consumables"].AsBsonArray
+                .Select(c => new Consumable(c.AsBsonDocument))
+                .ToList()
+            : [];
+        Costumes = inventory.Contains("Costumes")
+            ? inventory["Costumes"].AsBsonArray
+                .Select(c => new Costume(c.AsBsonDocument))
+                .ToList()
+            : [];
+        Equipments = inventory.Contains("Equipments")
+            ? inventory["Equipments"].AsBsonArray
+                .Select(e => new Equipment(e.AsBsonDocument))
+                .ToList()
+            : [];
+        Materials = inventory.Contains("Materials")
+            ? inventory["Materials"].AsBsonArray
+                .Select(m => new Material(m.AsBsonDocument))
+                .ToList()
+            : [];
     }
 }
