@@ -1,53 +1,84 @@
 using MongoDB.Bson;
 using Mimir.Models.Items;
+using Nekoyume.Model.Item;
 
 namespace Mimir.Models.Avatar;
 
 public class Inventory
 {
-    public List<Consumable> Consumables { get; set; }
-    public List<Costume> Costumes { get; set; }
-    public List<Equipment> Equipments { get; set; }
-    public List<Material> Materials { get; set; }
+    public List<Item> Consumables { get; set; }
+    public List<Item> Costumes { get; set; }
+    public List<Item> Equipments { get; set; }
+    public List<Item> Materials { get; set; }
 
     public Inventory(Nekoyume.Model.Item.Inventory inventory)
     {
-        Consumables = inventory.Consumables
-            .Select(c => new Consumable(c))
-            .ToList();
-        Costumes = inventory.Costumes
-            .Select(c => new Costume(c))
-            .ToList();
-        Equipments = inventory.Equipments
-            .Select(e => new Equipment(e))
-            .ToList();
-        Materials = inventory.Items
-            .Where(i => i.item is Nekoyume.Model.Item.Material)
-            .Select(i => new Material((Nekoyume.Model.Item.Material)i.item, i.count))
-            .ToList();
+        Consumables = new List<Item>();
+        Costumes = new List<Item>();
+        Equipments = new List<Item>();
+        Materials = new List<Item>();
+        var inventoryItems = inventory.Items;
+        var inventoryItemsCount = inventoryItems.Count;
+        for (var i = 0; i < inventoryItemsCount; i++)
+        {
+            var inventoryItem = inventoryItems[i];
+            switch (inventoryItem.item.ItemType)
+            {
+                case ItemType.Consumable:
+                    Consumables.Add(new Item(inventoryItem));
+                    break;
+                case ItemType.Costume:
+                    Costumes.Add(new Item(inventoryItem));
+                    break;
+                case ItemType.Equipment:
+                    Equipments.Add(new Item(inventoryItem));
+                    break;
+                case ItemType.Material:
+                    Materials.Add(new Item(inventoryItem));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(inventoryItem.item.ItemType),
+                        $"Invalid ItemType: {inventoryItem.item.ItemType}");
+            }
+        }
     }
 
     public Inventory(BsonDocument inventory)
     {
-        Consumables = inventory.Contains("Consumables")
-            ? inventory["Consumables"].AsBsonArray
-                .Select(c => new Consumable(c.AsBsonDocument))
-                .ToList()
-            : [];
-        Costumes = inventory.Contains("Costumes")
-            ? inventory["Costumes"].AsBsonArray
-                .Select(c => new Costume(c.AsBsonDocument))
-                .ToList()
-            : [];
-        Equipments = inventory.Contains("Equipments")
-            ? inventory["Equipments"].AsBsonArray
-                .Select(e => new Equipment(e.AsBsonDocument))
-                .ToList()
-            : [];
-        Materials = inventory.Contains("Materials")
-            ? inventory["Materials"].AsBsonArray
-                .Select(m => new Material(m.AsBsonDocument))
-                .ToList()
-            : [];
+        Consumables = [];
+        Costumes = [];
+        Equipments = [];
+        Materials = [];
+
+        if (!inventory.Contains("Items"))
+        {
+            return;
+        }
+
+        var inventoryItems = inventory["Items"].AsBsonArray;
+        foreach (var inventoryItem in inventoryItems)
+        {
+            var item = new Item(inventoryItem.AsBsonDocument);
+            switch (item.ItemType)
+            {
+                case ItemType.Consumable:
+                    Consumables.Add(item);
+                    break;
+                case ItemType.Costume:
+                    Costumes.Add(item);
+                    break;
+                case ItemType.Equipment:
+                    Equipments.Add(item);
+                    break;
+                case ItemType.Material:
+                    Materials.Add(item);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(item.ItemType),
+                        $"Invalid ItemType: {item.ItemType}");
+            }
+        }
     }
 }
