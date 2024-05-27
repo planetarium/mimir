@@ -50,7 +50,7 @@ public class AvatarRepository : BaseRepository<BsonDocument>
     {
         var collection = GetCollection(network);
         var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress.ToHex());
-        var projection = Builders<BsonDocument>.Projection.Include("Avatar.inventory.Equipments");
+        var projection = Builders<BsonDocument>.Projection.Include("Avatar.inventory");
         var document = collection.Find(filter).Project(projection).FirstOrDefault();
         if (document is null)
         {
