@@ -106,7 +106,7 @@ public class SnapshotInitializer
 
             if (currentAddress is string hex)
             {
-                var stateData = handler.ConvertToStateData(value);
+                var stateData = handler.ConvertToStateData(new Address(currentAddress), value);
                 await _store.UpsertStateDataAsync(
                     stateData,
                     CollectionNames.CollectionMappings[accountAddress]

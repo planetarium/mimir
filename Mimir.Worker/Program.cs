@@ -86,7 +86,7 @@ builder.Services.AddHostedService(serviceProvider =>
         config.EnableInitializing
     );
 });
-// builder.Services.AddHostedService<Initializer>();
+builder.Services.AddHostedService<Initializer>();
 
 var host = builder.Build();
 host.Run();
