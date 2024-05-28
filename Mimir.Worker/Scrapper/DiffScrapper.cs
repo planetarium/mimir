@@ -67,7 +67,7 @@ public class DiffScrapper
             {
                 if (subDiff.ChangedState is not null)
                 {
-                    var stateData = handler.ConvertToStateData(subDiff.ChangedState);
+                    var stateData = handler.ConvertToStateData(new Address(subDiff.Path), subDiff.ChangedState);
                     await _store.UpsertStateDataAsync(
                         stateData,
                         CollectionNames.CollectionMappings[accountAddress]
