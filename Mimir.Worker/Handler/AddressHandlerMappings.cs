@@ -16,6 +16,7 @@ public static class AddressHandlerMappings
         InitializeHandlers();
 
         HandlerMappings[Addresses.Avatar] = new AvatarStateHandler();
+        HandlerMappings[Addresses.Inventory] = new InventoryStateHandler();
     }
 
     private static void InitializeHandlers()
