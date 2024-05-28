@@ -18,6 +18,7 @@ public static class AddressHandlerMappings
         HandlerMappings[Addresses.Avatar] = new AvatarStateHandler();
         HandlerMappings[Addresses.Inventory] = new InventoryStateHandler();
         HandlerMappings[Addresses.WorldInformation] = new WorldInformationStateHandler();
+        HandlerMappings[Addresses.QuestList] = new QuestListStateHandler();
     }
 
     private static void InitializeHandlers()
