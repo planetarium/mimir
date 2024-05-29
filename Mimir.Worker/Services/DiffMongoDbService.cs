@@ -87,7 +87,7 @@ public class DiffMongoDbService
             await GetStateCollection(collectionName)
                 .ReplaceOneAsync(filter, bsonDocument, new ReplaceOptions { IsUpsert = true });
 
-            _logger.LogInformation($"Stored at {collectionName}");
+            _logger.LogInformation($"Address: {stateData.Address.ToHex()} - Stored at {collectionName}");
         }
         catch (Exception ex)
         {
