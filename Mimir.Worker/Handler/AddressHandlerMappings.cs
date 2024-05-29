@@ -1,6 +1,5 @@
 using Libplanet.Action.State;
 using Libplanet.Crypto;
-using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
 using Nekoyume;
 
@@ -13,22 +12,10 @@ public static class AddressHandlerMappings
 
     static AddressHandlerMappings()
     {
-        InitializeHandlers();
-
-        HandlerMappings[ReservedAddresses.LegacyAccount] = new LegacyAccountHandler();
-
-        HandlerMappings[Addresses.Avatar] = new AvatarStateHandler();
-        HandlerMappings[Addresses.Inventory] = new InventoryStateHandler();
-        HandlerMappings[Addresses.WorldInformation] = new WorldInformationStateHandler();
-        HandlerMappings[Addresses.QuestList] = new QuestListStateHandler();
-    }
-
-    private static void InitializeHandlers()
-    {
-        foreach (var address in CollectionNames.CollectionMappings.Keys)
-        {
-            HandlerMappings.Add(address, null);
-        }
-        HandlerMappings.Add(ReservedAddresses.LegacyAccount, null);
+        HandlerMappings.Add(ReservedAddresses.LegacyAccount, new LegacyAccountHandler());
+        HandlerMappings.Add(Addresses.Avatar, new AvatarStateHandler());
+        HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
+        HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());
+        HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
     }
 }
