@@ -64,35 +64,32 @@ public class DiffScrapper
         {
             foreach (var subDiff in rootDiff.Diffs)
             {
-                if (handler is not null)
+                if (subDiff.ChangedState is not null)
                 {
-                    if (subDiff.ChangedState is not null)
+                    try
                     {
-                        try
-                        {
-                            var stateData = handler.ConvertToStateData(
-                                new Address(subDiff.Path),
-                                subDiff.ChangedState
-                            );
+                        var stateData = handler.ConvertToStateData(
+                            new Address(subDiff.Path),
+                            subDiff.ChangedState
+                        );
 
-                            if (
-                                CollectionNames.CollectionMappings.TryGetValue(
-                                    stateData.State.GetType(),
-                                    out var collectionName
-                                )
+                        if (
+                            CollectionNames.CollectionMappings.TryGetValue(
+                                stateData.State.GetType(),
+                                out var collectionName
                             )
-                            {
-                                await _store.UpsertStateDataAsync(stateData, collectionName);
-                            }
-                        }
-                        catch (InvalidOperationException)
+                        )
                         {
-                            continue;
+                            await _store.UpsertStateDataAsync(stateData, collectionName);
                         }
-                        catch (ArgumentException)
-                        {
-                            continue;
-                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        continue;
+                    }
+                    catch (ArgumentException)
+                    {
+                        continue;
                     }
                 }
             }
