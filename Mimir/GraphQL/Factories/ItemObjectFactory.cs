@@ -1,4 +1,4 @@
-using Lib9c.GraphQL.Objects;
+using Mimir.GraphQL.Objects;
 using Mimir.Models.Items;
 
 namespace Mimir.GraphQL.Factories;

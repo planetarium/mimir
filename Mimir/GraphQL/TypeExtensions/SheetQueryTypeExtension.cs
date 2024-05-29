@@ -1,8 +1,9 @@
 using System.Text;
-using Lib9c.GraphQL.Objects;
 using Lib9c.GraphQL.Types;
 using Mimir.Enums;
+using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Queries;
+using Mimir.GraphQL.Types;
 using Mimir.Repositories;
 
 namespace Mimir.GraphQL.TypeExtensions;

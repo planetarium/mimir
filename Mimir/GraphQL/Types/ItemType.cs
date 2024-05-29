@@ -1,7 +1,7 @@
-using HotChocolate.Types;
-using Lib9c.GraphQL.Objects;
+using Lib9c.GraphQL.Types;
+using Mimir.GraphQL.Objects;
 
-namespace Lib9c.GraphQL.Types;
+namespace Mimir.GraphQL.Types;
 
 public class ItemType : ObjectType<ItemObject>
 {
