@@ -15,6 +15,8 @@ public static class AddressHandlerMappings
     {
         InitializeHandlers();
 
+        HandlerMappings[ReservedAddresses.LegacyAccount] = new LegacyAccountHandler();
+
         HandlerMappings[Addresses.Avatar] = new AvatarStateHandler();
         HandlerMappings[Addresses.Inventory] = new InventoryStateHandler();
         HandlerMappings[Addresses.WorldInformation] = new WorldInformationStateHandler();
