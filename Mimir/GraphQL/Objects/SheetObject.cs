@@ -1,4 +1,4 @@
-namespace Lib9c.GraphQL.Objects;
+namespace Mimir.GraphQL.Objects;
 
 public class SheetObject
 {

@@ -1,4 +1,4 @@
-namespace Lib9c.GraphQL.Objects;
+namespace Mimir.GraphQL.Objects;
 
 public class InventoryObject
 {
@@ -6,7 +6,7 @@ public class InventoryObject
     public ItemObject[] Costumes { get; set; }
     public ItemObject[] Equipments { get; set; }
     public ItemObject[] Materials { get; set; }
-    
+
     public InventoryObject(
         ItemObject[] consumables,
         ItemObject[] costumes,
