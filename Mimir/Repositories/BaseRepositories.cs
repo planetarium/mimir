@@ -40,6 +40,7 @@ public abstract class BaseRepository<T>
 
     protected IMongoCollection<T> GetCollection(string network)
     {
+        network = network.ToLowerInvariant();
         if (_collections.TryGetValue(network, out var collection))
         {
             return collection;
@@ -50,6 +51,7 @@ public abstract class BaseRepository<T>
 
     protected IMongoDatabase GetDatabase(string network)
     {
+        network = network.ToLowerInvariant();
         if (_databases.TryGetValue(network, out var database))
         {
             return database;
