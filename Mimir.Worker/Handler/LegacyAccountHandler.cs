@@ -31,10 +31,11 @@ public class LegacyAccountHandler : IStateHandler<StateData>
                 )
             )
             .ToList();
-        List<Address> arenaScoreAddresses = [];
+        Dictionary<string, List<Address>> derivedAddresses =
+            new Dictionary<string, List<Address>>();
         if (txs is not null)
         {
-            arenaScoreAddresses = GetArenaScoreAddresses(txs);
+            derivedAddresses = GetDerivedFromAvatarsAddresses(txs);
         }
 
         switch (context.Address)
@@ -53,16 +54,29 @@ public class LegacyAccountHandler : IStateHandler<StateData>
                 }
 
                 return ConvertToTableSheetState(sheetType, addr, context.RawState);
-            case var addr when arenaScoreAddresses.Contains(addr):
+            case var addr
+                when derivedAddresses.TryGetValue(
+                    "ArenaScoreAddresses",
+                    out var arenaScoreAddresses
+                ) && arenaScoreAddresses.Contains(addr):
                 return ConvertToArenaScoreState(addr, context.RawState);
+            case var addr
+                when derivedAddresses.TryGetValue("ArenaInfoAddresses", out var arenaInfoAddresses)
+                    && arenaInfoAddresses.Contains(addr):
+                return ConvertToArenaInformationState(addr, context.RawState);
             default:
                 throw new InvalidOperationException("The provided address has not been handled.");
         }
     }
 
-    private List<Address> GetArenaScoreAddresses(List<Transaction> txs)
+    private Dictionary<string, List<Address>> GetDerivedFromAvatarsAddresses(List<Transaction> txs)
     {
-        List<Address> scoreAddresses = new List<Address>();
+        var addresses = new Dictionary<string, List<Address>>
+        {
+            { "ArenaScoreAddresses", new List<Address>() },
+            { "ArenaInfoAddresses", new List<Address>() }
+        };
+
         foreach (var tx in txs)
         {
             var action = (Dictionary)tx.Actions[0];
@@ -77,17 +91,34 @@ public class LegacyAccountHandler : IStateHandler<StateData>
                 {
                     for (int roundId = 0; roundId <= 7; roundId++)
                     {
-                        var arenaScoreAddress = ArenaScore.DeriveAddress(
-                            avatarAddress,
-                            championshipId,
-                            roundId
-                        );
-                        scoreAddresses.Add(arenaScoreAddress);
+                        addresses["ArenaScoreAddresses"]
+                            .Add(ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId));
+                        addresses["ArenaInfoAddresses"]
+                            .Add(
+                                ArenaInformation.DeriveAddress(
+                                    avatarAddress,
+                                    championshipId,
+                                    roundId
+                                )
+                            );
                     }
                 }
             }
         }
-        return scoreAddresses;
+
+        return addresses;
+    }
+
+    private ArenaInformationState ConvertToArenaInformationState(Address address, IValue state)
+    {
+        if (state is List list)
+        {
+            return new ArenaInformationState(address, new ArenaInformation(list));
+        }
+        else
+        {
+            throw new ArgumentException("Invalid state type. Expected List.", nameof(state));
+        }
     }
 
     private ArenaScoreState ConvertToArenaScoreState(Address address, IValue state)
