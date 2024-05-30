@@ -1,4 +1,3 @@
-using HotChocolate.Types;
 using Mimir.GraphQL.Objects;
 
 namespace Mimir.GraphQL.Types;

@@ -31,7 +31,10 @@ public class SheetQueryTypeExtension : ObjectTypeExtension<Query>
         bool encodeAsBase64,
         [Service] TableSheetsRepository tableSheetsRepository)
     {
-        var csv = await tableSheetsRepository.GetSheet(planetName, sheetName, SheetFormat.Csv);
+        var csv = await tableSheetsRepository.GetSheet(
+            planetName,
+            sheetName,
+            SheetFormat.Csv);
         if (encodeAsBase64)
         {
             csv = Convert.ToBase64String(Encoding.UTF8.GetBytes(csv));
