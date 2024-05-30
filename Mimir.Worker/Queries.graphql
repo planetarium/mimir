@@ -28,12 +28,9 @@ query GetPatchTableTransactions($blockIndex: Long!) {
 
 query GetTransactionSigners($blockIndex: Long!, $limit: Long!) {
     transaction {
-        ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: "^[a-zA-Z0-9]*$") {
+        ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: "^.*$") {
             signer
             serializedPayload
-            actions {
-                raw
-            }
         }
     }
 }

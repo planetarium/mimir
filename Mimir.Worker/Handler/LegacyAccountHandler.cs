@@ -1,6 +1,8 @@
+using System.Text.RegularExpressions;
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Libplanet.Types.Tx;
 using Mimir.Worker.Models;
 using Mimir.Worker.Util;
 using Nekoyume;
@@ -22,6 +24,19 @@ public class LegacyAccountHandler : IStateHandler<StateData>
     private State ConvertToState(StateDiffContext context)
     {
         var sheetAddresses = TableSheetUtil.GetTableSheetAddresses();
+        var txs = context
+            .Transactions?.Select(raw =>
+                TxMarshaler.DeserializeTransactionWithoutVerification(
+                    Convert.FromBase64String(raw!.SerializedPayload)
+                )
+            )
+            .ToList();
+        List<Address> arenaScoreAddresses = [];
+        if (txs is not null)
+        {
+            arenaScoreAddresses = GetArenaScoreAddresses(txs);
+        }
+
         switch (context.Address)
         {
             case var addr when sheetAddresses.Contains(addr):
@@ -38,14 +53,53 @@ public class LegacyAccountHandler : IStateHandler<StateData>
                 }
 
                 return ConvertToTableSheetState(sheetType, addr, context.RawState);
+            case var addr when arenaScoreAddresses.Contains(addr):
+                return ConvertToArenaScoreState(addr, context.RawState);
             default:
                 throw new InvalidOperationException("The provided address has not been handled.");
         }
     }
 
+    private List<Address> GetArenaScoreAddresses(List<Transaction> txs)
+    {
+        List<Address> scoreAddresses = new List<Address>();
+        foreach (var tx in txs)
+        {
+            var action = (Dictionary)tx.Actions[0];
+            var actionType = (Text)action["type_id"];
+            var actionValues = action["values"];
+
+            if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
+            {
+                var avatarAddress = new Address(((Dictionary)actionValues)["maa"]);
+
+                for (int championshipId = 0; championshipId <= 50; championshipId++)
+                {
+                    for (int roundId = 0; roundId <= 7; roundId++)
+                    {
+                        var arenaScoreAddress = ArenaScore.DeriveAddress(
+                            avatarAddress,
+                            championshipId,
+                            roundId
+                        );
+                        scoreAddresses.Add(arenaScoreAddress);
+                    }
+                }
+            }
+        }
+        return scoreAddresses;
+    }
+
     private ArenaScoreState ConvertToArenaScoreState(Address address, IValue state)
     {
-        return new ArenaScoreState(address, new ArenaScore(address, 1, 1, 1));
+        if (state is List list)
+        {
+            return new ArenaScoreState(address, new ArenaScore(list));
+        }
+        else
+        {
+            throw new ArgumentException("Invalid state type. Expected List.", nameof(state));
+        }
     }
 
     private SheetState ConvertToTableSheetState(Type sheetType, Address address, IValue state)
