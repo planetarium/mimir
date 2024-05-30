@@ -5,6 +5,7 @@ using Mimir.Worker.Models;
 using Mimir.Worker.Util;
 using Nekoyume;
 using Nekoyume.Action;
+using Nekoyume.Model.Arena;
 using Nekoyume.Model.State;
 using Nekoyume.TableData;
 
@@ -12,25 +13,16 @@ namespace Mimir.Worker.Handler;
 
 public class LegacyAccountHandler : IStateHandler<StateData>
 {
-    public StateData ConvertToStateData(Address address, IValue rawState)
+    public StateData ConvertToStateData(StateDiffContext context)
     {
-        var state = ConvertToState(address, rawState);
-        return new StateData(address, state);
+        var state = ConvertToState(context);
+        return new StateData(context.Address, state);
     }
 
-    public StateData ConvertToStateData(Address address, string rawState)
-    {
-        Codec Codec = new();
-        var ivalueState = Codec.Decode(Convert.FromHexString(rawState));
-        var state = ConvertToState(address, ivalueState);
-
-        return new StateData(address, state);
-    }
-
-    private State ConvertToState(Address address, IValue rawState)
+    private State ConvertToState(StateDiffContext context)
     {
         var sheetAddresses = TableSheetUtil.GetTableSheetAddresses();
-        switch (address)
+        switch (context.Address)
         {
             case var addr when sheetAddresses.Contains(addr):
                 var sheetTypes = TableSheetUtil.GetTableSheetTypes();
@@ -45,10 +37,15 @@ public class LegacyAccountHandler : IStateHandler<StateData>
                     );
                 }
 
-                return ConvertToTableSheetState(sheetType, addr, rawState);
+                return ConvertToTableSheetState(sheetType, addr, context.RawState);
             default:
                 throw new InvalidOperationException("The provided address has not been handled.");
         }
+    }
+
+    private ArenaScoreState ConvertToArenaScoreState(Address address, IValue state)
+    {
+        return new ArenaScoreState(address, new ArenaScore(address, 1, 1, 1));
     }
 
     private SheetState ConvertToTableSheetState(Type sheetType, Address address, IValue state)

@@ -90,6 +90,7 @@ public class SnapshotInitializer
 
         long addressCount = 0;
         string? currentAddress = null;
+        // var txs = GetTransactions();
 
         foreach ((KeyBytes keyBytes, IValue value) in accountTrie.IterateValues())
         {
@@ -102,7 +103,14 @@ public class SnapshotInitializer
 
             if (currentAddress is string hex)
             {
-                var stateData = handler.ConvertToStateData(new Address(currentAddress), value);
+                var stateData = handler.ConvertToStateData(
+                    new()
+                    {
+                        Address = new Address(currentAddress),
+                        RawState = value,
+                        // Transactions = txs
+                    }
+                );
                 if (
                     CollectionNames.CollectionMappings.TryGetValue(
                         stateData.State.GetType(),
@@ -127,4 +135,16 @@ public class SnapshotInitializer
         store.Dispose();
         stateStore.Dispose();
     }
+
+    // private async Task GetTransactions(BlockChain chain, long blockIndex)
+    // {
+    //     var count = (int)Math.Min(1, chain.Tip.Index - blockIndex + 1);
+    //     var blocks = Enumerable.Range(0, count)
+    //         .ToList()
+    //         .AsParallel()
+    //         .Select(offset => chain[blockIndex + offset])
+    //         .OrderBy(block => block.Index);
+
+    //     var transactions = blocks.SelectMany(block => block.Transactions);
+    // }
 }
