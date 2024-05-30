@@ -60,18 +60,37 @@ public class DiffScrapper
     private async void ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
     {
         var accountAddress = new Address(rootDiff.Path);
-        var handler = AddressHandlerMappings.HandlerMappings[accountAddress];
-        foreach (var subDiff in rootDiff.Diffs)
+        if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
         {
-            if (handler is not null)
+            foreach (var subDiff in rootDiff.Diffs)
             {
                 if (subDiff.ChangedState is not null)
                 {
-                    var stateData = handler.ConvertToStateData(new Address(subDiff.Path), subDiff.ChangedState);
-                    await _store.UpsertStateDataAsync(
-                        stateData,
-                        CollectionNames.CollectionMappings[accountAddress]
-                    );
+                    try
+                    {
+                        var stateData = handler.ConvertToStateData(
+                            new Address(subDiff.Path),
+                            subDiff.ChangedState
+                        );
+
+                        if (
+                            CollectionNames.CollectionMappings.TryGetValue(
+                                stateData.State.GetType(),
+                                out var collectionName
+                            )
+                        )
+                        {
+                            await _store.UpsertStateDataAsync(stateData, collectionName);
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        continue;
+                    }
+                    catch (ArgumentException)
+                    {
+                        continue;
+                    }
                 }
             }
         }

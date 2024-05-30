@@ -3,23 +3,11 @@ using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
 using Nekoyume.Model;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Handler;
 
 public class WorldInformationStateHandler : IStateHandler<StateData>
 {
-    private class WorldInformationState : State
-    {
-        public WorldInformation WorldInformation;
-
-        public WorldInformationState(Address address, WorldInformation worldInformation)
-            : base(address)
-        {
-            WorldInformation = worldInformation;
-        }
-    }
-
     public StateData ConvertToStateData(Address address, IValue rawState)
     {
         var worldInformation = ConvertToState(rawState);

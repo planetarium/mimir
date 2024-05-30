@@ -2,25 +2,12 @@ using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
-using Nekoyume.Model.Item;
 using Nekoyume.Model.Quest;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Handler;
 
 public class QuestListStateHandler : IStateHandler<StateData>
 {
-    private class QuestListState : State
-    {
-        public QuestList QuestList;
-
-        public QuestListState(Address address, QuestList questList)
-            : base(address)
-        {
-            QuestList = questList;
-        }
-    }
-
     public StateData ConvertToStateData(Address address, IValue rawState)
     {
         var questList = ConvertToState(rawState);

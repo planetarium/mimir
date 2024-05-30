@@ -43,20 +43,16 @@ public class SnapshotInitializer
             _chainStorePath
         );
 
-        foreach (var (address, _) in CollectionNames.CollectionMappings)
+        foreach (var (address, handler) in AddressHandlerMappings.HandlerMappings)
         {
-            var handler = AddressHandlerMappings.HandlerMappings[address];
-            if (handler is not null)
-            {
-                await ProcessByAccountAddress(
-                    blockChain,
-                    store,
-                    stateStore,
-                    address,
-                    handler,
-                    stoppingToken
-                );
-            }
+            await ProcessByAccountAddress(
+                blockChain,
+                store,
+                stateStore,
+                address,
+                handler,
+                stoppingToken
+            );
 
             if (stoppingToken.IsCancellationRequested)
             {
@@ -107,10 +103,15 @@ public class SnapshotInitializer
             if (currentAddress is string hex)
             {
                 var stateData = handler.ConvertToStateData(new Address(currentAddress), value);
-                await _store.UpsertStateDataAsync(
-                    stateData,
-                    CollectionNames.CollectionMappings[accountAddress]
-                );
+                if (
+                    CollectionNames.CollectionMappings.TryGetValue(
+                        stateData.State.GetType(),
+                        out var collectionName
+                    )
+                )
+                {
+                    await _store.UpsertStateDataAsync(stateData, collectionName);
+                }
 
                 _logger.LogInformation($"Address: {currentAddress}, address count: {addressCount}");
             }
