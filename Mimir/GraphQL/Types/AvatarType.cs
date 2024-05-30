@@ -4,6 +4,7 @@ using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
 using Mimir.Models.Agent;
+using Mimir.Models.Avatar;
 using Mimir.Repositories;
 
 namespace Mimir.GraphQL.Types;
@@ -23,72 +24,26 @@ public class AvatarType : ObjectType<AvatarObject>
                     return null;
                 }
 
-                context.ScopedContextData = context.ScopedContextData.Add("avatar", avatar);
                 return new Address(avatar.AgentAddress);
             });
         descriptor
             .Field("name")
             .Type<StringType>()
-            .Resolve(context =>
-            {
-                var avatar = GetAvatar(context);
-                if (avatar is null)
-                {
-                    return null;
-                }
-
-                context.ScopedContextData = context.ScopedContextData.Add("avatar", avatar);
-                return avatar.AvatarName;
-            });
+            .Resolve(context => GetAvatar(context)?.AvatarName);
         descriptor
             .Field("level")
             .Type<IntType>()
-            .Resolve(context =>
-            {
-                var avatar = GetAvatar(context);
-                if (avatar is null)
-                {
-                    return null;
-                }
-
-                context.ScopedContextData = context.ScopedContextData.Add("avatar", avatar);
-                return avatar.Level;
-            });
+            .Resolve(context => GetAvatar(context)?.Level);
         descriptor
             .Field("inventory")
             .Type<InventoryType>()
-            .Resolve(context =>
-            {
-                var tuple = GetSource(context);
-                if (tuple is null)
-                {
-                    return null;
-                }
-
-                var (avatarRepo, planetName, avatarAddress) = tuple.Value;
-                var inventory = avatarRepo.GetInventory(planetName.ToString(), avatarAddress);
-                if (inventory is null)
-                {
-                    return null;
-                }
-
-                context.ScopedContextData = context.ScopedContextData.Add("inventory", inventory);
-                return new InventoryObject();
-            });
+            .Resolve(context => GetInventory(context) is null
+                ? null
+                : new InventoryObject());
         descriptor
             .Field("actionPoint")
             .Type<IntType>()
-            .Resolve(context =>
-            {
-                var avatar = GetAvatar(context);
-                if (avatar is null)
-                {
-                    return null;
-                }
-
-                context.ScopedContextData = context.ScopedContextData.Add("avatar", avatar);
-                return avatar.ActionPoint;
-            });
+            .Resolve(context => GetAvatar(context)?.ActionPoint);
     }
 
     private static (
@@ -121,7 +76,7 @@ public class AvatarType : ObjectType<AvatarObject>
         return (avatarRepo, planetName.Value, avatarAddress.Value);
     }
 
-    public Avatar? GetAvatar(IResolverContext context)
+    private static Avatar? GetAvatar(IResolverContext context)
     {
         var tuple = GetSource(context);
         if (tuple is null)
@@ -130,6 +85,32 @@ public class AvatarType : ObjectType<AvatarObject>
         }
 
         var (avatarRepo, planetName, avatarAddress) = tuple.Value;
-        return avatarRepo.GetAvatar(planetName.ToString(), avatarAddress);
+        var avatar = avatarRepo.GetAvatar(planetName.ToString(), avatarAddress);
+        if (avatar is null)
+        {
+            return null;
+        }
+
+        context.ScopedContextData = context.ScopedContextData.Add("avatar", avatar);
+        return avatar;
+    }
+
+    private static Inventory? GetInventory(IResolverContext context)
+    {
+        var tuple = GetSource(context);
+        if (tuple is null)
+        {
+            return null;
+        }
+
+        var (avatarRepo, planetName, avatarAddress) = tuple.Value;
+        var inventory = avatarRepo.GetInventory(planetName.ToString(), avatarAddress);
+        if (inventory is null)
+        {
+            return null;
+        }
+
+        context.ScopedContextData = context.ScopedContextData.Add("inventory", inventory);
+        return inventory;
     }
 }
