@@ -1,10 +1,9 @@
-using System;
 using System.Security.Cryptography;
 using Libplanet.Common;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
 
-namespace Lib9c.GraphQL.Objects;
+namespace Mimir.GraphQL.Objects;
 
 public class ItemObject
 {

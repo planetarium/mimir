@@ -1,8 +1,9 @@
 using System.Text;
-using Lib9c.GraphQL.Objects;
 using Lib9c.GraphQL.Types;
 using Mimir.Enums;
+using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Queries;
+using Mimir.GraphQL.Types;
 using Mimir.Repositories;
 
 namespace Mimir.GraphQL.TypeExtensions;
@@ -30,7 +31,10 @@ public class SheetQueryTypeExtension : ObjectTypeExtension<Query>
         bool encodeAsBase64,
         [Service] TableSheetsRepository tableSheetsRepository)
     {
-        var csv = await tableSheetsRepository.GetSheet(planetName, sheetName, SheetFormat.Csv);
+        var csv = await tableSheetsRepository.GetSheet(
+            planetName,
+            sheetName,
+            SheetFormat.Csv);
         if (encodeAsBase64)
         {
             csv = Convert.ToBase64String(Encoding.UTF8.GetBytes(csv));
