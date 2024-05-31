@@ -14,6 +14,9 @@ public class AvatarType : ObjectType<AvatarObject>
     protected override void Configure(IObjectTypeDescriptor<AvatarObject> descriptor)
     {
         descriptor
+            .Field(f => f.Address)
+            .Type<NonNullType<AddressType>>();
+        descriptor
             .Field("agentAddress")
             .Type<AddressType>()
             .Resolve(context =>
@@ -65,15 +68,8 @@ public class AvatarType : ObjectType<AvatarObject>
             return null;
         }
 
-        var avatarAddress = context.ScopedContextData.TryGetValue("avatarAddress", out var aa)
-            ? (Address?)aa
-            : null;
-        if (avatarAddress is null)
-        {
-            return null;
-        }
-
-        return (avatarRepo, planetName.Value, avatarAddress.Value);
+        var avatarAddress = context.Parent<AvatarObject>().Address;
+        return (avatarRepo, planetName.Value, avatarAddress);
     }
 
     private static Avatar? GetAvatar(IResolverContext context)

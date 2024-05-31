@@ -18,9 +18,8 @@ public class QueryType : ObjectType<Query>
             .Resolve(context =>
             {
                 context.ScopedContextData = context.ScopedContextData
-                    .Add("planetName", context.ArgumentValue<PlanetName>("planetName"))
-                    .Add("avatarAddress", context.ArgumentValue<Address>("address"));
-                return new AvatarObject();
+                    .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
+                return new AvatarObject(context.ArgumentValue<Address>("address"));
             });
     }
 }
