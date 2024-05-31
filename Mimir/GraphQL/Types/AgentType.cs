@@ -30,7 +30,7 @@ public class AgentType : ObjectType<AgentObject>
                     return null;
                 }
 
-                return new AvatarObject(avatarAddress);
+                return new AvatarObject(avatarAddress, agentAddress, index);
             });
         descriptor
             .Field("avatars")
@@ -39,8 +39,11 @@ public class AgentType : ObjectType<AgentObject>
             {
                 var agentAddress = context.Parent<AgentObject>().Address;
                 return Enumerable.Range(0, GameConfig.SlotCount)
-                    .Select(i => Addresses.GetAvatarAddress(agentAddress, i))
-                    .Select(avatarAddress => new AvatarObject(avatarAddress))
+                    .Select(i => (index: i, avatarAddress: Addresses.GetAvatarAddress(agentAddress, i)))
+                    .Select(tuple => new AvatarObject(
+                        tuple.avatarAddress,
+                        agentAddress,
+                        tuple.index))
                     .ToList();
             });
     }

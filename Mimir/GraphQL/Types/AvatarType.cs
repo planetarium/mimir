@@ -17,18 +17,29 @@ public class AvatarType : ObjectType<AvatarObject>
             .Field(f => f.Address)
             .Type<NonNullType<AddressType>>();
         descriptor
-            .Field("agentAddress")
+            .Field(f => f.AgentAddress)
             .Type<AddressType>()
             .Resolve(context =>
             {
+                var agentAddress = context.Parent<AvatarObject>().AgentAddress;
+                if (agentAddress.HasValue)
+                {
+                    return agentAddress;
+                }
+
                 var avatar = GetAvatar(context);
                 if (avatar is null)
                 {
                     return null;
                 }
 
-                return new Address(avatar.AgentAddress);
+                agentAddress = new Address(avatar.AgentAddress);
+                context.Parent<AvatarObject>().AgentAddress = agentAddress;
+                return agentAddress;
             });
+        descriptor
+            .Field(f => f.Index)
+            .Type<IntType>();
         descriptor
             .Field("name")
             .Type<StringType>()
