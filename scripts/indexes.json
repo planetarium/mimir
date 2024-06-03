@@ -1,0 +1,28 @@
+{
+    "arena": [
+        {
+            "AvatarAddress": 1
+        },
+        {
+            "Score.Score": 1
+        },
+        {
+            "Score.Score": -1,
+            "AvatarAddress": 1
+        },
+        {
+            "RoundData.ChampionshipId": 1,
+            "RoundData.Round": 1
+        }
+    ],
+    "avatars": [
+        {
+            "Avatar.address": 1
+        }
+    ],
+    "tableSheets": [
+        {
+            "Name": 1
+        }
+    ]
+}
