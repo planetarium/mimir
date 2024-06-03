@@ -86,6 +86,7 @@ public class LegacyAccountHandler : IStateHandler<StateData>
             if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
             {
                 var avatarAddress = new Address(((Dictionary)actionValues)["maa"]);
+                var enemyAvatarAddress = new Address(((Dictionary)actionValues)["eaa"]);
 
                 for (int championshipId = 0; championshipId <= 50; championshipId++)
                 {
@@ -97,6 +98,22 @@ public class LegacyAccountHandler : IStateHandler<StateData>
                             .Add(
                                 ArenaInformation.DeriveAddress(
                                     avatarAddress,
+                                    championshipId,
+                                    roundId
+                                )
+                            );
+                        addresses["ArenaScoreAddresses"]
+                            .Add(
+                                ArenaScore.DeriveAddress(
+                                    enemyAvatarAddress,
+                                    championshipId,
+                                    roundId
+                                )
+                            );
+                        addresses["ArenaInfoAddresses"]
+                            .Add(
+                                ArenaInformation.DeriveAddress(
+                                    enemyAvatarAddress,
                                     championshipId,
                                     roundId
                                 )
@@ -117,7 +134,10 @@ public class LegacyAccountHandler : IStateHandler<StateData>
         }
         else
         {
-            throw new ArgumentException($"Invalid state type. Expected List. Actual: {state.GetType().Name}", nameof(state));
+            throw new ArgumentException(
+                $"Invalid state type. Expected List. Actual: {state.GetType().Name}",
+                nameof(state)
+            );
         }
     }
 
@@ -129,7 +149,10 @@ public class LegacyAccountHandler : IStateHandler<StateData>
         }
         else
         {
-            throw new ArgumentException($"Invalid state type. Expected List.  Actual: {state.GetType().Name}", nameof(state));
+            throw new ArgumentException(
+                $"Invalid state type. Expected List.  Actual: {state.GetType().Name}",
+                nameof(state)
+            );
         }
     }
 
