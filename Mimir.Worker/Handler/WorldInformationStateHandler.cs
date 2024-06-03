@@ -8,19 +8,13 @@ namespace Mimir.Worker.Handler;
 
 public class WorldInformationStateHandler : IStateHandler<StateData>
 {
-    public StateData ConvertToStateData(Address address, IValue rawState)
+    public StateData ConvertToStateData(StateDiffContext context)
     {
-        var worldInformation = ConvertToState(rawState);
-        return new StateData(address, new WorldInformationState(address, worldInformation));
-    }
-
-    public StateData ConvertToStateData(Address address, string rawState)
-    {
-        Codec Codec = new();
-        var state = Codec.Decode(Convert.FromHexString(rawState));
-        var worldInformation = ConvertToState(state);
-
-        return new StateData(address, new WorldInformationState(address, worldInformation));
+        var worldInformation = ConvertToState(context.RawState);
+        return new StateData(
+            context.Address,
+            new WorldInformationState(context.Address, worldInformation)
+        );
     }
 
     private WorldInformation ConvertToState(IValue state)

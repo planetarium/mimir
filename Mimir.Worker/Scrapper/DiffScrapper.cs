@@ -1,5 +1,7 @@
+using Bencodex;
 using HeadlessGQL;
 using Libplanet.Crypto;
+using Libplanet.Types.Tx;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Models;
@@ -12,6 +14,8 @@ public class DiffScrapper
 {
     private readonly HeadlessGQLClient _headlessGqlClient;
     private readonly DiffMongoDbService _store;
+
+    private readonly Codec Codec = new();
 
     public DiffScrapper(HeadlessGQLClient headlessGqlClient, DiffMongoDbService store)
     {
@@ -34,6 +38,10 @@ public class DiffScrapper
                 currentBaseIndex,
                 currentTargetIndex
             );
+            var txs = await GetTransactions(
+                currentBaseIndex,
+                currentTargetIndex - currentBaseIndex
+            );
 
             if (diffResult.Data?.Diffs != null)
             {
@@ -42,11 +50,11 @@ public class DiffScrapper
                     switch (diff)
                     {
                         case IGetDiffs_Diffs_RootStateDiff rootDiff:
-                            ProcessRootStateDiff(rootDiff);
+                            ProcessRootStateDiff(rootDiff, txs);
                             break;
 
                         case IGetDiffs_Diffs_StateDiff stateDiff:
-                            ProcessStateDiff(stateDiff);
+                            ProcessStateDiff(stateDiff, txs);
                             break;
                     }
                 }
@@ -57,7 +65,62 @@ public class DiffScrapper
         }
     }
 
-    private async void ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
+    private async Task<
+        IEnumerable<IGetTransactionSigners_Transaction_NcTransactions>
+    > GetTransactions(long processBlockIndex, long limit)
+    {
+        var operationResult = await _headlessGqlClient.GetTransactionSigners.ExecuteAsync(
+            processBlockIndex,
+            limit
+        );
+
+        if (
+            operationResult.Data?.Transaction?.NcTransactions == null
+            || !operationResult.Data.Transaction.NcTransactions.Any()
+        )
+        {
+            Serilog.Log.Error(
+                "No transactions found or null data. Process Block Index: {ProcessBlockIndex}",
+                processBlockIndex
+            );
+            return Enumerable.Empty<IGetTransactionSigners_Transaction_NcTransactions>();
+        }
+
+        var txs = operationResult
+            .Data.Transaction.NcTransactions.OfType<IGetTransactionSigners_Transaction_NcTransactions>()
+            .ToList();
+
+        var txResults = await _headlessGqlClient.GetTransactionResults.ExecuteAsync(
+            txs.Select(tx => tx.Id).ToList()
+        );
+
+        if (
+            txResults.Data?.Transaction?.TransactionResults == null
+            || !txResults.Data.Transaction.TransactionResults.Any()
+            || txResults.Data.Transaction.TransactionResults.Count != txs.Count
+        )
+        {
+            Serilog.Log.Error(
+                "Failed fetch txResults. Process Block Index: {ProcessBlockIndex}",
+                processBlockIndex
+            );
+            return Enumerable.Empty<IGetTransactionSigners_Transaction_NcTransactions>();
+        }
+
+        var successfulTxs = txs.Where(
+                (tx, index) =>
+                    txResults.Data.Transaction.TransactionResults[index].TxStatus
+                    == TxStatus.Success
+            )
+            .ToList();
+
+        return successfulTxs;
+    }
+
+    private async void ProcessRootStateDiff(
+        IGetDiffs_Diffs_RootStateDiff rootDiff,
+        IEnumerable<IGetTransactionSigners_Transaction_NcTransactions> txs
+    )
     {
         var accountAddress = new Address(rootDiff.Path);
         if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
@@ -69,8 +132,14 @@ public class DiffScrapper
                     try
                     {
                         var stateData = handler.ConvertToStateData(
-                            new Address(subDiff.Path),
-                            subDiff.ChangedState
+                            new()
+                            {
+                                Address = new Address(subDiff.Path),
+                                RawState = Codec.Decode(
+                                    Convert.FromHexString(subDiff.ChangedState)
+                                ),
+                                Transactions = txs
+                            }
                         );
 
                         if (
@@ -96,5 +165,8 @@ public class DiffScrapper
         }
     }
 
-    private void ProcessStateDiff(IGetDiffs_Diffs_StateDiff stateDiff) { }
+    private void ProcessStateDiff(
+        IGetDiffs_Diffs_StateDiff stateDiff,
+        IEnumerable<IGetTransactionSigners_Transaction_NcTransactions> txs
+    ) { }
 }

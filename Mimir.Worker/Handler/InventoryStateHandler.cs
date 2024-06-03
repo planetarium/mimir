@@ -8,19 +8,10 @@ namespace Mimir.Worker.Handler;
 
 public class InventoryStateHandler : IStateHandler<StateData>
 {
-    public StateData ConvertToStateData(Address address, IValue rawState)
+    public StateData ConvertToStateData(StateDiffContext context)
     {
-        var inventoryState = ConvertToState(rawState);
-        return new StateData(address, new InventoryState(address, inventoryState));
-    }
-
-    public StateData ConvertToStateData(Address address, string rawState)
-    {
-        Codec Codec = new();
-        var state = Codec.Decode(Convert.FromHexString(rawState));
-        var inventoryState = ConvertToState(state);
-
-        return new StateData(address, new InventoryState(address, inventoryState));
+        var inventoryState = ConvertToState(context.RawState);
+        return new StateData(context.Address, new InventoryState(context.Address, inventoryState));
     }
 
     private Inventory ConvertToState(IValue state)

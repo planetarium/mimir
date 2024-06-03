@@ -8,19 +8,10 @@ namespace Mimir.Worker.Handler;
 
 public class QuestListStateHandler : IStateHandler<StateData>
 {
-    public StateData ConvertToStateData(Address address, IValue rawState)
+    public StateData ConvertToStateData(StateDiffContext context)
     {
-        var questList = ConvertToState(rawState);
-        return new StateData(address, new QuestListState(address, questList));
-    }
-
-    public StateData ConvertToStateData(Address address, string rawState)
-    {
-        Codec Codec = new();
-        var state = Codec.Decode(Convert.FromHexString(rawState));
-        var questList = ConvertToState(state);
-
-        return new StateData(address, new QuestListState(address, questList));
+        var questList = ConvertToState(context.RawState);
+        return new StateData(context.Address, new QuestListState(context.Address, questList));
     }
 
     private QuestList ConvertToState(IValue state)

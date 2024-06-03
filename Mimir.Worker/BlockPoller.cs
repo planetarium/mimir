@@ -50,6 +50,7 @@ public class BlockPoller(
     {
         var operationResult = await headlessGqlClient.GetTransactionSigners.ExecuteAsync(
             processBlockIndex,
+            1,
             cancellationToken
         );
         if (operationResult.Data is null)

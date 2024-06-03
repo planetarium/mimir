@@ -102,7 +102,13 @@ public class SnapshotInitializer
 
             if (currentAddress is string hex)
             {
-                var stateData = handler.ConvertToStateData(new Address(currentAddress), value);
+                var stateData = handler.ConvertToStateData(
+                    new()
+                    {
+                        Address = new Address(currentAddress),
+                        RawState = value,
+                    }
+                );
                 if (
                     CollectionNames.CollectionMappings.TryGetValue(
                         stateData.State.GetType(),

@@ -8,19 +8,10 @@ namespace Mimir.Worker.Handler;
 
 public class AvatarStateHandler : IStateHandler<StateData>
 {
-    public StateData ConvertToStateData(Address address, IValue rawState)
+    public StateData ConvertToStateData(StateDiffContext context)
     {
-        var avatarState = ConvertToState(rawState);
-        return new StateData(address, avatarState);
-    }
-
-    public StateData ConvertToStateData(Address address, string rawState)
-    {
-        Codec Codec = new();
-        var state = Codec.Decode(Convert.FromHexString(rawState));
-        var avatarState = ConvertToState(state);
-
-        return new StateData(address, avatarState);
+        var avatarState = ConvertToState(context.RawState);
+        return new StateData(context.Address, avatarState);
     }
 
     private AvatarState ConvertToState(IValue state)
