@@ -27,7 +27,7 @@ public class ActionPointStateHandler : IStateHandler<StateData>
         }
 
         throw new ArgumentException(
-            "Invalid state type. Expected Integer.",
+            $"Invalid state type. Expected {nameof(Integer)}, got {state.GetType().Name}.",
             nameof(state)
         );
     }
