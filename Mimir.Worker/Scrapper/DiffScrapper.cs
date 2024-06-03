@@ -86,10 +86,35 @@ public class DiffScrapper
             return Enumerable.Empty<IGetTransactionSigners_Transaction_NcTransactions>();
         }
 
-        return operationResult
-            .Data.Transaction.NcTransactions
-            .OfType<IGetTransactionSigners_Transaction_NcTransactions>()
+        var txs = operationResult
+            .Data.Transaction.NcTransactions.OfType<IGetTransactionSigners_Transaction_NcTransactions>()
             .ToList();
+
+        var txResults = await _headlessGqlClient.GetTransactionResults.ExecuteAsync(
+            txs.Select(tx => tx.Id).ToList()
+        );
+
+        if (
+            txResults.Data?.Transaction?.TransactionResults == null
+            || !txResults.Data.Transaction.TransactionResults.Any()
+            || txResults.Data.Transaction.TransactionResults.Count != txs.Count
+        )
+        {
+            Serilog.Log.Error(
+                "Failed fetch txResults. Process Block Index: {ProcessBlockIndex}",
+                processBlockIndex
+            );
+            return Enumerable.Empty<IGetTransactionSigners_Transaction_NcTransactions>();
+        }
+
+        var successfulTxs = txs.Where(
+                (tx, index) =>
+                    txResults.Data.Transaction.TransactionResults[index].TxStatus
+                    == TxStatus.Success
+            )
+            .ToList();
+
+        return successfulTxs;
     }
 
     private async void ProcessRootStateDiff(

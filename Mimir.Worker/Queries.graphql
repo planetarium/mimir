@@ -6,6 +6,14 @@ query GetTip {
     }
 }
 
+query GetTransactionResults($transactionIds: [TxId]!) {
+  transaction {
+    transactionResults(txIds: $transactionIds) {
+      txStatus
+    }
+  }
+}
+
 query GetState($accountAddress: Address! $address: Address!) {
     state(accountAddress: $accountAddress, address: $address)
 }
@@ -29,6 +37,7 @@ query GetPatchTableTransactions($blockIndex: Long!) {
 query GetTransactionSigners($blockIndex: Long!, $limit: Long!) {
     transaction {
         ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: "^.*$") {
+            id
             signer
             serializedPayload
         }
