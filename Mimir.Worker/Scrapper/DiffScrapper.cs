@@ -87,8 +87,8 @@ public class DiffScrapper
         }
 
         return operationResult
-            .Data.Transaction.NcTransactions.Where(tx => tx != null)
-            .Cast<IGetTransactionSigners_Transaction_NcTransactions>()
+            .Data.Transaction.NcTransactions
+            .OfType<IGetTransactionSigners_Transaction_NcTransactions>()
             .ToList();
     }
 
