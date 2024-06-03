@@ -77,33 +77,25 @@ public class StateGetter
     {
         var state = await GetStateWithLegacyAccount(avatarAddress, Addresses.Avatar);
         var inventory = await GetInventoryState(avatarAddress);
-        
-        AvatarState avatarState;
-        if (state is Dictionary dictionary)
+        var avatarState = state switch
         {
-            avatarState = new AvatarState(dictionary)
+            Dictionary dictionary => new AvatarState(dictionary)
             {
                 inventory = inventory
-            };
-        }
-        else if (state is List alist)
-        {
-            avatarState = new AvatarState(alist)
+            },
+            List list => new AvatarState(list)
             {
                 inventory = inventory
-            };
-        }
-        else
-        {
-            throw new ArgumentException($"Unsupported state type for address: {avatarAddress}");
-        }
+            },
+            _ => throw new ArgumentException($"Unsupported state type for address: {avatarAddress}")
+        };
 
-        if (await GetStateWithLegacyAccount(avatarAddress, Addresses.ActionPoint) is Integer actionPoint)
+        if (await _service.GetState(avatarAddress, Addresses.ActionPoint) is Integer actionPoint)
         {
             avatarState.actionPoint = actionPoint;
         }
-        
-        if (await GetStateWithLegacyAccount(avatarAddress, Addresses.DailyReward) is Integer dailyRewardReceivedIndex)
+
+        if (await _service.GetState(avatarAddress, Addresses.DailyReward) is Integer dailyRewardReceivedIndex)
         {
             avatarState.dailyRewardReceivedIndex = dailyRewardReceivedIndex;
         }

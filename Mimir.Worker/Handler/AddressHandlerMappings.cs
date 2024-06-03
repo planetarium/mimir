@@ -7,8 +7,7 @@ namespace Mimir.Worker.Handler;
 
 public static class AddressHandlerMappings
 {
-    public static Dictionary<Address, IStateHandler<StateData>> HandlerMappings =
-        new Dictionary<Address, IStateHandler<StateData>>();
+    public static readonly Dictionary<Address, IStateHandler<StateData>> HandlerMappings = new();
 
     static AddressHandlerMappings()
     {
@@ -16,6 +15,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.Avatar, new AvatarStateHandler());
         HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
         HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());
+        HandlerMappings.Add(Addresses.ActionPoint, new ActionPointStateHandler());
         HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
     }
 }

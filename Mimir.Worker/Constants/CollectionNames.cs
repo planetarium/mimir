@@ -5,8 +5,7 @@ namespace Mimir.Worker.Constants
 {
     public static class CollectionNames
     {
-        public static Dictionary<Type, string> CollectionMappings =
-            new Dictionary<Type, string>();
+        public static readonly Dictionary<Type, string> CollectionMappings = new();
 
         static CollectionNames()
         {
@@ -14,6 +13,7 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(InventoryState), "inventory");
             CollectionMappings.Add(typeof(QuestListState), "quest_list");
             CollectionMappings.Add(typeof(WorldInformationState), "world_information");
+            CollectionMappings.Add(typeof(ActionPointState), "action_point");
             CollectionMappings.Add(typeof(SheetState), "table_sheet");
         }
     }
