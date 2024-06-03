@@ -9,15 +9,8 @@ public class ActionPointStateHandler : IStateHandler<StateData>
 {
     private readonly Codec _codec = new();
 
-    public StateData ConvertToStateData(Address address, string rawState)
-    {
-        var bytes = Convert.FromHexString(rawState);
-        var state = _codec.Decode(bytes);
-        return new StateData(address, ConvertToState(address, state));
-    }
-
-    public StateData ConvertToStateData(Address address, IValue rawState) =>
-        new(address, ConvertToState(address, rawState));
+    public StateData ConvertToStateData(StateDiffContext context) =>
+        new(context.Address, ConvertToState(context.Address, context.RawState));
 
     private ActionPointState ConvertToState(Address address, IValue state)
     {
