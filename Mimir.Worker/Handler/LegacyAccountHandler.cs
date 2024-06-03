@@ -15,6 +15,8 @@ namespace Mimir.Worker.Handler;
 
 public class LegacyAccountHandler : IStateHandler<StateData>
 {
+    private readonly Codec Codec = new();
+
     public StateData ConvertToStateData(StateDiffContext context)
     {
         var state = ConvertToState(context);
@@ -24,18 +26,14 @@ public class LegacyAccountHandler : IStateHandler<StateData>
     private State ConvertToState(StateDiffContext context)
     {
         var sheetAddresses = TableSheetUtil.GetTableSheetAddresses();
-        var txs = context
-            .Transactions?.Select(raw =>
-                TxMarshaler.DeserializeTransactionWithoutVerification(
-                    Convert.FromBase64String(raw!.SerializedPayload)
-                )
-            )
+        List<List<string>>? actionsList = context
+            .Transactions?.Select(tx => tx.Actions.Select(action => action.Raw).ToList())
             .ToList();
         Dictionary<string, List<Address>> derivedAddresses =
             new Dictionary<string, List<Address>>();
-        if (txs is not null)
+        if (actionsList is not null)
         {
-            derivedAddresses = GetDerivedFromAvatarsAddresses(txs);
+            derivedAddresses = GetDerivedFromAvatarsAddresses(actionsList);
         }
 
         switch (context.Address)
@@ -69,7 +67,9 @@ public class LegacyAccountHandler : IStateHandler<StateData>
         }
     }
 
-    private Dictionary<string, List<Address>> GetDerivedFromAvatarsAddresses(List<Transaction> txs)
+    private Dictionary<string, List<Address>> GetDerivedFromAvatarsAddresses(
+        List<List<string>> actionsList
+    )
     {
         var addresses = new Dictionary<string, List<Address>>
         {
@@ -77,47 +77,52 @@ public class LegacyAccountHandler : IStateHandler<StateData>
             { "ArenaInfoAddresses", new List<Address>() }
         };
 
-        foreach (var tx in txs)
+        foreach (var actions in actionsList)
         {
-            var action = (Dictionary)tx.Actions[0];
-            var actionType = (Text)action["type_id"];
-            var actionValues = action["values"];
-
-            if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
+            foreach (var rawAction in actions)
             {
-                var avatarAddress = new Address(((Dictionary)actionValues)["maa"]);
-                var enemyAvatarAddress = new Address(((Dictionary)actionValues)["eaa"]);
+                var action = (Dictionary)Codec.Decode(Convert.FromHexString(rawAction));
+                var actionType = (Text)action["type_id"];
+                var actionValues = action["values"];
 
-                for (int championshipId = 0; championshipId <= 50; championshipId++)
+                if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
                 {
-                    for (int roundId = 0; roundId <= 7; roundId++)
+                    var avatarAddress = new Address(((Dictionary)actionValues)["maa"]);
+                    var enemyAvatarAddress = new Address(((Dictionary)actionValues)["eaa"]);
+
+                    for (int championshipId = 0; championshipId <= 50; championshipId++)
                     {
-                        addresses["ArenaScoreAddresses"]
-                            .Add(ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId));
-                        addresses["ArenaInfoAddresses"]
-                            .Add(
-                                ArenaInformation.DeriveAddress(
-                                    avatarAddress,
-                                    championshipId,
-                                    roundId
-                                )
-                            );
-                        addresses["ArenaScoreAddresses"]
-                            .Add(
-                                ArenaScore.DeriveAddress(
-                                    enemyAvatarAddress,
-                                    championshipId,
-                                    roundId
-                                )
-                            );
-                        addresses["ArenaInfoAddresses"]
-                            .Add(
-                                ArenaInformation.DeriveAddress(
-                                    enemyAvatarAddress,
-                                    championshipId,
-                                    roundId
-                                )
-                            );
+                        for (int roundId = 0; roundId <= 7; roundId++)
+                        {
+                            addresses["ArenaScoreAddresses"]
+                                .Add(
+                                    ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId)
+                                );
+                            addresses["ArenaInfoAddresses"]
+                                .Add(
+                                    ArenaInformation.DeriveAddress(
+                                        avatarAddress,
+                                        championshipId,
+                                        roundId
+                                    )
+                                );
+                            addresses["ArenaScoreAddresses"]
+                                .Add(
+                                    ArenaScore.DeriveAddress(
+                                        enemyAvatarAddress,
+                                        championshipId,
+                                        roundId
+                                    )
+                                );
+                            addresses["ArenaInfoAddresses"]
+                                .Add(
+                                    ArenaInformation.DeriveAddress(
+                                        enemyAvatarAddress,
+                                        championshipId,
+                                        roundId
+                                    )
+                                );
+                        }
                     }
                 }
             }

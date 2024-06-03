@@ -40,6 +40,9 @@ query GetTransactionSigners($blockIndex: Long!, $limit: Long!) {
             id
             signer
             serializedPayload
+            actions {
+                raw
+            }
         }
     }
 }
