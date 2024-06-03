@@ -117,7 +117,7 @@ public class LegacyAccountHandler : IStateHandler<StateData>
         }
         else
         {
-            throw new ArgumentException("Invalid state type. Expected List.", nameof(state));
+            throw new ArgumentException($"Invalid state type. Expected List. Actual: {state.GetType().Name}", nameof(state));
         }
     }
 
@@ -129,7 +129,7 @@ public class LegacyAccountHandler : IStateHandler<StateData>
         }
         else
         {
-            throw new ArgumentException("Invalid state type. Expected List.", nameof(state));
+            throw new ArgumentException($"Invalid state type. Expected List.  Actual: {state.GetType().Name}", nameof(state));
         }
     }
 
