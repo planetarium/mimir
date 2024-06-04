@@ -47,7 +47,6 @@ public class DiffBlockPoller
             }
 
             await _diffScrapper.ExecuteAsync(syncedBlockIndex, currentBlockIndex);
-            await _store.UpdateLatestBlockIndex(currentBlockIndex);
         }
         _logger.LogInformation(
             "Finished DiffBlockPoller background service. Elapsed {TotalElapsedMinutes} minutes",
