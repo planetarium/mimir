@@ -60,6 +60,7 @@ public class DiffScrapper
                 }
             }
 
+            await _store.UpdateLatestBlockIndex(currentTargetIndex);
             currentBaseIndex = currentTargetIndex;
             indexDifference -= 9;
         }

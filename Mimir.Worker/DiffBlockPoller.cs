@@ -33,7 +33,20 @@ public class DiffBlockPoller
         while (!stoppingToken.IsCancellationRequested)
         {
             var currentBlockIndex = await _stateService.GetLatestIndex();
-            var syncedBlockIndex = await GetSyncedBlockIndex(currentBlockIndex);
+            long syncedBlockIndex;
+            try
+            {
+                syncedBlockIndex = await GetSyncedBlockIndex(currentBlockIndex);
+            }
+            catch (System.InvalidOperationException)
+            {
+                _logger.LogInformation(
+                    $"Metadata collection not founded, set block index to {currentBlockIndex} - 1"
+                );
+                syncedBlockIndex = currentBlockIndex - 1;
+                await _store.UpdateLatestBlockIndex(currentBlockIndex - 1);
+            }
+
             var processBlockIndex = syncedBlockIndex + 1;
 
             _logger.LogInformation(
@@ -47,7 +60,6 @@ public class DiffBlockPoller
             }
 
             await _diffScrapper.ExecuteAsync(syncedBlockIndex, currentBlockIndex);
-            await _store.UpdateLatestBlockIndex(currentBlockIndex);
         }
         _logger.LogInformation(
             "Finished DiffBlockPoller background service. Elapsed {TotalElapsedMinutes} minutes",
@@ -64,7 +76,9 @@ public class DiffBlockPoller
         }
         catch (System.InvalidOperationException)
         {
-            _logger.LogError($"Failed to get block indexes from db, Set `syncedBlockIndex` {currentBlockIndex} - 1");
+            _logger.LogError(
+                $"Failed to get block indexes from db, Set `syncedBlockIndex` {currentBlockIndex} - 1"
+            );
             return currentBlockIndex - 1;
         }
     }
