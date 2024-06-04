@@ -17,7 +17,7 @@ public class ActionPointStateHandlerTests
     public void ConvertToStateData(int actionPoint)
     {
         var address = new PrivateKey().Address;
-        var context = new StateDiffContext()
+        var context = new StateDiffContext
         {
             Address = address,
             RawState = Codec.Decode(Codec.Encode(new Integer(actionPoint))),
@@ -25,8 +25,8 @@ public class ActionPointStateHandlerTests
         var stateData = _handler.ConvertToStateData(context);
 
         Assert.IsType<ActionPointState>(stateData.State);
-        var actionPointState = (ActionPointState)stateData.State;
-        Assert.Equal(address, actionPointState.address);
-        Assert.Equal(actionPoint, actionPointState.Value);
+        var dataState = (ActionPointState)stateData.State;
+        Assert.Equal(address, dataState.address);
+        Assert.Equal(actionPoint, dataState.Value);
     }
 }
