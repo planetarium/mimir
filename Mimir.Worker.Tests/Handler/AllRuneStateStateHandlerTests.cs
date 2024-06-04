@@ -27,6 +27,6 @@ public class AllRuneStateHandlerTests
         Assert.IsType<AllRuneState>(stateData.State);
         var dataState = (AllRuneState)stateData.State;
         Assert.Equal(address, dataState.address);
-        Assert.Equal(allRuneState, dataState.Value);
+        Assert.Equal(allRuneState, dataState.Object);
     }
 }
