@@ -18,7 +18,7 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(SheetState), "table_sheet");
             CollectionMappings.Add(typeof(ArenaScoreState), "arena_score");
             CollectionMappings.Add(typeof(ArenaInformationState), "arena_information");
-            CollectionMappings.Add(typeof(AllRuneState), "rune_state");
+            CollectionMappings.Add(typeof(AllRuneState), "all_rune");
         }
     }
 }
