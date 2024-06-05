@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 
 namespace Mimir.Worker.Handler;
 
@@ -15,12 +16,18 @@ public class AgentStateHandler : IStateHandler<StateData>
         {
             List list => new Nekoyume.Model.State.AgentState(list),
             Dictionary dictionary => new Nekoyume.Model.State.AgentState(dictionary),
-            _ => throw new ArgumentException(
-                $"Invalid state type. Expected {nameof(List)} or {nameof(Dictionary)}, got {state.GetType().Name}.",
-                nameof(state)
-            ),
+            _
+                => throw new ArgumentException(
+                    $"Invalid state type. Expected {nameof(List)} or {nameof(Dictionary)}, got {state.GetType().Name}.",
+                    nameof(state)
+                ),
         };
 
         return new AgentState(address, agentState);
+    }
+
+    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    {
+        await store.UpsertStateDataAsync(stateData);
     }
 }
