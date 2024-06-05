@@ -19,7 +19,7 @@ public class CollectionStateHandler : IStateHandler<StateData>
             );
         }
 
-        var allRuneState = new Nekoyume.Model.State.CollectionState(value);
-        return new CollectionState(address, allRuneState);
+        var collectionState = new Nekoyume.Model.State.CollectionState(value);
+        return new CollectionState(address, collectionState);
     }
 }
