@@ -40,7 +40,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/arm64,linux/amd64
           tags: ${{ matrix.docker.repo }}:git-${{ github.sha }}
           file: ${{ matrix.docker.dockerfile }}
