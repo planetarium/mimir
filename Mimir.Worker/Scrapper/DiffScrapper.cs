@@ -142,16 +142,7 @@ public class DiffScrapper
                                 Transactions = txs
                             }
                         );
-
-                        if (
-                            CollectionNames.CollectionMappings.TryGetValue(
-                                stateData.State.GetType(),
-                                out var collectionName
-                            )
-                        )
-                        {
-                            await _store.UpsertStateDataAsync(stateData, collectionName);
-                        }
+                        await handler.StoreStateData(_store, stateData);
                     }
                     catch (InvalidOperationException)
                     {

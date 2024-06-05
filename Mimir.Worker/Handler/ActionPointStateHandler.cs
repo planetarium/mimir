@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 
 namespace Mimir.Worker.Handler;
 
@@ -23,5 +24,10 @@ public class ActionPointStateHandler : IStateHandler<StateData>
         }
 
         return new ActionPointState(address, value);
+    }
+
+    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    {
+        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }

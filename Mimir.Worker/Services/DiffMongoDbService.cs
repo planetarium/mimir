@@ -17,10 +17,6 @@ public class DiffMongoDbService
 
     private readonly IMongoDatabase _database;
 
-    private readonly string _databaseName;
-
-    private readonly GridFSBucket _gridFs;
-
     private Dictionary<string, IMongoCollection<BsonDocument>> _stateCollectionMappings =
         new Dictionary<string, IMongoCollection<BsonDocument>>();
 
@@ -36,8 +32,6 @@ public class DiffMongoDbService
         _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
         _logger = logger;
-        _databaseName = databaseName;
-        _gridFs = new GridFSBucket(_database);
 
         InitStateCollections();
     }
@@ -51,7 +45,7 @@ public class DiffMongoDbService
         }
     }
 
-    private IMongoCollection<BsonDocument> GetStateCollection(string collectionName)
+    public IMongoCollection<BsonDocument> GetStateCollection(string collectionName)
     {
         return _stateCollectionMappings[collectionName];
     }
@@ -78,20 +72,87 @@ public class DiffMongoDbService
         return doc.GetValue("LatestBlockIndex").AsInt64;
     }
 
-    public async Task UpsertStateDataAsync(StateData stateData, string collectionName)
+    public async Task UpsertStateDataAsyncWithLinkAvatar(StateData stateData)
+    {
+        if (
+            CollectionNames.CollectionMappings.TryGetValue(
+                stateData.State.GetType(),
+                out var collectionName
+            )
+        )
+        {
+            var upsertResult = await UpsertStateDataAsync(stateData, collectionName);
+
+            if (
+                upsertResult != null
+                && upsertResult.IsAcknowledged
+                && upsertResult.UpsertedId != null
+            )
+            {
+                var stateDataObjectId = upsertResult.UpsertedId;
+
+                if (
+                    CollectionNames.CollectionMappings.TryGetValue(
+                        typeof(AvatarState),
+                        out var avatarCollectionName
+                    )
+                )
+                {
+                    var avatarCollection = GetStateCollection(avatarCollectionName);
+
+                    var avatarFilter = Builders<BsonDocument>.Filter.Eq(
+                        "Address",
+                        stateData.Address.ToHex()
+                    );
+
+                    var update = Builders<BsonDocument>.Update.Set(
+                        $"{collectionName.ToPascalCase()}ObjectId",
+                        stateDataObjectId
+                    );
+                    await avatarCollection.UpdateOneAsync(avatarFilter, update);
+                }
+            }
+        }
+    }
+
+    public async Task<ReplaceOneResult> UpsertStateDataAsync(StateData stateData)
+    {
+        if (
+            CollectionNames.CollectionMappings.TryGetValue(
+                stateData.State.GetType(),
+                out var collectionName
+            )
+        )
+        {
+            return await UpsertStateDataAsync(stateData, collectionName);
+        }
+
+        throw new InvalidOperationException(
+            $"No collection mapping found for state type: {stateData.State.GetType().Name}"
+        );
+    }
+
+    public async Task<ReplaceOneResult> UpsertStateDataAsync(
+        StateData stateData,
+        string collectionName
+    )
     {
         try
         {
             var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
             var bsonDocument = BsonDocument.Parse(stateData.ToJson());
-            await GetStateCollection(collectionName)
+            var result = await GetStateCollection(collectionName)
                 .ReplaceOneAsync(filter, bsonDocument, new ReplaceOptions { IsUpsert = true });
 
-            _logger.LogInformation($"Address: {stateData.Address.ToHex()} - Stored at {collectionName}");
+            _logger.LogInformation(
+                $"Address: {stateData.Address.ToHex()} - Stored at {collectionName}"
+            );
+            return result;
         }
         catch (Exception ex)
         {
             _logger.LogError($"An error occurred during UpsertAvatarDataAsync: {ex.Message}");
+            throw;
         }
     }
 }

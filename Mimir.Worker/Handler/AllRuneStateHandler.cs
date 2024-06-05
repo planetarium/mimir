@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 
 namespace Mimir.Worker.Handler;
 
@@ -21,5 +22,10 @@ public class AllRuneStateHandler : IStateHandler<StateData>
 
         var allRuneState = new Nekoyume.Model.State.AllRuneState(value);
         return new AllRuneState(address, allRuneState);
+    }
+
+    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    {
+        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }
