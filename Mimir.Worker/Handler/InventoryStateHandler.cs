@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 using Nekoyume.Model.Item;
 
 namespace Mimir.Worker.Handler;
@@ -24,5 +25,10 @@ public class InventoryStateHandler : IStateHandler<StateData>
         {
             throw new ArgumentException("Invalid state type. Expected List.", nameof(state));
         }
+    }
+
+    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    {
+        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }

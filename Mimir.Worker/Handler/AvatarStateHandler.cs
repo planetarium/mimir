@@ -1,7 +1,6 @@
-using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Handler;
@@ -31,5 +30,10 @@ public class AvatarStateHandler : IStateHandler<StateData>
                 nameof(state)
             );
         }
+    }
+
+    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    {
+        await store.UpsertStateDataAsync(stateData);
     }
 }

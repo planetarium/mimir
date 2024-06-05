@@ -4,6 +4,7 @@ using Bencodex.Types;
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
 using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using Nekoyume;
 using Nekoyume.Action;
@@ -194,5 +195,10 @@ public class LegacyAccountHandler : IStateHandler<StateData>
         sheet.Set(sheetValue.Value);
 
         return new SheetState(address, sheet);
+    }
+
+    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    {
+        await store.UpsertStateDataAsync(stateData);
     }
 }

@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 using Nekoyume.Model;
 
 namespace Mimir.Worker.Handler;
@@ -27,5 +28,10 @@ public class WorldInformationStateHandler : IStateHandler<StateData>
         {
             throw new ArgumentException("Invalid state type. Expected Dictionary.", nameof(state));
         }
+    }
+
+    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    {
+        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }
