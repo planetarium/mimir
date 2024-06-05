@@ -1,5 +1,6 @@
 using Mimir.Worker.Models;
 using Nekoyume.Model.State;
+using AllRuneState = Mimir.Worker.Models.AllRuneState;
 
 namespace Mimir.Worker.Constants
 {
@@ -17,6 +18,7 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(SheetState), "table_sheet");
             CollectionMappings.Add(typeof(ArenaScoreState), "arena_score");
             CollectionMappings.Add(typeof(ArenaInformationState), "arena_information");
+            CollectionMappings.Add(typeof(AllRuneState), "all_rune");
         }
     }
 }
