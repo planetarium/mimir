@@ -126,7 +126,10 @@ public class DiffMongoDbService
         {
             return await UpsertStateDataAsync(stateData, collectionName);
         }
-        throw new Exception();
+
+        throw new InvalidOperationException(
+            $"No collection mapping found for state type: {stateData.State.GetType().Name}"
+        );
     }
 
     public async Task<ReplaceOneResult> UpsertStateDataAsync(
