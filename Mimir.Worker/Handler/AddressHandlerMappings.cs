@@ -18,5 +18,6 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.ActionPoint, new ActionPointStateHandler());
         HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
+        HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
     }
 }

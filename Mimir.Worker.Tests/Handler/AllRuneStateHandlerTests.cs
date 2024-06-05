@@ -20,13 +20,18 @@ public class AllRuneStateHandlerTests
         var context = new StateDiffContext
         {
             Address = address,
-            RawState = Codec.Decode(Codec.Encode(allRuneState.Serialize())),
+            RawState = allRuneState.Serialize(),
         };
         var stateData = _handler.ConvertToStateData(context);
 
         Assert.IsType<AllRuneState>(stateData.State);
         var dataState = (AllRuneState)stateData.State;
         Assert.Equal(address, dataState.address);
-        Assert.Equal(allRuneState, dataState.Object);
+        Assert.Equal(allRuneState.Runes.Count, dataState.Object.Runes.Count);
+        foreach (var (key, value) in allRuneState.Runes)
+        {
+            Assert.Contains(dataState.Object.Runes, r => r.Key == key);
+            Assert.Equal(value.Level, dataState.Object.Runes[key].Level);
+        }
     }
 }

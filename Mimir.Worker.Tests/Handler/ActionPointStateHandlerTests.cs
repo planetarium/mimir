@@ -20,7 +20,7 @@ public class ActionPointStateHandlerTests
         var context = new StateDiffContext
         {
             Address = address,
-            RawState = Codec.Decode(Codec.Encode(new Integer(actionPoint))),
+            RawState = new Integer(actionPoint),
         };
         var stateData = _handler.ConvertToStateData(context);
 
