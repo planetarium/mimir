@@ -2,6 +2,9 @@ name: Build Docker Images
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   buildx:
@@ -29,6 +32,7 @@ jobs:
           platforms: linux/arm/v8,linux/amd64
       -
         name: Login to Docker Hub
+        if: github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -37,7 +41,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/arm64,linux/amd64
           tags: ${{ matrix.docker.repo }}:git-${{ github.sha }}
           file: ${{ matrix.docker.dockerfile }}
