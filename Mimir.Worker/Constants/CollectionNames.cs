@@ -1,5 +1,6 @@
 using Mimir.Worker.Models;
 using Nekoyume.Model.State;
+using AgentState = Mimir.Worker.Models.AgentState;
 using AllRuneState = Mimir.Worker.Models.AllRuneState;
 using CollectionState = Mimir.Worker.Models.CollectionState;
 
@@ -11,6 +12,7 @@ namespace Mimir.Worker.Constants
 
         static CollectionNames()
         {
+            CollectionMappings.Add(typeof(AgentState), "agent");
             CollectionMappings.Add(typeof(AvatarState), "avatar");
             CollectionMappings.Add(typeof(InventoryState), "inventory");
             CollectionMappings.Add(typeof(QuestListState), "quest_list");
