@@ -1,5 +1,5 @@
 using Mimir.GraphQL.Objects;
-using Mimir.Models.Items;
+using Mimir.Models.Assets;
 
 namespace Mimir.GraphQL.Factories;
 

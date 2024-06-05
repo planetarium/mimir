@@ -7,11 +7,11 @@ using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
 
-namespace Mimir.Models.Items;
+namespace Mimir.Models.Assets;
 
 public class Item
 {
-    protected static readonly Codec Codec = new();
+    private static readonly Codec Codec = new();
 
     public int ItemSheetId { get; set; }
     public int Grade { get; set; }

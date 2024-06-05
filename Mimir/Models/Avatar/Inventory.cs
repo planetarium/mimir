@@ -1,5 +1,5 @@
+using Mimir.Models.Assets;
 using MongoDB.Bson;
-using Mimir.Models.Items;
 using Nekoyume.Model.Item;
 
 namespace Mimir.Models.Avatar;
