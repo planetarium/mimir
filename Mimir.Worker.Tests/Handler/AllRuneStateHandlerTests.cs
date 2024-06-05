@@ -20,7 +20,7 @@ public class AllRuneStateHandlerTests
         var context = new StateDiffContext
         {
             Address = address,
-            RawState = Codec.Decode(Codec.Encode(allRuneState.Serialize())),
+            RawState = allRuneState.Serialize(),
         };
         var stateData = _handler.ConvertToStateData(context);
 

@@ -25,7 +25,7 @@ public class CollectionStateHandlerTests
         var context = new StateDiffContext
         {
             Address = address,
-            RawState = Codec.Decode(Codec.Encode(collectionState.Bencoded)),
+            RawState = collectionState.Bencoded,
         };
         var stateData = _handler.ConvertToStateData(context);
 
