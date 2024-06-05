@@ -5,6 +5,9 @@ public static class StringExtensions
         if (string.IsNullOrEmpty(str))
             return str;
 
+        if (!str.Contains('_') && !str.Contains(' ') && !str.Contains('-'))
+            return str;
+
         var words = str.Split(new[] { '_', ' ', '-' }, StringSplitOptions.RemoveEmptyEntries);
         var pascalCaseWords = words.Select(word => char.ToUpper(word[0]) + word.Substring(1).ToLower());
 
