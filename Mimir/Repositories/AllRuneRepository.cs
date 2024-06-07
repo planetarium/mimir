@@ -70,7 +70,7 @@ public class AllRuneRepository
         if (!_collections.TryGetValue(planetName, out var collection))
         {
             throw new ArgumentException(
-                $"Invalid network name. Expected one of {string.Join(", ", _collections.Keys)} but got {planetName}",
+                $"Invalid planet name. Expected one of {string.Join(", ", _collections.Keys)} but got {planetName}",
                 nameof(planetName));
         }
 
