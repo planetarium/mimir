@@ -1,6 +1,6 @@
 using Nekoyume.Model.State;
 
-namespace Mimir.Models.Agent;
+namespace Mimir.Models;
 
 public class Avatar(
     string agentAddress,

@@ -2,7 +2,7 @@ using Mimir.Models.Assets;
 using MongoDB.Bson;
 using Nekoyume.Model.Item;
 
-namespace Mimir.Models.Avatar;
+namespace Mimir.Models;
 
 public class Inventory
 {

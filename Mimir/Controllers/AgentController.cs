@@ -2,7 +2,7 @@ using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Microsoft.AspNetCore.Mvc;
-using Mimir.Models.Agent;
+using Mimir.Models;
 using Mimir.Models.Assets;
 using Mimir.Services;
 using Mimir.Util;

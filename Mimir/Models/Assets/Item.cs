@@ -28,7 +28,7 @@ public class Item
 
     public Item(ItemBase itemBase, int count) => Reset(itemBase, count);
 
-    public Item(Inventory.Item inventoryItem) : this(inventoryItem.item, inventoryItem.count)
+    public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem) : this(inventoryItem.item, inventoryItem.count)
     {
     }
 

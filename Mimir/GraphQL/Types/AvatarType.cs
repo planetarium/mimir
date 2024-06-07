@@ -4,9 +4,8 @@ using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
-using Mimir.Models.Agent;
+using Mimir.Models;
 using Mimir.Models.Assets;
-using Mimir.Models.Avatar;
 using Mimir.Repositories;
 
 namespace Mimir.GraphQL.Types;

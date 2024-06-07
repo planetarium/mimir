@@ -1,4 +1,3 @@
-using Mimir.Models.Avatar;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;

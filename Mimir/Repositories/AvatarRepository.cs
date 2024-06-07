@@ -1,6 +1,5 @@
 using Libplanet.Crypto;
-using Mimir.Models.Agent;
-using Mimir.Models.Avatar;
+using Mimir.Models;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
