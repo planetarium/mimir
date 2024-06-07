@@ -82,7 +82,7 @@ public class AllRuneRepository
         if (!_databases.TryGetValue(planetName, out var database))
         {
             throw new ArgumentException(
-                $"Invalid network name. Expected one of {string.Join(", ", _databases.Keys)} but got {planetName}",
+                $"Invalid planet name. Expected one of {string.Join(", ", _databases.Keys)} but got {planetName}",
                 nameof(planetName));
         }
 
