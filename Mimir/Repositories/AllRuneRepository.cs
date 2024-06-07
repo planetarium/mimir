@@ -17,7 +17,7 @@ public class AllRuneRepository
     {
         _mongoDBCollectionService = mongoDbCollectionService;
 
-        const string collectionName = "runes";
+        const string collectionName = "all_rune";
         foreach (var planetName in new[] { PlanetName.Heimdall, PlanetName.Odin })
         {
             var databaseName = PlanetNameToDatabaseName(planetName);

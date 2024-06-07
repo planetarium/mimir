@@ -20,7 +20,7 @@ public class Rune
 
     public Rune(BsonDocument rune)
     {
-        RuneSheetId = rune["RuneSheetId"].AsInt32;
+        RuneSheetId = rune["RuneId"].AsInt32;
         Level = rune["Level"].AsInt32;
     }
 }
