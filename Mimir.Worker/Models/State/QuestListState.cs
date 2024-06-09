@@ -6,11 +6,11 @@ namespace Mimir.Worker.Models;
 
 public class QuestListState : State
 {
-    public QuestList QuestList;
+    public QuestList Object;
 
     public QuestListState(Address address, QuestList questList)
         : base(address)
     {
-        QuestList = questList;
+        Object = questList;
     }
 }

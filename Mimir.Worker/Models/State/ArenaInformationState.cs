@@ -6,11 +6,11 @@ namespace Mimir.Worker.Models;
 
 public class ArenaInformationState : State
 {
-    public ArenaInformation ArenaInformation;
+    public ArenaInformation Object;
 
     public ArenaInformationState(Address address, ArenaInformation arenaInformation)
         : base(address)
     {
-        ArenaInformation = arenaInformation;
+        Object = arenaInformation;
     }
 }
