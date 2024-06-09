@@ -114,17 +114,32 @@ public class MongoDbService
                     var address = avatarAddress?.ToHex() ?? stateData.Address.ToHex();
                     var avatarFilter = Builders<BsonDocument>.Filter.Eq("Address", address);
 
+                    var avatarDocument = await avatarCollection
+                        .Find(avatarFilter)
+                        .FirstOrDefaultAsync();
+                    if (
+                        avatarDocument != null
+                        && avatarDocument.Contains($"{collectionName.ToPascalCase()}ObjectId")
+                    )
+                    {
+                        return;
+                    }
+
                     var update = Builders<BsonDocument>.Update.Set(
                         $"{collectionName.ToPascalCase()}ObjectId",
                         stateDataObjectId
                     );
+
                     await avatarCollection.UpdateOneAsync(avatarFilter, update);
+                    _logger.LogInformation(
+                        $"Avatar updated with {collectionName.ToPascalCase()}ObjectId."
+                    );
                 }
             }
         }
     }
 
-    public async Task<ReplaceOneResult> UpsertStateDataAsync(StateData stateData)
+    public async Task<UpdateResult> UpsertStateDataAsync(StateData stateData)
     {
         if (
             CollectionNames.CollectionMappings.TryGetValue(
@@ -141,17 +156,16 @@ public class MongoDbService
         );
     }
 
-    public async Task<ReplaceOneResult> UpsertStateDataAsync(
-        StateData stateData,
-        string collectionName
-    )
+    public async Task<UpdateResult> UpsertStateDataAsync(StateData stateData, string collectionName)
     {
         try
         {
             var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
             var bsonDocument = BsonDocument.Parse(stateData.ToJson());
+            var update = new BsonDocument("$set", bsonDocument);
+
             var result = await GetStateCollection(collectionName)
-                .ReplaceOneAsync(filter, bsonDocument, new ReplaceOptions { IsUpsert = true });
+                .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
 
             _logger.LogInformation(
                 $"Address: {stateData.Address.ToHex()} - Stored at {collectionName}"
