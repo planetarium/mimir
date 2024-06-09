@@ -26,13 +26,14 @@ public class ArenaBulkSimulator
         ArenaSimulatorSheets simulatorSheets,
         Dictionary<Address, CollectionState> collectionStates,
         CollectionSheet collectionSheets,
-        DeBuffLimitSheet deBuffLimitSheet)
+        DeBuffLimitSheet deBuffLimitSheet,
+        BuffLinkSheet buffLinkSheet)
     {
         int winCount = 0;
 
         var tasks = Enumerable.Range(0, TotalSimulations).Select(async _ =>
         {
-            var arenaLog = SimulateBattle(myAvatar, enemyAvatar, simulatorSheets, collectionStates, collectionSheets, deBuffLimitSheet);
+            var arenaLog = SimulateBattle(myAvatar, enemyAvatar, simulatorSheets, collectionStates, collectionSheets, deBuffLimitSheet, buffLinkSheet);
             if (arenaLog.Result == ArenaLog.ArenaResult.Win)
             {
                 Interlocked.Increment(ref winCount);
@@ -50,7 +51,8 @@ public class ArenaBulkSimulator
         ArenaSimulatorSheets simulatorSheets,
         Dictionary<Address, CollectionState> collectionStates,
         CollectionSheet collectionSheets,
-        DeBuffLimitSheet deBuffLimitSheet)
+        DeBuffLimitSheet deBuffLimitSheet,
+        BuffLinkSheet buffLinkSheet)
     {
         var seed = new SystemRandom().Next();
         var random = new SimulatorRandom(seed);
@@ -80,6 +82,7 @@ public class ArenaBulkSimulator
             modifiers[myAvatar.AvatarState.address],
             modifiers[enemyAvatar.AvatarState.address],
             deBuffLimitSheet,
+            buffLinkSheet,
             true);
         
         return arenaLog;

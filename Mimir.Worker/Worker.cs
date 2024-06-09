@@ -1,5 +1,6 @@
 using HeadlessGQL;
 using Mimir.Worker.Poller;
+using Mimir.Worker.Scrapper;
 using Mimir.Worker.Services;
 
 namespace Mimir.Worker;
@@ -61,6 +62,9 @@ public class Worker : BackgroundService
             await initializer.RunAsync(stoppingToken);
         }
 
+        var sheetScrapper = new TableSheetScrapper(_stateService, _store);
+
+        await sheetScrapper.ExecuteAsync(stoppingToken);
         await Task.WhenAll(diffPoller.RunAsync(stoppingToken), blockPoller.RunAsync(stoppingToken));
 
         _logger.LogInformation(

@@ -132,7 +132,8 @@ public class ArenaController(
             ),
             await stateGetter.GetCollectionStatesAsync([myAvatarAddress, enemyAvatarAddress]),
             await stateGetter.GetSheetAsync<CollectionSheet>(),
-            await stateGetter.GetSheetAsync<DeBuffLimitSheet>()
+            await stateGetter.GetSheetAsync<DeBuffLimitSheet>(),
+            await stateGetter.GetSheetAsync<BuffLinkSheet>()
         );
 
         return new ArenaSimulateResponse(result);
