@@ -75,11 +75,17 @@ public class AvatarType : ObjectType<AvatarObject>
     private static (
         AvatarRepository avatarRepo,
         AllRuneRepository allRuneRepo,
+        InventoryRepository inventoryRepo,
         PlanetName planetName,
         Address avatarAddress)? GetSource(IResolverContext context)
     {
         var avatarRepo = context.Services.GetService<AvatarRepository>();
         if (avatarRepo is null)
+        {
+            return null;
+        }
+        var inventoryRepo = context.Services.GetService<InventoryRepository>();
+        if (inventoryRepo is null)
         {
             return null;
         }
@@ -99,7 +105,7 @@ public class AvatarType : ObjectType<AvatarObject>
         }
 
         var avatarAddress = context.Parent<AvatarObject>().Address;
-        return (avatarRepo, allRuneRepo, planetName.Value, avatarAddress);
+        return (avatarRepo, allRuneRepo, inventoryRepo, planetName.Value, avatarAddress);
     }
 
     private static Avatar? GetAvatar(IResolverContext context)
@@ -110,7 +116,7 @@ public class AvatarType : ObjectType<AvatarObject>
             return null;
         }
 
-        var (avatarRepo, _, planetName, avatarAddress) = tuple.Value;
+        var (avatarRepo, _, _, planetName, avatarAddress) = tuple.Value;
         var avatar = avatarRepo.GetAvatar(planetName.ToString(), avatarAddress);
         if (avatar is null)
         {
@@ -129,8 +135,8 @@ public class AvatarType : ObjectType<AvatarObject>
             return null;
         }
 
-        var (avatarRepo, _, planetName, avatarAddress) = tuple.Value;
-        var inventory = avatarRepo.GetInventory(planetName.ToString(), avatarAddress);
+        var (_, _, inventoryRepo, planetName, avatarAddress) = tuple.Value;
+        var inventory = inventoryRepo.GetInventory(planetName.ToString(), avatarAddress);
         if (inventory is null)
         {
             return null;
@@ -148,7 +154,7 @@ public class AvatarType : ObjectType<AvatarObject>
             return null;
         }
 
-        var (_, allRuneRepo, planetName, avatarAddress) = tuple.Value;
+        var (_, allRuneRepo, _, planetName, avatarAddress) = tuple.Value;
         var runes = allRuneRepo.GetRunes(planetName, avatarAddress);
         if (runes is null)
         {

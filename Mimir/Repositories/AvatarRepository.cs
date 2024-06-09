@@ -22,7 +22,7 @@ public class AvatarRepository : BaseRepository<BsonDocument>
     public Avatar? GetAvatar(string network, Address avatarAddress)
     {
         var collection = GetCollection(network);
-        var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
@@ -33,34 +33,13 @@ public class AvatarRepository : BaseRepository<BsonDocument>
         {
             var avatarDoc = document["Avatar"];
             return new Avatar(
-                avatarDoc["agentAddress"].AsString,
-                avatarDoc["address"].AsString,
-                avatarDoc["name"].AsString,
-                avatarDoc["level"].AsInt32,
-                avatarDoc["actionPoint"].AsInt32,
-                avatarDoc["dailyRewardReceivedIndex"].ToInt64()
+                document["State"]["Object"]["agentAddress"].AsString,
+                document["State"]["Object"]["address"].AsString,
+                document["State"]["Object"]["name"].AsString,
+                document["State"]["Object"]["level"].AsInt32,
+                document["State"]["Object"]["actionPoint"].AsInt32,
+                document["State"]["Object"]["dailyRewardReceivedIndex"].ToInt64()
             );
-        }
-        catch (KeyNotFoundException)
-        {
-            return null;
-        }
-    }
-
-    public Inventory? GetInventory(string network, Address avatarAddress)
-    {
-        var collection = GetCollection(network);
-        var filter = Builders<BsonDocument>.Filter.Eq("Avatar.address", avatarAddress.ToHex());
-        var projection = Builders<BsonDocument>.Projection.Include("Avatar.inventory");
-        var document = collection.Find(filter).Project(projection).FirstOrDefault();
-        if (document is null)
-        {
-            return null;
-        }
-
-        try
-        {
-            return new Inventory(document["Avatar"]["inventory"].AsBsonDocument);
         }
         catch (KeyNotFoundException)
         {
