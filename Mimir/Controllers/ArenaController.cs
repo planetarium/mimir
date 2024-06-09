@@ -27,7 +27,7 @@ public class ArenaController(
     {
         var (championshipId, round) = await tableSheetsRepository.GetLatestArenaSeason(
             network,
-            await metadataRepository.GetLatestBlockIndex(network)
+            await metadataRepository.GetLatestBlockIndex(network, "BlockPoller")
         );
 
         return new ArenaSeason(championshipId, round);
