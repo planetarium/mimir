@@ -52,12 +52,6 @@ builder
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbStore>>();
-    return new MongoDbStore(logger, config.MongoDbConnectionString, config.DatabaseName);
-});
-builder.Services.AddSingleton(serviceProvider =>
-{
-    var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     var logger = serviceProvider.GetRequiredService<ILogger<DiffMongoDbService>>();
     return new DiffMongoDbService(
         logger,
@@ -86,7 +80,6 @@ builder.Services.AddHostedService(serviceProvider =>
         config.EnableInitializing
     );
 });
-builder.Services.AddHostedService<Initializer>();
 
 var host = builder.Build();
 host.Run();

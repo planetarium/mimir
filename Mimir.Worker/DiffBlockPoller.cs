@@ -34,15 +34,14 @@ public class DiffBlockPoller
         {
             var currentBlockIndex = await _stateService.GetLatestIndex();
             var syncedBlockIndex = await GetSyncedBlockIndex(currentBlockIndex);
-            var processBlockIndex = syncedBlockIndex + 1;
 
             _logger.LogInformation(
-                $"Check BlockIndex process: {processBlockIndex}, current: {currentBlockIndex}"
+                $"Check BlockIndex synced: {syncedBlockIndex}, current: {currentBlockIndex}"
             );
 
-            if (processBlockIndex >= currentBlockIndex)
+            if (syncedBlockIndex >= currentBlockIndex)
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(5000), stoppingToken);
+                await Task.Delay(TimeSpan.FromMilliseconds(7000), stoppingToken);
                 continue;
             }
 

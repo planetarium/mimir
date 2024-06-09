@@ -38,19 +38,24 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var started = DateTime.UtcNow;
-        var poller = new DiffBlockPoller(
+        var diffPoller = new DiffBlockPoller(
             _blockPollerLogger,
             _headlessGqlClient,
             _stateService,
             _store
         );
+        var blockPoller = new BlockPoller(_stateService, _headlessGqlClient, _store);
 
         if (_enableInitializing && !await IsInitialized())
         {
             var initializer = new SnapshotInitializer(_initializerLogger, _store, _snapshotPath);
             await initializer.RunAsync(stoppingToken);
         }
-        await poller.RunAsync(stoppingToken);
+
+        await Task.WhenAll(
+            diffPoller.RunAsync(stoppingToken),
+            blockPoller.RunAsync(stoppingToken)
+        );
 
         _logger.LogInformation(
             "Finished Worker background service. Elapsed {TotalElapsedMinutes} minutes",

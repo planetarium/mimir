@@ -38,11 +38,6 @@ public class DiffScrapper
                 currentBaseIndex,
                 currentTargetIndex
             );
-            var txs = await GetTransactions(
-                currentBaseIndex,
-                currentTargetIndex - currentBaseIndex
-            );
-
             if (diffResult.Data?.Diffs != null)
             {
                 foreach (var diff in diffResult.Data.Diffs)
@@ -50,11 +45,11 @@ public class DiffScrapper
                     switch (diff)
                     {
                         case IGetDiffs_Diffs_RootStateDiff rootDiff:
-                            ProcessRootStateDiff(rootDiff, txs);
+                            ProcessRootStateDiff(rootDiff);
                             break;
 
                         case IGetDiffs_Diffs_StateDiff stateDiff:
-                            ProcessStateDiff(stateDiff, txs);
+                            ProcessStateDiff(stateDiff);
                             break;
                     }
                 }
@@ -66,61 +61,8 @@ public class DiffScrapper
         }
     }
 
-    private async Task<
-        IEnumerable<IGetTransactionSigners_Transaction_NcTransactions>
-    > GetTransactions(long processBlockIndex, long limit)
-    {
-        var operationResult = await _headlessGqlClient.GetTransactionSigners.ExecuteAsync(
-            processBlockIndex,
-            limit
-        );
-
-        if (
-            operationResult.Data?.Transaction?.NcTransactions == null
-            || !operationResult.Data.Transaction.NcTransactions.Any()
-        )
-        {
-            Serilog.Log.Error(
-                "No transactions found or null data. Process Block Index: {ProcessBlockIndex}",
-                processBlockIndex
-            );
-            return Enumerable.Empty<IGetTransactionSigners_Transaction_NcTransactions>();
-        }
-
-        var txs = operationResult
-            .Data.Transaction.NcTransactions.OfType<IGetTransactionSigners_Transaction_NcTransactions>()
-            .ToList();
-
-        var txResults = await _headlessGqlClient.GetTransactionResults.ExecuteAsync(
-            txs.Select(tx => tx.Id).ToList()
-        );
-
-        if (
-            txResults.Data?.Transaction?.TransactionResults == null
-            || !txResults.Data.Transaction.TransactionResults.Any()
-            || txResults.Data.Transaction.TransactionResults.Count != txs.Count
-        )
-        {
-            Serilog.Log.Error(
-                "Failed fetch txResults. Process Block Index: {ProcessBlockIndex}",
-                processBlockIndex
-            );
-            return Enumerable.Empty<IGetTransactionSigners_Transaction_NcTransactions>();
-        }
-
-        var successfulTxs = txs.Where(
-                (tx, index) =>
-                    txResults.Data.Transaction.TransactionResults[index].TxStatus
-                    == TxStatus.Success
-            )
-            .ToList();
-
-        return successfulTxs;
-    }
-
     private async void ProcessRootStateDiff(
-        IGetDiffs_Diffs_RootStateDiff rootDiff,
-        IEnumerable<IGetTransactionSigners_Transaction_NcTransactions> txs
+        IGetDiffs_Diffs_RootStateDiff rootDiff
     )
     {
         var accountAddress = new Address(rootDiff.Path);
@@ -138,8 +80,7 @@ public class DiffScrapper
                                 Address = new Address(subDiff.Path),
                                 RawState = Codec.Decode(
                                     Convert.FromHexString(subDiff.ChangedState)
-                                ),
-                                Transactions = txs
+                                )
                             }
                         );
                         await handler.StoreStateData(_store, stateData);
@@ -158,7 +99,6 @@ public class DiffScrapper
     }
 
     private void ProcessStateDiff(
-        IGetDiffs_Diffs_StateDiff stateDiff,
-        IEnumerable<IGetTransactionSigners_Transaction_NcTransactions> txs
+        IGetDiffs_Diffs_StateDiff stateDiff
     ) { }
 }

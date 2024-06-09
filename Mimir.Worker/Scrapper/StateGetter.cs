@@ -183,36 +183,17 @@ public class StateGetter
         return roundData;
     }
 
-    public async Task<ArenaData?> GetArenaData(ArenaSheet.RoundData roundData, Address avatarAddress)
+    public async Task<ArenaScoreState> GetArenaScore(ArenaSheet.RoundData roundData, Address avatarAddress)
     {
-        try
-        {
-            var arenaScore = await GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
-            var arenaInfo = await GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
+        var arenaScore = await GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
 
-            return new ArenaData(arenaScore, arenaInfo, roundData, avatarAddress);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"An error occurred during GetArenaData: {ex.Message}");
-            return null;
-        }
+        return new ArenaScoreState(arenaScore.Address, arenaScore);
     }
 
-    public async Task<AvatarData?> GetAvatarData(Address avatarAddress)
+    public async Task<ArenaInformationState> GetArenaInfo(ArenaSheet.RoundData roundData, Address avatarAddress)
     {
-        try
-        {
-            var avatarState = await GetAvatarState(avatarAddress);
-            var avatarItemSlotState = await GetItemSlotState(avatarAddress);
-            var avatarRuneStates = await GetRuneStates(avatarAddress);
+        var arenaInfo = await GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
 
-            return new AvatarData(avatarState, avatarItemSlotState, avatarRuneStates);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"An error occurred during GetAvatarData: {ex.Message}");
-            return null;
-        }
+        return new ArenaInformationState(arenaInfo.Address, arenaInfo);
     }
 }

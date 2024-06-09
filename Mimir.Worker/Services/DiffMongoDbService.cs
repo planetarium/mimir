@@ -17,6 +17,8 @@ public class DiffMongoDbService
 
     private readonly IMongoDatabase _database;
 
+    private readonly GridFSBucket _gridFs;
+
     private Dictionary<string, IMongoCollection<BsonDocument>> _stateCollectionMappings =
         new Dictionary<string, IMongoCollection<BsonDocument>>();
 
@@ -32,6 +34,7 @@ public class DiffMongoDbService
         _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
         _logger = logger;
+        _gridFs = new GridFSBucket(_database);
 
         InitStateCollections();
     }
@@ -50,10 +53,10 @@ public class DiffMongoDbService
         return _stateCollectionMappings[collectionName];
     }
 
-    public async Task UpdateLatestBlockIndex(long blockIndex)
+    public async Task UpdateLatestBlockIndex(long blockIndex, string? id = "SyncContext")
     {
         _logger.LogInformation($"Update latest block index to {blockIndex}");
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
 
         var response = await MetadataCollection.UpdateOneAsync(filter, update);
@@ -65,14 +68,17 @@ public class DiffMongoDbService
         }
     }
 
-    public async Task<long> GetLatestBlockIndex()
+    public async Task<long> GetLatestBlockIndex(string? id = "SyncContext")
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
         var doc = await MetadataCollection.FindSync(filter).FirstAsync();
         return doc.GetValue("LatestBlockIndex").AsInt64;
     }
 
-    public async Task UpsertStateDataAsyncWithLinkAvatar(StateData stateData)
+    public async Task UpsertStateDataAsyncWithLinkAvatar(
+        StateData stateData,
+        Address? avatarAddress = null
+    )
     {
         if (
             CollectionNames.CollectionMappings.TryGetValue(
@@ -100,10 +106,8 @@ public class DiffMongoDbService
                 {
                     var avatarCollection = GetStateCollection(avatarCollectionName);
 
-                    var avatarFilter = Builders<BsonDocument>.Filter.Eq(
-                        "Address",
-                        stateData.Address.ToHex()
-                    );
+                    var address = avatarAddress?.ToHex() ?? stateData.Address.ToHex();
+                    var avatarFilter = Builders<BsonDocument>.Filter.Eq("Address", address);
 
                     var update = Builders<BsonDocument>.Update.Set(
                         $"{collectionName.ToPascalCase()}ObjectId",
@@ -153,6 +157,43 @@ public class DiffMongoDbService
         {
             _logger.LogError($"An error occurred during UpsertAvatarDataAsync: {ex.Message}");
             throw;
+        }
+    }
+
+    public async Task UpsertTableSheets(StateData stateData, string csv)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
+
+        var sheetCsvBytes = Encoding.UTF8.GetBytes(csv);
+        var sheetCsvId = await _gridFs.UploadFromBytesAsync(
+            $"{stateData.Address.ToHex()}-csv",
+            sheetCsvBytes
+        );
+
+        var document = BsonDocument.Parse(stateData.ToJson());
+
+        document.Remove("SheetCsv");
+        document.Add("SheetCsvFileId", sheetCsvId);
+
+        if (
+            CollectionNames.CollectionMappings.TryGetValue(
+                typeof(SheetState),
+                out var tableSheetCollectionName
+            )
+        )
+        {
+            var tableSheetCollection = GetStateCollection(tableSheetCollectionName);
+            await tableSheetCollection.ReplaceOneAsync(
+                filter,
+                document,
+                new ReplaceOptions { IsUpsert = true }
+            );
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                $"No collection mapping found for state type: {stateData.State.GetType().Name}"
+            );
         }
     }
 }

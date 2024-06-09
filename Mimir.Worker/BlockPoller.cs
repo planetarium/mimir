@@ -1,9 +1,8 @@
+using System.Text.RegularExpressions;
 using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
-using Libplanet.Common;
 using Libplanet.Crypto;
-using Libplanet.Types.Tx;
 using Mimir.Worker.Models;
 using Mimir.Worker.Scrapper;
 using Mimir.Worker.Services;
@@ -18,39 +17,48 @@ namespace Mimir.Worker;
 public class BlockPoller(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    MongoDbStore mongoDbStore
+    DiffMongoDbService mongoDbStore
 )
 {
+    private readonly Codec Codec = new();
+    private readonly string MetadataCollectionId = "BlockSyncContext";
+
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         var stateGetter = new StateGetter(stateService);
         while (!cancellationToken.IsCancellationRequested)
         {
-            var syncedBlockIndex = await mongoDbStore.GetLatestBlockIndex();
+            var syncedBlockIndex = await mongoDbStore.GetLatestBlockIndex(MetadataCollectionId);
             var currentBlockIndex = await stateService.GetLatestIndex();
-            var processBlockIndex = syncedBlockIndex + 1;
-            if (processBlockIndex >= currentBlockIndex)
+
+            long indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
+
+            if (indexDifference <= 0)
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(3000), cancellationToken);
+                await Task.Delay(TimeSpan.FromMilliseconds(7000), cancellationToken);
                 continue;
             }
 
-            await EveryAvatarAsync(processBlockIndex, stateGetter, cancellationToken);
-            await BattleArenaAsync(processBlockIndex, stateGetter, cancellationToken);
-            await EveryPatchTableAsync(processBlockIndex, cancellationToken);
-            await mongoDbStore.UpdateLatestBlockIndex(processBlockIndex);
+            int limit = (int)(indexDifference > 100 ? 100 : indexDifference);
+
+            await ProcessTransactions(syncedBlockIndex, limit, stateGetter, cancellationToken);
+            await mongoDbStore.UpdateLatestBlockIndex(
+                syncedBlockIndex + limit,
+                MetadataCollectionId
+            );
         }
     }
 
-    private async Task EveryAvatarAsync(
-        long processBlockIndex,
+    private async Task ProcessTransactions(
+        long syncedBlockIndex,
+        int limit,
         StateGetter stateGetter,
         CancellationToken cancellationToken
     )
     {
-        var operationResult = await headlessGqlClient.GetTransactionSigners.ExecuteAsync(
-            processBlockIndex,
-            1,
+        var operationResult = await headlessGqlClient.GetTransactions.ExecuteAsync(
+            syncedBlockIndex,
+            limit,
             cancellationToken
         );
         if (operationResult.Data is null)
@@ -65,40 +73,37 @@ public class BlockPoller(
             return;
         }
 
-        foreach (var tx in txs)
-        {
-            if (tx is null)
-            {
-                continue;
-            }
+        List<List<string>> actionsList = txs.Select(tx =>
+                tx.Actions.Select(action => action.Raw).ToList()
+            )
+            .ToList();
 
-            var agentAddress = new Address(tx.Signer);
-            var avatarAddresses = Enumerable
-                .Range(0, GameConfig.SlotCount)
-                .Select(e => Addresses.GetAvatarAddress(agentAddress, e));
-            var avatarDataArray = await Task.WhenAll(
-                avatarAddresses.Select(stateGetter.GetAvatarData)
-            );
-            await mongoDbStore.BulkUpsertAvatarDataAsync(
-                avatarDataArray.Where(e => e is not null).OfType<AvatarData>().ToList()
-            );
+        foreach (var actions in actionsList)
+        {
+            foreach (var rawAction in actions)
+            {
+                var action = (Dictionary)Codec.Decode(Convert.FromHexString(rawAction));
+                var actionType = (Text)action["type_id"];
+                var actionValues = action["values"];
+
+                if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
+                {
+                    await EveryBattleArenaAsync(
+                        syncedBlockIndex + limit,
+                        (Dictionary)actionValues,
+                        stateGetter
+                    );
+                }
+                else if (Regex.IsMatch(actionType, "^patch_table_sheet[0-9]*$"))
+                {
+                    await EveryPatchTableAsync((Dictionary)actionValues);
+                }
+            }
         }
     }
 
-    private async Task EveryPatchTableAsync(
-        long processBlockIndex,
-        CancellationToken cancellationToken
-    )
+    private async Task EveryPatchTableAsync(Dictionary actionValues)
     {
-        var rawPatchTableTxsResp = await headlessGqlClient.GetPatchTableTransactions.ExecuteAsync(
-            processBlockIndex,
-            cancellationToken
-        );
-        if (rawPatchTableTxsResp.Data is null)
-        {
-            HandleErrors(rawPatchTableTxsResp);
-            return;
-        }
         var sheetTypes = typeof(ISheet)
             .Assembly.GetTypes()
             .Where(type =>
@@ -108,109 +113,65 @@ public class BlockPoller(
                 && typeof(ISheet).IsAssignableFrom(type)
             );
 
-        var patchTableTxs = rawPatchTableTxsResp
-            .Data?.Transaction?.NcTransactions.Where(raw => raw is not null)
-            .Select(raw =>
-                TxMarshaler.DeserializeTransactionWithoutVerification(
-                    Convert.FromBase64String(raw!.SerializedPayload)
-                )
-            )
-            .ToList();
-        foreach (var patchTableTx in patchTableTxs)
+        var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
+
+        var sheetType = sheetTypes.Where(type => type.Name == tableName).FirstOrDefault();
+
+        if (sheetType == null)
         {
-            var patchTableAction = (Dictionary)patchTableTx.Actions[0];
-            var patchTableActionValues = (Dictionary)patchTableAction["values"];
-            var tableName = ((Text)patchTableActionValues["table_name"]).ToDotnetString();
-
-            var sheetType = sheetTypes.Where(type => type.Name == tableName).FirstOrDefault();
-
-            if (sheetType == null)
-            {
-                throw new TypeLoadException(
-                    $"Unable to find a class type matching the table name '{tableName}' in the specified namespace."
-                );
-            }
-            var sheetInstance = Activator.CreateInstance(sheetType);
-            if (sheetInstance is not ISheet sheet)
-            {
-                throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
-            }
-            var sheetAddress = Addresses.TableSheet.Derive(tableName);
-            var sheetState = await stateService.GetState(sheetAddress);
-            if (sheetState is not Text sheetValue)
-            {
-                throw new InvalidOperationException($"Expected sheet state to be of type 'Text'.");
-            }
-
-            sheet.Set(sheetValue.Value);
-
-            var sheetData = new TableSheetData(
-                sheetAddress,
-                tableName,
-                sheet,
-                sheetState.ToDotnetString(),
-                ByteUtil.Hex(new Codec().Encode(sheetState))
+            throw new TypeLoadException(
+                $"Unable to find a class type matching the table name '{tableName}' in the specified namespace."
             );
-
-            await mongoDbStore.InsertTableSheets(sheetData);
         }
+        var sheetInstance = Activator.CreateInstance(sheetType);
+        if (sheetInstance is not ISheet sheet)
+        {
+            throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
+        }
+        var sheetAddress = Addresses.TableSheet.Derive(tableName);
+        var sheetState = await stateService.GetState(sheetAddress);
+        if (sheetState is not Text sheetValue)
+        {
+            throw new InvalidOperationException($"Expected sheet state to be of type 'Text'.");
+        }
+
+        sheet.Set(sheetValue.Value);
+
+        var stateData = new StateData(sheetAddress, new SheetState(sheetAddress, sheet));
+        await mongoDbStore.UpsertTableSheets(stateData, sheetState.ToDotnetString());
     }
 
-    private async Task BattleArenaAsync(
+    private async Task EveryBattleArenaAsync(
         long processBlockIndex,
-        StateGetter stateGetter,
-        CancellationToken cancellationToken
+        Dictionary actionValues,
+        StateGetter stateGetter
     )
     {
-        var rawArenaTxsResp = await headlessGqlClient.GetBattleArenaTransactions.ExecuteAsync(
-            processBlockIndex,
-            cancellationToken
+        var myAvatarAddress = new Address(actionValues["maa"]);
+        var enemyAvatarAddress = new Address(actionValues["eaa"]);
+
+        var roundData = await stateGetter.GetArenaRoundData(processBlockIndex);
+        var myArenaScore = await stateGetter.GetArenaScore(roundData, myAvatarAddress);
+        var myArenaInfo = await stateGetter.GetArenaInfo(roundData, myAvatarAddress);
+        var enemyArenaScore = await stateGetter.GetArenaScore(roundData, enemyAvatarAddress);
+        var enemyArenaInfo = await stateGetter.GetArenaInfo(roundData, enemyAvatarAddress);
+
+        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+            new StateData(myArenaScore.address, myArenaScore),
+            myAvatarAddress
         );
-        if (rawArenaTxsResp.Data is null)
-        {
-            HandleErrors(rawArenaTxsResp);
-            return;
-        }
-
-        if (rawArenaTxsResp.Data.Transaction.NcTransactions is null)
-        {
-            return;
-        }
-
-        var arenaTxs = rawArenaTxsResp
-            .Data.Transaction.NcTransactions.Where(raw => raw is not null)
-            .Select(raw =>
-                TxMarshaler.DeserializeTransactionWithoutVerification(
-                    Convert.FromBase64String(raw!.SerializedPayload)
-                )
-            )
-            .ToList();
-        foreach (var arenaTx in arenaTxs)
-        {
-            var arenaAction = (Dictionary)arenaTx.Actions[0];
-            var arenaActionValues = (Dictionary)arenaAction["values"];
-            var myAvatarAddress = new Address(arenaActionValues["maa"]);
-            var enemyAvatarAddress = new Address(arenaActionValues["eaa"]);
-
-            var roundData = await stateGetter.GetArenaRoundData(processBlockIndex);
-            var myAvatarData = await stateGetter.GetAvatarData(myAvatarAddress);
-            var enemyAvatarData = await stateGetter.GetAvatarData(enemyAvatarAddress);
-            var myArenaData = await stateGetter.GetArenaData(roundData, myAvatarAddress);
-            var enemyArenaData = await stateGetter.GetArenaData(roundData, enemyAvatarAddress);
-
-            await mongoDbStore.BulkUpsertAvatarDataAsync(
-                new[] { myAvatarData, enemyAvatarData }
-                    .Where(e => e is not null)
-                    .OfType<AvatarData>()
-                    .ToList()
-            );
-            await mongoDbStore.BulkUpsertArenaDataAsync(
-                new[] { myArenaData, enemyArenaData }
-                    .Where(e => e is not null)
-                    .OfType<ArenaData>()
-                    .ToList()
-            );
-        }
+        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+            new StateData(myArenaInfo.address, myArenaInfo),
+            myAvatarAddress
+        );
+        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+            new StateData(enemyArenaScore.address, enemyArenaScore),
+            enemyAvatarAddress
+        );
+        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+            new StateData(enemyArenaInfo.address, enemyArenaInfo),
+            enemyAvatarAddress
+        );
     }
 
     private static void HandleErrors(IOperationResult operationResult)
