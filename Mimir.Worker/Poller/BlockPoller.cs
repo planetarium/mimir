@@ -12,51 +12,43 @@ using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using StrawberryShake;
 
-namespace Mimir.Worker;
+namespace Mimir.Worker.Poller;
 
-public class BlockPoller(
-    IStateService stateService,
-    IHeadlessGQLClient headlessGqlClient,
-    DiffMongoDbService mongoDbStore
-)
+public class BlockPoller : BaseBlockPoller
 {
+    private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly Codec Codec = new();
-    private readonly string MetadataCollectionId = "BlockSyncContext";
 
-    public async Task RunAsync(CancellationToken cancellationToken)
+    public BlockPoller(
+        ILogger<BlockPoller> logger,
+        IStateService stateService,
+        IHeadlessGQLClient headlessGqlClient,
+        DiffMongoDbService mongoDbStore
+    )
+        : base(logger, stateService, mongoDbStore, "BlockPoller")
     {
-        var stateGetter = new StateGetter(stateService);
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            var syncedBlockIndex = await mongoDbStore.GetLatestBlockIndex(MetadataCollectionId);
-            var currentBlockIndex = await stateService.GetLatestIndex();
+        _headlessGqlClient = headlessGqlClient;
+    }
 
-            long indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
+    protected override async Task ProcessBlocksAsync(
+        long syncedBlockIndex,
+        long currentBlockIndex,
+        CancellationToken stoppingToken
+    )
+    {
+        long indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
+        int limit = (int)(indexDifference > 100 ? 100 : indexDifference);
 
-            if (indexDifference <= 0)
-            {
-                await Task.Delay(TimeSpan.FromMilliseconds(7000), cancellationToken);
-                continue;
-            }
-
-            int limit = (int)(indexDifference > 100 ? 100 : indexDifference);
-
-            await ProcessTransactions(syncedBlockIndex, limit, stateGetter, cancellationToken);
-            await mongoDbStore.UpdateLatestBlockIndex(
-                syncedBlockIndex + limit,
-                MetadataCollectionId
-            );
-        }
+        await ProcessTransactions(syncedBlockIndex, limit, stoppingToken);
     }
 
     private async Task ProcessTransactions(
         long syncedBlockIndex,
         int limit,
-        StateGetter stateGetter,
         CancellationToken cancellationToken
     )
     {
-        var operationResult = await headlessGqlClient.GetTransactions.ExecuteAsync(
+        var operationResult = await _headlessGqlClient.GetTransactions.ExecuteAsync(
             syncedBlockIndex,
             limit,
             cancellationToken
@@ -88,11 +80,7 @@ public class BlockPoller(
 
                 if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
                 {
-                    await EveryBattleArenaAsync(
-                        syncedBlockIndex + limit,
-                        (Dictionary)actionValues,
-                        stateGetter
-                    );
+                    await EveryBattleArenaAsync(syncedBlockIndex + limit, (Dictionary)actionValues);
                 }
                 else if (Regex.IsMatch(actionType, "^patch_table_sheet[0-9]*$"))
                 {
@@ -100,6 +88,8 @@ public class BlockPoller(
                 }
             }
         }
+
+        await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);
     }
 
     private async Task EveryPatchTableAsync(Dictionary actionValues)
@@ -129,7 +119,7 @@ public class BlockPoller(
             throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
         }
         var sheetAddress = Addresses.TableSheet.Derive(tableName);
-        var sheetState = await stateService.GetState(sheetAddress);
+        var sheetState = await _stateService.GetState(sheetAddress);
         if (sheetState is not Text sheetValue)
         {
             throw new InvalidOperationException($"Expected sheet state to be of type 'Text'.");
@@ -138,15 +128,12 @@ public class BlockPoller(
         sheet.Set(sheetValue.Value);
 
         var stateData = new StateData(sheetAddress, new SheetState(sheetAddress, sheet));
-        await mongoDbStore.UpsertTableSheets(stateData, sheetState.ToDotnetString());
+        await _store.UpsertTableSheets(stateData, sheetState.ToDotnetString());
     }
 
-    private async Task EveryBattleArenaAsync(
-        long processBlockIndex,
-        Dictionary actionValues,
-        StateGetter stateGetter
-    )
+    private async Task EveryBattleArenaAsync(long processBlockIndex, Dictionary actionValues)
     {
+        var stateGetter = new StateGetter(_stateService);
         var myAvatarAddress = new Address(actionValues["maa"]);
         var enemyAvatarAddress = new Address(actionValues["eaa"]);
 
@@ -156,19 +143,19 @@ public class BlockPoller(
         var enemyArenaScore = await stateGetter.GetArenaScore(roundData, enemyAvatarAddress);
         var enemyArenaInfo = await stateGetter.GetArenaInfo(roundData, enemyAvatarAddress);
 
-        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+        await _store.UpsertStateDataAsyncWithLinkAvatar(
             new StateData(myArenaScore.address, myArenaScore),
             myAvatarAddress
         );
-        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+        await _store.UpsertStateDataAsyncWithLinkAvatar(
             new StateData(myArenaInfo.address, myArenaInfo),
             myAvatarAddress
         );
-        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+        await _store.UpsertStateDataAsyncWithLinkAvatar(
             new StateData(enemyArenaScore.address, enemyArenaScore),
             enemyAvatarAddress
         );
-        await mongoDbStore.UpsertStateDataAsyncWithLinkAvatar(
+        await _store.UpsertStateDataAsyncWithLinkAvatar(
             new StateData(enemyArenaInfo.address, enemyArenaInfo),
             enemyAvatarAddress
         );

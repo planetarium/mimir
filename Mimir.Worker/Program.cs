@@ -5,6 +5,7 @@ using HeadlessGQL;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mimir.Worker;
+using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -63,7 +64,8 @@ builder.Services.AddHostedService(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     var logger = serviceProvider.GetRequiredService<ILogger<Worker>>();
-    var blockPollerLogger = serviceProvider.GetRequiredService<ILogger<DiffBlockPoller>>();
+    var blockPollerLogger = serviceProvider.GetRequiredService<ILogger<BlockPoller>>();
+    var diffBlockPollerLogger = serviceProvider.GetRequiredService<ILogger<DiffBlockPoller>>();
     var initializerLogger = serviceProvider.GetRequiredService<ILogger<SnapshotInitializer>>();
     var headlessGqlClient = serviceProvider.GetRequiredService<HeadlessGQLClient>();
     var stateService = serviceProvider.GetRequiredService<IStateService>();
@@ -72,6 +74,7 @@ builder.Services.AddHostedService(serviceProvider =>
     return new Worker(
         logger,
         blockPollerLogger,
+        diffBlockPollerLogger,
         initializerLogger,
         headlessGqlClient,
         stateService,

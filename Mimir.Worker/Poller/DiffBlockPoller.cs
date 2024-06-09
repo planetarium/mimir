@@ -1,33 +1,36 @@
 using Bencodex;
 using HeadlessGQL;
 using Libplanet.Crypto;
-using Libplanet.Types.Tx;
-using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
 using Mimir.Worker.Services;
-using Nekoyume.Model.State;
 
-namespace Mimir.Worker.Scrapper;
+namespace Mimir.Worker.Poller;
 
-public class DiffScrapper
+public class DiffBlockPoller : BaseBlockPoller
 {
     private readonly HeadlessGQLClient _headlessGqlClient;
-    private readonly DiffMongoDbService _store;
-
     private readonly Codec Codec = new();
 
-    public DiffScrapper(HeadlessGQLClient headlessGqlClient, DiffMongoDbService store)
+    public DiffBlockPoller(
+        ILogger<DiffBlockPoller> logger,
+        IStateService stateService,
+        HeadlessGQLClient headlessGqlClient,
+        DiffMongoDbService store
+    )
+        : base(logger, stateService, store, "DiffBlockPoller")
     {
         _headlessGqlClient = headlessGqlClient;
-        _store = store;
     }
 
-    public async Task ExecuteAsync(long baseIndex, long targetIndex)
+    protected override async Task ProcessBlocksAsync(
+        long syncedBlockIndex,
+        long currentBlockIndex,
+        CancellationToken stoppingToken
+    )
     {
-        long indexDifference = Math.Abs(targetIndex - baseIndex);
+        long indexDifference = Math.Abs(syncedBlockIndex - currentBlockIndex);
 
-        long currentBaseIndex = baseIndex;
+        long currentBaseIndex = syncedBlockIndex;
 
         while (indexDifference > 0)
         {
@@ -53,17 +56,15 @@ public class DiffScrapper
                             break;
                     }
                 }
-            }
 
-            await _store.UpdateLatestBlockIndex(currentTargetIndex);
-            currentBaseIndex = currentTargetIndex;
-            indexDifference -= 9;
+                await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType);
+                currentBaseIndex = currentTargetIndex;
+                indexDifference -= 9;
+            }
         }
     }
 
-    private async void ProcessRootStateDiff(
-        IGetDiffs_Diffs_RootStateDiff rootDiff
-    )
+    private async void ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
     {
         var accountAddress = new Address(rootDiff.Path);
         if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
@@ -78,9 +79,7 @@ public class DiffScrapper
                             new()
                             {
                                 Address = new Address(subDiff.Path),
-                                RawState = Codec.Decode(
-                                    Convert.FromHexString(subDiff.ChangedState)
-                                )
+                                RawState = Codec.Decode(Convert.FromHexString(subDiff.ChangedState))
                             }
                         );
                         await handler.StoreStateData(_store, stateData);
@@ -98,7 +97,5 @@ public class DiffScrapper
         }
     }
 
-    private void ProcessStateDiff(
-        IGetDiffs_Diffs_StateDiff stateDiff
-    ) { }
+    private void ProcessStateDiff(IGetDiffs_Diffs_StateDiff stateDiff) { }
 }

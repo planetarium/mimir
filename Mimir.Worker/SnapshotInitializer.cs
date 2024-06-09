@@ -60,7 +60,7 @@ public class SnapshotInitializer
             }
         }
 
-        await _store.UpdateLatestBlockIndex(blockChain.Tip.Index);
+        await _store.UpdateLatestBlockIndex(blockChain.Tip.Index, "SyncContext");
 
         _logger.LogInformation(
             "Finished SnapshotInitializer. Elapsed {TotalElapsedMinutes} minutes",

@@ -53,24 +53,29 @@ public class DiffMongoDbService
         return _stateCollectionMappings[collectionName];
     }
 
-    public async Task UpdateLatestBlockIndex(long blockIndex, string? id = "SyncContext")
+    public async Task UpdateLatestBlockIndex(long blockIndex, string pollerType)
     {
         _logger.LogInformation($"Update latest block index to {blockIndex}");
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+        var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
 
         var response = await MetadataCollection.UpdateOneAsync(filter, update);
         if (response?.ModifiedCount < 1)
         {
             await MetadataCollection.InsertOneAsync(
-                new SyncContext { LatestBlockIndex = blockIndex, }.ToBsonDocument()
+                new SyncContext
+                {
+                    Id = ObjectId.GenerateNewId().ToString(),
+                    PollerType = pollerType,
+                    LatestBlockIndex = blockIndex,
+                }.ToBsonDocument()
             );
         }
     }
 
-    public async Task<long> GetLatestBlockIndex(string? id = "SyncContext")
+    public async Task<long> GetLatestBlockIndex(string pollerType)
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+        var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
         var doc = await MetadataCollection.FindSync(filter).FirstAsync();
         return doc.GetValue("LatestBlockIndex").AsInt64;
     }
