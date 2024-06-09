@@ -6,7 +6,7 @@ namespace Mimir.Worker;
 
 public class Worker : BackgroundService
 {
-    private readonly DiffMongoDbService _store;
+    private readonly MongoDbService _store;
     private readonly ILogger<Worker> _logger;
     private readonly ILogger<SnapshotInitializer> _initializerLogger;
     private readonly ILogger<BlockPoller> _blockPollerLogger;
@@ -23,7 +23,7 @@ public class Worker : BackgroundService
         ILogger<SnapshotInitializer> initializerLogger,
         HeadlessGQLClient headlessGqlClient,
         IStateService stateService,
-        DiffMongoDbService store,
+        MongoDbService store,
         string snapshotPath,
         bool enableInitializing
     )

@@ -23,7 +23,7 @@ public class BlockPoller : BaseBlockPoller
         ILogger<BlockPoller> logger,
         IStateService stateService,
         IHeadlessGQLClient headlessGqlClient,
-        DiffMongoDbService mongoDbStore
+        MongoDbService mongoDbStore
     )
         : base(logger, stateService, mongoDbStore, "BlockPoller")
     {

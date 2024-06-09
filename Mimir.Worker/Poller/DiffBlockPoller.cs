@@ -15,7 +15,7 @@ public class DiffBlockPoller : BaseBlockPoller
         ILogger<DiffBlockPoller> logger,
         IStateService stateService,
         HeadlessGQLClient headlessGqlClient,
-        DiffMongoDbService store
+        MongoDbService store
     )
         : base(logger, stateService, store, "DiffBlockPoller")
     {

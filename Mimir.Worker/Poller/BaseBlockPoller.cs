@@ -16,7 +16,7 @@ namespace Mimir.Worker.Poller;
 
 public abstract class BaseBlockPoller
 {
-    protected readonly DiffMongoDbService _store;
+    protected readonly MongoDbService _store;
     protected readonly ILogger _logger;
     protected readonly IStateService _stateService;
     protected readonly string _pollerType;
@@ -24,7 +24,7 @@ public abstract class BaseBlockPoller
     protected BaseBlockPoller(
         ILogger logger,
         IStateService stateService,
-        DiffMongoDbService store,
+        MongoDbService store,
         string pollerType
     )
     {

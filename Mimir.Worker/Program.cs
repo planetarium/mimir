@@ -53,11 +53,11 @@ builder
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<DiffMongoDbService>>();
-    return new DiffMongoDbService(
+    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbService>>();
+    return new MongoDbService(
         logger,
         config.MongoDbConnectionString,
-        config.DatabaseName + "_diff_test"
+        config.DatabaseName
     );
 });
 builder.Services.AddHostedService(serviceProvider =>
@@ -69,7 +69,7 @@ builder.Services.AddHostedService(serviceProvider =>
     var initializerLogger = serviceProvider.GetRequiredService<ILogger<SnapshotInitializer>>();
     var headlessGqlClient = serviceProvider.GetRequiredService<HeadlessGQLClient>();
     var stateService = serviceProvider.GetRequiredService<IStateService>();
-    var store = serviceProvider.GetRequiredService<DiffMongoDbService>();
+    var store = serviceProvider.GetRequiredService<MongoDbService>();
 
     return new Worker(
         logger,

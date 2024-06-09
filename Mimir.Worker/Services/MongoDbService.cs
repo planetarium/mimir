@@ -9,9 +9,9 @@ using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Services;
 
-public class DiffMongoDbService
+public class MongoDbService
 {
-    private readonly ILogger<DiffMongoDbService> _logger;
+    private readonly ILogger<MongoDbService> _logger;
 
     private readonly IMongoClient _client;
 
@@ -25,8 +25,8 @@ public class DiffMongoDbService
     private IMongoCollection<BsonDocument> MetadataCollection =>
         _database.GetCollection<BsonDocument>("metadata");
 
-    public DiffMongoDbService(
-        ILogger<DiffMongoDbService> logger,
+    public MongoDbService(
+        ILogger<MongoDbService> logger,
         string connectionString,
         string databaseName
     )

@@ -24,7 +24,7 @@ public class AllRuneStateHandler : IStateHandler<StateData>
         return new AllRuneState(address, allRuneState);
     }
 
-    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    public async Task StoreStateData(MongoDbService store, StateData stateData)
     {
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }

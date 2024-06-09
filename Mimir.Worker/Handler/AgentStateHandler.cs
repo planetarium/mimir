@@ -26,7 +26,7 @@ public class AgentStateHandler : IStateHandler<StateData>
         return new AgentState(address, agentState);
     }
 
-    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    public async Task StoreStateData(MongoDbService store, StateData stateData)
     {
         await store.UpsertStateDataAsync(stateData);
     }
