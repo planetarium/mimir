@@ -38,7 +38,7 @@ public class QuestListStateHandler : IStateHandler<StateData>
         }
     }
 
-    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    public async Task StoreStateData(MongoDbService store, StateData stateData)
     {
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }

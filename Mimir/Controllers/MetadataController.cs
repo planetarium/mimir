@@ -8,12 +8,16 @@ namespace Mimir.Controllers;
 [Route("{network}")]
 public class MetadataController : ControllerBase
 {
-    [HttpGet("tip")]
-    public async Task<GetTipResponse> GetTip(
+    [HttpGet("metadata")]
+    public async Task<MetadataResponse> GetMetadata(
         string network,
+        string pollerType,
         MetadataRepository metadataRepository
     )
     {
-        return new GetTipResponse(await metadataRepository.GetLatestBlockIndex(network));
+        return new MetadataResponse(
+            pollerType,
+            await metadataRepository.GetLatestBlockIndex(network, pollerType)
+        );
     }
 }

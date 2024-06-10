@@ -17,7 +17,7 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
 
     protected override string GetCollectionName()
     {
-        return "tableSheets";
+        return "table_sheet";
     }
 
     public async Task<(int, int)> GetLatestArenaSeason(string network, long blockIndex)
@@ -26,10 +26,10 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
 
         var pipelines = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("Name", "ArenaSheet")),
+            new BsonDocument("$match", new BsonDocument("State.Name", "ArenaSheet")),
             new BsonDocument(
                 "$addFields",
-                new BsonDocument("SheetJsonArray", new BsonDocument("$objectToArray", "$SheetJson"))
+                new BsonDocument("SheetJsonArray", new BsonDocument("$objectToArray", "$State.Object"))
             ),
             new BsonDocument("$unwind", new BsonDocument("path", "$SheetJsonArray")),
             new BsonDocument("$unwind", new BsonDocument("path", "$SheetJsonArray.v.Round")),
@@ -74,15 +74,15 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
     {
         var collection = GetCollection(network);
 
-        var projection = Builders<BsonDocument>.Projection.Include("Name").Exclude("_id");
+        var projection = Builders<BsonDocument>.Projection.Include("State.Name").Exclude("_id");
         var documents = collection.Find(new BsonDocument()).Project(projection).ToList();
 
         List<string> names = new List<string>();
         foreach (var document in documents)
         {
-            if (document.Contains("Name"))
+            if (document.Contains("State") && document["State"].AsBsonDocument.Contains("Name"))
             {
-                names.Add(document["Name"].AsString);
+                names.Add(document["State"]["Name"].AsString);
             }
         }
 
@@ -102,7 +102,7 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
         };
 
         var projection = Builders<BsonDocument>.Projection.Include(fieldToInclude).Exclude("_id");
-        var filter = Builders<BsonDocument>.Filter.Eq("Name", sheetName);
+        var filter = Builders<BsonDocument>.Filter.Eq("State.Name", sheetName);
         var document = collection.Find(filter).Project(projection).FirstOrDefault();
 
         if (

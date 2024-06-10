@@ -16,7 +16,7 @@ namespace Mimir.Controllers;
 
 [ApiController]
 [Route("{network}/avatars/{address}")]
-public class AvatarController(AvatarRepository avatarRepository) : ControllerBase
+public class AvatarController(AvatarRepository avatarRepository, InventoryRepository inventoryRepository) : ControllerBase
 {
     #region temporary snippets
 
@@ -150,7 +150,7 @@ public class AvatarController(AvatarRepository avatarRepository) : ControllerBas
             return null;
         }
 
-        var inventory = avatarRepository.GetInventory(network, inventoryAddress);
+        var inventory = inventoryRepository.GetInventory(network, inventoryAddress);
         if (inventory is not null)
         {
             return inventory;

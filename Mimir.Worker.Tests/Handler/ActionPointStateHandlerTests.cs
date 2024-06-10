@@ -27,6 +27,6 @@ public class ActionPointStateHandlerTests
         Assert.IsType<ActionPointState>(stateData.State);
         var dataState = (ActionPointState)stateData.State;
         Assert.Equal(address, dataState.address);
-        Assert.Equal(actionPoint, dataState.Value);
+        Assert.Equal(actionPoint, dataState.Object);
     }
 }

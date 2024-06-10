@@ -7,5 +7,5 @@ public interface IStateHandler<T>
     where T : StateData
 {
     T ConvertToStateData(StateDiffContext context);
-    Task StoreStateData(DiffMongoDbService store, StateData stateData);
+    Task StoreStateData(MongoDbService store, StateData stateData);
 }

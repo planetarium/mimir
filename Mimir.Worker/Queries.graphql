@@ -18,27 +18,10 @@ query GetState($accountAddress: Address! $address: Address!) {
     state(accountAddress: $accountAddress, address: $address)
 }
 
-query GetBattleArenaTransactions($blockIndex: Long!) {
-    transaction {
-        ncTransactions(startingBlockIndex: $blockIndex, limit: 1, actionType: "^battle_arena[0-9]*$") {
-            serializedPayload
-        }
-    }
-}
-
-query GetPatchTableTransactions($blockIndex: Long!) {
-    transaction {
-        ncTransactions(startingBlockIndex: $blockIndex, limit: 1, actionType: "^patch_table_sheet") {
-            serializedPayload
-        }
-    }
-}
-
-query GetTransactionSigners($blockIndex: Long!, $limit: Long!) {
+query GetTransactions($blockIndex: Long!, $limit: Long!) {
     transaction {
         ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: "^.*$") {
             id
-            signer
             serializedPayload
             actions {
                 raw

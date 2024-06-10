@@ -5,5 +5,5 @@ namespace Mimir.Worker.Models;
 
 public class ActionPointState(Address address, int value) : State(address)
 {
-    public int Value { get; set; } = value;
+    public int Object { get; set; } = value;
 }

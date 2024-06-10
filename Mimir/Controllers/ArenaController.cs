@@ -27,7 +27,7 @@ public class ArenaController(
     {
         var (championshipId, round) = await tableSheetsRepository.GetLatestArenaSeason(
             network,
-            await metadataRepository.GetLatestBlockIndex(network)
+            await metadataRepository.GetLatestBlockIndex(network, "BlockPoller")
         );
 
         return new ArenaSeason(championshipId, round);
@@ -37,8 +37,8 @@ public class ArenaController(
     public async Task<long> GetRankByAvatarAddress(
         string network,
         string avatarAddress,
-        int? championshipId,
-        int? round
+        [BindRequired] int championshipId,
+        [BindRequired] int round
     )
     {
         var rank = await arenaRankingRepository.GetRankByAvatarAddress(
@@ -61,8 +61,8 @@ public class ArenaController(
         string network,
         [BindRequired] int limit,
         [BindRequired] int offset,
-        int? championshipId,
-        int? round
+        [BindRequired] int championshipId,
+        [BindRequired] int round
     )
     {
         return await arenaRankingRepository.GetRanking(
@@ -132,7 +132,8 @@ public class ArenaController(
             ),
             await stateGetter.GetCollectionStatesAsync([myAvatarAddress, enemyAvatarAddress]),
             await stateGetter.GetSheetAsync<CollectionSheet>(),
-            await stateGetter.GetSheetAsync<DeBuffLimitSheet>()
+            await stateGetter.GetSheetAsync<DeBuffLimitSheet>(),
+            await stateGetter.GetSheetAsync<BuffLinkSheet>()
         );
 
         return new ArenaSimulateResponse(result);
