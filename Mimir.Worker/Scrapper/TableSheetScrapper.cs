@@ -10,10 +10,7 @@ using Nekoyume.TableData;
 
 namespace Mimir.Worker.Scrapper;
 
-public class TableSheetScrapper(
-    IStateService service,
-    MongoDbService store
-)
+public class TableSheetScrapper(IStateService service, MongoDbService store)
 {
     private readonly IStateService _stateService = service;
     private readonly MongoDbService _store = store;
@@ -63,7 +60,10 @@ public class TableSheetScrapper(
 
             sheet.Set(sheetValue.Value);
 
-            var stateData = new StateData(sheetAddress, new SheetState(sheetAddress, sheet));
+            var stateData = new StateData(
+                sheetAddress,
+                new SheetState(sheetAddress, sheet, sheetType.Name)
+            );
             await _store.UpsertTableSheets(stateData, sheetState.ToDotnetString());
         }
     }

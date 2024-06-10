@@ -2,6 +2,7 @@ using Libplanet.Crypto;
 using Mimir.Models.Agent;
 using Mimir.Models.Arena;
 using Mimir.Services;
+using Mimir.Util;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -10,6 +11,7 @@ namespace Mimir.Repositories;
 public class ArenaRankingRepository : BaseRepository<BsonDocument>
 {
     private readonly CpRepository _cpRepository;
+    private StateGetter _stateGetter;
 
     public ArenaRankingRepository(
         MongoDBCollectionService mongoDBCollectionService,
@@ -18,6 +20,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
         : base(mongoDBCollectionService)
     {
         _cpRepository = new CpRepository(stateService);
+        _stateGetter = new StateGetter(stateService);
     }
 
     protected override string GetCollectionName()
@@ -42,12 +45,12 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("RoundData.Round", round)
+                        new BsonDocument("State.RoundData.ChampionshipId", championshipId),
+                        new BsonDocument("State.RoundData.Round", round)
                     }
                 )
             ),
-            new("$sort", new BsonDocument("Score.Score", -1)),
+            new("$sort", new BsonDocument("State.Score", -1)),
             new(
                 "$group",
                 new BsonDocument
@@ -60,7 +63,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
                 "$unwind",
                 new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "Rank" } }
             ),
-            new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress.ToHex()))
+            new("$match", new BsonDocument("docs.State.AvatarAddress", avatarAddress.ToHex()))
         };
 
         var aggregation = await collection.Aggregate<dynamic>(pipelines).ToListAsync();
@@ -85,8 +88,8 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("RoundData.Round", round)
+                        new BsonDocument("State.RoundData.ChampionshipId", championshipId),
+                        new BsonDocument("State.RoundData.Round", round)
                     }
                 )
             ),
@@ -95,7 +98,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
                 new BsonDocument
                 {
                     { "partitionBy", "" },
-                    { "sortBy", new BsonDocument("Score.Score", -1) },
+                    { "sortBy", new BsonDocument("State.ArenaScoreObject.Score", -1) },
                     {
                         "output",
                         new BsonDocument("Rank", new BsonDocument("$rank", new BsonDocument()))
@@ -108,9 +111,9 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
                 "$lookup",
                 new BsonDocument
                 {
-                    { "from", "avatars" },
-                    { "localField", "AvatarAddress" },
-                    { "foreignField", "Avatar.address" },
+                    { "from", "avatar" },
+                    { "localField", "_id" },
+                    { "foreignField", "ArenaObjectId" },
                     { "as", "Avatar" }
                 }
             ),
@@ -122,12 +125,12 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
                 "$unset",
                 new BsonArray
                 {
-                    "Avatar.Avatar.inventory",
-                    "Avatar.Avatar.mailBox",
-                    "Avatar.Avatar.stageMap",
-                    "Avatar.Avatar.monsterMap",
-                    "Avatar.Avatar.itemMap",
-                    "Avatar.Avatar.eventMap"
+                    "Avatar.State.inventory",
+                    "Avatar.State.mailBox",
+                    "Avatar.State.stageMap",
+                    "Avatar.State.monsterMap",
+                    "Avatar.State.itemMap",
+                    "Avatar.State.eventMap"
                 }
             )
         };
@@ -141,16 +144,17 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
 
     private async Task<ArenaRanking> BuildArenaRankingFromDocument(BsonDocument document)
     {
+        var avatarAddress = document["State"]["AvatarAddress"].AsString;
         var arenaRanking = new ArenaRanking(
-            document["AvatarAddress"].AsString,
-            document["Information"]["Address"].AsString,
-            document["Information"]["Win"].AsInt32,
-            document["Information"]["Lose"].AsInt32,
+            document["State"]["AvatarAddress"].AsString,
+            document["State"]["ArenaInformationObject"]["Address"].AsString,
+            document["State"]["ArenaInformationObject"]["Win"].AsInt32,
+            document["State"]["ArenaInformationObject"]["Lose"].AsInt32,
             document["Rank"].AsInt32 + 1,
-            document["Information"]["Ticket"].AsInt32,
-            document["Information"]["TicketResetCount"].AsInt32,
-            document["Information"]["PurchasedTicketCount"].AsInt32,
-            document["Score"]["Score"].AsInt32
+            document["State"]["ArenaInformationObject"]["Ticket"].AsInt32,
+            document["State"]["ArenaInformationObject"]["TicketResetCount"].AsInt32,
+            document["State"]["ArenaInformationObject"]["PurchasedTicketCount"].AsInt32,
+            document["State"]["ArenaScoreObject"]["Score"].AsInt32
         );
 
         if (!document.Contains("Avatar"))
@@ -159,32 +163,40 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
         }
 
         var avatar = new Avatar(
-            document["Avatar"]["Avatar"]["agentAddress"].AsString,
-            document["Avatar"]["Avatar"]["address"].AsString,
-            document["Avatar"]["Avatar"]["name"].AsString,
-            document["Avatar"]["Avatar"]["level"].AsInt32,
-            document["Avatar"]["Avatar"]["actionPoint"].AsInt32,
-            document["Avatar"]["Avatar"]["dailyRewardReceivedIndex"].AsInt64
+            document["Avatar"]["State"]["agentAddress"].AsString,
+            document["Avatar"]["State"]["address"].AsString,
+            document["Avatar"]["State"]["name"].AsString,
+            document["Avatar"]["State"]["level"].AsInt32,
+            document["Avatar"]["State"]["actionPoint"].AsInt32,
+            document["Avatar"]["State"]["dailyRewardReceivedIndex"].ToInt64()
         );
         arenaRanking.Avatar = avatar;
 
-        var characterId = document["Avatar"]["Avatar"]["characterId"].AsInt32;
-        var equipmentIds = document["Avatar"]
-            ["ItemSlot"]["Equipments"]
-            .AsBsonArray.Select(x => x.AsString);
-        var costumeIds = document["Avatar"]
-            ["ItemSlot"]["Costumes"]
-            .AsBsonArray.Select(x => x.AsString);
-        var runeSlots = document["Avatar"]
-            ["RuneSlot"]
-            .AsBsonArray.Select(rune => (rune["RuneId"].AsInt32, rune["Level"].AsInt32));
+        var characterId = document["Avatar"]["State"]["characterId"].AsInt32;
+
+        var itemSlotState = await _stateGetter.GetItemSlotStateAsync(new Address(avatarAddress));
+        if (itemSlotState is null)
+        {
+            return arenaRanking;
+        }
+
+        var runeSlotState = await _stateGetter.GetArenaRuneSlotStateAsync(
+            new Address(avatarAddress)
+        );
+        if (runeSlotState is null)
+        {
+            return arenaRanking;
+        }
+
+        var equipmentIds = itemSlotState.Equipments;
+        var costumeIds = itemSlotState.Costumes;
 
         var cp = await _cpRepository.CalculateCp(
             avatar,
             characterId,
             equipmentIds,
             costumeIds,
-            runeSlots
+            runeSlotState
         );
         arenaRanking.CP = cp;
         Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");

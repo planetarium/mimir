@@ -183,17 +183,17 @@ public class StateGetter
         return roundData;
     }
 
-    public async Task<ArenaScoreState> GetArenaScore(ArenaSheet.RoundData roundData, Address avatarAddress)
+    public async Task<ArenaScore> GetArenaScore(ArenaSheet.RoundData roundData, Address avatarAddress)
     {
         var arenaScore = await GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
 
-        return new ArenaScoreState(arenaScore.Address, arenaScore);
+        return arenaScore;
     }
 
-    public async Task<ArenaInformationState> GetArenaInfo(ArenaSheet.RoundData roundData, Address avatarAddress)
+    public async Task<ArenaInformation> GetArenaInfo(ArenaSheet.RoundData roundData, Address avatarAddress)
     {
         var arenaInfo = await GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
 
-        return new ArenaInformationState(arenaInfo.Address, arenaInfo);
+        return arenaInfo;
     }
 }

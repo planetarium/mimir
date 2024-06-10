@@ -127,7 +127,10 @@ public class BlockPoller : BaseBlockPoller
 
         sheet.Set(sheetValue.Value);
 
-        var stateData = new StateData(sheetAddress, new SheetState(sheetAddress, sheet));
+        var stateData = new StateData(
+            sheetAddress,
+            new SheetState(sheetAddress, sheet, sheetType.Name)
+        );
         await _store.UpsertTableSheets(stateData, sheetState.ToDotnetString());
     }
 
@@ -144,19 +147,29 @@ public class BlockPoller : BaseBlockPoller
         var enemyArenaInfo = await stateGetter.GetArenaInfo(roundData, enemyAvatarAddress);
 
         await _store.UpsertStateDataAsyncWithLinkAvatar(
-            new StateData(myArenaScore.address, myArenaScore),
+            new StateData(
+                myArenaScore.Address,
+                new ArenaState(
+                    myArenaScore,
+                    myArenaInfo,
+                    roundData,
+                    myArenaScore.Address,
+                    myAvatarAddress
+                )
+            ),
             myAvatarAddress
         );
         await _store.UpsertStateDataAsyncWithLinkAvatar(
-            new StateData(myArenaInfo.address, myArenaInfo),
-            myAvatarAddress
-        );
-        await _store.UpsertStateDataAsyncWithLinkAvatar(
-            new StateData(enemyArenaScore.address, enemyArenaScore),
-            enemyAvatarAddress
-        );
-        await _store.UpsertStateDataAsyncWithLinkAvatar(
-            new StateData(enemyArenaInfo.address, enemyArenaInfo),
+            new StateData(
+                enemyArenaScore.Address,
+                new ArenaState(
+                    enemyArenaScore,
+                    enemyArenaInfo,
+                    roundData,
+                    enemyArenaScore.Address,
+                    enemyAvatarAddress
+                )
+            ),
             enemyAvatarAddress
         );
     }

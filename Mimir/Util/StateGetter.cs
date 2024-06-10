@@ -173,6 +173,29 @@ public class StateGetter(IStateService stateService)
 
         return new RuneSlotState(battleType);
     }
+    
+    public async Task<List<RuneState>> GetArenaRuneSlotStateAsync(Address avatarAddress)
+    {
+        var state = await stateService.GetState(
+            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+        var runeSlotState = state switch
+        {
+            List list => new RuneSlotState(list),
+            null => new RuneSlotState(BattleType.Arena),
+            _ => throw new ArgumentException(nameof(avatarAddress))
+        };
+
+        var runes = new List<RuneState>();
+        foreach (var runeStateAddress in runeSlotState.GetEquippedRuneSlotInfos().Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId)))
+        {
+            if (await stateService.GetState(runeStateAddress) is List list)
+            {
+                runes.Add(new RuneState(list));
+            }
+        }
+
+        return runes;
+    }
 
     public async Task<Dictionary<Address, CollectionState>> GetCollectionStatesAsync(List<Address> addresses)
     {

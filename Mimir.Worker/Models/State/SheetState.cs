@@ -8,9 +8,12 @@ public class SheetState : State
 {
     public ISheet Object;
 
-    public SheetState(Address address, ISheet sheet)
+    public string Name { get; }
+
+    public SheetState(Address address, ISheet sheet, string name)
         : base(address)
     {
         Object = sheet;
+        Name = name;
     }
 }

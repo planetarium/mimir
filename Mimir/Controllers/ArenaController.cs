@@ -37,8 +37,8 @@ public class ArenaController(
     public async Task<long> GetRankByAvatarAddress(
         string network,
         string avatarAddress,
-        int? championshipId,
-        int? round
+        [BindRequired] int championshipId,
+        [BindRequired] int round
     )
     {
         var rank = await arenaRankingRepository.GetRankByAvatarAddress(
@@ -61,8 +61,8 @@ public class ArenaController(
         string network,
         [BindRequired] int limit,
         [BindRequired] int offset,
-        int? championshipId,
-        int? round
+        [BindRequired] int championshipId,
+        [BindRequired] int round
     )
     {
         return await arenaRankingRepository.GetRanking(
