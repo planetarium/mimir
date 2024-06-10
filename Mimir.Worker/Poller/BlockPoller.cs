@@ -30,7 +30,8 @@ public class BlockPoller : BaseBlockPoller
         var handlers = new List<BaseActionHandler>
         {
             new BattleArenaHandler(stateService, store),
-            new PatchTableHandler(stateService, store)
+            new PatchTableHandler(stateService, store),
+            new RegisterProductHandler(stateService, store)
         };
         _handlers = handlers.ToDictionary(handler => handler.ActionRegex);
     }

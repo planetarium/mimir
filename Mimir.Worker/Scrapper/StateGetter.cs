@@ -1,14 +1,15 @@
-using Mimir.Worker.Services;
-using Libplanet.Crypto;
 using Bencodex.Types;
-using Nekoyume.TableData;
+using Libplanet.Crypto;
+using Mimir.Worker.Models;
+using Mimir.Worker.Services;
 using Nekoyume;
 using Nekoyume.Action;
+using Nekoyume.Model.Arena;
 using Nekoyume.Model.EnumType;
 using Nekoyume.Model.Item;
+using Nekoyume.Model.Market;
 using Nekoyume.Model.State;
-using Nekoyume.Model.Arena;
-using Mimir.Worker.Models;
+using Nekoyume.TableData;
 
 namespace Mimir.Worker.Scrapper;
 
@@ -39,8 +40,7 @@ public class StateGetter
 
     public async Task<ArenaParticipants> GetArenaParticipantsState(int championshipId, int roundId)
     {
-        var arenaParticipantsAddress =
-            ArenaParticipants.DeriveAddress(championshipId, roundId);
+        var arenaParticipantsAddress = ArenaParticipants.DeriveAddress(championshipId, roundId);
         var state = await _service.GetState(arenaParticipantsAddress);
         return state switch
         {
@@ -49,10 +49,13 @@ public class StateGetter
         };
     }
 
-    public async Task<ArenaScore> GetArenaScoreState(Address avatarAddress, int championshipId, int roundId)
+    public async Task<ArenaScore> GetArenaScoreState(
+        Address avatarAddress,
+        int championshipId,
+        int roundId
+    )
     {
-        var arenaScoreAddress =
-            ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
+        var arenaScoreAddress = ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
         var state = await _service.GetState(arenaScoreAddress);
         return state switch
         {
@@ -61,10 +64,17 @@ public class StateGetter
         };
     }
 
-    public async Task<ArenaInformation> GetArenaInfoState(Address avatarAddress, int championshipId, int roundId)
+    public async Task<ArenaInformation> GetArenaInfoState(
+        Address avatarAddress,
+        int championshipId,
+        int roundId
+    )
     {
-        var arenaInfoAddress =
-            ArenaInformation.DeriveAddress(avatarAddress, championshipId, roundId);
+        var arenaInfoAddress = ArenaInformation.DeriveAddress(
+            avatarAddress,
+            championshipId,
+            roundId
+        );
         var state = await _service.GetState(arenaInfoAddress);
         return state switch
         {
@@ -79,14 +89,8 @@ public class StateGetter
         var inventory = await GetInventoryState(avatarAddress);
         var avatarState = state switch
         {
-            Dictionary dictionary => new AvatarState(dictionary)
-            {
-                inventory = inventory
-            },
-            List list => new AvatarState(list)
-            {
-                inventory = inventory
-            },
+            Dictionary dictionary => new AvatarState(dictionary) { inventory = inventory },
+            List list => new AvatarState(list) { inventory = inventory },
             _ => throw new ArgumentException($"Unsupported state type for address: {avatarAddress}")
         };
 
@@ -95,7 +99,10 @@ public class StateGetter
             avatarState.actionPoint = actionPoint;
         }
 
-        if (await _service.GetState(avatarAddress, Addresses.DailyReward) is Integer dailyRewardReceivedIndex)
+        if (
+            await _service.GetState(avatarAddress, Addresses.DailyReward)
+            is Integer dailyRewardReceivedIndex
+        )
         {
             avatarState.dailyRewardReceivedIndex = dailyRewardReceivedIndex;
         }
@@ -105,10 +112,12 @@ public class StateGetter
 
     public async Task<Inventory> GetInventoryState(Address avatarAddress)
     {
-
         var legacyInventoryAddress = avatarAddress.Derive("inventory");
         var rawState = await GetAvatarStateWithLegacyAccount(
-            avatarAddress, Addresses.Inventory, legacyInventoryAddress);
+            avatarAddress,
+            Addresses.Inventory,
+            legacyInventoryAddress
+        );
 
         if (rawState is not List list)
         {
@@ -121,7 +130,8 @@ public class StateGetter
     public async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
     {
         var state = await _service.GetState(
-            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena)
+        );
         return state switch
         {
             List list => new ItemSlotState(list),
@@ -133,7 +143,8 @@ public class StateGetter
     public async Task<List<RuneState>> GetRuneStates(Address avatarAddress)
     {
         var state = await _service.GetState(
-            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena));
+            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena)
+        );
         var runeSlotState = state switch
         {
             List list => new RuneSlotState(list),
@@ -142,7 +153,11 @@ public class StateGetter
         };
 
         var runes = new List<RuneState>();
-        foreach (var runeStateAddress in runeSlotState.GetEquippedRuneSlotInfos().Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId)))
+        foreach (
+            var runeStateAddress in runeSlotState
+                .GetEquippedRuneSlotInfos()
+                .Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId))
+        )
         {
             if (await _service.GetState(runeStateAddress) is List list)
             {
@@ -153,10 +168,34 @@ public class StateGetter
         return runes;
     }
 
+    public async Task<ProductsState?> GetProductsState(Address avatarAddress)
+    {
+        var state = await _service.GetState(ProductsState.DeriveAddress(avatarAddress));
+        return state switch
+        {
+            List list => new ProductsState(list),
+            _ => throw new ArgumentException(nameof(avatarAddress))
+        };
+    }
+
+    public async Task<Product?> GetProductState(Guid productId)
+    {
+        var productAddress = Product.DeriveAddress(productId);
+        var rawState = await _service.GetState(productAddress);
+
+        if (rawState is not List list)
+        {
+            throw new ArgumentException(nameof(productId));
+        }
+
+        var product = ProductFactory.DeserializeProduct(list);
+        return product;
+    }
+
     public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
     {
         var state = await _service.GetState(address, accountAddress);
-        
+
         if (state == null)
         {
             state = await _service.GetState(address);
@@ -164,36 +203,26 @@ public class StateGetter
         return state;
     }
 
-    public async Task<IValue?> GetAvatarStateWithLegacyAccount(Address avatarAddress, Address accountAddress, Address legacyAddress)
+    public async Task<IValue?> GetAvatarStateWithLegacyAccount(
+        Address avatarAddress,
+        Address accountAddress,
+        Address legacyAddress
+    )
     {
         var state = await _service.GetState(avatarAddress, accountAddress);
-        
+
         if (state == null)
         {
             state = await _service.GetState(legacyAddress);
         }
         return state;
     }
-    
+
     public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
     {
         var arenaSheet = await GetSheet<ArenaSheet>();
         var roundData = arenaSheet.GetRoundByBlockIndex(index);
 
         return roundData;
-    }
-
-    public async Task<ArenaScore> GetArenaScore(ArenaSheet.RoundData roundData, Address avatarAddress)
-    {
-        var arenaScore = await GetArenaScoreState(avatarAddress, roundData.ChampionshipId, roundData.Round);
-
-        return arenaScore;
-    }
-
-    public async Task<ArenaInformation> GetArenaInfo(ArenaSheet.RoundData roundData, Address avatarAddress)
-    {
-        var arenaInfo = await GetArenaInfoState(avatarAddress, roundData.ChampionshipId, roundData.Round);
-
-        return arenaInfo;
     }
 }

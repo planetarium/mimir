@@ -22,6 +22,8 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(ArenaState), "arena");
             CollectionMappings.Add(typeof(AllRuneState), "all_rune");
             CollectionMappings.Add(typeof(CollectionState), "collection");
+            CollectionMappings.Add(typeof(WrappedProductsState), "products");
+            CollectionMappings.Add(typeof(ProductState), "product");
         }
     }
 }
