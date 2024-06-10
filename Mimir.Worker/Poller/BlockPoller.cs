@@ -2,32 +2,37 @@ using System.Text.RegularExpressions;
 using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
-using Libplanet.Crypto;
-using Mimir.Worker.Models;
-using Mimir.Worker.Scrapper;
+using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
-using Nekoyume;
-using Nekoyume.Action;
 using Nekoyume.Model.State;
-using Nekoyume.TableData;
 using StrawberryShake;
 
 namespace Mimir.Worker.Poller;
 
 public class BlockPoller : BaseBlockPoller
 {
+    private readonly Dictionary<string, BaseActionHandler> _handlers;
+
     private readonly IHeadlessGQLClient _headlessGqlClient;
+
     private readonly Codec Codec = new();
 
     public BlockPoller(
         ILogger<BlockPoller> logger,
         IStateService stateService,
         IHeadlessGQLClient headlessGqlClient,
-        MongoDbService mongoDbStore
+        MongoDbService store
     )
-        : base(logger, stateService, mongoDbStore, "BlockPoller")
+        : base(logger, stateService, store, "BlockPoller")
     {
         _headlessGqlClient = headlessGqlClient;
+
+        var handlers = new List<BaseActionHandler>
+        {
+            new BattleArenaHandler(stateService, store),
+            new PatchTableHandler(stateService, store)
+        };
+        _handlers = handlers.ToDictionary(handler => handler.ActionRegex);
     }
 
     protected override async Task ProcessBlocksAsync(
@@ -78,100 +83,21 @@ public class BlockPoller : BaseBlockPoller
                 var actionType = (Text)action["type_id"];
                 var actionValues = action["values"];
 
-                if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
+                foreach (var handler in _handlers.Values)
                 {
-                    await EveryBattleArenaAsync(syncedBlockIndex + limit, (Dictionary)actionValues);
-                }
-                else if (Regex.IsMatch(actionType, "^patch_table_sheet[0-9]*$"))
-                {
-                    await EveryPatchTableAsync((Dictionary)actionValues);
+                    if (Regex.IsMatch(actionType, handler.ActionRegex))
+                    {
+                        await handler.HandleAction(
+                            syncedBlockIndex + limit,
+                            (Dictionary)actionValues
+                        );
+                        break;
+                    }
                 }
             }
         }
 
         await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);
-    }
-
-    private async Task EveryPatchTableAsync(Dictionary actionValues)
-    {
-        var sheetTypes = typeof(ISheet)
-            .Assembly.GetTypes()
-            .Where(type =>
-                type.Namespace is { } @namespace
-                && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
-                && !type.IsAbstract
-                && typeof(ISheet).IsAssignableFrom(type)
-            );
-
-        var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
-
-        var sheetType = sheetTypes.Where(type => type.Name == tableName).FirstOrDefault();
-
-        if (sheetType == null)
-        {
-            throw new TypeLoadException(
-                $"Unable to find a class type matching the table name '{tableName}' in the specified namespace."
-            );
-        }
-        var sheetInstance = Activator.CreateInstance(sheetType);
-        if (sheetInstance is not ISheet sheet)
-        {
-            throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
-        }
-        var sheetAddress = Addresses.TableSheet.Derive(tableName);
-        var sheetState = await _stateService.GetState(sheetAddress);
-        if (sheetState is not Text sheetValue)
-        {
-            throw new InvalidOperationException($"Expected sheet state to be of type 'Text'.");
-        }
-
-        sheet.Set(sheetValue.Value);
-
-        var stateData = new StateData(
-            sheetAddress,
-            new SheetState(sheetAddress, sheet, sheetType.Name)
-        );
-        await _store.UpsertTableSheets(stateData, sheetState.ToDotnetString());
-    }
-
-    private async Task EveryBattleArenaAsync(long processBlockIndex, Dictionary actionValues)
-    {
-        var stateGetter = new StateGetter(_stateService);
-        var myAvatarAddress = new Address(actionValues["maa"]);
-        var enemyAvatarAddress = new Address(actionValues["eaa"]);
-
-        var roundData = await stateGetter.GetArenaRoundData(processBlockIndex);
-        var myArenaScore = await stateGetter.GetArenaScore(roundData, myAvatarAddress);
-        var myArenaInfo = await stateGetter.GetArenaInfo(roundData, myAvatarAddress);
-        var enemyArenaScore = await stateGetter.GetArenaScore(roundData, enemyAvatarAddress);
-        var enemyArenaInfo = await stateGetter.GetArenaInfo(roundData, enemyAvatarAddress);
-
-        await _store.UpsertStateDataAsyncWithLinkAvatar(
-            new StateData(
-                myArenaScore.Address,
-                new ArenaState(
-                    myArenaScore,
-                    myArenaInfo,
-                    roundData,
-                    myArenaScore.Address,
-                    myAvatarAddress
-                )
-            ),
-            myAvatarAddress
-        );
-        await _store.UpsertStateDataAsyncWithLinkAvatar(
-            new StateData(
-                enemyArenaScore.Address,
-                new ArenaState(
-                    enemyArenaScore,
-                    enemyArenaInfo,
-                    roundData,
-                    enemyArenaScore.Address,
-                    enemyAvatarAddress
-                )
-            ),
-            enemyAvatarAddress
-        );
     }
 
     private static void HandleErrors(IOperationResult operationResult)
