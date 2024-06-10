@@ -31,13 +31,14 @@ public class AvatarRepository : BaseRepository<BsonDocument>
 
         try
         {
+            var avatarDoc = document["Avatar"];
             return new Avatar(
-                document["Avatar"]["agentAddress"].AsString,
-                document["Avatar"]["address"].AsString,
-                document["Avatar"]["name"].AsString,
-                document["Avatar"]["level"].AsInt32,
-                document["Avatar"]["actionPoint"].AsInt32,
-                document["Avatar"]["dailyRewardReceivedIndex"].ToInt64()
+                avatarDoc["agentAddress"].AsString,
+                avatarDoc["address"].AsString,
+                avatarDoc["name"].AsString,
+                avatarDoc["level"].AsInt32,
+                avatarDoc["actionPoint"].AsInt32,
+                avatarDoc["dailyRewardReceivedIndex"].ToInt64()
             );
         }
         catch (KeyNotFoundException)
