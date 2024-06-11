@@ -6,13 +6,20 @@ namespace Mimir.Worker.Models;
 
 public class ProductState : State
 {
+    public Address AvatarAddress;
     public Address ProductsStateAddress;
     public Product Object;
 
-    public ProductState(Address address, Address productsStateAddress, Product product)
+    public ProductState(
+        Address address,
+        Address avatarAddress,
+        Address productsStateAddress,
+        Product product
+    )
         : base(address)
     {
         Object = product;
+        AvatarAddress = avatarAddress;
         ProductsStateAddress = productsStateAddress;
     }
 }

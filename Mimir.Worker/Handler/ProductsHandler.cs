@@ -12,7 +12,7 @@ public class ProductsHandler : BaseActionHandler
         : base(
             stateService,
             store,
-            "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$"
+            "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$"
         ) { }
 
     public override async Task HandleAction(
@@ -22,7 +22,7 @@ public class ProductsHandler : BaseActionHandler
     )
     {
         List<Address> avatarAddresses = [];
-        if (Regex.IsMatch(actionType, "buy_product[0-9]*$"))
+        if (Regex.IsMatch(actionType, "^buy_product[0-9]*$"))
         {
             var serialized = (List)actionValues["p"];
             var productInfos = serialized
@@ -44,20 +44,27 @@ public class ProductsHandler : BaseActionHandler
         {
             var productsStateAddress = ProductsState.DeriveAddress(avatarAddress);
             var productsState = await _stateGetter.GetProductsState(avatarAddress);
-            await SyncWrappedProductsStateAsync(productsStateAddress, productsState);
+            await SyncWrappedProductsStateAsync(avatarAddress, productsStateAddress, productsState);
         }
     }
 
-    public async Task SyncWrappedProductsStateAsync(Address address, ProductsState productsState)
+    public async Task SyncWrappedProductsStateAsync(
+        Address avatarAddress,
+        Address productsStateAddress,
+        ProductsState productsState
+    )
     {
         var productIds = productsState.ProductIds.Select(id => Guid.Parse(id.ToString())).ToList();
 
-        var existingState = await _store.GetProductsStateByAddress(address);
+        var existingState = await _store.GetProductsStateByAddress(productsStateAddress);
         List<Guid> existingProductIds;
         if (existingState == null)
         {
             await _store.UpsertStateDataAsync(
-                new StateData(address, new WrappedProductsState(address, productsState))
+                new StateData(
+                    productsStateAddress,
+                    new WrappedProductsState(productsStateAddress, avatarAddress, productsState)
+                )
             );
             existingProductIds = new();
         }
@@ -78,7 +85,7 @@ public class ProductsHandler : BaseActionHandler
             var productAddress = Product.DeriveAddress(productId);
             var stateData = new StateData(
                 productAddress,
-                new ProductState(productAddress, address, product)
+                new ProductState(productAddress, avatarAddress, productsStateAddress, product)
             );
             await _store.UpsertStateDataAsync(stateData);
         }

@@ -8,9 +8,12 @@ public class WrappedProductsState : State
 {
     public ProductsState Object;
 
-    public WrappedProductsState(Address address, ProductsState productsState)
+    public Address AvatarAddress;
+
+    public WrappedProductsState(Address address, Address avatarAddress, ProductsState productsState)
         : base(address)
     {
         Object = productsState;
+        AvatarAddress = avatarAddress;
     }
 }
