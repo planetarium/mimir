@@ -75,16 +75,14 @@ public class AgentType : ObjectType<AgentObject>
             return null;
         }
 
-        var planetName = context.ScopedContextData.TryGetValue("planetName", out var pn)
-            ? (PlanetName?)pn
-            : null;
-        if (planetName is null)
+        if (!context.ScopedContextData.TryGetValue("planetName", out var pn) ||
+            pn is not PlanetName planetName)
         {
             return null;
         }
 
         var agentAddress = context.Parent<AgentObject>().Address;
-        return (agentRepo, planetName.Value, agentAddress);
+        return (agentRepo, planetName, agentAddress);
     }
 
     private static Agent? GetAgent(IResolverContext context)

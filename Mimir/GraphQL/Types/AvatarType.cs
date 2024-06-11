@@ -95,16 +95,14 @@ public class AvatarType : ObjectType<AvatarObject>
             return null;
         }
 
-        var planetName = context.ScopedContextData.TryGetValue("planetName", out var pn)
-            ? (PlanetName?)pn
-            : null;
-        if (planetName is null)
+        if (!context.ScopedContextData.TryGetValue("planetName", out var pn) ||
+            pn is not PlanetName planetName)
         {
             return null;
         }
 
         var avatarAddress = context.Parent<AvatarObject>().Address;
-        return (avatarRepo, allRuneRepo, inventoryRepo, planetName.Value, avatarAddress);
+        return (avatarRepo, allRuneRepo, inventoryRepo, planetName, avatarAddress);
     }
 
     private static Avatar? GetAvatar(IResolverContext context)
