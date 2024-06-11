@@ -13,7 +13,7 @@ public class PatchTableHandler : BaseActionHandler
     public PatchTableHandler(IStateService stateService, MongoDbService store)
         : base(stateService, store, "^patch_table_sheet[0-9]*$") { }
 
-    public override async Task HandleAction(long processBlockIndex, Dictionary actionValues)
+    public override async Task HandleAction(string actionType, long processBlockIndex, Dictionary actionValues)
     {
         var sheetTypes = typeof(ISheet)
             .Assembly.GetTypes()

@@ -9,7 +9,7 @@ public class BattleArenaHandler : BaseActionHandler
     public BattleArenaHandler(IStateService stateService, MongoDbService store)
         : base(stateService, store, "^battle_arena[0-9]*$") { }
 
-    public override async Task HandleAction(long processBlockIndex, Dictionary actionValues)
+    public override async Task HandleAction(string actionType, long processBlockIndex, Dictionary actionValues)
     {
         var myAvatarAddress = new Address(actionValues["maa"]);
         var enemyAvatarAddress = new Address(actionValues["eaa"]);

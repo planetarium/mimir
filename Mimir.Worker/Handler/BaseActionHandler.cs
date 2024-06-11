@@ -27,5 +27,5 @@ public abstract class BaseActionHandler
         ActionRegex = actionRegex;
     }
 
-    public abstract Task HandleAction(long processBlockIndex, Dictionary actionValues);
+    public abstract Task HandleAction(string actionType, long processBlockIndex, Dictionary actionValues);
 }

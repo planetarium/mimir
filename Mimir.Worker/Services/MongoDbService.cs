@@ -90,21 +90,26 @@ public class MongoDbService
         return doc.GetValue("LatestBlockIndex").AsInt64;
     }
 
-    public async Task<BsonDocument> FindProductByAddressAndProductId(
-        Address address,
-        Guid productId
-    )
+    public async Task<BsonDocument> GetProductsStateByAddress(Address address)
     {
-        var filter = new BsonDocument
-        {
-            { "Address", address.ToHex() },
-            { "State.Object.ProductIds", productId.ToString() }
-        };
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
+        var existingState = await GetCollection(
+                CollectionNames.GetCollectionName<WrappedProductsState>()
+            )
+            .Find(filter)
+            .FirstOrDefaultAsync();
 
-        var collectionName = CollectionNames.GetCollectionName<ProductState>();
-        var productCollection = GetCollection(collectionName);
+        return existingState;
+    }
 
-        return await productCollection.Find(filter).FirstOrDefaultAsync();
+    public async Task RemoveProduct(Guid productId)
+    {
+        var productFilter = Builders<BsonDocument>.Filter.Eq(
+            "State.Object.TradableItem.TradableId",
+            productId.ToString()
+        );
+        await GetCollection(CollectionNames.GetCollectionName<ProductState>())
+            .DeleteOneAsync(productFilter);
     }
 
     public async Task UpsertStateDataAsyncWithLinkAvatar(
