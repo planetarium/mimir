@@ -1,6 +1,5 @@
 using Libplanet.Crypto;
 using Mimir.Models.Agent;
-using Mimir.Models.Avatar;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -16,7 +15,7 @@ public class AvatarRepository : BaseRepository<BsonDocument>
 
     protected override string GetCollectionName()
     {
-        return "avatars";
+        return "avatar";
     }
     
     public Avatar? GetAvatar(string network, Address avatarAddress)
@@ -31,14 +30,14 @@ public class AvatarRepository : BaseRepository<BsonDocument>
 
         try
         {
-            var avatarDoc = document["Avatar"];
+            var avatarDoc = document["State"];
             return new Avatar(
-                document["State"]["Object"]["agentAddress"].AsString,
-                document["State"]["Object"]["address"].AsString,
-                document["State"]["Object"]["name"].AsString,
-                document["State"]["Object"]["level"].AsInt32,
-                document["State"]["Object"]["actionPoint"].AsInt32,
-                document["State"]["Object"]["dailyRewardReceivedIndex"].ToInt64()
+                avatarDoc["agentAddress"].AsString,
+                avatarDoc["address"].AsString,
+                avatarDoc["name"].AsString,
+                avatarDoc["level"].AsInt32,
+                avatarDoc["actionPoint"].AsInt32,
+                avatarDoc["dailyRewardReceivedIndex"].ToInt64()
             );
         }
         catch (KeyNotFoundException)
