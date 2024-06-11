@@ -9,16 +9,16 @@ public class BattleArenaHandler : BaseActionHandler
     public BattleArenaHandler(IStateService stateService, MongoDbService store)
         : base(stateService, store, "^battle_arena[0-9]*$") { }
 
-    protected override async Task HandleAction(long processBlockIndex, Dictionary actionValues)
+    public override async Task HandleAction(long processBlockIndex, Dictionary actionValues)
     {
         var myAvatarAddress = new Address(actionValues["maa"]);
         var enemyAvatarAddress = new Address(actionValues["eaa"]);
 
         var roundData = await _stateGetter.GetArenaRoundData(processBlockIndex);
-        var myArenaScore = await _stateGetter.GetArenaScore(roundData, myAvatarAddress);
-        var myArenaInfo = await _stateGetter.GetArenaInfo(roundData, myAvatarAddress);
-        var enemyArenaScore = await _stateGetter.GetArenaScore(roundData, enemyAvatarAddress);
-        var enemyArenaInfo = await _stateGetter.GetArenaInfo(roundData, enemyAvatarAddress);
+        var myArenaScore = await _stateGetter.GetArenaScoreState(myAvatarAddress, roundData.ChampionshipId, roundData.Round);
+        var myArenaInfo = await _stateGetter.GetArenaInfoState(myAvatarAddress, roundData.ChampionshipId, roundData.Round);
+        var enemyArenaScore = await _stateGetter.GetArenaScoreState(enemyAvatarAddress, roundData.ChampionshipId, roundData.Round);
+        var enemyArenaInfo = await _stateGetter.GetArenaInfoState(enemyAvatarAddress, roundData.ChampionshipId, roundData.Round);
 
         await _store.UpsertStateDataAsyncWithLinkAvatar(
             new StateData(
