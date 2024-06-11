@@ -36,21 +36,31 @@ public class MongoDbService
         _logger = logger;
         _gridFs = new GridFSBucket(_database);
 
-        InitStateCollections();
+        _stateCollectionMappings = InitStateCollections();
     }
 
-    private void InitStateCollections()
+    private Dictionary<string, IMongoCollection<BsonDocument>> InitStateCollections()
     {
+        var mappings = new Dictionary<string, IMongoCollection<BsonDocument>>();
+
         foreach (var (_, name) in CollectionNames.CollectionMappings)
         {
-            IMongoCollection<BsonDocument> Collection = _database.GetCollection<BsonDocument>(name);
-            _stateCollectionMappings.Add(name, Collection);
+            mappings[name] = _database.GetCollection<BsonDocument>(name);
         }
+
+        return mappings;
     }
 
-    public IMongoCollection<BsonDocument> GetStateCollection(string collectionName)
+    private IMongoCollection<BsonDocument> GetCollection(string collectionName)
     {
-        return _stateCollectionMappings[collectionName];
+        if (!_stateCollectionMappings.TryGetValue(collectionName, out var collection))
+        {
+            throw new InvalidOperationException(
+                $"No collection mapping found for name: {collectionName}"
+            );
+        }
+
+        return collection;
     }
 
     public async Task UpdateLatestBlockIndex(long blockIndex, string pollerType)
@@ -80,83 +90,69 @@ public class MongoDbService
         return doc.GetValue("LatestBlockIndex").AsInt64;
     }
 
+    public async Task<BsonDocument> FindProductByAddressAndProductId(
+        Address address,
+        Guid productId
+    )
+    {
+        var filter = new BsonDocument
+        {
+            { "Address", address.ToHex() },
+            { "State.Object.ProductIds", productId.ToString() }
+        };
+
+        var collectionName = CollectionNames.GetCollectionName<ProductState>();
+        var productCollection = GetCollection(collectionName);
+
+        return await productCollection.Find(filter).FirstOrDefaultAsync();
+    }
+
     public async Task UpsertStateDataAsyncWithLinkAvatar(
         StateData stateData,
         Address? avatarAddress = null
     )
     {
-        if (
-            CollectionNames.CollectionMappings.TryGetValue(
-                stateData.State.GetType(),
-                out var collectionName
-            )
-        )
-        {
-            var upsertResult = await UpsertStateDataAsync(stateData, collectionName);
+        var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
+        var upsertResult = await UpsertStateDataAsync(stateData, collectionName);
 
+        if (upsertResult != null && upsertResult.IsAcknowledged && upsertResult.UpsertedId != null)
+        {
+            var stateDataObjectId = upsertResult.UpsertedId;
+
+            var avatarCollectionName = CollectionNames.GetCollectionName<AvatarState>();
+            var avatarCollection = GetCollection(avatarCollectionName);
+
+            var address = avatarAddress?.ToHex() ?? stateData.Address.ToHex();
+            var avatarFilter = Builders<BsonDocument>.Filter.Eq("Address", address);
+
+            var avatarDocument = await avatarCollection.Find(avatarFilter).FirstOrDefaultAsync();
             if (
-                upsertResult != null
-                && upsertResult.IsAcknowledged
-                && upsertResult.UpsertedId != null
+                avatarDocument != null
+                && avatarDocument.Contains($"{collectionName.ToPascalCase()}ObjectId")
             )
             {
-                var stateDataObjectId = upsertResult.UpsertedId;
-
-                if (
-                    CollectionNames.CollectionMappings.TryGetValue(
-                        typeof(AvatarState),
-                        out var avatarCollectionName
-                    )
-                )
-                {
-                    var avatarCollection = GetStateCollection(avatarCollectionName);
-
-                    var address = avatarAddress?.ToHex() ?? stateData.Address.ToHex();
-                    var avatarFilter = Builders<BsonDocument>.Filter.Eq("Address", address);
-
-                    var avatarDocument = await avatarCollection
-                        .Find(avatarFilter)
-                        .FirstOrDefaultAsync();
-                    if (
-                        avatarDocument != null
-                        && avatarDocument.Contains($"{collectionName.ToPascalCase()}ObjectId")
-                    )
-                    {
-                        return;
-                    }
-
-                    var update = Builders<BsonDocument>.Update.Set(
-                        $"{collectionName.ToPascalCase()}ObjectId",
-                        stateDataObjectId
-                    );
-
-                    await avatarCollection.UpdateOneAsync(avatarFilter, update);
-                    _logger.LogInformation(
-                        $"Avatar updated with {collectionName.ToPascalCase()}ObjectId."
-                    );
-                }
+                return;
             }
+
+            var update = Builders<BsonDocument>.Update.Set(
+                $"{collectionName.ToPascalCase()}ObjectId",
+                stateDataObjectId
+            );
+            await avatarCollection.UpdateOneAsync(avatarFilter, update);
+            _logger.LogInformation($"Avatar updated with {collectionName.ToPascalCase()}ObjectId.");
         }
     }
 
     public async Task<UpdateResult> UpsertStateDataAsync(StateData stateData)
     {
-        if (
-            CollectionNames.CollectionMappings.TryGetValue(
-                stateData.State.GetType(),
-                out var collectionName
-            )
-        )
-        {
-            return await UpsertStateDataAsync(stateData, collectionName);
-        }
-
-        throw new InvalidOperationException(
-            $"No collection mapping found for state type: {stateData.State.GetType().Name}"
-        );
+        var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
+        return await UpsertStateDataAsync(stateData, collectionName);
     }
 
-    public async Task<UpdateResult> UpsertStateDataAsync(StateData stateData, string collectionName)
+    private async Task<UpdateResult> UpsertStateDataAsync(
+        StateData stateData,
+        string collectionName
+    )
     {
         try
         {
@@ -164,7 +160,7 @@ public class MongoDbService
             var bsonDocument = BsonDocument.Parse(stateData.ToJson());
             var update = new BsonDocument("$set", bsonDocument);
 
-            var result = await GetStateCollection(collectionName)
+            var result = await GetCollection(collectionName)
                 .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
 
             _logger.LogInformation(
@@ -174,7 +170,7 @@ public class MongoDbService
         }
         catch (Exception ex)
         {
-            _logger.LogError($"An error occurred during UpsertAvatarDataAsync: {ex.Message}");
+            _logger.LogError($"An error occurred during UpsertStateDataAsync: {ex.Message}");
             throw;
         }
     }
@@ -190,29 +186,16 @@ public class MongoDbService
         );
 
         var document = BsonDocument.Parse(stateData.ToJson());
-
         document.Remove("SheetCsv");
         document.Add("SheetCsvFileId", sheetCsvId);
 
-        if (
-            CollectionNames.CollectionMappings.TryGetValue(
-                typeof(SheetState),
-                out var tableSheetCollectionName
-            )
-        )
-        {
-            var tableSheetCollection = GetStateCollection(tableSheetCollectionName);
-            await tableSheetCollection.ReplaceOneAsync(
-                filter,
-                document,
-                new ReplaceOptions { IsUpsert = true }
-            );
-        }
-        else
-        {
-            throw new InvalidOperationException(
-                $"No collection mapping found for state type: {stateData.State.GetType().Name}"
-            );
-        }
+        var tableSheetCollectionName = CollectionNames.GetCollectionName<SheetState>();
+        var tableSheetCollection = GetCollection(tableSheetCollectionName);
+
+        await tableSheetCollection.ReplaceOneAsync(
+            filter,
+            document,
+            new ReplaceOptions { IsUpsert = true }
+        );
     }
 }
