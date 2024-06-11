@@ -11,7 +11,6 @@ public static class AddressHandlerMappings
 
     static AddressHandlerMappings()
     {
-        HandlerMappings.Add(ReservedAddresses.LegacyAccount, new LegacyAccountHandler());
         HandlerMappings.Add(Addresses.Agent, new AgentStateHandler());
         HandlerMappings.Add(Addresses.Avatar, new AvatarStateHandler());
         HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());

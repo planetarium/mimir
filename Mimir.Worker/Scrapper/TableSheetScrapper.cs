@@ -10,16 +10,10 @@ using Nekoyume.TableData;
 
 namespace Mimir.Worker.Scrapper;
 
-public class TableSheetScrapper(
-    ILogger<TableSheetScrapper> logger,
-    IStateService service,
-    MongoDbStore store
-)
+public class TableSheetScrapper(IStateService service, MongoDbService store)
 {
-    private readonly ILogger<TableSheetScrapper> _logger = logger;
-
     private readonly IStateService _stateService = service;
-    private readonly MongoDbStore _store = store;
+    private readonly MongoDbService _store = store;
 
     public async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -42,7 +36,10 @@ public class TableSheetScrapper(
                 continue;
             }
 
-            if (sheetType == typeof(WorldBossKillRewardSheet) || sheetType == typeof(WorldBossBattleRewardSheet))
+            if (
+                sheetType == typeof(WorldBossKillRewardSheet)
+                || sheetType == typeof(WorldBossBattleRewardSheet)
+            )
             {
                 // Handle later;
                 continue;
@@ -63,15 +60,11 @@ public class TableSheetScrapper(
 
             sheet.Set(sheetValue.Value);
 
-            var sheetData = new TableSheetData(
+            var stateData = new StateData(
                 sheetAddress,
-                sheetType.Name,
-                sheet,
-                sheetState.ToDotnetString(),
-                ByteUtil.Hex(new Codec().Encode(sheetState))
+                new SheetState(sheetAddress, sheet, sheetType.Name)
             );
-            
-            await _store.InsertTableSheets(sheetData);
+            await _store.UpsertTableSheets(stateData, sheetState.ToDotnetString());
         }
     }
 }

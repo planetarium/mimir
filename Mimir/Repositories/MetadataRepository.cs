@@ -16,9 +16,9 @@ public class MetadataRepository : BaseRepository<BsonDocument>
         return "metadata";
     }
 
-    public async Task<long> GetLatestBlockIndex(string network)
+    public async Task<long> GetLatestBlockIndex(string network, string pollerType)
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", "SyncContext");
+        var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
         var doc = await GetCollection(network).FindSync(filter).FirstAsync();
         return doc.GetValue("LatestBlockIndex").AsInt64;
     }

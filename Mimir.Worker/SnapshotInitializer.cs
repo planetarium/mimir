@@ -20,13 +20,13 @@ namespace Mimir.Worker;
 
 public class SnapshotInitializer
 {
-    private readonly DiffMongoDbService _store;
+    private readonly MongoDbService _store;
     private readonly ILogger<SnapshotInitializer> _logger;
     private readonly string _chainStorePath;
 
     public SnapshotInitializer(
         ILogger<SnapshotInitializer> logger,
-        DiffMongoDbService store,
+        MongoDbService store,
         string chainStorePath
     )
     {
@@ -60,7 +60,7 @@ public class SnapshotInitializer
             }
         }
 
-        await _store.UpdateLatestBlockIndex(blockChain.Tip.Index);
+        await _store.UpdateLatestBlockIndex(blockChain.Tip.Index, "SyncContext");
 
         _logger.LogInformation(
             "Finished SnapshotInitializer. Elapsed {TotalElapsedMinutes} minutes",

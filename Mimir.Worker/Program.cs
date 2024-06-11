@@ -5,6 +5,7 @@ using HeadlessGQL;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mimir.Worker;
+using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -52,32 +53,28 @@ builder
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbStore>>();
-    return new MongoDbStore(logger, config.MongoDbConnectionString, config.DatabaseName);
-});
-builder.Services.AddSingleton(serviceProvider =>
-{
-    var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<DiffMongoDbService>>();
-    return new DiffMongoDbService(
+    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbService>>();
+    return new MongoDbService(
         logger,
         config.MongoDbConnectionString,
-        config.DatabaseName + "_diff_test"
+        config.DatabaseName
     );
 });
 builder.Services.AddHostedService(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     var logger = serviceProvider.GetRequiredService<ILogger<Worker>>();
-    var blockPollerLogger = serviceProvider.GetRequiredService<ILogger<DiffBlockPoller>>();
+    var blockPollerLogger = serviceProvider.GetRequiredService<ILogger<BlockPoller>>();
+    var diffBlockPollerLogger = serviceProvider.GetRequiredService<ILogger<DiffBlockPoller>>();
     var initializerLogger = serviceProvider.GetRequiredService<ILogger<SnapshotInitializer>>();
     var headlessGqlClient = serviceProvider.GetRequiredService<HeadlessGQLClient>();
     var stateService = serviceProvider.GetRequiredService<IStateService>();
-    var store = serviceProvider.GetRequiredService<DiffMongoDbService>();
+    var store = serviceProvider.GetRequiredService<MongoDbService>();
 
     return new Worker(
         logger,
         blockPollerLogger,
+        diffBlockPollerLogger,
         initializerLogger,
         headlessGqlClient,
         stateService,
@@ -86,7 +83,6 @@ builder.Services.AddHostedService(serviceProvider =>
         config.EnableInitializing
     );
 });
-builder.Services.AddHostedService<Initializer>();
 
 var host = builder.Build();
 host.Run();

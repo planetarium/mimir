@@ -6,19 +6,19 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class AvatarRepository : BaseRepository<BsonDocument>
+public class InventoryRepository : BaseRepository<BsonDocument>
 {
-    public AvatarRepository(MongoDBCollectionService mongoDBCollectionService)
+    public InventoryRepository(MongoDBCollectionService mongoDBCollectionService)
         : base(mongoDBCollectionService)
     {
     }
 
     protected override string GetCollectionName()
     {
-        return "avatar";
+        return "inventory";
     }
-    
-    public Avatar? GetAvatar(string network, Address avatarAddress)
+
+    public Inventory? GetInventory(string network, Address avatarAddress)
     {
         var collection = GetCollection(network);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
@@ -30,15 +30,7 @@ public class AvatarRepository : BaseRepository<BsonDocument>
 
         try
         {
-            var avatarDoc = document["State"];
-            return new Avatar(
-                avatarDoc["agentAddress"].AsString,
-                avatarDoc["address"].AsString,
-                avatarDoc["name"].AsString,
-                avatarDoc["level"].AsInt32,
-                avatarDoc["actionPoint"].AsInt32,
-                avatarDoc["dailyRewardReceivedIndex"].ToInt64()
-            );
+            return new Inventory(document["State"]["Object"].AsBsonDocument);
         }
         catch (KeyNotFoundException)
         {

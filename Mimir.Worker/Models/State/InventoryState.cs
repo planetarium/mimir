@@ -6,11 +6,11 @@ namespace Mimir.Worker.Models;
 
 public class InventoryState : State
 {
-    public Inventory Inventory;
+    public Inventory Object;
 
     public InventoryState(Address address, Inventory inventory)
         : base(address)
     {
-        Inventory = inventory;
+        Object = inventory;
     }
 }

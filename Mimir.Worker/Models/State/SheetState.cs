@@ -6,11 +6,14 @@ namespace Mimir.Worker.Models;
 
 public class SheetState : State
 {
-    public ISheet Sheet;
+    public ISheet Object;
 
-    public SheetState(Address address, ISheet sheet)
+    public string Name { get; }
+
+    public SheetState(Address address, ISheet sheet, string name)
         : base(address)
     {
-        Sheet = sheet;
+        Object = sheet;
+        Name = name;
     }
 }

@@ -1,14 +1,17 @@
 using HeadlessGQL;
+using Mimir.Worker.Poller;
+using Mimir.Worker.Scrapper;
 using Mimir.Worker.Services;
 
 namespace Mimir.Worker;
 
 public class Worker : BackgroundService
 {
-    private readonly DiffMongoDbService _store;
+    private readonly MongoDbService _store;
     private readonly ILogger<Worker> _logger;
     private readonly ILogger<SnapshotInitializer> _initializerLogger;
-    private readonly ILogger<DiffBlockPoller> _blockPollerLogger;
+    private readonly ILogger<BlockPoller> _blockPollerLogger;
+    private readonly ILogger<DiffBlockPoller> _diffBlockPollerLogger;
     private readonly IStateService _stateService;
     private readonly HeadlessGQLClient _headlessGqlClient;
     private readonly string _snapshotPath;
@@ -16,11 +19,12 @@ public class Worker : BackgroundService
 
     public Worker(
         ILogger<Worker> logger,
-        ILogger<DiffBlockPoller> blockPollerLogger,
+        ILogger<BlockPoller> blockPollerLogger,
+        ILogger<DiffBlockPoller> diffBlockPollerLogger,
         ILogger<SnapshotInitializer> initializerLogger,
         HeadlessGQLClient headlessGqlClient,
         IStateService stateService,
-        DiffMongoDbService store,
+        MongoDbService store,
         string snapshotPath,
         bool enableInitializing
     )
@@ -28,6 +32,7 @@ public class Worker : BackgroundService
         _logger = logger;
         _initializerLogger = initializerLogger;
         _blockPollerLogger = blockPollerLogger;
+        _diffBlockPollerLogger = diffBlockPollerLogger;
         _stateService = stateService;
         _store = store;
         _headlessGqlClient = headlessGqlClient;
@@ -38,51 +43,33 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var started = DateTime.UtcNow;
-        var poller = new DiffBlockPoller(
-            _blockPollerLogger,
-            _headlessGqlClient,
+        var diffPoller = new DiffBlockPoller(
+            _diffBlockPollerLogger,
             _stateService,
+            _headlessGqlClient,
+            _store
+        );
+        var blockPoller = new BlockPoller(
+            _blockPollerLogger,
+            _stateService,
+            _headlessGqlClient,
             _store
         );
 
-        if (_enableInitializing && !await IsInitialized())
+        if (_enableInitializing)
         {
             var initializer = new SnapshotInitializer(_initializerLogger, _store, _snapshotPath);
             await initializer.RunAsync(stoppingToken);
         }
-        await poller.RunAsync(stoppingToken);
+
+        var sheetScrapper = new TableSheetScrapper(_stateService, _store);
+
+        await sheetScrapper.ExecuteAsync(stoppingToken);
+        await Task.WhenAll(diffPoller.RunAsync(stoppingToken), blockPoller.RunAsync(stoppingToken));
 
         _logger.LogInformation(
             "Finished Worker background service. Elapsed {TotalElapsedMinutes} minutes",
             DateTime.UtcNow.Subtract(started).Minutes
         );
-    }
-
-    private async Task<bool> IsInitialized()
-    {
-        try
-        {
-            var syncedBlockIndex = await _store.GetLatestBlockIndex();
-            var currentBlockIndex = await _stateService.GetLatestIndex();
-            long tipDifference = currentBlockIndex - syncedBlockIndex;
-
-            _logger.LogInformation(
-                $"Current block index: {currentBlockIndex}, Synced block index: {syncedBlockIndex}"
-            );
-
-            if (tipDifference > 10000)
-            {
-                _logger.LogInformation("Tip interval is greater than 10000, initialize required");
-                return false;
-            }
-
-            _logger.LogInformation("Initialized");
-            return true;
-        }
-        catch (System.InvalidOperationException)
-        {
-            _logger.LogError("Failed to get block indexes from db");
-            return false;
-        }
     }
 }

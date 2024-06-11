@@ -7,6 +7,7 @@ using Nekoyume.TableData;
 using Mimir.Services;
 using Mimir.Util;
 using Nekoyume.Helper;
+using Nekoyume.Model.State;
 using Nekoyume.TableData.Rune;
 
 namespace Mimir.Repositories;
@@ -23,9 +24,9 @@ public class CpRepository
     public async Task<int?> CalculateCp(
         Avatar avatar,
         int characterId,
-        IEnumerable<string> equipmentIds,
-        IEnumerable<string> costumeIds,
-        IEnumerable<(int id, int level)> runeOption
+        IEnumerable<Guid> equipmentIds,
+        IEnumerable<Guid> costumeIds,
+        IEnumerable<RuneState> runeOption
     )
     {
         try
@@ -44,7 +45,7 @@ public class CpRepository
             List<Costume> costumes = inventoryState
                 .Costumes
                 .Where(x => x.Equipped).ToList();
-            List<RuneOptionSheet.Row.RuneOptionInfo> runes = runeOption.Select(x => GetRuneOptionInfo(x.id, x.level).Result).ToList();
+            List<RuneOptionSheet.Row.RuneOptionInfo> runes = runeOption.Select(x => GetRuneOptionInfo(x.RuneId, x.Level).Result).ToList();
             var collectionStates = await _stateGetter.GetCollectionStatesAsync([avatarAddress]);
             var modifiers = new Dictionary<Address, List<StatModifier>>
             {

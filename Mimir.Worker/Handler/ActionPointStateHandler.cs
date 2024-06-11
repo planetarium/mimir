@@ -26,7 +26,7 @@ public class ActionPointStateHandler : IStateHandler<StateData>
         return new ActionPointState(address, value);
     }
 
-    public async Task StoreStateData(DiffMongoDbService store, StateData stateData)
+    public async Task StoreStateData(MongoDbService store, StateData stateData)
     {
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
