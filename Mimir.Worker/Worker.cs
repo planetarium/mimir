@@ -71,7 +71,7 @@ public class Worker : BackgroundService
             await initializerManager.RunInitializersAsync(stoppingToken);
         }
 
-        await Task.WhenAll(blockPoller.RunAsync(stoppingToken));
+        await Task.WhenAll(diffPoller.RunAsync(stoppingToken), blockPoller.RunAsync(stoppingToken));
 
         _logger.LogInformation(
             "Finished Worker background service. Elapsed {TotalElapsedMinutes} minutes",
