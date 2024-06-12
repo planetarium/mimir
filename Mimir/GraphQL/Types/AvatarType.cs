@@ -4,9 +4,8 @@ using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
-using Mimir.Models.Agent;
+using Mimir.Models;
 using Mimir.Models.Assets;
-using Mimir.Models.Avatar;
 using Mimir.Repositories;
 
 namespace Mimir.GraphQL.Types;
@@ -96,20 +95,26 @@ public class AvatarType : ObjectType<AvatarObject>
             return null;
         }
 
-        var planetName = context.ScopedContextData.TryGetValue("planetName", out var pn)
-            ? (PlanetName?)pn
-            : null;
-        if (planetName is null)
+        if (!context.ScopedContextData.TryGetValue("planetName", out var pn) ||
+            pn is not PlanetName planetName)
         {
             return null;
         }
 
         var avatarAddress = context.Parent<AvatarObject>().Address;
-        return (avatarRepo, allRuneRepo, inventoryRepo, planetName.Value, avatarAddress);
+        return (avatarRepo, allRuneRepo, inventoryRepo, planetName, avatarAddress);
     }
 
     private static Avatar? GetAvatar(IResolverContext context)
     {
+        var avatar = context.ScopedContextData.TryGetValue("avatar", out var a)
+            ? (Avatar?)a
+            : null;
+        if (avatar is not null)
+        {
+            return avatar;
+        }
+
         var tuple = GetSource(context);
         if (tuple is null)
         {
@@ -117,7 +122,7 @@ public class AvatarType : ObjectType<AvatarObject>
         }
 
         var (avatarRepo, _, _, planetName, avatarAddress) = tuple.Value;
-        var avatar = avatarRepo.GetAvatar(planetName.ToString(), avatarAddress);
+        avatar = avatarRepo.GetAvatar(planetName.ToString(), avatarAddress);
         if (avatar is null)
         {
             return null;
@@ -129,6 +134,14 @@ public class AvatarType : ObjectType<AvatarObject>
 
     private static Inventory? GetInventory(IResolverContext context)
     {
+        var inventory = context.ScopedContextData.TryGetValue("inventory", out var i)
+            ? (Inventory?)i
+            : null;
+        if (inventory is not null)
+        {
+            return inventory;
+        }
+
         var tuple = GetSource(context);
         if (tuple is null)
         {
@@ -136,7 +149,7 @@ public class AvatarType : ObjectType<AvatarObject>
         }
 
         var (_, _, inventoryRepo, planetName, avatarAddress) = tuple.Value;
-        var inventory = inventoryRepo.GetInventory(planetName.ToString(), avatarAddress);
+        inventory = inventoryRepo.GetInventory(planetName.ToString(), avatarAddress);
         if (inventory is null)
         {
             return null;
@@ -148,6 +161,14 @@ public class AvatarType : ObjectType<AvatarObject>
 
     private static List<Rune>? GetRunes(IResolverContext context)
     {
+        var runes = context.ScopedContextData.TryGetValue("runes", out var r)
+            ? (List<Rune>?)r
+            : null;
+        if (runes is not null)
+        {
+            return runes;
+        }
+
         var tuple = GetSource(context);
         if (tuple is null)
         {
@@ -155,7 +176,7 @@ public class AvatarType : ObjectType<AvatarObject>
         }
 
         var (_, allRuneRepo, _, planetName, avatarAddress) = tuple.Value;
-        var runes = allRuneRepo.GetRunes(planetName, avatarAddress);
+        runes = allRuneRepo.GetRunes(planetName, avatarAddress);
         if (runes is null)
         {
             return null;

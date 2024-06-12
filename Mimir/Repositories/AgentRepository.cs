@@ -1,16 +1,16 @@
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
-using Mimir.Models.Assets;
+using Mimir.Models;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService)
-    : DiffRepository(mongoDbCollectionService, "all_rune")
+public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
+    : DiffRepository(mongoDbCollectionService, "agent")
 {
-    public List<Rune>? GetRunes(PlanetName planetName, Address avatarAddress)
+    public Agent? GetAgent(PlanetName planetName, Address avatarAddress)
     {
         var collection = GetCollection(planetName);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
@@ -22,11 +22,8 @@ public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService
 
         try
         {
-            var runesDoc = document["State"]["Object"]["Runes"].AsBsonDocument;
-            return runesDoc
-                .Select(rune => rune.Value.AsBsonDocument)
-                .Select(runeValue => new Rune(runeValue))
-                .ToList();
+            var doc = document["State"]["Object"].AsBsonDocument;
+            return new Agent(doc);
         }
         catch (KeyNotFoundException)
         {

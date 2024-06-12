@@ -1,6 +1,6 @@
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
-using Mimir.Models.Avatar;
+using Mimir.Models;
 
 namespace Mimir.GraphQL.Types;
 

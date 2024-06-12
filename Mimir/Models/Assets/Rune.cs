@@ -8,14 +8,10 @@ public class Rune
     public int RuneSheetId { get; set; }
     public int Level { get; set; }
 
-    public Rune(RuneState runeState) : this(runeState.RuneId, runeState.Level)
+    public Rune(RuneState runeState)
     {
-    }
-
-    public Rune(int runeSheetId, int level)
-    {
-        RuneSheetId = runeSheetId;
-        Level = level;
+        RuneSheetId = runeState.RuneId;
+        Level = runeState.Level;
     }
 
     public Rune(BsonDocument rune)

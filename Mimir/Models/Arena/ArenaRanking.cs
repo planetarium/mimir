@@ -27,5 +27,5 @@ public class ArenaRanking(
     public int Score { get; set; } = score;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Agent.Avatar? Avatar { get; set; }
+    public Avatar? Avatar { get; set; }
 }
