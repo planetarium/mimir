@@ -22,6 +22,32 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(ArenaState), "arena");
             CollectionMappings.Add(typeof(AllRuneState), "all_rune");
             CollectionMappings.Add(typeof(CollectionState), "collection");
+            CollectionMappings.Add(typeof(WrappedProductsState), "products");
+            CollectionMappings.Add(typeof(ProductState), "product");
+        }
+
+        public static string GetCollectionName<T>()
+        {
+            if (!CollectionMappings.TryGetValue(typeof(T), out var collectionName))
+            {
+                throw new InvalidOperationException(
+                    $"No collection mapping found for state type: {typeof(T).Name}"
+                );
+            }
+
+            return collectionName;
+        }
+
+        public static string GetCollectionName(Type type)
+        {
+            if (!CollectionMappings.TryGetValue(type, out var collectionName))
+            {
+                throw new InvalidOperationException(
+                    $"No collection mapping found for state type: {type.Name}"
+                );
+            }
+
+            return collectionName;
         }
     }
 }

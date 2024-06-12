@@ -103,21 +103,11 @@ public class SnapshotInitializer
             if (currentAddress is string hex)
             {
                 var stateData = handler.ConvertToStateData(
-                    new()
-                    {
-                        Address = new Address(currentAddress),
-                        RawState = value,
-                    }
+                    new() { Address = new Address(currentAddress), RawState = value, }
                 );
-                if (
-                    CollectionNames.CollectionMappings.TryGetValue(
-                        stateData.State.GetType(),
-                        out var collectionName
-                    )
-                )
-                {
-                    await _store.UpsertStateDataAsync(stateData, collectionName);
-                }
+
+                var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
+                await _store.UpsertStateDataAsync(stateData);
 
                 _logger.LogInformation($"Address: {currentAddress}, address count: {addressCount}");
             }
