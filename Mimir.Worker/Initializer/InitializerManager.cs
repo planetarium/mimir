@@ -10,7 +10,8 @@ namespace Mimir.Worker.Initializer
         {
             _initializers = new List<BaseInitializer>
             {
-                new TableSheetInitializer(stateService, store)
+                new TableSheetInitializer(stateService, store),
+                new MarketInitializer(stateService, store)
             };
         }
 

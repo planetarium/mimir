@@ -192,6 +192,18 @@ public class StateGetter
         return product;
     }
 
+
+    public async Task<MarketState> GetMarketState()
+    {
+        var state = await _service.GetState(Addresses.Market);
+
+        return state switch
+        {
+            List list => new MarketState(list),
+            _ => throw new ArgumentException()
+        };
+    }
+
     public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
     {
         var state = await _service.GetState(address, accountAddress);
