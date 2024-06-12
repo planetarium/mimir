@@ -1,16 +1,22 @@
 using System.Text;
+using Bencodex;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using Nekoyume;
 using Nekoyume.Model.State;
+using Nekoyume.TableData;
 
 namespace Mimir.Worker.Services;
 
 public class MongoDbService
 {
+    private readonly Codec Codec = new();
+
     private readonly ILogger<MongoDbService> _logger;
 
     private readonly IMongoClient _client;
@@ -100,6 +106,28 @@ public class MongoDbService
             .FirstOrDefaultAsync();
 
         return existingState;
+    }
+
+    public async Task<T?> GetSheetAsync<T>()
+        where T : ISheet, new()
+    {
+        var address = Addresses.GetSheetAddress<T>();
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
+        var document = await GetCollection(CollectionNames.GetCollectionName<SheetState>())
+            .Find(filter)
+            .FirstOrDefaultAsync();
+
+        if (document is null)
+        {
+            return default;
+        }
+
+        var csv = await RetrieveFromGridFs(_gridFs, document["SheetCsvFileId"].AsObjectId);
+
+        var sheet = new T();
+        sheet.Set(csv);
+
+        return sheet;
     }
 
     public async Task RemoveProduct(Guid productId)
@@ -202,5 +230,11 @@ public class MongoDbService
             document,
             new ReplaceOptions { IsUpsert = true }
         );
+    }
+
+    private async Task<string> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)
+    {
+        var fileBytes = await gridFs.DownloadAsBytesAsync(fileId);
+        return Encoding.UTF8.GetString(fileBytes);
     }
 }

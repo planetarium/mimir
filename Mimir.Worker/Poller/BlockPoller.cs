@@ -31,7 +31,7 @@ public class BlockPoller : BaseBlockPoller
         {
             new BattleArenaHandler(stateService, store),
             new PatchTableHandler(stateService, store),
-            new RegisterProductHandler(stateService, store)
+            new ProductsHandler(stateService, store)
         };
         _handlers = handlers.ToDictionary(handler => handler.ActionRegex);
     }
@@ -89,6 +89,7 @@ public class BlockPoller : BaseBlockPoller
                     if (Regex.IsMatch(actionType, handler.ActionRegex))
                     {
                         await handler.HandleAction(
+                            actionType,
                             syncedBlockIndex + limit,
                             (Dictionary)actionValues
                         );

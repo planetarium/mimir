@@ -1,8 +1,9 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Mimir.Worker.Handler;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
+
+namespace Mimir.Worker.Handler;
 
 public class BattleArenaHandler : BaseActionHandler
 {
