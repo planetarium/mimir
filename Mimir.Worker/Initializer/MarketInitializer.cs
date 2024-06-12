@@ -25,7 +25,7 @@ public class MarketInitializer : BaseInitializer
         );
         var count = await collection.CountDocumentsAsync(new BsonDocument());
 
-        return count >= 0;
+        return count > 0;
     }
 
     public override async Task RunAsync(CancellationToken stoppingToken)
