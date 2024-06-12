@@ -6,10 +6,12 @@ public class Configuration
 
     public string SnapshotPath { get; init; }
 
+    public bool EnableSnapshotInitializing { get; init; } = false;
+
     public bool EnableInitializing { get; init; } = false;
 
     public string DatabaseName { get; set; }
-    
+
     public Uri HeadlessEndpoint { get; set; }
 
     public string Network { get; set; }

@@ -11,7 +11,7 @@ using Nekoyume.Model.Market;
 using Nekoyume.Model.State;
 using Nekoyume.TableData;
 
-namespace Mimir.Worker.Scrapper;
+namespace Mimir.Worker.Util;
 
 public class StateGetter
 {
@@ -190,6 +190,18 @@ public class StateGetter
 
         var product = ProductFactory.DeserializeProduct(list);
         return product;
+    }
+
+
+    public async Task<MarketState> GetMarketState()
+    {
+        var state = await _service.GetState(Addresses.Market);
+
+        return state switch
+        {
+            List list => new MarketState(list),
+            _ => throw new ArgumentException()
+        };
     }
 
     public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)

@@ -1,33 +1,22 @@
-using Bencodex;
 using Bencodex.Types;
-using Libplanet.Common;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
+using Mimir.Worker.Util;
+using MongoDB.Bson;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.Model.State;
 using Nekoyume.TableData;
 
-namespace Mimir.Worker.Scrapper;
+namespace Mimir.Worker.Initializer;
 
-public class TableSheetScrapper(IStateService service, MongoDbService store)
+public class TableSheetInitializer(IStateService service, MongoDbService store)
+    : BaseInitializer(service, store)
 {
-    private readonly IStateService _stateService = service;
-    private readonly MongoDbService _store = store;
-
-    public async Task ExecuteAsync(CancellationToken cancellationToken)
+    public override async Task RunAsync(CancellationToken stoppingToken)
     {
-        var latestBlockIndex = await service.GetLatestIndex();
-        var stateGetter = _stateService.At();
-
-        var sheetTypes = typeof(ISheet)
-            .Assembly.GetTypes()
-            .Where(type =>
-                type.Namespace is { } @namespace
-                && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
-                && !type.IsAbstract
-                && typeof(ISheet).IsAssignableFrom(type)
-            );
+        var sheetTypes = TableSheetUtil.GetTableSheetTypes();
 
         foreach (var sheetType in sheetTypes)
         {
@@ -66,5 +55,16 @@ public class TableSheetScrapper(IStateService service, MongoDbService store)
             );
             await _store.UpsertTableSheets(stateData, sheetState.ToDotnetString());
         }
+    }
+
+    public override async Task<bool> IsInitialized()
+    {
+        var sheetTypes = TableSheetUtil.GetTableSheetTypes();
+
+        var collection = _store.GetCollection(CollectionNames.GetCollectionName<SheetState>());
+        var count = await collection.CountDocumentsAsync(new BsonDocument());
+        var sheetTypesCount = sheetTypes.Count() - 4;
+
+        return count >= sheetTypesCount;
     }
 }

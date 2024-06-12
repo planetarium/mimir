@@ -1,22 +1,17 @@
 using Bencodex.Types;
-using HeadlessGQL;
 using Libplanet.Action.State;
 using Libplanet.Blockchain;
 using Libplanet.Common;
 using Libplanet.Crypto;
-using Libplanet.RocksDBStore;
 using Libplanet.Store;
 using Libplanet.Store.Trie;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Models;
-using Mimir.Worker.Scrapper;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
-using Nekoyume;
-using Nekoyume.Model.State;
 
-namespace Mimir.Worker;
+namespace Mimir.Worker.Initializer;
 
 public class SnapshotInitializer
 {

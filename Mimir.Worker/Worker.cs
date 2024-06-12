@@ -1,6 +1,6 @@
 using HeadlessGQL;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Poller;
-using Mimir.Worker.Scrapper;
 using Mimir.Worker.Services;
 
 namespace Mimir.Worker;
@@ -15,6 +15,7 @@ public class Worker : BackgroundService
     private readonly IStateService _stateService;
     private readonly HeadlessGQLClient _headlessGqlClient;
     private readonly string _snapshotPath;
+    private readonly bool _enableSnapshotInitializing;
     private readonly bool _enableInitializing;
 
     public Worker(
@@ -26,6 +27,7 @@ public class Worker : BackgroundService
         IStateService stateService,
         MongoDbService store,
         string snapshotPath,
+        bool enableSnapshotInitializing,
         bool enableInitializing
     )
     {
@@ -37,6 +39,7 @@ public class Worker : BackgroundService
         _store = store;
         _headlessGqlClient = headlessGqlClient;
         _snapshotPath = snapshotPath;
+        _enableSnapshotInitializing = enableSnapshotInitializing;
         _enableInitializing = enableInitializing;
     }
 
@@ -56,16 +59,19 @@ public class Worker : BackgroundService
             _store
         );
 
-        if (_enableInitializing)
+        if (_enableSnapshotInitializing)
         {
             var initializer = new SnapshotInitializer(_initializerLogger, _store, _snapshotPath);
             await initializer.RunAsync(stoppingToken);
         }
 
-        var sheetScrapper = new TableSheetScrapper(_stateService, _store);
+        if (_enableInitializing)
+        {
+            var initializerManager = new InitializerManager(_stateService, _store);
+            await initializerManager.RunInitializersAsync(stoppingToken);
+        }
 
-        await sheetScrapper.ExecuteAsync(stoppingToken);
-        await Task.WhenAll(diffPoller.RunAsync(stoppingToken), blockPoller.RunAsync(stoppingToken));
+        await Task.WhenAll(blockPoller.RunAsync(stoppingToken));
 
         _logger.LogInformation(
             "Finished Worker background service. Elapsed {TotalElapsedMinutes} minutes",

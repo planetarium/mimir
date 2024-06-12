@@ -77,6 +77,13 @@ public class ProductsHandler : BaseActionHandler
 
         await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd);
         await RemoveOldProductsAsync(productsToRemove);
+
+        await _store.UpsertStateDataAsync(
+            new StateData(
+                productsStateAddress,
+                new WrappedProductsState(productsStateAddress, avatarAddress, productsState)
+            )
+        );
     }
 
     private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)

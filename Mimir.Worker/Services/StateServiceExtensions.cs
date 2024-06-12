@@ -1,4 +1,4 @@
-using Mimir.Worker.Scrapper;
+using Mimir.Worker.Util;
 
 namespace Mimir.Worker.Services;
 
