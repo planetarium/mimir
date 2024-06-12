@@ -81,6 +81,7 @@ builder.Services.AddHostedService(serviceProvider =>
         stateService,
         store,
         config.SnapshotPath,
+        config.EnableSnapshotInitializing,
         config.EnableInitializing
     );
 });

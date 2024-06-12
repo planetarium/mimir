@@ -57,7 +57,7 @@ public class MongoDbService
         return mappings;
     }
 
-    private IMongoCollection<BsonDocument> GetCollection(string collectionName)
+    public IMongoCollection<BsonDocument> GetCollection(string collectionName)
     {
         if (!_stateCollectionMappings.TryGetValue(collectionName, out var collection))
         {
