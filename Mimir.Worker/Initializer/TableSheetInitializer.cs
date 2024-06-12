@@ -8,7 +8,7 @@ using Nekoyume.Action;
 using Nekoyume.Model.State;
 using Nekoyume.TableData;
 
-namespace Mimir.Worker.Scrapper;
+namespace Mimir.Worker.Initializer;
 
 public class TableSheetScrapper(IStateService service, MongoDbService store)
 {

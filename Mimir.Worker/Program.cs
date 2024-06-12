@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Mimir.Worker;
 using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
+using Mimir.Worker.Initializer;
 
 var builder = Host.CreateApplicationBuilder(args);
 

@@ -1,6 +1,5 @@
 using Bencodex.Types;
-using Mimir.Worker.Models;
-using Mimir.Worker.Scrapper;
+using Mimir.Worker.Util;
 using Mimir.Worker.Services;
 
 namespace Mimir.Worker.Handler;
