@@ -8,7 +8,7 @@ using MongoDB.Driver;
 namespace Mimir.Repositories;
 
 public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService)
-    : DiffRepository(mongoDbCollectionService, "all_rune")
+    : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
     public List<Rune>? GetRunes(PlanetName planetName, Address avatarAddress)
     {
@@ -33,4 +33,6 @@ public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService
             return null;
         }
     }
+
+    protected override string GetCollectionName() => "all_rune";
 }

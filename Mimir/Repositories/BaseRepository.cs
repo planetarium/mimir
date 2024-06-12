@@ -1,3 +1,4 @@
+using Lib9c.GraphQL.Enums;
 using Mimir.Services;
 using MongoDB.Driver;
 
@@ -49,6 +50,9 @@ public abstract class BaseRepository<T>
         throw new ArgumentException("Invalid network name", nameof(network));
     }
 
+    protected IMongoCollection<T> GetCollection(PlanetName planetName) =>
+        GetCollection(GetNetworkName(planetName));
+
     protected IMongoDatabase GetDatabase(string network)
     {
         network = network.ToLowerInvariant();
@@ -58,5 +62,18 @@ public abstract class BaseRepository<T>
         }
 
         throw new ArgumentException("Invalid network name", nameof(network));
+    }
+
+    protected IMongoDatabase GetDatabase(PlanetName planetName) =>
+        GetDatabase(GetNetworkName(planetName));
+
+    private string GetNetworkName(PlanetName planetName)
+    {
+        return planetName switch
+        {
+            PlanetName.Heimdall => "heimdall",
+            PlanetName.Odin => "odin",
+            _ => throw new ArgumentException("Invalid network name", nameof(planetName))
+        };
     }
 }

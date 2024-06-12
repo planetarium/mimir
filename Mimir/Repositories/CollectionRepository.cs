@@ -1,16 +1,16 @@
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
-using Mimir.Models;
+using Mimir.Models.Assets;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
+public class CollectionRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public Agent? GetAgent(PlanetName planetName, Address avatarAddress)
+    public Collection? GetCollection(PlanetName planetName, Address avatarAddress)
     {
         var collection = GetCollection(planetName);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
@@ -23,7 +23,7 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
         try
         {
             var doc = document["State"]["Object"].AsBsonDocument;
-            return new Agent(doc);
+            return new Collection(doc);
         }
         catch (KeyNotFoundException)
         {
@@ -31,5 +31,5 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
         }
     }
 
-    protected override string GetCollectionName() => "agent";
+    protected override string GetCollectionName() => "collection";
 }

@@ -33,6 +33,7 @@ builder.Services.AddSingleton<AgentRepository>();
 builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<InventoryRepository>();
 builder.Services.AddSingleton<AllRuneRepository>();
+builder.Services.AddSingleton<CollectionRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
