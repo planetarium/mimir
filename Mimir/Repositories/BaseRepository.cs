@@ -50,16 +50,8 @@ public abstract class BaseRepository<T>
         throw new ArgumentException("Invalid network name", nameof(network));
     }
 
-    protected IMongoCollection<T> GetCollection(PlanetName planetName)
-    {
-        var network = GetNetworkName(planetName);
-        if (_collections.TryGetValue(network, out var collection))
-        {
-            return collection;
-        }
-
-        throw new ArgumentException("Invalid network name", nameof(network));
-    }
+    protected IMongoCollection<T> GetCollection(PlanetName planetName) =>
+        GetCollection(GetNetworkName(planetName));
 
     protected IMongoDatabase GetDatabase(string network)
     {
@@ -71,6 +63,9 @@ public abstract class BaseRepository<T>
 
         throw new ArgumentException("Invalid network name", nameof(network));
     }
+
+    protected IMongoDatabase GetDatabase(PlanetName planetName) =>
+        GetDatabase(GetNetworkName(planetName));
 
     private string GetNetworkName(PlanetName planetName)
     {
