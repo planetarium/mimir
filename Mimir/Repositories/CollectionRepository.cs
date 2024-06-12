@@ -8,7 +8,7 @@ using MongoDB.Driver;
 namespace Mimir.Repositories;
 
 public class CollectionRepository(MongoDBCollectionService mongoDbCollectionService)
-    : DiffRepository(mongoDbCollectionService, "collection")
+    : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
     public Collection? GetCollection(PlanetName planetName, Address avatarAddress)
     {
@@ -30,4 +30,6 @@ public class CollectionRepository(MongoDBCollectionService mongoDbCollectionServ
             return null;
         }
     }
+
+    protected override string GetCollectionName() => "collection";
 }

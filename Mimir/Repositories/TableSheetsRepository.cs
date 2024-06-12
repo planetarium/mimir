@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text;
 using Mimir.Enums;
 using Mimir.Services;
@@ -6,7 +5,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using static Nekoyume.TableData.ArenaSheet;
 
 namespace Mimir.Repositories;
 

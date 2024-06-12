@@ -8,7 +8,7 @@ using MongoDB.Driver;
 namespace Mimir.Repositories;
 
 public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
-    : DiffRepository(mongoDbCollectionService, "agent")
+    : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
     public Agent? GetAgent(PlanetName planetName, Address avatarAddress)
     {
@@ -30,4 +30,6 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
             return null;
         }
     }
+
+    protected override string GetCollectionName() => "agent";
 }
