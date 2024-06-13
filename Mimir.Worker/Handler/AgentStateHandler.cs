@@ -17,9 +17,8 @@ public class AgentStateHandler : IStateHandler<StateData>
             List list => new Nekoyume.Model.State.AgentState(list),
             Dictionary dictionary => new Nekoyume.Model.State.AgentState(dictionary),
             _
-                => throw new ArgumentException(
-                    $"Invalid state type. Expected {nameof(List)} or {nameof(Dictionary)}, got {state.GetType().Name}.",
-                    nameof(state)
+                => throw new InvalidCastException(
+                    $"{nameof(state)} Invalid state type. Expected {nameof(List)} or {nameof(Dictionary)}, got {state.GetType().Name}."
                 ),
         };
 

@@ -17,9 +17,8 @@ public class ActionPointStateHandler : IStateHandler<StateData>
     {
         if (state is not Integer value)
         {
-            throw new ArgumentException(
-                $"Invalid state type. Expected {nameof(Integer)}, got {state.GetType().Name}.",
-                nameof(state)
+            throw new InvalidCastException(
+                $"{nameof(state)} Invalid state type. Expected {nameof(Integer)}, got {state.GetType().Name}."
             );
         }
 

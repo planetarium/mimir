@@ -23,7 +23,7 @@ public class InventoryStateHandler : IStateHandler<StateData>
         }
         else
         {
-            throw new ArgumentException("Invalid state type. Expected List.", nameof(state));
+            throw new InvalidCastException($"{nameof(state)} Invalid state type. Expected List.");
         }
     }
 

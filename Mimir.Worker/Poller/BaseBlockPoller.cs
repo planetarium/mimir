@@ -1,38 +1,39 @@
 using Mimir.Worker.Services;
+using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Poller;
 
 public abstract class BaseBlockPoller
 {
     protected readonly MongoDbService _store;
-    protected readonly ILogger _logger;
     protected readonly IStateService _stateService;
     protected readonly string _pollerType;
+    protected readonly ILogger _logger;
 
     protected BaseBlockPoller(
-        ILogger logger,
         IStateService stateService,
         MongoDbService store,
-        string pollerType
+        string pollerType,
+        ILogger logger
     )
     {
-        _logger = logger;
         _stateService = stateService;
         _store = store;
         _pollerType = pollerType;
+        _logger = logger;
     }
 
     public async Task RunAsync(CancellationToken stoppingToken)
     {
         var started = DateTime.UtcNow;
-        _logger.LogInformation("Start {PollerType} background service", GetType().Name);
+        _logger.Information("Start {PollerType} background service", GetType().Name);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             var currentBlockIndex = await _stateService.GetLatestIndex();
             var syncedBlockIndex = await GetSyncedBlockIndex(currentBlockIndex);
 
-            _logger.LogInformation(
+            _logger.Information(
                 "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
                 syncedBlockIndex,
                 currentBlockIndex
@@ -40,6 +41,7 @@ public abstract class BaseBlockPoller
 
             if (syncedBlockIndex >= currentBlockIndex)
             {
+                _logger.Information("Already synced, sleep");
                 await Task.Delay(TimeSpan.FromMilliseconds(7000), stoppingToken);
                 continue;
             }
@@ -47,8 +49,8 @@ public abstract class BaseBlockPoller
             await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
         }
 
-        _logger.LogInformation(
-            "Finished {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
+        _logger.Information(
+            "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
             GetType().Name,
             DateTime.UtcNow.Subtract(started).Minutes
         );
@@ -69,8 +71,8 @@ public abstract class BaseBlockPoller
         }
         catch (InvalidOperationException)
         {
-            _logger.LogInformation(
-                "Metadata collection not found, set block index to {BlockIndex} - 1",
+            _logger.Information(
+                "Metadata collection is not found, set block index to {BlockIndex} - 1",
                 currentBlockIndex
             );
             await _store.UpdateLatestBlockIndex(currentBlockIndex - 1, _pollerType);

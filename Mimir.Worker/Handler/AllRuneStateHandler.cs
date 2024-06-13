@@ -14,9 +14,8 @@ public class AllRuneStateHandler : IStateHandler<StateData>
     {
         if (state is not List value)
         {
-            throw new ArgumentException(
-                $"Invalid state type. Expected {nameof(List)}, got {state.GetType().Name}.",
-                nameof(state)
+            throw new InvalidCastException(
+                $"{nameof(state)} Invalid state type. Expected {nameof(List)}, got {state.GetType().Name}."
             );
         }
 

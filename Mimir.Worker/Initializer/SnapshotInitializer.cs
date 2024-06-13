@@ -10,24 +10,22 @@ using Mimir.Worker.Handler;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
+using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Initializer;
 
 public class SnapshotInitializer
 {
     private readonly MongoDbService _store;
-    private readonly ILogger<SnapshotInitializer> _logger;
+    private readonly ILogger _logger;
     private readonly string _chainStorePath;
 
-    public SnapshotInitializer(
-        ILogger<SnapshotInitializer> logger,
-        MongoDbService store,
-        string chainStorePath
-    )
+    public SnapshotInitializer(MongoDbService store, string chainStorePath)
     {
-        _logger = logger;
         _store = store;
         _chainStorePath = chainStorePath;
+        _logger = Log.ForContext<Worker>();
     }
 
     public async Task RunAsync(CancellationToken stoppingToken)
@@ -42,7 +40,6 @@ public class SnapshotInitializer
         {
             await ProcessByAccountAddress(
                 blockChain,
-                store,
                 stateStore,
                 address,
                 handler,
@@ -57,7 +54,10 @@ public class SnapshotInitializer
 
         await _store.UpdateLatestBlockIndex(blockChain.Tip.Index, "SyncContext");
 
-        _logger.LogInformation(
+        store.Dispose();
+        stateStore.Dispose();
+
+        _logger.Information(
             "Finished SnapshotInitializer. Elapsed {TotalElapsedMinutes} minutes",
             DateTime.UtcNow.Subtract(started).Minutes
         );
@@ -65,7 +65,6 @@ public class SnapshotInitializer
 
     private async Task ProcessByAccountAddress(
         BlockChain blockChain,
-        IStore store,
         IStateStore stateStore,
         Address accountAddress,
         IStateHandler<StateData> handler,
@@ -78,7 +77,7 @@ public class SnapshotInitializer
         IWorldState world = new WorldBaseState(worldTrie, stateStore);
         IAccountState account = world.GetAccountState(accountAddress);
         ITrie accountTrie = account.Trie;
-        _logger.LogInformation(
+        _logger.Information(
             "Iterating over trie with state root hash {StateRootHash}",
             accountTrie.Hash
         );
@@ -104,7 +103,7 @@ public class SnapshotInitializer
                 var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
                 await _store.UpsertStateDataAsync(stateData);
 
-                _logger.LogInformation($"Address: {currentAddress}, address count: {addressCount}");
+                _logger.Information($"Address: {currentAddress}, address count: {addressCount}");
             }
 
             if (stoppingToken.IsCancellationRequested)
@@ -113,9 +112,6 @@ public class SnapshotInitializer
             }
         }
 
-        _logger.LogInformation("Total address count: {AddressCount}", addressCount);
-
-        store.Dispose();
-        stateStore.Dispose();
+        _logger.Information("Total address count: {AddressCount}", addressCount);
     }
 }

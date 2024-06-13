@@ -9,6 +9,7 @@ using Nekoyume.Model.Item;
 using Nekoyume.Model.Market;
 using Nekoyume.TableData;
 using Nekoyume.TableData.Crystal;
+using Serilog;
 
 namespace Mimir.Worker.Handler;
 
@@ -18,7 +19,8 @@ public class ProductsHandler : BaseActionHandler
         : base(
             stateService,
             store,
-            "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$"
+            "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
+            Log.ForContext<ProductsHandler>()
         ) { }
 
     public override async Task HandleAction(
@@ -31,6 +33,11 @@ public class ProductsHandler : BaseActionHandler
 
         foreach (var avatarAddress in avatarAddresses)
         {
+            _logger.Information(
+                "Handle products for avatar, avatar: {AvatarAddress} ",
+                avatarAddress
+            );
+
             var productsStateAddress = ProductsState.DeriveAddress(avatarAddress);
             var productsState = await _stateGetter.GetProductsState(avatarAddress);
             await SyncWrappedProductsStateAsync(avatarAddress, productsStateAddress, productsState);
@@ -176,7 +183,7 @@ public class ProductsHandler : BaseActionHandler
         }
         catch (Exception ex)
         {
-            Serilog.Log.Error(
+            _logger.Error(
                 $"Error calculating combat point for itemProduct {itemProduct.ProductId}: {ex.Message}"
             );
         }
@@ -218,7 +225,7 @@ public class ProductsHandler : BaseActionHandler
         }
         catch (Exception ex)
         {
-            Serilog.Log.Error(
+            _logger.Error(
                 $"Error calculating crystal metrics for itemProduct {itemProduct.ProductId}: {ex.Message}"
             );
         }
