@@ -1,4 +1,3 @@
-using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Handler;
@@ -8,7 +7,6 @@ namespace Mimir.Worker.Tests.Handler;
 
 public class ActionPointStateHandlerTests
 {
-    private static readonly Codec Codec = new();
     private readonly ActionPointStateHandler _handler = new();
 
     [Theory]

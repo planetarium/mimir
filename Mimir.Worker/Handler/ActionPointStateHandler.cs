@@ -1,4 +1,3 @@
-using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
@@ -8,8 +7,6 @@ namespace Mimir.Worker.Handler;
 
 public class ActionPointStateHandler : IStateHandler<StateData>
 {
-    private readonly Codec _codec = new();
-
     public StateData ConvertToStateData(StateDiffContext context) =>
         new(context.Address, ConvertToState(context.Address, context.RawState));
 
