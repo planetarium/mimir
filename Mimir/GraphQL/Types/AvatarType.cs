@@ -4,6 +4,7 @@ using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
+using Mimir.GraphQL.Resolvers;
 using Mimir.Models;
 using Mimir.Models.Assets;
 using Mimir.Repositories;
@@ -50,6 +51,11 @@ public class AvatarType : ObjectType<AvatarObject>
             .Type<IntType>()
             .Resolve(context => GetAvatar(context)?.Level);
         descriptor
+            .Field("dailyRewardReceivedBlockIndex")
+            .Type<IntType>()
+            .ResolveWith<DailyRewardReceivedBlockIndexResolver>(r =>
+                DailyRewardReceivedBlockIndexResolver.Resolve(default!, default!));
+        descriptor
             .Field("inventory")
             .Type<InventoryType>()
             .Resolve(context => GetInventory(context) is null
@@ -94,6 +100,7 @@ public class AvatarType : ObjectType<AvatarObject>
         {
             return null;
         }
+
         var inventoryRepo = context.Services.GetService<InventoryRepository>();
         if (inventoryRepo is null)
         {
