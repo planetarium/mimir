@@ -6,18 +6,9 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class InventoryRepository : BaseRepository<BsonDocument>
+public class InventoryRepository(MongoDBCollectionService mongoDbCollectionService)
+    : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public InventoryRepository(MongoDBCollectionService mongoDBCollectionService)
-        : base(mongoDBCollectionService)
-    {
-    }
-
-    protected override string GetCollectionName()
-    {
-        return "inventory";
-    }
-
     public Inventory? GetInventory(string network, Address avatarAddress)
     {
         var collection = GetCollection(network);
@@ -37,4 +28,6 @@ public class InventoryRepository : BaseRepository<BsonDocument>
             return null;
         }
     }
+
+    protected override string GetCollectionName() => "inventory";
 }
