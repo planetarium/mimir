@@ -1,4 +1,5 @@
 using Mimir.Worker.Services;
+using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Initializer;
 
@@ -8,10 +9,13 @@ public abstract class BaseInitializer
 
     protected MongoDbService _store;
 
-    protected BaseInitializer(IStateService stateService, MongoDbService store)
+    protected readonly ILogger _logger;
+
+    protected BaseInitializer(IStateService stateService, MongoDbService store, ILogger logger)
     {
         _stateService = stateService;
         _store = store;
+        _logger = logger;
     }
 
     public abstract Task RunAsync(CancellationToken stoppingToken);

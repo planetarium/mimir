@@ -2,13 +2,15 @@ using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
+using Serilog;
 
 namespace Mimir.Worker.Handler;
 
 public class BattleArenaHandler : BaseActionHandler
 {
     public BattleArenaHandler(IStateService stateService, MongoDbService store)
-        : base(stateService, store, "^battle_arena[0-9]*$") { }
+        : base(stateService, store, "^battle_arena[0-9]*$", Log.ForContext<BattleArenaHandler>())
+    { }
 
     public override async Task HandleAction(
         string actionType,
@@ -18,6 +20,12 @@ public class BattleArenaHandler : BaseActionHandler
     {
         var myAvatarAddress = new Address(actionValues["maa"]);
         var enemyAvatarAddress = new Address(actionValues["eaa"]);
+
+        _logger.Information(
+            "Handle battle_arena, my: {MyAvatarAddress}, enemy: {EnemyAvatarAddress}",
+            myAvatarAddress,
+            enemyAvatarAddress
+        );
 
         try
         {
@@ -70,11 +78,14 @@ public class BattleArenaHandler : BaseActionHandler
                 enemyAvatarAddress
             );
         }
-        catch (ArgumentException ex)
+        catch (InvalidOperationException ex)
         {
-            Serilog.Log.Error("Failed to arena states. error:\n{Error}", ex.Message);
-
-            return;
+            _logger.Error(
+                "Failed to arena states. my: {MyAvatarAddress}, enemy: {EnemyAvatarAddress}, error:\n{Error}",
+                myAvatarAddress,
+                enemyAvatarAddress,
+                ex.Message
+            );
         }
     }
 }

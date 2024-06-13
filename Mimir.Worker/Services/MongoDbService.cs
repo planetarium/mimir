@@ -1,6 +1,4 @@
 using System.Text;
-using Bencodex;
-using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
@@ -10,20 +8,20 @@ using MongoDB.Driver.GridFS;
 using Nekoyume;
 using Nekoyume.Model.State;
 using Nekoyume.TableData;
+using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Services;
 
 public class MongoDbService
 {
-    private readonly Codec Codec = new();
-
-    private readonly ILogger<MongoDbService> _logger;
-
     private readonly IMongoClient _client;
 
     private readonly IMongoDatabase _database;
 
     private readonly GridFSBucket _gridFs;
+
+    private readonly ILogger _logger;
 
     private Dictionary<string, IMongoCollection<BsonDocument>> _stateCollectionMappings =
         new Dictionary<string, IMongoCollection<BsonDocument>>();
@@ -31,16 +29,12 @@ public class MongoDbService
     private IMongoCollection<BsonDocument> MetadataCollection =>
         _database.GetCollection<BsonDocument>("metadata");
 
-    public MongoDbService(
-        ILogger<MongoDbService> logger,
-        string connectionString,
-        string databaseName
-    )
+    public MongoDbService(string connectionString, string databaseName)
     {
         _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
-        _logger = logger;
         _gridFs = new GridFSBucket(_database);
+        _logger = Log.ForContext<MongoDbService>();
 
         _stateCollectionMappings = InitStateCollections();
     }
@@ -71,7 +65,8 @@ public class MongoDbService
 
     public async Task UpdateLatestBlockIndex(long blockIndex, string pollerType)
     {
-        _logger.LogInformation($"Update latest block index to {blockIndex}");
+        _logger.Debug($"Update latest block index to {blockIndex}");
+
         var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
 
@@ -172,7 +167,7 @@ public class MongoDbService
                 stateDataObjectId
             );
             await avatarCollection.UpdateOneAsync(avatarFilter, update);
-            _logger.LogInformation($"Avatar updated with {collectionName.ToPascalCase()}ObjectId.");
+            _logger.Debug($"Avatar updated with {collectionName.ToPascalCase()}ObjectId.");
         }
     }
 
@@ -187,25 +182,15 @@ public class MongoDbService
         string collectionName
     )
     {
-        try
-        {
-            var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
-            var bsonDocument = BsonDocument.Parse(stateData.ToJson());
-            var update = new BsonDocument("$set", bsonDocument);
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
+        var bsonDocument = BsonDocument.Parse(stateData.ToJson());
+        var update = new BsonDocument("$set", bsonDocument);
 
-            var result = await GetCollection(collectionName)
-                .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
+        var result = await GetCollection(collectionName)
+            .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
 
-            _logger.LogInformation(
-                $"Address: {stateData.Address.ToHex()} - Stored at {collectionName}"
-            );
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"An error occurred during UpsertStateDataAsync: {ex.Message}");
-            throw;
-        }
+        _logger.Debug($"Address: {stateData.Address.ToHex()} - Stored at {collectionName}");
+        return result;
     }
 
     public async Task UpsertTableSheets(StateData stateData, string csv)

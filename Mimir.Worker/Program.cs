@@ -5,9 +5,9 @@ using HeadlessGQL;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mimir.Worker;
-using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
-using Mimir.Worker.Initializer;
+using Sentry.Profiling;
+using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -17,6 +17,10 @@ builder
     .AddEnvironmentVariables("WORKER_");
 
 builder.Services.Configure<Configuration>(builder.Configuration.GetSection("Configuration"));
+
+Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(Log.Logger);
 
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
 builder
@@ -54,29 +58,16 @@ builder
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<MongoDbService>>();
-    return new MongoDbService(
-        logger,
-        config.MongoDbConnectionString,
-        config.DatabaseName
-    );
+    return new MongoDbService(config.MongoDbConnectionString, config.DatabaseName);
 });
 builder.Services.AddHostedService(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var logger = serviceProvider.GetRequiredService<ILogger<Worker>>();
-    var blockPollerLogger = serviceProvider.GetRequiredService<ILogger<BlockPoller>>();
-    var diffBlockPollerLogger = serviceProvider.GetRequiredService<ILogger<DiffBlockPoller>>();
-    var initializerLogger = serviceProvider.GetRequiredService<ILogger<SnapshotInitializer>>();
     var headlessGqlClient = serviceProvider.GetRequiredService<HeadlessGQLClient>();
     var stateService = serviceProvider.GetRequiredService<IStateService>();
     var store = serviceProvider.GetRequiredService<MongoDbService>();
 
     return new Worker(
-        logger,
-        blockPollerLogger,
-        diffBlockPollerLogger,
-        initializerLogger,
         headlessGqlClient,
         stateService,
         store,
@@ -87,4 +78,15 @@ builder.Services.AddHostedService(serviceProvider =>
 });
 
 var host = builder.Build();
+var config = host.Services.GetRequiredService<IOptions<Configuration>>().Value;
+SentrySdk.Init(options =>
+{
+    options.Dsn = config.SentryDsn;
+    options.Debug = config.SentryDebug;
+    options.AutoSessionTracking = true;
+    options.TracesSampleRate = 1.0;
+    options.ProfilesSampleRate = 1.0;
+    options.AddIntegration(new ProfilingIntegration(TimeSpan.FromMilliseconds(500)));
+});
+
 host.Run();

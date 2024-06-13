@@ -2,6 +2,10 @@ namespace Mimir.Worker;
 
 public class Configuration
 {
+    public string SentryDsn { get; init; }
+
+    public bool SentryDebug { get; init; }
+
     public string MongoDbConnectionString { get; init; }
 
     public string SnapshotPath { get; init; }

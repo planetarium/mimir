@@ -1,6 +1,5 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume;
 using Nekoyume.Action;
@@ -30,7 +29,7 @@ public class StateGetter
         var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name));
         if (sheetState is not Text sheetValue)
         {
-            throw new ArgumentException(nameof(T));
+            throw new InvalidCastException(nameof(T));
         }
 
         var sheet = new T();
@@ -45,7 +44,7 @@ public class StateGetter
         return state switch
         {
             List list => new ArenaParticipants(list),
-            _ => throw new ArgumentException(nameof(arenaParticipantsAddress))
+            _ => throw new InvalidCastException(nameof(arenaParticipantsAddress))
         };
     }
 
@@ -60,7 +59,7 @@ public class StateGetter
         return state switch
         {
             List list => new ArenaScore(list),
-            _ => throw new ArgumentException(nameof(arenaScoreAddress))
+            _ => throw new InvalidCastException(nameof(arenaScoreAddress))
         };
     }
 
@@ -79,7 +78,7 @@ public class StateGetter
         return state switch
         {
             List list => new ArenaInformation(list),
-            _ => throw new ArgumentException(nameof(arenaInfoAddress))
+            _ => throw new InvalidCastException(nameof(arenaInfoAddress))
         };
     }
 
@@ -91,7 +90,10 @@ public class StateGetter
         {
             Dictionary dictionary => new AvatarState(dictionary) { inventory = inventory },
             List list => new AvatarState(list) { inventory = inventory },
-            _ => throw new ArgumentException($"Unsupported state type for address: {avatarAddress}")
+            _
+                => throw new InvalidCastException(
+                    $"Unsupported state type for address: {avatarAddress}"
+                )
         };
 
         if (await _service.GetState(avatarAddress, Addresses.ActionPoint) is Integer actionPoint)
@@ -121,7 +123,7 @@ public class StateGetter
 
         if (rawState is not List list)
         {
-            throw new ArgumentException(nameof(avatarAddress));
+            throw new InvalidCastException(nameof(avatarAddress));
         }
 
         return new Inventory(list);
@@ -136,7 +138,7 @@ public class StateGetter
         {
             List list => new ItemSlotState(list),
             null => new ItemSlotState(BattleType.Arena),
-            _ => throw new ArgumentException(nameof(avatarAddress))
+            _ => throw new InvalidCastException(nameof(avatarAddress))
         };
     }
 
@@ -149,7 +151,7 @@ public class StateGetter
         {
             List list => new RuneSlotState(list),
             null => new RuneSlotState(BattleType.Arena),
-            _ => throw new ArgumentException(nameof(avatarAddress))
+            _ => throw new InvalidCastException(nameof(avatarAddress))
         };
 
         var runes = new List<RuneState>();
@@ -174,7 +176,7 @@ public class StateGetter
         return state switch
         {
             List list => new ProductsState(list),
-            _ => throw new ArgumentException(nameof(avatarAddress))
+            _ => throw new InvalidCastException(nameof(avatarAddress))
         };
     }
 
@@ -185,13 +187,12 @@ public class StateGetter
 
         if (rawState is not List list)
         {
-            throw new ArgumentException(nameof(productId));
+            throw new InvalidCastException(nameof(productId));
         }
 
         var product = ProductFactory.DeserializeProduct(list);
         return product;
     }
-
 
     public async Task<MarketState> GetMarketState()
     {
@@ -200,7 +201,7 @@ public class StateGetter
         return state switch
         {
             List list => new MarketState(list),
-            _ => throw new ArgumentException()
+            _ => throw new InvalidCastException()
         };
     }
 

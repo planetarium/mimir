@@ -3,6 +3,7 @@ using HeadlessGQL;
 using Libplanet.Crypto;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
+using Serilog;
 
 namespace Mimir.Worker.Poller;
 
@@ -12,12 +13,11 @@ public class DiffBlockPoller : BaseBlockPoller
     private readonly Codec Codec = new();
 
     public DiffBlockPoller(
-        ILogger<DiffBlockPoller> logger,
         IStateService stateService,
         HeadlessGQLClient headlessGqlClient,
         MongoDbService store
     )
-        : base(logger, stateService, store, "DiffBlockPoller")
+        : base(stateService, store, "DiffBlockPoller", Log.ForContext<DiffBlockPoller>())
     {
         _headlessGqlClient = headlessGqlClient;
     }
@@ -29,39 +29,48 @@ public class DiffBlockPoller : BaseBlockPoller
     )
     {
         long indexDifference = Math.Abs(syncedBlockIndex - currentBlockIndex);
-
         long currentBaseIndex = syncedBlockIndex;
+        long currentTargetIndex = currentBaseIndex + (indexDifference > 9 ? 9 : indexDifference);
 
-        while (indexDifference > 0)
+        _logger.Information(
+            "Process diff, current&sync: {CurrentBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, currentTargetIndex: {CurrentTargetIndex}",
+            currentBlockIndex,
+            syncedBlockIndex,
+            indexDifference,
+            currentTargetIndex
+        );
+
+        var diffResult = await _headlessGqlClient.GetDiffs.ExecuteAsync(
+            currentBaseIndex,
+            currentTargetIndex
+        );
+        if (diffResult.Data is null)
         {
-            long currentTargetIndex =
-                currentBaseIndex + (indexDifference > 9 ? 9 : indexDifference);
+            var errors = diffResult.Errors.Select(e => e.Message);
+            _logger.Error("Failed to get diffs. response data is null. errors:\n{Errors}", errors);
+            return;
+        }
 
-            var diffResult = await _headlessGqlClient.GetDiffs.ExecuteAsync(
-                currentBaseIndex,
-                currentTargetIndex
-            );
-            if (diffResult.Data?.Diffs != null)
+        _logger.Information(
+            "GetDiffs Success, diff-count: {DiffCount}",
+            diffResult.Data.Diffs.Count
+        );
+
+        foreach (var diff in diffResult.Data.Diffs)
+        {
+            switch (diff)
             {
-                foreach (var diff in diffResult.Data.Diffs)
-                {
-                    switch (diff)
-                    {
-                        case IGetDiffs_Diffs_RootStateDiff rootDiff:
-                            ProcessRootStateDiff(rootDiff);
-                            break;
+                case IGetDiffs_Diffs_RootStateDiff rootDiff:
+                    ProcessRootStateDiff(rootDiff);
+                    break;
 
-                        case IGetDiffs_Diffs_StateDiff stateDiff:
-                            ProcessStateDiff(stateDiff);
-                            break;
-                    }
-                }
-
-                await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType);
-                currentBaseIndex = currentTargetIndex;
-                indexDifference -= 9;
+                case IGetDiffs_Diffs_StateDiff stateDiff:
+                    ProcessStateDiff(stateDiff);
+                    break;
             }
         }
+
+        await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType);
     }
 
     private async void ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
@@ -73,25 +82,16 @@ public class DiffBlockPoller : BaseBlockPoller
             {
                 if (subDiff.ChangedState is not null)
                 {
-                    try
-                    {
-                        var stateData = handler.ConvertToStateData(
-                            new()
-                            {
-                                Address = new Address(subDiff.Path),
-                                RawState = Codec.Decode(Convert.FromHexString(subDiff.ChangedState))
-                            }
-                        );
-                        await handler.StoreStateData(_store, stateData);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        continue;
-                    }
-                    catch (ArgumentException)
-                    {
-                        continue;
-                    }
+                    _logger.Information("{Handler}: Handle {Address}", handler.GetType().Name, subDiff.Path);
+
+                    var stateData = handler.ConvertToStateData(
+                        new()
+                        {
+                            Address = new Address(subDiff.Path),
+                            RawState = Codec.Decode(Convert.FromHexString(subDiff.ChangedState))
+                        }
+                    );
+                    await handler.StoreStateData(_store, stateData);
                 }
             }
         }

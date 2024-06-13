@@ -26,7 +26,9 @@ public class WorldInformationStateHandler : IStateHandler<StateData>
         }
         else
         {
-            throw new ArgumentException("Invalid state type. Expected Dictionary.", nameof(state));
+            throw new InvalidCastException(
+                $"{nameof(state)} Invalid state type. Expected Dictionary."
+            );
         }
     }
 
