@@ -51,6 +51,11 @@ public class AvatarType : ObjectType<AvatarObject>
             .Type<IntType>()
             .Resolve(context => GetAvatar(context)?.Level);
         descriptor
+            .Field("actionPoint")
+            .Type<IntType>()
+            .ResolveWith<ActionPointResolver>(r =>
+                ActionPointResolver.Resolve(default!, default!));
+        descriptor
             .Field("dailyRewardReceivedBlockIndex")
             .Type<IntType>()
             .ResolveWith<DailyRewardReceivedBlockIndexResolver>(r =>
@@ -61,10 +66,6 @@ public class AvatarType : ObjectType<AvatarObject>
             .Resolve(context => GetInventory(context) is null
                 ? null
                 : new InventoryObject());
-        descriptor
-            .Field("actionPoint")
-            .Type<IntType>()
-            .Resolve(context => GetAvatar(context)?.ActionPoint);
         descriptor
             .Field("runes")
             .Type<NonNullType<ListType<NonNullType<RuneType>>>>()
