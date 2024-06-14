@@ -1,3 +1,4 @@
+using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Models;
 using Mimir.Services;
@@ -9,9 +10,16 @@ namespace Mimir.Repositories;
 public class InventoryRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public Inventory? GetInventory(string network, Address avatarAddress)
+    public Inventory? GetInventory(string network, Address avatarAddress) =>
+        GetInventory(GetCollection(network), avatarAddress);
+
+    public Inventory? GetInventory(PlanetName planetName, Address avatarAddress) =>
+        GetInventory(GetCollection(planetName), avatarAddress);
+
+    private static Inventory? GetInventory(
+        IMongoCollection<BsonDocument> collection,
+        Address avatarAddress)
     {
-        var collection = GetCollection(network);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
