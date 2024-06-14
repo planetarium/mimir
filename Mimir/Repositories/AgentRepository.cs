@@ -1,5 +1,6 @@
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
+using Mimir.Exceptions;
 using Mimir.Models;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -10,14 +11,15 @@ namespace Mimir.Repositories;
 public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public Agent? GetAgent(PlanetName planetName, Address avatarAddress)
+    public Agent GetAgent(PlanetName planetName, Address agentAddress)
     {
         var collection = GetCollection(planetName);
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", agentAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
-            return null;
+            throw new DocumentNotFoundInMongoCollectionException(
+                $"Agent document not found in '{GetCollectionName()}' collection.");
         }
 
         try
@@ -25,9 +27,9 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
             var doc = document["State"]["Object"].AsBsonDocument;
             return new Agent(doc);
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException e)
         {
-            return null;
+            throw new KeyNotFoundInBsonDocumentException("Invalid key used in agent document", e);
         }
     }
 
