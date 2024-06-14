@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
-using HotChocolate.AspNetCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using Mimir.Services;
