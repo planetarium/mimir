@@ -9,7 +9,7 @@ namespace Mimir.Repositories;
 public class ActionPointRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public long? GetActionPoint(PlanetName planetName, Address avatarAddress)
+    public int? GetActionPoint(PlanetName planetName, Address avatarAddress)
     {
         var collection = GetCollection(planetName);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());

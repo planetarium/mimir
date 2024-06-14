@@ -1,4 +1,5 @@
 using Mimir.GraphQL.Factories;
+using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
 
@@ -8,6 +9,9 @@ public class InventoryType : ObjectType<InventoryObject>
 {
     protected override void Configure(IObjectTypeDescriptor<InventoryObject> descriptor)
     {
+        descriptor
+            .Field(f => f.Address)
+            .Type<NonNullType<AddressType>>();
         descriptor
             .Field("consumables")
             .Description("The consumables in the inventory.")
