@@ -5,26 +5,26 @@ using Mimir.Worker.Models;
 
 namespace Mimir.Worker.Tests.Handler;
 
-public class ActionPointStateHandlerTests
+public class DailyRewardStateHandlerTests
 {
-    private readonly ActionPointStateHandler _handler = new();
+    private readonly DailyRewardStateHandler _handler = new();
 
     [Theory]
     [InlineData(0)]
     [InlineData(120)]
-    public void ConvertToStateData(int actionPoint)
+    public void ConvertToStateData(int dailyRewardReceivedBlockIndex)
     {
         var address = new PrivateKey().Address;
         var context = new StateDiffContext
         {
             Address = address,
-            RawState = new Integer(actionPoint),
+            RawState = new Integer(dailyRewardReceivedBlockIndex),
         };
         var stateData = _handler.ConvertToStateData(context);
 
-        Assert.IsType<ActionPointState>(stateData.State);
-        var dataState = (ActionPointState)stateData.State;
+        Assert.IsType<DailyRewardState>(stateData.State);
+        var dataState = (DailyRewardState)stateData.State;
         Assert.Equal(address, dataState.address);
-        Assert.Equal(actionPoint, dataState.Object);
+        Assert.Equal(dailyRewardReceivedBlockIndex, dataState.Object);
     }
 }

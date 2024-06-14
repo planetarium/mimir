@@ -1,4 +1,3 @@
-using Libplanet.Action.State;
 using Libplanet.Crypto;
 using Mimir.Worker.Models;
 using Nekoyume;
@@ -19,5 +18,6 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
+        HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
     }
 }

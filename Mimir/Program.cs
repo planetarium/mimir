@@ -31,6 +31,7 @@ builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<MetadataRepository>();
 builder.Services.AddSingleton<AgentRepository>();
 builder.Services.AddSingleton<AvatarRepository>();
+builder.Services.AddSingleton<DailyRewardRepository>();
 builder.Services.AddSingleton<InventoryRepository>();
 builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<CollectionRepository>();
