@@ -6,6 +6,7 @@
       "name": "HeadlessGQLClient",
       "namespace": "HeadlessGQL",
       "url": "https://9c-main-rpc-1.nine-chronicles.com/graphql",
+      "noStore": true,
       "records": {
         "inputs": false,
         "entities": false
