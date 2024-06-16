@@ -61,11 +61,11 @@ public class DiffBlockPoller : BaseBlockPoller
             switch (diff)
             {
                 case IGetDiffs_Diffs_RootStateDiff rootDiff:
-                    ProcessRootStateDiff(rootDiff);
+                    await ProcessRootStateDiff(rootDiff);
                     break;
 
                 case IGetDiffs_Diffs_StateDiff stateDiff:
-                    ProcessStateDiff(stateDiff);
+                    await ProcessStateDiff(stateDiff);
                     break;
             }
         }
@@ -73,7 +73,7 @@ public class DiffBlockPoller : BaseBlockPoller
         await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType);
     }
 
-    private async void ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
+    private async Task ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
     {
         var accountAddress = new Address(rootDiff.Path);
         if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
@@ -82,7 +82,11 @@ public class DiffBlockPoller : BaseBlockPoller
             {
                 if (subDiff.ChangedState is not null)
                 {
-                    _logger.Information("{Handler}: Handle {Address}", handler.GetType().Name, subDiff.Path);
+                    _logger.Information(
+                        "{Handler}: Handle {Address}",
+                        handler.GetType().Name,
+                        subDiff.Path
+                    );
 
                     var stateData = handler.ConvertToStateData(
                         new()
@@ -97,5 +101,5 @@ public class DiffBlockPoller : BaseBlockPoller
         }
     }
 
-    private void ProcessStateDiff(IGetDiffs_Diffs_StateDiff stateDiff) { }
+    private async Task ProcessStateDiff(IGetDiffs_Diffs_StateDiff stateDiff) { }
 }

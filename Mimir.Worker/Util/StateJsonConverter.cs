@@ -27,16 +27,18 @@ public class StateJsonConverter : JsonConverter
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
+        long initialMemory = GC.GetTotalMemory(false);
+
         JObject jo = JObject.FromObject(
             value,
             JsonSerializer.CreateDefault(
                 new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                    Converters = new List<JsonConverter>() { new BigIntegerToStringConverter() },
+                    Converters = new List<JsonConverter> { new BigIntegerToStringConverter() },
                     Formatting = Formatting.Indented,
                     NullValueHandling = NullValueHandling.Ignore,
-                    ContractResolver = new DefaultContractResolver()
+                    ContractResolver = new DefaultContractResolver
                     {
                         IgnoreSerializableInterface = true
                     }
@@ -58,5 +60,14 @@ public class StateJsonConverter : JsonConverter
         }
 
         jo.WriteTo(writer);
+
+        long finalMemory = GC.GetTotalMemory(false);
+        long memoryUsed = finalMemory - initialMemory;
+
+        if (memoryUsed > 100_000_000)
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
     }
 }
