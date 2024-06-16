@@ -78,7 +78,7 @@ public class BattleArenaHandler : BaseActionHandler
                 enemyAvatarAddress
             );
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidCastException ex)
         {
             _logger.Error(
                 "Failed to arena states. my: {MyAvatarAddress}, enemy: {EnemyAvatarAddress}, error:\n{Error}",
