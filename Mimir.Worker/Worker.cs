@@ -65,8 +65,31 @@ public class Worker : BackgroundService
             await initializerManager.RunInitializersAsync(stoppingToken);
         }
 
-        _logger.Information("Start Polling");
-        await Task.WhenAll(diffPoller.RunAsync(stoppingToken), blockPoller.RunAsync(stoppingToken));
+        try
+        {
+            var tasks = new[]
+            {
+                diffPoller.RunAsync(stoppingToken),
+                blockPoller.RunAsync(stoppingToken)
+            };
+
+            _logger.Information("Start Polling");
+
+            await Task.WhenAny(tasks);
+
+            foreach (var task in tasks)
+            {
+                if (task.IsFaulted)
+                {
+                    await task;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Fatal(ex, "An error occurred during polling.");
+            throw;
+        }
 
         _logger.Information(
             "Stopped Worker background service. Elapsed {TotalElapsedMinutes} minutes",
