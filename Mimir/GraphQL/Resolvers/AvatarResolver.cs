@@ -79,14 +79,10 @@ public class AvatarResolver
     public static RuneObject[] GetRunes(
         [Service] AllRuneRepository allRuneRepo,
         [Parent] AvatarObject avatarObject,
-        [ScopedState("planetName")] PlanetName planetName)
-    {
-        var avatarAddress = avatarObject.Address;
-        var runes = allRuneRepo.GetRunes(planetName, avatarAddress);
-        return runes is null
-            ? []
-            : runes.Select(RuneObjectFactory.Create).ToArray();
-    }
+        [ScopedState("planetName")] PlanetName planetName) =>
+        allRuneRepo.GetRunes(planetName, avatarObject.Address)
+            .Select(RuneObjectFactory.Create)
+            .ToArray();
 
     public static CollectionElementObject[] GetCollectionElements(
         [Service] CollectionRepository collectionRepo,
