@@ -1,5 +1,6 @@
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
+using Mimir.Exceptions;
 using Mimir.Models;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -10,13 +11,13 @@ namespace Mimir.Repositories;
 public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public Avatar? GetAvatar(string network, Address avatarAddress) =>
+    public Avatar GetAvatar(string network, Address avatarAddress) =>
         GetAvatar(GetCollection(network), avatarAddress);
 
-    public Avatar? GetAvatar(PlanetName planetName, Address avatarAddress) =>
+    public Avatar GetAvatar(PlanetName planetName, Address avatarAddress) =>
         GetAvatar(GetCollection(planetName), avatarAddress);
 
-    private static Avatar? GetAvatar(
+    private Avatar GetAvatar(
         IMongoCollection<BsonDocument> collection,
         Address avatarAddress)
     {
@@ -24,7 +25,8 @@ public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
-            return null;
+            throw new DocumentNotFoundInMongoCollectionException(
+                $"Avatar document not found in '{GetCollectionName()}' collection.");
         }
 
         try
@@ -39,9 +41,9 @@ public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
                 avatarDoc["dailyRewardReceivedIndex"].ToInt64()
             );
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException e)
         {
-            return null;
+            throw new KeyNotFoundInBsonDocumentException("Invalid key used in Avatar document", e);
         }
     }
 

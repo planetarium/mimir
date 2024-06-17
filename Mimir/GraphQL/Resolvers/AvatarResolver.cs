@@ -10,7 +10,7 @@ namespace Mimir.GraphQL.Resolvers;
 
 public class AvatarResolver
 {
-    public static Avatar? GetAvatar(
+    public static Avatar GetAvatar(
         IResolverContext context,
         [Service] AvatarRepository avatarRepo,
         [Parent] AvatarObject avatarObject,
@@ -24,59 +24,49 @@ public class AvatarResolver
 
         var avatarAddress = avatarObject.Address;
         avatar = avatarRepo.GetAvatar(planetName, avatarAddress);
-        if (avatar is null)
-        {
-            return null;
-        }
-
         context.ScopedContextData = context.ScopedContextData.Add("avatar", avatar);
         return avatar;
     }
 
-    public static Address? GetAgentAddress(
+    public static Address GetAgentAddress(
         IResolverContext context,
         [Service] AvatarRepository avatarRepo,
         [Parent] AvatarObject avatarObject,
         [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("avatar")] Avatar? avatar)
     {
-        if (avatarObject.AgentAddress is not null)
+        if (avatarObject.AgentAddress.HasValue)
         {
-            return avatarObject.AgentAddress;
+            return avatarObject.AgentAddress.Value;
         }
 
-        var agentAddr = GetAvatar(context, avatarRepo, avatarObject, planetName, avatar)?.AgentAddress;
-        if (agentAddr is null)
-        {
-            return null;
-        }
-
+        var agentAddr = GetAvatar(context, avatarRepo, avatarObject, planetName, avatar).AgentAddress;
         return new Address(agentAddr);
     }
 
-    public static string? GetName(
+    public static string GetName(
         IResolverContext context,
         [Service] AvatarRepository avatarRepo,
         [Parent] AvatarObject avatarObject,
         [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("avatar")] Avatar? avatar) =>
-        GetAvatar(context, avatarRepo, avatarObject, planetName, avatar)?.AvatarName;
+        GetAvatar(context, avatarRepo, avatarObject, planetName, avatar).AvatarName;
 
-    public static int? GetLevel(
+    public static int GetLevel(
         IResolverContext context,
         [Service] AvatarRepository avatarRepo,
         [Parent] AvatarObject avatarObject,
         [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("avatar")] Avatar? avatar) =>
-        GetAvatar(context, avatarRepo, avatarObject, planetName, avatar)?.Level;
+        GetAvatar(context, avatarRepo, avatarObject, planetName, avatar).Level;
 
-    public static int? GetActionPoint(
+    public static int GetActionPoint(
         [Service] ActionPointRepository repo,
         [Parent] AvatarObject avatarObject,
         [ScopedState("planetName")] PlanetName planetName) =>
         repo.GetActionPoint(planetName, avatarObject.Address);
 
-    public static long? GetDailyRewardReceivedBlockIndex(
+    public static long GetDailyRewardReceivedBlockIndex(
         [Service] DailyRewardRepository repo,
         [Parent] AvatarObject avatarObject,
         [ScopedState("planetName")] PlanetName planetName) =>
