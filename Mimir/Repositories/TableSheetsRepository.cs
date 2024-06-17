@@ -8,15 +8,10 @@ using MongoDB.Driver.GridFS;
 
 namespace Mimir.Repositories;
 
-public class TableSheetsRepository : BaseRepository<BsonDocument>
+public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionService)
+    : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public TableSheetsRepository(MongoDBCollectionService mongoDBCollectionService)
-        : base(mongoDBCollectionService) { }
-
-    protected override string GetCollectionName()
-    {
-        return "table_sheet";
-    }
+    protected override string GetCollectionName() => "table_sheet";
 
     public async Task<(int, int)> GetLatestArenaSeason(string network, long blockIndex)
     {

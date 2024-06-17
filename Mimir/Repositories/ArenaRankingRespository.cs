@@ -8,25 +8,15 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class ArenaRankingRepository : BaseRepository<BsonDocument>
+public class ArenaRankingRepository(
+    MongoDBCollectionService mongoDbCollectionService,
+    IStateService stateService)
+    : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    private readonly CpRepository _cpRepository;
-    private StateGetter _stateGetter;
+    private readonly CpRepository _cpRepository = new(stateService);
+    private StateGetter _stateGetter = new(stateService);
 
-    public ArenaRankingRepository(
-        MongoDBCollectionService mongoDBCollectionService,
-        IStateService stateService
-    )
-        : base(mongoDBCollectionService)
-    {
-        _cpRepository = new CpRepository(stateService);
-        _stateGetter = new StateGetter(stateService);
-    }
-
-    protected override string GetCollectionName()
-    {
-        return "arena";
-    }
+    protected override string GetCollectionName() => "arena";
 
     public async Task<long> GetRankByAvatarAddress(
         string network,
