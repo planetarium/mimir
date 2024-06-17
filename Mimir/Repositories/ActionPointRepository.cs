@@ -18,7 +18,8 @@ public class ActionPointRepository(MongoDBCollectionService mongoDbCollectionSer
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"ActionPoint document not found in '{GetCollectionName()}' collection.");
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
         try

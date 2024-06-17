@@ -26,7 +26,8 @@ public class InventoryRepository(MongoDBCollectionService mongoDbCollectionServi
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"Inventory document not found in {collection.CollectionNamespace.CollectionName} collection.");
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
         try

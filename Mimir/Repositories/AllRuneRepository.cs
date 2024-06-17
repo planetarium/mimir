@@ -19,7 +19,8 @@ public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"AllRune document not found in {collection.CollectionNamespace.CollectionName} collection.");
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
         try

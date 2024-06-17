@@ -19,7 +19,8 @@ public class CollectionRepository(MongoDBCollectionService mongoDbCollectionServ
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"Collection document not found in {collection.CollectionNamespace.CollectionName} collection.");
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
         try

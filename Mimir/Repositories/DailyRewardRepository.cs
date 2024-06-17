@@ -18,7 +18,8 @@ public class DailyRewardRepository(MongoDBCollectionService mongoDbCollectionSer
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"DailyReward document not found in '{GetCollectionName()}' collection.");
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
         try

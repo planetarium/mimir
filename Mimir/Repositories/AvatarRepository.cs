@@ -26,7 +26,8 @@ public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"Avatar document not found in '{collection.CollectionNamespace.CollectionName}' collection.");
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
         try

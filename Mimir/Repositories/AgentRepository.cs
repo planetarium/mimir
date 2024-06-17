@@ -19,7 +19,8 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"Agent document not found in '{collection.CollectionNamespace.CollectionName}' collection.");
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{agentAddress.ToHex()}'");
         }
 
         try
