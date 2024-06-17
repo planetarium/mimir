@@ -11,6 +11,7 @@ public class ErrorFilter : IErrorFilter
             KeyNotFoundInBsonDocumentException e => error
                 .WithMessage(e.Message)
                 .SetExtension("innerMessage", e.InnerException?.Message),
+            UnexpectedTypeOfBsonValueException e => error.WithMessage(e.Message),
             _ => error
         };
 }
