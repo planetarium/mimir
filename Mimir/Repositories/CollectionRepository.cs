@@ -30,7 +30,9 @@ public class CollectionRepository(MongoDBCollectionService mongoDbCollectionServ
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("Invalid key used in Collection document", e);
+            throw new KeyNotFoundInBsonDocumentException(
+                "document[\"State\"][\"Object\"].AsBsonDocument",
+                e);
         }
     }
 

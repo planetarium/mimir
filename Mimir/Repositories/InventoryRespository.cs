@@ -32,11 +32,14 @@ public class InventoryRepository(MongoDBCollectionService mongoDbCollectionServi
 
         try
         {
-            return new Inventory(document["State"]["Object"].AsBsonDocument);
+            var doc = document["State"]["Object"].AsBsonDocument;
+            return new Inventory(doc);
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("Invalid key used in Inventory document", e);
+            throw new KeyNotFoundInBsonDocumentException(
+                "document[\"State\"][\"Object\"].AsBsonDocument",
+                e);
         }
     }
 

@@ -30,7 +30,9 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("Invalid key used in Agent document", e);
+            throw new KeyNotFoundInBsonDocumentException(
+                "document[\"State\"][\"Object\"].AsBsonDocument",
+                e);
         }
     }
 

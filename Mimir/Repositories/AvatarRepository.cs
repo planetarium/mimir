@@ -44,7 +44,7 @@ public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("Invalid key used in Avatar document", e);
+            throw new KeyNotFoundInBsonDocumentException("document[\"State\"]", e);
         }
     }
 

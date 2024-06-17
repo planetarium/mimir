@@ -36,11 +36,9 @@ public class DailyRewardRepository(MongoDBCollectionService mongoDbCollectionSer
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("Invalid key used in DailyReward document", e);
-        }
-        catch (UnexpectedTypeOfBsonValueException e)
-        {
-            throw new UnexpectedTypeOfBsonValueException("Invalid type used in DailyReward document", e);
+            throw new KeyNotFoundInBsonDocumentException(
+                "document[\"State\"][\"Object\"]",
+                e);
         }
     }
 

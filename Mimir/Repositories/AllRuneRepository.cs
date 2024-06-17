@@ -33,7 +33,9 @@ public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService
         }
         catch (KeyNotFoundException e)
         {
-            throw new UnexpectedTypeOfBsonValueException("Invalid key used in AllRune document", e);
+            throw new UnexpectedTypeOfBsonValueException(
+                "document[\"State\"][\"Object\"][\"Runes\"].AsBsonDocument",
+                e);
         }
     }
 

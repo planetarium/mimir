@@ -10,7 +10,7 @@ public class ErrorFilter : IErrorFilter
             DocumentNotFoundInMongoCollectionException => error
                 .WithMessage(DocumentNotFoundInMongoCollectionException.DefaultMessage),
             KeyNotFoundInBsonDocumentException e => error
-                .WithMessage(e.Message)
+                .WithMessage(KeyNotFoundInBsonDocumentException.DefaultMessage)
                 .SetExtension("innerMessage", e.InnerException?.Message),
             UnexpectedTypeOfBsonValueException e => error.WithMessage(e.Message),
             _ => error

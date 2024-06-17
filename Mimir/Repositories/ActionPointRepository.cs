@@ -28,7 +28,9 @@ public class ActionPointRepository(MongoDBCollectionService mongoDbCollectionSer
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("Invalid key used in ActionPoint document", e);
+            throw new KeyNotFoundInBsonDocumentException(
+                "document[\"State\"][\"Object\"].AsInt32",
+                e);
         }
     }
 
