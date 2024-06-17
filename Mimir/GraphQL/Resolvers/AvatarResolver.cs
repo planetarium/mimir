@@ -87,12 +87,8 @@ public class AvatarResolver
     public static CollectionElementObject[] GetCollectionElements(
         [Service] CollectionRepository collectionRepo,
         [Parent] AvatarObject avatarObject,
-        [ScopedState("planetName")] PlanetName planetName)
-    {
-        var avatarAddress = avatarObject.Address;
-        var collection = collectionRepo.GetCollection(planetName, avatarAddress);
-        return collection is null
-            ? []
-            : collection.CollectionSheetIds.Select(CollectionElementObjectFactory.Create).ToArray();
-    }
+        [ScopedState("planetName")] PlanetName planetName) =>
+        collectionRepo.GetCollection(planetName, avatarObject.Address)
+            .CollectionSheetIds.Select(CollectionElementObjectFactory.Create)
+            .ToArray();
 }
