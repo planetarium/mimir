@@ -19,7 +19,7 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"Agent document not found in '{GetCollectionName()}' collection.");
+                $"Agent document not found in '{collection.CollectionNamespace.CollectionName}' collection.");
         }
 
         try
@@ -29,7 +29,7 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("Invalid key used in agent document", e);
+            throw new KeyNotFoundInBsonDocumentException("Invalid key used in Agent document", e);
         }
     }
 

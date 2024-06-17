@@ -17,7 +17,7 @@ public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
     public Avatar GetAvatar(PlanetName planetName, Address avatarAddress) =>
         GetAvatar(GetCollection(planetName), avatarAddress);
 
-    private Avatar GetAvatar(
+    private static Avatar GetAvatar(
         IMongoCollection<BsonDocument> collection,
         Address avatarAddress)
     {
@@ -26,7 +26,7 @@ public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
-                $"Avatar document not found in '{GetCollectionName()}' collection.");
+                $"Avatar document not found in '{collection.CollectionNamespace.CollectionName}' collection.");
         }
 
         try
