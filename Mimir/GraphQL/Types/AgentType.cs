@@ -18,7 +18,7 @@ public class AgentType : ObjectType<AgentObject>
                 AgentResolver.GetVersion(default!, default!, default!, default!, default!));
         descriptor
             .Field("avatarAddresses")
-            .Type<NonNullType<ListType<NonNullType<AddressType>>>>()
+            .Type<ListType<NonNullType<AddressType>>>()
             .ResolveWith<AgentResolver>(_ =>
                 AgentResolver.GetAvatarAddresses(default!, default!, default!, default!, default!));
         descriptor

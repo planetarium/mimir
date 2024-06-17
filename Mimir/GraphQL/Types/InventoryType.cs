@@ -14,25 +14,25 @@ public class InventoryType : ObjectType<InventoryObject>
         descriptor
             .Field("consumables")
             .Description("The consumables in the inventory.")
-            .Type<NonNullType<ListType<NonNullType<ItemType>>>>()
+            .Type<ListType<NonNullType<ItemType>>>()
             .ResolveWith<InventoryResolver>(_ =>
                 InventoryResolver.GetConsumables(default!, default!, default!, default!, default!));
         descriptor
             .Field("costumes")
             .Description("The costumes in the inventory.")
-            .Type<NonNullType<ListType<NonNullType<ItemType>>>>()
+            .Type<ListType<NonNullType<ItemType>>>()
             .ResolveWith<InventoryResolver>(_ =>
                 InventoryResolver.GetCostumes(default!, default!, default!, default!, default!));
         descriptor
             .Field("equipments")
             .Description("The equipments in the inventory.")
-            .Type<NonNullType<ListType<NonNullType<ItemType>>>>()
+            .Type<ListType<NonNullType<ItemType>>>()
             .ResolveWith<InventoryResolver>(_ =>
                 InventoryResolver.GetEquipments(default!, default!, default!, default!, default!));
         descriptor
             .Field("materials")
             .Description("The materials in the inventory.")
-            .Type<NonNullType<ListType<NonNullType<ItemType>>>>()
+            .Type<ListType<NonNullType<ItemType>>>()
             .ResolveWith<InventoryResolver>(_ =>
                 InventoryResolver.GetMaterials(default!, default!, default!, default!, default!));
     }
