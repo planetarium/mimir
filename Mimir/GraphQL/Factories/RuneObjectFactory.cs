@@ -5,12 +5,9 @@ namespace Mimir.GraphQL.Factories;
 
 public static class RuneObjectFactory
 {
-    public static RuneObject Create(Rune rune)
+    public static RuneObject Create(Rune rune) => new()
     {
-        return new RuneObject
-        {
-            RuneSheetId = rune.RuneSheetId,
-            Level = rune.Level,
-        };
-    }
+        RuneSheetId = rune.RuneSheetId,
+        Level = rune.Level,
+    };
 }
