@@ -2,8 +2,12 @@ using MongoDB.Bson;
 
 namespace Mimir.Exceptions;
 
-public class UnexpectedTypeOfBsonValueException : Exception
+public class UnexpectedTypeOfBsonValueException : Exception, IDefaultMessageException
 {
+    public const string DefaultMessage = "Unexpected type of BsonValue";
+
+    public string GetDefaultMessage() => DefaultMessage;
+
     public UnexpectedTypeOfBsonValueException(
         string? message = null,
         Exception? innerException = null) : base(message, innerException)
@@ -12,8 +16,10 @@ public class UnexpectedTypeOfBsonValueException : Exception
 
     public UnexpectedTypeOfBsonValueException(
         BsonType[] expected,
-        BsonType actual) : base(
-        $"Unexpected type of BsonValue. Expected: {string.Join(", ", expected)}, Actual: {actual}")
+        BsonType actual,
+        Exception? innerException = null) : base(
+        $"Unexpected type of BsonValue. Expected: {string.Join(", ", expected)}, Actual: {actual}",
+        innerException)
     {
     }
 }

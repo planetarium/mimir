@@ -1,8 +1,10 @@
 namespace Mimir.Exceptions;
 
-public class DocumentNotFoundInMongoCollectionException : Exception
+public class DocumentNotFoundInMongoCollectionException : Exception, IDefaultMessageException
 {
-    public const string DefaultMessage = "Document not found in MongoDB collection";
+    private const string DefaultMessage = "Document not found in MongoDB collection";
+
+    public string GetDefaultMessage() => DefaultMessage;
 
     public DocumentNotFoundInMongoCollectionException(
         string collectionName,
