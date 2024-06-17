@@ -69,7 +69,11 @@ builder.Services
     .AddGraphQLServer()
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
-    .AddErrorFilter<ErrorFilter>();
+    .AddErrorFilter<ErrorFilter>()
+    .ModifyRequestOptions(requestExecutorOptions =>
+    {
+        requestExecutorOptions.IncludeExceptionDetails = true;
+    });
 
 var app = builder.Build();
 app.UseRouting();
