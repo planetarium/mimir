@@ -33,5 +33,17 @@ public class QueryType : ObjectType<Query>
                     .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
                 return new AvatarObject(context.ArgumentValue<Address>("address"));
             });
+
+        descriptor
+            .Field("inventory")
+            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
+            .Argument("address", a => a.Type<NonNullType<AddressType>>())
+            .Type<InventoryType>()
+            .Resolve(context =>
+            {
+                context.ScopedContextData = context.ScopedContextData
+                    .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
+                return new InventoryObject(context.ArgumentValue<Address>("address"));
+            });
     }
 }
