@@ -12,14 +12,9 @@ using Nekoyume.TableData.Rune;
 
 namespace Mimir.Repositories;
 
-public class CpRepository
+public class CpRepository(IStateService stateService)
 {
-    private StateGetter _stateGetter;
-
-    public CpRepository(IStateService stateService)
-    {
-        _stateGetter = new StateGetter(stateService);
-    }
+    private StateGetter _stateGetter = new(stateService);
 
     public async Task<int?> CalculateCp(
         Avatar avatar,

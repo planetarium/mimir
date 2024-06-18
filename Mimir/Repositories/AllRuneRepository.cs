@@ -1,5 +1,6 @@
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
+using Mimir.Exceptions;
 using Mimir.Models.Assets;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -10,14 +11,16 @@ namespace Mimir.Repositories;
 public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public List<Rune>? GetRunes(PlanetName planetName, Address avatarAddress)
+    public List<Rune> GetRunes(PlanetName planetName, Address avatarAddress)
     {
         var collection = GetCollection(planetName);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
-            return null;
+            throw new DocumentNotFoundInMongoCollectionException(
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
         try
@@ -28,9 +31,11 @@ public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService
                 .Select(runeValue => new Rune(runeValue))
                 .ToList();
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException e)
         {
-            return null;
+            throw new UnexpectedTypeOfBsonValueException(
+                "document[\"State\"][\"Object\"][\"Runes\"].AsBsonDocument",
+                e);
         }
     }
 

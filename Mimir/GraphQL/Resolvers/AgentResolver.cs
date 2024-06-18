@@ -10,7 +10,7 @@ namespace Mimir.GraphQL.Resolvers;
 
 public class AgentResolver
 {
-    public static Agent? GetAgent(
+    public static Agent GetAgent(
         IResolverContext context,
         [Service] AgentRepository agentRepo,
         [Parent] AgentObject agentObject,
@@ -24,22 +24,17 @@ public class AgentResolver
 
         var agentAddress = agentObject.Address;
         agent = agentRepo.GetAgent(planetName, agentAddress);
-        if (agent is null)
-        {
-            return null;
-        }
-
         context.ScopedContextData = context.ScopedContextData.Add("agent", agent);
         return agent;
     }
 
-    public static int? GetVersion(
+    public static int GetVersion(
         IResolverContext context,
         [Service] AgentRepository agentRepo,
         [Parent] AgentObject agentObject,
         [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("agent")] Agent? agent) =>
-        GetAgent(context, agentRepo, agentObject, planetName, agent)?.Version;
+        GetAgent(context, agentRepo, agentObject, planetName, agent).Version;
 
     public static Address[] GetAvatarAddresses(
         IResolverContext context,
@@ -47,29 +42,20 @@ public class AgentResolver
         [Parent] AgentObject agentObject,
         [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("agent")] Agent? agent) =>
-        GetAgent(context, agentRepo, agentObject, planetName, agent)?.AvatarAddresses.Values.ToArray() ?? [];
+        GetAgent(context, agentRepo, agentObject, planetName, agent).AvatarAddresses.Values.ToArray();
 
-    public static int? GetMonsterCollectionRound(
+    public static int GetMonsterCollectionRound(
         IResolverContext context,
         [Service] AgentRepository agentRepo,
         [Parent] AgentObject agentObject,
         [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("agent")] Agent? agent) =>
-        GetAgent(context, agentRepo, agentObject, planetName, agent)?.MonsterCollectionRound;
+        GetAgent(context, agentRepo, agentObject, planetName, agent).MonsterCollectionRound;
 
-    public static AvatarObject? GetAvatar(int index, [Parent] AgentObject agentObject)
+    public static AvatarObject GetAvatar(int index, [Parent] AgentObject agentObject)
     {
         var agentAddress = agentObject.Address;
-        Address avatarAddress;
-        try
-        {
-            avatarAddress = Addresses.GetAvatarAddress(agentAddress, index);
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            return null;
-        }
-
+        var avatarAddress = Addresses.GetAvatarAddress(agentAddress, index);
         return new AvatarObject(avatarAddress, agentAddress, index);
     }
 

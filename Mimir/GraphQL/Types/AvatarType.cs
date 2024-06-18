@@ -45,12 +45,12 @@ public class AvatarType : ObjectType<AvatarObject>
             .ResolveWith<AvatarResolver>(_ => AvatarResolver.GetInventory(default!));
         descriptor
             .Field("runes")
-            .Type<NonNullType<ListType<NonNullType<RuneType>>>>()
+            .Type<ListType<NonNullType<RuneType>>>()
             .ResolveWith<AvatarResolver>(_ =>
                 AvatarResolver.GetRunes(default!, default!, default!));
         descriptor
             .Field("collection")
-            .Type<NonNullType<ListType<NonNullType<CollectionElementType>>>>()
+            .Type<ListType<NonNullType<CollectionElementType>>>()
             .ResolveWith<AvatarResolver>(_ =>
                 AvatarResolver.GetCollectionElements(default!, default!, default!));
     }

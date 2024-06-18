@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
+using Mimir.GraphQL;
 using Mimir.Services;
 using Mimir.Options;
 using Mimir.Repositories;
@@ -67,7 +68,12 @@ builder.Services.AddHttpClient();
 builder.Services
     .AddGraphQLServer()
     .AddLib9cGraphQLTypes()
-    .AddMimirGraphQLTypes();
+    .AddMimirGraphQLTypes()
+    .AddErrorFilter<ErrorFilter>()
+    .ModifyRequestOptions(requestExecutorOptions =>
+    {
+        requestExecutorOptions.IncludeExceptionDetails = true;
+    });
 
 var app = builder.Build();
 app.UseRouting();
