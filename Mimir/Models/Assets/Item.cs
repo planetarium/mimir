@@ -26,6 +26,7 @@ public class Item
     public HashDigest<SHA256>? FungibleId { get; set; }
     public Guid? NonFungibleId { get; set; }
     public Guid? TradableId { get; set; }
+    public bool? Equipped { get; set; }
 
     public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
 
@@ -95,6 +96,9 @@ public class Item
                 ? ti
                 : null
             : null;
+        Equipped = item.Contains("Equipped")
+            ? item["Equipped"].AsBoolean
+            : null;
     }
 
     private void Reset(ItemBase itemBase, int count, bool locked)
@@ -126,6 +130,9 @@ public class Item
             : null;
         TradableId = itemBase is ITradableItem tradableItem
             ? tradableItem.TradableId
+            : null;
+        Equipped = itemBase is IEquippableItem equippableItem
+            ? equippableItem.Equipped
             : null;
     }
 }

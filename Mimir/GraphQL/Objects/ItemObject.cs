@@ -44,4 +44,9 @@ public class ItemObject
     /// ID of the TradableItem.
     /// </summary>
     public Guid? TradableId { get; set; }
+
+    /// <summary>
+    /// Equipped status of the IEquippableItem.
+    /// </summary>
+    public bool? Equipped { get; set; }
 }

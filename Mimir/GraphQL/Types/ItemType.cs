@@ -53,5 +53,9 @@ public class ItemType : ObjectType<ItemObject>
             .Field(f => f.TradableId)
             .Description("The Tradable ID of the item.")
             .Type<GuidType>();
+        descriptor
+            .Field(f => f.Equipped)
+            .Description("The equipped status of the item.")
+            .Type<BooleanType>();
     }
 }
