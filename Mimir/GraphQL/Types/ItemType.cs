@@ -2,6 +2,7 @@ using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
+using Nekoyume.Model.Stat;
 
 namespace Mimir.GraphQL.Types;
 
@@ -57,5 +58,9 @@ public class ItemType : ObjectType<ItemObject>
             .Field(f => f.Equipped)
             .Description("The equipped status of the item.")
             .Type<BooleanType>();
+        descriptor
+            .Field(f => f.MainStatType)
+            .Description("The main stat type of the item.")
+            .Type<EnumType<StatType>>();
     }
 }

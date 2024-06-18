@@ -5,6 +5,7 @@ using Libplanet.Common;
 using MongoDB.Bson;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
+using Nekoyume.Model.Stat;
 using Nekoyume.Model.State;
 
 namespace Mimir.Models.Assets;
@@ -27,6 +28,7 @@ public class Item
     public Guid? NonFungibleId { get; set; }
     public Guid? TradableId { get; set; }
     public bool? Equipped { get; set; }
+    public StatType? MainStatType { get; set; }
 
     public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
 
@@ -99,6 +101,16 @@ public class Item
         Equipped = item.Contains("Equipped")
             ? item["Equipped"].AsBoolean
             : null;
+        MainStatType = ItemType switch
+        {
+            ItemType.Consumable => item.Contains("MainStat")
+                ? (StatType)item["MainStat"].AsInt32
+                : null,
+            ItemType.Equipment => item.Contains("UniqueStatType")
+                ? (StatType)item["UniqueStatType"].AsInt32
+                : null,
+            _ => null,
+        };
     }
 
     private void Reset(ItemBase itemBase, int count, bool locked)
@@ -134,5 +146,11 @@ public class Item
         Equipped = itemBase is IEquippableItem equippableItem
             ? equippableItem.Equipped
             : null;
+        MainStatType = itemBase switch
+        {
+            Consumable c => c.MainStat,
+            Equipment e => e.UniqueStatType,
+            _ => null
+        };
     }
 }

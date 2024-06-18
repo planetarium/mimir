@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Libplanet.Common;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
+using Nekoyume.Model.Stat;
 
 namespace Mimir.GraphQL.Objects;
 
@@ -49,4 +50,6 @@ public class ItemObject
     /// Equipped status of the IEquippableItem.
     /// </summary>
     public bool? Equipped { get; set; }
+
+    public StatType? MainStatType { get; set; }
 }

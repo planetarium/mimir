@@ -20,5 +20,6 @@ public static class ItemObjectFactory
         NonFungibleId = item.NonFungibleId,
         TradableId = item.TradableId,
         Equipped = item.Equipped,
+        MainStatType = item.MainStatType,
     };
 }
