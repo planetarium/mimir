@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Common;
+using Mimir.Factories;
 using MongoDB.Bson;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
@@ -30,6 +31,7 @@ public class Item
     public Guid? TradableId { get; set; }
     public bool? Equipped { get; set; }
     public StatType? MainStatType { get; set; }
+    public StatMap? StatsMap { get; set; }
 
     public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
 
@@ -115,6 +117,9 @@ public class Item
                 : null,
             _ => null,
         };
+        StatsMap = item.Contains("StatsMap")
+            ? StatMapFactory.Create(item["StatsMap"].AsBsonDocument)
+            : null;
     }
 
     private void Reset(ItemBase itemBase, int count, bool locked)
@@ -159,6 +164,11 @@ public class Item
         {
             Consumable c => c.MainStat,
             Equipment e => e.UniqueStatType,
+            _ => null
+        };
+        StatsMap = itemBase switch
+        {
+            ItemUsable iu => StatMapFactory.Create(iu.StatsMap),
             _ => null
         };
     }

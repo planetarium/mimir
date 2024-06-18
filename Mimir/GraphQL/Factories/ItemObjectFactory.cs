@@ -22,5 +22,6 @@ public static class ItemObjectFactory
         TradableId = item.TradableId,
         Equipped = item.Equipped,
         MainStatType = item.MainStatType,
+        StatsMap = item.StatsMap
     };
 }

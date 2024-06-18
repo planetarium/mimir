@@ -66,5 +66,9 @@ public class ItemType : ObjectType<ItemObject>
             .Field(f => f.MainStatType)
             .Description("The main stat type of the item.")
             .Type<EnumType<StatType>>();
+        descriptor
+            .Field(f => f.StatsMap)
+            .Description("The stats map of the item.")
+            .Type<StatMapType>();
     }
 }

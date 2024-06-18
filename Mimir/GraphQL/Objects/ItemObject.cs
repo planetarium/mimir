@@ -56,5 +56,13 @@ public class ItemObject
     /// </summary>
     public bool? Equipped { get; set; }
 
+    /// <summary>
+    /// MainStatType of the Consumable or Equipment.
+    /// </summary>
     public StatType? MainStatType { get; set; }
+
+    /// <summary>
+    /// StatsMap of the ItemUsable.
+    /// </summary>
+    public StatMap? StatsMap { get; set; }
 }
