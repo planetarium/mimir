@@ -15,6 +15,7 @@ public static class ItemObjectFactory
         Count = item.Count,
         Locked = item.Locked,
         Level = item.Level,
+        Exp = item.Exp,
         RequiredBlockIndex = item.RequiredBlockIndex,
         FungibleId = item.FungibleId,
         NonFungibleId = item.NonFungibleId,

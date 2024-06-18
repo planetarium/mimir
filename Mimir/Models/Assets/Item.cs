@@ -23,6 +23,7 @@ public class Item
     public bool Locked { get; set; }
 
     public int? Level { get; set; }
+    public long? Exp { get; set; }
     public long? RequiredBlockIndex { get; set; }
     public HashDigest<SHA256>? FungibleId { get; set; }
     public Guid? NonFungibleId { get; set; }
@@ -72,6 +73,9 @@ public class Item
 
         Level = item.Contains("level")
             ? item["level"].AsInt32
+            : null;
+        Exp = item.Contains("Exp")
+            ? item["Exp"].ToInt64()
             : null;
         RequiredBlockIndex = item.Contains("RequiredBlockIndex")
             ? item["RequiredBlockIndex"].ToInt64()
@@ -126,6 +130,11 @@ public class Item
         Level = itemBase switch
         {
             Equipment e => e.level,
+            _ => null
+        };
+        Exp = itemBase switch
+        {
+            Equipment e => e.Exp,
             _ => null
         };
         RequiredBlockIndex = itemBase switch

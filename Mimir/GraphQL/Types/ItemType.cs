@@ -39,6 +39,10 @@ public class ItemType : ObjectType<ItemObject>
             .Description("The level of the item.")
             .Type<IntType>();
         descriptor
+            .Field(f => f.Exp)
+            .Description("The exp of the item.")
+            .Type<LongType>();
+        descriptor
             .Field(f => f.RequiredBlockIndex)
             .Description("The required block index of the item.")
             .Type<IntType>();

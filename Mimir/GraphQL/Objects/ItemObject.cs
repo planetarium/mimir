@@ -29,6 +29,11 @@ public class ItemObject
     /// </summary>
     public int? Level { get; set; }
 
+    /// <summary>
+    /// Exp of the Equipment.
+    /// </summary>
+    public long? Exp { get; set; }
+
     public long? RequiredBlockIndex { get; set; }
 
     /// <summary>
