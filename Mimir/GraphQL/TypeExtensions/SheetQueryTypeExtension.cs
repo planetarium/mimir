@@ -1,4 +1,5 @@
 using System.Text;
+using Lib9c.GraphQL.Enums;
 using Lib9c.GraphQL.Types;
 using Mimir.Enums;
 using Mimir.GraphQL.Objects;
@@ -14,7 +15,7 @@ public class SheetQueryTypeExtension : ObjectTypeExtension<Query>
     {
         descriptor
             .Field("sheet")
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
+            .Argument("planetName", a => a.Type<NonNullType<EnumType<PlanetName>>>())
             .Argument("sheetName", a => a.Type<NonNullType<SheetNameType>>())
             .Argument("encodeAsBase64", a => a.Type<BooleanType>().DefaultValue(false))
             .Type<NonNullType<SheetType>>()
