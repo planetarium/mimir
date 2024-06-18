@@ -19,6 +19,7 @@ public class Item
     public ItemSubType ItemSubType { get; set; }
     public ElementalType ElementalType { get; set; }
     public int Count { get; set; }
+    public bool Locked { get; set; }
 
     public int? Level { get; set; }
     public long? RequiredBlockIndex { get; set; }
@@ -26,9 +27,12 @@ public class Item
     public Guid? NonFungibleId { get; set; }
     public Guid? TradableId { get; set; }
 
-    public Item(ItemBase itemBase, int count) => Reset(itemBase, count);
+    public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
 
-    public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem) : this(inventoryItem.item, inventoryItem.count)
+    public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem) : this(
+        inventoryItem.item,
+        inventoryItem.count,
+        inventoryItem.Locked)
     {
     }
 
@@ -51,7 +55,7 @@ public class Item
                     nameof(itemType),
                     $"Invalid ItemType: {itemType}")
             };
-            Reset(itemBase, inventoryItem["count"].AsInt32);
+            Reset(itemBase, inventoryItem["count"].AsInt32, inventoryItem["Locked"].AsBoolean);
             return;
         }
 
@@ -61,6 +65,7 @@ public class Item
         ItemSubType = (ItemSubType)item["ItemSubType"].AsInt32;
         ElementalType = (ElementalType)item["ElementalType"].AsInt32;
         Count = inventoryItem["count"].AsInt32;
+        Locked = inventoryItem["Locked"].AsBoolean;
 
         Level = item.Contains("level")
             ? item["level"].AsInt32
@@ -92,7 +97,7 @@ public class Item
             : null;
     }
 
-    private void Reset(ItemBase itemBase, int count)
+    private void Reset(ItemBase itemBase, int count, bool locked)
     {
         ItemSheetId = itemBase.Id;
         Grade = itemBase.Grade;
@@ -100,6 +105,7 @@ public class Item
         ItemSubType = itemBase.ItemSubType;
         ElementalType = itemBase.ElementalType;
         Count = count;
+        Locked = locked;
 
         Level = itemBase switch
         {

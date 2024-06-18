@@ -13,7 +13,15 @@ public class ItemObject
     public ItemSubType ItemSubType { get; set; }
     public ElementalType ElementalType { get; set; }
 
+    /// <summary>
+    /// Count of the Item.<seealso cref="Nekoyume.Model.Item.Inventory.Item.count"/>
+    /// </summary>
     public int Count { get; set; }
+
+    /// <summary>
+    /// Locked status of the item.<seealso cref="Nekoyume.Model.Item.Inventory.Item.Locked"/>
+    /// </summary>
+    public bool Locked { get; set; }
 
     /// <summary>
     /// Level of the Equipment.

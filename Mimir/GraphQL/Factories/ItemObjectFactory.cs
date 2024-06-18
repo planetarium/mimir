@@ -13,6 +13,7 @@ public static class ItemObjectFactory
         ItemSubType = item.ItemSubType,
         ElementalType = item.ElementalType,
         Count = item.Count,
+        Locked = item.Locked,
         Level = item.Level,
         RequiredBlockIndex = item.RequiredBlockIndex,
         FungibleId = item.FungibleId,
