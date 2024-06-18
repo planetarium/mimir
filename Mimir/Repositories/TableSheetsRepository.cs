@@ -20,7 +20,7 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
 
     public async Task<(int, int)> GetLatestArenaSeason(string network, long blockIndex)
     {
-        var collection = GetCollection(network);
+        var collection = GetCollection<BsonDocument>(network);
 
         var pipelines = new BsonDocument[]
         {
@@ -70,7 +70,7 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
 
     public string[] GetSheetNames(string network)
     {
-        var collection = GetCollection(network);
+        var collection = GetCollection<BsonDocument>(network);
 
         var projection = Builders<BsonDocument>.Projection.Include("State.Name").Exclude("_id");
         var documents = collection.Find(new BsonDocument()).Project(projection).ToList();
@@ -89,7 +89,7 @@ public class TableSheetsRepository : BaseRepository<BsonDocument>
 
     public async Task<string> GetSheet(string network, string sheetName, SheetFormat sheetFormat)
     {
-        var collection = GetCollection(network);
+        var collection = GetCollection<BsonDocument>(network);
         var gridFs = new GridFSBucket(GetDatabase(network));
 
         string fieldToInclude = sheetFormat switch

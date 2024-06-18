@@ -33,5 +33,11 @@ public class QueryType : ObjectType<Query>
                     .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
                 return new AvatarObject(context.ArgumentValue<Address>("address"));
             });
+
+        descriptor
+            .Field(q => q.GetProducts(default!, default!))
+            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
+            .Type<ListType<NonNullType<ProductType>>>()
+            .UseFiltering();
     }
 }

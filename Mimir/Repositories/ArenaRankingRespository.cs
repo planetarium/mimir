@@ -35,7 +35,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
         int? round
     )
     {
-        var collection = GetCollection(network);
+        var collection = GetCollection<BsonDocument>(network);
 
         var pipelines = new BsonDocument[]
         {
@@ -78,7 +78,7 @@ public class ArenaRankingRepository : BaseRepository<BsonDocument>
         int? round
     )
     {
-        var collection = GetCollection(network);
+        var collection = GetCollection<BsonDocument>(network);
 
         var pipelines = new List<BsonDocument>
         {

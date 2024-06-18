@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Mimir.Services;
 using Mimir.Options;
 using Mimir.Repositories;
+using Lib9c.GraphQL.Types;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ builder.Services.AddSingleton<DailyRewardRepository>();
 builder.Services.AddSingleton<InventoryRepository>();
 builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<CollectionRepository>();
+builder.Services.AddSingleton<ProductsRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
@@ -66,6 +68,8 @@ builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services
     .AddGraphQLServer()
+    .AddFiltering()
+    .AddSorting()
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes();
 

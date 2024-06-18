@@ -11,10 +11,10 @@ public class InventoryRepository(MongoDBCollectionService mongoDbCollectionServi
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
     public Inventory? GetInventory(string network, Address avatarAddress) =>
-        GetInventory(GetCollection(network), avatarAddress);
+        GetInventory(GetCollection<BsonDocument>(network), avatarAddress);
 
     public Inventory? GetInventory(PlanetName planetName, Address avatarAddress) =>
-        GetInventory(GetCollection(planetName), avatarAddress);
+        GetInventory(GetCollection<BsonDocument>(planetName), avatarAddress);
 
     private static Inventory? GetInventory(
         IMongoCollection<BsonDocument> collection,

@@ -39,19 +39,23 @@ public abstract class BaseRepository<T>
 
     protected abstract string GetCollectionName();
 
-    protected IMongoCollection<T> GetCollection(string network)
+    protected IMongoCollection<TCollection> GetCollection<TCollection>(string network)
     {
         network = network.ToLowerInvariant();
         if (_collections.TryGetValue(network, out var collection))
         {
-            return collection;
+            if (collection is IMongoCollection<TCollection> typedCollection)
+            {
+                return typedCollection;
+            }
+            throw new ArgumentException($"Collection type mismatch for network: {network}");
         }
 
         throw new ArgumentException("Invalid network name", nameof(network));
     }
 
-    protected IMongoCollection<T> GetCollection(PlanetName planetName) =>
-        GetCollection(GetNetworkName(planetName));
+    protected IMongoCollection<TCollection> GetCollection<TCollection>(PlanetName planetName)
+        => GetCollection<TCollection>(GetNetworkName(planetName));
 
     protected IMongoDatabase GetDatabase(string network)
     {

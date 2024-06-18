@@ -11,7 +11,7 @@ public class ActionPointRepository(MongoDBCollectionService mongoDbCollectionSer
 {
     public int? GetActionPoint(PlanetName planetName, Address avatarAddress)
     {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection<BsonDocument>(planetName);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

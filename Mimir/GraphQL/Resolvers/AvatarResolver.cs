@@ -5,6 +5,7 @@ using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
 using Mimir.Repositories;
+using MongoDB.Bson;
 
 namespace Mimir.GraphQL.Resolvers;
 

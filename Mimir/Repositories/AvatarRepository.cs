@@ -11,10 +11,10 @@ public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
     public Avatar? GetAvatar(string network, Address avatarAddress) =>
-        GetAvatar(GetCollection(network), avatarAddress);
+        GetAvatar(GetCollection<BsonDocument>(network), avatarAddress);
 
     public Avatar? GetAvatar(PlanetName planetName, Address avatarAddress) =>
-        GetAvatar(GetCollection(planetName), avatarAddress);
+        GetAvatar(GetCollection<BsonDocument>(planetName), avatarAddress);
 
     private static Avatar? GetAvatar(
         IMongoCollection<BsonDocument> collection,
