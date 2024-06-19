@@ -15,12 +15,12 @@ public class ItemObject
     public ElementalType ElementalType { get; set; }
 
     /// <summary>
-    /// Count of the Item.<seealso cref="Nekoyume.Model.Item.Inventory.Item.count"/>
+    /// Count of the Item.
     /// </summary>
     public int Count { get; set; }
 
     /// <summary>
-    /// Locked status of the item.<seealso cref="Nekoyume.Model.Item.Inventory.Item.Locked"/>
+    /// Locked status of the item.
     /// </summary>
     public bool Locked { get; set; }
 
