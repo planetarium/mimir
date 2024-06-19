@@ -43,6 +43,8 @@ public class Item
     /// </summary> 
     public SkillObject[] Skills { get; set; }
 
+    public SkillObject[] BuffSkills { get; set; }
+
     public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
 
     public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem) : this(
@@ -132,6 +134,11 @@ public class Item
             : null;
         Skills = item.Contains("Skills")
             ? item["Skills"].AsBsonArray
+                .Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
+                .ToArray()
+            : [];
+        BuffSkills = item.Contains("BuffSkills")
+            ? item["BuffSkills"].AsBsonArray
                 .Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
                 .ToArray()
             : [];

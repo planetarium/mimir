@@ -74,5 +74,9 @@ public class ItemType : ObjectType<ItemObject>
             .Field(f => f.Skills)
             .Description("The skills of the item.")
             .Type<ListType<SkillType>>();
+        descriptor
+            .Field(f => f.BuffSkills)
+            .Description("The buff skills of the item.")
+            .Type<ListType<SkillType>>();
     }
 }

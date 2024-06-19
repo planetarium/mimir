@@ -23,6 +23,7 @@ public static class ItemObjectFactory
         Equipped = item.Equipped,
         MainStatType = item.MainStatType,
         StatsMap = item.StatsMap,
-        Skills = item.Skills
+        Skills = item.Skills,
+        BuffSkills = item.BuffSkills,
     };
 }
