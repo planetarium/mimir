@@ -6,6 +6,8 @@ using Nekoyume.Model.Stat;
 namespace Mimir.Factories;
 
 /// <summary>
+/// This class will be removed after the Mimir.Bson project is completed.
+/// 
 /// <see cref="Nekoyume.Model.Stat.StatMap"/>, <see cref="Nekoyume.Model.Stat.StatsMap"/>
 /// and <see cref="Nekoyume.Model.Stat.Stats"/> basically have the same structure,
 /// and they are implements the same interfaces.
