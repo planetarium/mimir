@@ -65,4 +65,6 @@ public class ItemObject
     /// StatsMap of the ItemUsable.
     /// </summary>
     public StatMap? StatsMap { get; set; }
+
+    public SkillObject[] Skills { get; set; }
 }

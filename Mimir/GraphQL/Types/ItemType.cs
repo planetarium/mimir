@@ -70,5 +70,9 @@ public class ItemType : ObjectType<ItemObject>
             .Field(f => f.StatsMap)
             .Description("The stats map of the item.")
             .Type<StatMapType>();
+        descriptor
+            .Field(f => f.Skills)
+            .Description("The skills of the item.")
+            .Type<ListType<SkillType>>();
     }
 }

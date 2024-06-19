@@ -3,9 +3,12 @@ using Bencodex;
 using Bencodex.Types;
 using Libplanet.Common;
 using Mimir.Factories;
+using Mimir.GraphQL.Factories;
+using Mimir.GraphQL.Objects;
 using MongoDB.Bson;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
+using Nekoyume.Model.Skill;
 using Nekoyume.Model.Stat;
 using Nekoyume.Model.State;
 
@@ -32,6 +35,13 @@ public class Item
     public bool? Equipped { get; set; }
     public StatType? MainStatType { get; set; }
     public StatMap? StatsMap { get; set; }
+
+    /// <summary>
+    /// Why use <see cref="GraphQL.Objects.SkillObject" /> instead of <see cref="Nekoyume.Model.Skill.Skill"/>?
+    /// Because the <see cref="Nekoyume.Model.Skill.Skill"/> class is abstract and cannot be instantiated.
+    /// This problem will be resolved when the Mimir.Bson project is completed.
+    /// </summary> 
+    public SkillObject[] Skills { get; set; }
 
     public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
 
@@ -120,6 +130,11 @@ public class Item
         StatsMap = item.Contains("StatsMap")
             ? StatMapFactory.Create(item["StatsMap"].AsBsonDocument)
             : null;
+        Skills = item.Contains("Skills")
+            ? item["Skills"].AsBsonArray
+                .Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
+                .ToArray()
+            : [];
     }
 
     private void Reset(ItemBase itemBase, int count, bool locked)
@@ -170,6 +185,11 @@ public class Item
         {
             ItemUsable iu => StatMapFactory.Create(iu.StatsMap),
             _ => null
+        };
+        Skills = itemBase switch
+        {
+            ItemUsable iu => iu.Skills.Select(SkillObjectFactory.Create).ToArray(),
+            _ => Array.Empty<SkillObject>()
         };
     }
 }
