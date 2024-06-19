@@ -1,4 +1,5 @@
 using Mimir.Exceptions;
+using Mimir.GraphQL.Extensions;
 using MongoDB.Bson;
 using Nekoyume.Model.Stat;
 
@@ -29,27 +30,13 @@ public static class StatMapFactory
             var (baseKey, additionalKey) = BsonKeys[statType];
             if (bsonDocument.Contains(baseKey))
             {
-                var baseValue = bsonDocument[baseKey].BsonType switch
-                {
-                    BsonType.Int32 => bsonDocument[baseKey].AsInt32,
-                    BsonType.Int64 => bsonDocument[baseKey].AsInt64,
-                    _ => throw new UnexpectedTypeOfBsonValueException(
-                        [BsonType.Int32, BsonType.Int64],
-                        bsonDocument[baseKey].BsonType),
-                };
+                var baseValue = bsonDocument[baseKey].ToLong();
                 statsMap[statType].SetBaseValue(baseValue);
             }
 
             if (bsonDocument.Contains(additionalKey))
             {
-                var additionalValue = bsonDocument[additionalKey].BsonType switch
-                {
-                    BsonType.Int32 => bsonDocument[additionalKey].AsInt32,
-                    BsonType.Int64 => bsonDocument[additionalKey].AsInt64,
-                    _ => throw new UnexpectedTypeOfBsonValueException(
-                        [BsonType.Int32, BsonType.Int64],
-                        bsonDocument[additionalKey].BsonType),
-                };
+                var additionalValue = bsonDocument[additionalKey].ToLong();
                 statsMap[statType].SetAdditionalValue(additionalValue);
             }
         }

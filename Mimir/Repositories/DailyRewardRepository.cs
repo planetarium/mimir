@@ -1,6 +1,7 @@
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
+using Mimir.GraphQL.Extensions;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -24,15 +25,7 @@ public class DailyRewardRepository(MongoDBCollectionService mongoDbCollectionSer
 
         try
         {
-            var obj = document["State"]["Object"];
-            return obj.BsonType switch
-            {
-                BsonType.Int32 => obj.AsInt32,
-                BsonType.Int64 => obj.AsInt64,
-                _ => throw new UnexpectedTypeOfBsonValueException(
-                    [BsonType.Int32, BsonType.Int64],
-                    obj.BsonType),
-            };
+            return document["State"]["Object"].ToLong();
         }
         catch (KeyNotFoundException e)
         {
