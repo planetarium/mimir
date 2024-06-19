@@ -1,5 +1,8 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Mimir.Models.Product;
 
+[BsonIgnoreExtraElements]
 public class Asset
 {
     public Currency Currency { get; set; }

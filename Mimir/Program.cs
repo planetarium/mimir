@@ -8,6 +8,7 @@ using Mimir.Services;
 using Mimir.Options;
 using Mimir.Repositories;
 using Lib9c.GraphQL.Types;
+using HotChocolate.Types.Pagination;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +71,7 @@ builder.Services
     .AddGraphQLServer()
     .AddFiltering()
     .AddSorting()
+    .SetPagingOptions(new PagingOptions())
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes();
 

@@ -1,28 +1,55 @@
-using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mimir.Models.Product;
 
+[BsonIgnoreExtraElements]
 public class TradableItem
 {
-    public bool Equipped { get; set; }
-    public int Level { get; set; }
-    public int Exp { get; set; }
-    public int OptionCountFromCombination { get; set; }
-    public string TradableId { get; set; }
-    public Stat Stat { get; set; }
-    public int SetId { get; set; }
-    public string SpineResourcePath { get; set; }
-    public bool MadeWithMimisbrunnrRecipe { get; set; }
-    public int UniqueStatType { get; set; }
-    public string ItemId { get; set; }
-    public string NonFungibleId { get; set; }
-    public Dictionary<string, int> StatsMap { get; set; }
-    public List<Skill> Skills { get; set; }
-    public List<Skill> BuffSkills { get; set; }
-    public long RequiredBlockIndex { get; set; }
+    [BsonElement("Id")]
     public int Id { get; set; }
+
+    [BsonElement("level")]
+    public int Level { get; set; }
+
+    [BsonElement("Exp")]
+    public int Exp { get; set; }
+
+    [BsonElement("optionCountFromCombination")]
+    public int OptionCountFromCombination { get; set; }
+
+    [BsonElement("TradableId")]
+    public string TradableId { get; set; }
+
+    [BsonElement("Stat")]
+    public Stat Stat { get; set; }
+
+    [BsonElement("SetId")]
+    public int SetId { get; set; }
+
+    [BsonElement("UniqueStatType")]
+    public int UniqueStatType { get; set; }
+
+    [BsonElement("ItemId")]
+    public string ItemId { get; set; }
+
+    [BsonElement("NonFungibleId")]
+    public string NonFungibleId { get; set; }
+
+    [BsonElement("StatsMap")]
+    public Dictionary<string, int> StatsMap { get; set; }
+
+    [BsonElement("RequiredBlockIndex")]
+    public long RequiredBlockIndex { get; set; }
+
+    [BsonElement("Grade")]
     public int Grade { get; set; }
+
+    [BsonElement("ItemType")]
     public int ItemType { get; set; }
+
+    [BsonElement("ItemSubType")]
     public int ItemSubType { get; set; }
+
+    [BsonElement("ElementalType")]
     public int ElementalType { get; set; }
 }

@@ -1,5 +1,8 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Mimir.Models.Product;
 
+[BsonIgnoreExtraElements]
 public class ItemProductObject : IProductObject
 {
     public TradableItem TradableItem { get; set; }

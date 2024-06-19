@@ -36,8 +36,9 @@ public class QueryType : ObjectType<Query>
 
         descriptor
             .Field(q => q.GetProducts(default!, default!))
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
-            .Type<ListType<NonNullType<ProductType>>>()
-            .UseFiltering();
+            .Type<ListType<ProductType>>()
+            .UsePaging<ProductType>()
+            .UseFiltering()
+            .UseSorting();
     }
 }
