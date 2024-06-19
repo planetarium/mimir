@@ -35,6 +35,10 @@ public class ItemType : ObjectType<ItemObject>
             .Description("The count of the item.")
             .Type<NonNullType<IntType>>();
         descriptor
+            .Field(f => f.Locked)
+            .Description("The locked status of the item.")
+            .Type<NonNullType<BooleanType>>();
+        descriptor
             .Field(f => f.Level)
             .Description("The level of the item.")
             .Type<IntType>();
