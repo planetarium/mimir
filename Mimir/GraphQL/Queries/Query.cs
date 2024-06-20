@@ -6,7 +6,7 @@ namespace Mimir.GraphQL.Queries;
 
 public class Query
 {
-    public IQueryable<Product> GetProducts(
+    public IExecutable<Product> GetProducts(
         [Service] ProductsRepository productsRepository,
         PlanetName planetName
     )

@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace Mimir.Models.Product;
 
+[BsonIgnoreExtraElements]
 public class ProductState
 {
     public class ProductObjectSerializer : SerializerBase<IProductObject>

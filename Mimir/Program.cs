@@ -69,9 +69,10 @@ builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services
     .AddGraphQLServer()
-    .AddFiltering()
-    .AddSorting()
-    .SetPagingOptions(new PagingOptions())
+    .AddMongoDbPagingProviders(defaultProvider: true)
+    .AddMongoDbProjections()
+    .AddMongoDbFiltering()
+    .AddMongoDbSorting()
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes();
 

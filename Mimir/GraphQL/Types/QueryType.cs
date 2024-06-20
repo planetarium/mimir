@@ -1,3 +1,4 @@
+using HotChocolate.Types.Pagination;
 using Lib9c.GraphQL.Enums;
 using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
@@ -17,8 +18,10 @@ public class QueryType : ObjectType<Query>
             .Type<AgentType>()
             .Resolve(context =>
             {
-                context.ScopedContextData = context.ScopedContextData
-                    .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
+                context.ScopedContextData = context.ScopedContextData.Add(
+                    "planetName",
+                    context.ArgumentValue<PlanetName>("planetName")
+                );
                 return new AgentObject(context.ArgumentValue<Address>("address"));
             });
 
@@ -29,15 +32,18 @@ public class QueryType : ObjectType<Query>
             .Type<AvatarType>()
             .Resolve(context =>
             {
-                context.ScopedContextData = context.ScopedContextData
-                    .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
+                context.ScopedContextData = context.ScopedContextData.Add(
+                    "planetName",
+                    context.ArgumentValue<PlanetName>("planetName")
+                );
                 return new AvatarObject(context.ArgumentValue<Address>("address"));
             });
 
         descriptor
             .Field(q => q.GetProducts(default!, default!))
             .Type<ListType<ProductType>>()
-            .UsePaging<ProductType>()
+            // .UsePaging<ProductType>()
+            .UseProjection()
             .UseFiltering()
             .UseSorting();
     }
