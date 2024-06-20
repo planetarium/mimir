@@ -29,7 +29,7 @@ public abstract class BaseActionHandler(
     {
         try
         {
-            await HandleAction(action);
+            await HandleAction(blockIndex, action);
             return true;
         }
         catch (NotImplementedException)
@@ -59,7 +59,9 @@ public abstract class BaseActionHandler(
         return false;
     }
 
-    protected virtual Task HandleAction(IAction action)
+    protected virtual Task HandleAction(
+        long blockIndex,
+        IAction action)
     {
         throw new NotImplementedException();
     }
