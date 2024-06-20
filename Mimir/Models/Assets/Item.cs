@@ -2,9 +2,14 @@ using System.Security.Cryptography;
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Common;
+using Mimir.Factories;
+using Mimir.GraphQL.Factories;
+using Mimir.GraphQL.Objects;
 using MongoDB.Bson;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
+using Nekoyume.Model.Skill;
+using Nekoyume.Model.Stat;
 using Nekoyume.Model.State;
 
 namespace Mimir.Models.Assets;
@@ -19,16 +24,33 @@ public class Item
     public ItemSubType ItemSubType { get; set; }
     public ElementalType ElementalType { get; set; }
     public int Count { get; set; }
+    public bool Locked { get; set; }
 
     public int? Level { get; set; }
+    public long? Exp { get; set; }
     public long? RequiredBlockIndex { get; set; }
     public HashDigest<SHA256>? FungibleId { get; set; }
     public Guid? NonFungibleId { get; set; }
     public Guid? TradableId { get; set; }
+    public bool? Equipped { get; set; }
+    public StatType? MainStatType { get; set; }
+    public StatMap? StatsMap { get; set; }
 
-    public Item(ItemBase itemBase, int count) => Reset(itemBase, count);
+    /// <summary>
+    /// Why use <see cref="GraphQL.Objects.SkillObject" /> instead of <see cref="Nekoyume.Model.Skill.Skill"/>?
+    /// Because the <see cref="Nekoyume.Model.Skill.Skill"/> class is abstract and cannot be instantiated.
+    /// This problem will be resolved when the Mimir.Bson project is completed.
+    /// </summary> 
+    public SkillObject[] Skills { get; set; }
 
-    public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem) : this(inventoryItem.item, inventoryItem.count)
+    public SkillObject[] BuffSkills { get; set; }
+
+    public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
+
+    public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem) : this(
+        inventoryItem.item,
+        inventoryItem.count,
+        inventoryItem.Locked)
     {
     }
 
@@ -51,7 +73,7 @@ public class Item
                     nameof(itemType),
                     $"Invalid ItemType: {itemType}")
             };
-            Reset(itemBase, inventoryItem["count"].AsInt32);
+            Reset(itemBase, inventoryItem["count"].AsInt32, inventoryItem["Locked"].AsBoolean);
             return;
         }
 
@@ -61,9 +83,13 @@ public class Item
         ItemSubType = (ItemSubType)item["ItemSubType"].AsInt32;
         ElementalType = (ElementalType)item["ElementalType"].AsInt32;
         Count = inventoryItem["count"].AsInt32;
+        Locked = inventoryItem["Locked"].AsBoolean;
 
         Level = item.Contains("level")
             ? item["level"].AsInt32
+            : null;
+        Exp = item.Contains("Exp")
+            ? item["Exp"].ToInt64()
             : null;
         RequiredBlockIndex = item.Contains("RequiredBlockIndex")
             ? item["RequiredBlockIndex"].ToInt64()
@@ -90,9 +116,35 @@ public class Item
                 ? ti
                 : null
             : null;
+        Equipped = item.Contains("Equipped")
+            ? item["Equipped"].AsBoolean
+            : null;
+        MainStatType = ItemType switch
+        {
+            ItemType.Consumable => item.Contains("MainStat")
+                ? (StatType)item["MainStat"].AsInt32
+                : null,
+            ItemType.Equipment => item.Contains("UniqueStatType")
+                ? (StatType)item["UniqueStatType"].AsInt32
+                : null,
+            _ => null,
+        };
+        StatsMap = item.Contains("StatsMap")
+            ? StatMapFactory.Create(item["StatsMap"].AsBsonDocument)
+            : null;
+        Skills = item.Contains("Skills")
+            ? item["Skills"].AsBsonArray
+                .Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
+                .ToArray()
+            : [];
+        BuffSkills = item.Contains("BuffSkills")
+            ? item["BuffSkills"].AsBsonArray
+                .Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
+                .ToArray()
+            : [];
     }
 
-    private void Reset(ItemBase itemBase, int count)
+    private void Reset(ItemBase itemBase, int count, bool locked)
     {
         ItemSheetId = itemBase.Id;
         Grade = itemBase.Grade;
@@ -100,10 +152,16 @@ public class Item
         ItemSubType = itemBase.ItemSubType;
         ElementalType = itemBase.ElementalType;
         Count = count;
+        Locked = locked;
 
         Level = itemBase switch
         {
             Equipment e => e.level,
+            _ => null
+        };
+        Exp = itemBase switch
+        {
+            Equipment e => e.Exp,
             _ => null
         };
         RequiredBlockIndex = itemBase switch
@@ -121,5 +179,24 @@ public class Item
         TradableId = itemBase is ITradableItem tradableItem
             ? tradableItem.TradableId
             : null;
+        Equipped = itemBase is IEquippableItem equippableItem
+            ? equippableItem.Equipped
+            : null;
+        MainStatType = itemBase switch
+        {
+            Consumable c => c.MainStat,
+            Equipment e => e.UniqueStatType,
+            _ => null
+        };
+        StatsMap = itemBase switch
+        {
+            ItemUsable iu => StatMapFactory.Create(iu.StatsMap),
+            _ => null
+        };
+        Skills = itemBase switch
+        {
+            ItemUsable iu => iu.Skills.Select(SkillObjectFactory.Create).ToArray(),
+            _ => Array.Empty<SkillObject>()
+        };
     }
 }

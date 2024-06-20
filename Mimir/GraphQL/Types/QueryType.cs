@@ -12,7 +12,7 @@ public class QueryType : ObjectType<Query>
     {
         descriptor
             .Field("agent")
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
+            .Argument("planetName", a => a.Type<NonNullType<EnumType<PlanetName>>>())
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<AgentType>()
             .Resolve(context =>
@@ -24,7 +24,7 @@ public class QueryType : ObjectType<Query>
 
         descriptor
             .Field("avatar")
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
+            .Argument("planetName", a => a.Type<NonNullType<EnumType<PlanetName>>>())
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<AvatarType>()
             .Resolve(context =>
@@ -36,7 +36,7 @@ public class QueryType : ObjectType<Query>
 
         descriptor
             .Field("inventory")
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
+            .Argument("planetName", a => a.Type<NonNullType<EnumType<PlanetName>>>())
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<InventoryType>()
             .Resolve(context =>

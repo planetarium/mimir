@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Libplanet.Common;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
+using Nekoyume.Model.Stat;
 
 namespace Mimir.GraphQL.Objects;
 
@@ -13,12 +14,25 @@ public class ItemObject
     public ItemSubType ItemSubType { get; set; }
     public ElementalType ElementalType { get; set; }
 
+    /// <summary>
+    /// Count of the Item.
+    /// </summary>
     public int Count { get; set; }
+
+    /// <summary>
+    /// Locked status of the item.
+    /// </summary>
+    public bool Locked { get; set; }
 
     /// <summary>
     /// Level of the Equipment.
     /// </summary>
     public int? Level { get; set; }
+
+    /// <summary>
+    /// Exp of the Equipment.
+    /// </summary>
+    public long? Exp { get; set; }
 
     public long? RequiredBlockIndex { get; set; }
 
@@ -37,57 +51,28 @@ public class ItemObject
     /// </summary>
     public Guid? TradableId { get; set; }
 
-    public ItemObject()
-    {
-    }
+    /// <summary>
+    /// Equipped status of the IEquippableItem.
+    /// </summary>
+    public bool? Equipped { get; set; }
 
-    public ItemObject(ItemBase itemBase, int count)
-    {
-        ItemSheetId = itemBase.Id;
-        Grade = itemBase.Grade;
-        ItemType = itemBase.ItemType;
-        ItemSubType = itemBase.ItemSubType;
-        ElementalType = itemBase.ElementalType;
-        Count = count;
-    }
+    /// <summary>
+    /// MainStatType of the Consumable or Equipment.
+    /// </summary>
+    public StatType? MainStatType { get; set; }
 
-    public ItemObject(Consumable consumable, int count) : this((ItemBase)consumable, count)
-    {
-        Level = null;
-        RequiredBlockIndex = consumable.RequiredBlockIndex;
-        FungibleId = null;
-        NonFungibleId = consumable.NonFungibleId;
-        TradableId = consumable.TradableId;
-    }
+    /// <summary>
+    /// StatsMap of the ItemUsable.
+    /// </summary>
+    public StatMap? StatsMap { get; set; }
 
-    public ItemObject(Costume costume, int count) : this((ItemBase)costume, count)
-    {
-        Level = null;
-        RequiredBlockIndex = costume.RequiredBlockIndex;
-        FungibleId = null;
-        NonFungibleId = costume.NonFungibleId;
-        TradableId = costume.TradableId;
-    }
+    /// <summary>
+    /// Skills of the ItemUsable.
+    /// </summary>
+    public SkillObject[] Skills { get; set; }
 
-    public ItemObject(Equipment equipment, int count) : this((ItemBase)equipment, count)
-    {
-        var tradableItem = equipment as ITradableItem;
-
-        Level = equipment.level;
-        RequiredBlockIndex = equipment.RequiredBlockIndex;
-        FungibleId = null;
-        NonFungibleId = equipment.NonFungibleId;
-        TradableId = tradableItem?.TradableId;
-    }
-
-    public ItemObject(Material material, int count) : this((ItemBase)material, count)
-    {
-        var tradableItem = material as ITradableItem;
-
-        Level = null;
-        RequiredBlockIndex = tradableItem?.RequiredBlockIndex;
-        FungibleId = material.FungibleId;
-        NonFungibleId = null;
-        TradableId = tradableItem?.TradableId;
-    }
+    /// <summary>
+    /// BuffSkills of the ItemUsable.
+    /// </summary>
+    public SkillObject[] BuffSkills { get; set; }
 }

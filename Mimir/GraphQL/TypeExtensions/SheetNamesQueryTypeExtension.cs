@@ -1,3 +1,4 @@
+using Lib9c.GraphQL.Enums;
 using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Queries;
 using Mimir.Repositories;
@@ -10,7 +11,7 @@ public class SheetNamesQueryTypeExtension : ObjectTypeExtension<Query>
     {
         descriptor
             .Field("sheetNames")
-            .Argument("planetName", a => a.Type<NonNullType<PlanetNameEnumType>>())
+            .Argument("planetName", a => a.Type<NonNullType<EnumType<PlanetName>>>())
             .Type<NonNullType<ListType<NonNullType<StringType>>>>()
             .ResolveWith<SheetNamesQueryTypeExtension>(t => GetSheetNames(default!, default!));
     }
