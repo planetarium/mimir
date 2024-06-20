@@ -33,6 +33,7 @@ public class BlockPoller : BaseBlockPoller
             new PatchTableHandler(stateService, store),
             new ProductsHandler(stateService, store),
             new TransferAssetActionHandler(stateService, store),
+            new TransferAssetsActionHandler(stateService, store),
         };
         _handlers = handlers.ToDictionary(handler => handler.ActionTypeRegex);
     }
