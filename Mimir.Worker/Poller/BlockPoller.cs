@@ -11,9 +11,9 @@ namespace Mimir.Worker.Poller;
 
 public class BlockPoller : BaseBlockPoller
 {
-    private static readonly IActionLoader ActionLoader = new NCActionLoader();
+    private static readonly NCActionLoader ActionLoader = new();
 
-    private readonly Dictionary<string, BaseActionHandler> _handlers;
+    private readonly BaseActionHandler[] _handlers;
 
     private readonly IHeadlessGQLClient _headlessGqlClient;
 
@@ -27,13 +27,12 @@ public class BlockPoller : BaseBlockPoller
     {
         _headlessGqlClient = headlessGqlClient;
 
-        var handlers = new List<BaseActionHandler>
-        {
+        _handlers =
+        [
             new BattleArenaHandler(stateService, store),
             new PatchTableHandler(stateService, store),
-            new ProductsHandler(stateService, store),
-        };
-        _handlers = handlers.ToDictionary(handler => handler.ActionTypeRegex);
+            new ProductsHandler(stateService, store)
+        ];
     }
 
     protected override async Task ProcessBlocksAsync(
@@ -104,7 +103,7 @@ public class BlockPoller : BaseBlockPoller
                 : null;
             var actionPlainValueInternal = (Dictionary)actionPlainValue["values"];
             var handled = false;
-            foreach (var handler in _handlers.Values)
+            foreach (var handler in _handlers)
             {
                 if (await handler.TryHandleAction(
                         blockIndex,

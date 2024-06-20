@@ -21,8 +21,6 @@ public abstract class BaseActionHandler(
 
     protected readonly ILogger Logger = logger;
 
-    public readonly string ActionTypeRegex = actionTypeRegex;
-
     public async Task<bool> TryHandleAction(
         long blockIndex,
         IAction action,
@@ -41,7 +39,7 @@ public abstract class BaseActionHandler(
 
         if (actionType is null ||
             string.IsNullOrEmpty(actionType) ||
-            !Regex.IsMatch(actionType, ActionTypeRegex))
+            !Regex.IsMatch(actionType, actionTypeRegex))
         {
             return false;
         }
