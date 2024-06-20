@@ -7,8 +7,7 @@ using Microsoft.Extensions.Options;
 using Mimir.Services;
 using Mimir.Options;
 using Mimir.Repositories;
-using Lib9c.GraphQL.Types;
-using HotChocolate.Types.Pagination;
+using Mimir.GraphQL.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,12 +68,13 @@ builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services
     .AddGraphQLServer()
+    .AddQueryType<ProductQuery>()
+    .AddLib9cGraphQLTypes()
+    .AddMimirGraphQLTypes()
     .AddMongoDbPagingProviders(defaultProvider: true)
     .AddMongoDbProjections()
     .AddMongoDbFiltering()
-    .AddMongoDbSorting()
-    .AddLib9cGraphQLTypes()
-    .AddMimirGraphQLTypes();
+    .AddMongoDbSorting();
 
 var app = builder.Build();
 app.UseRouting();

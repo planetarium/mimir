@@ -1,4 +1,3 @@
-using HotChocolate.Types.Pagination;
 using Lib9c.GraphQL.Enums;
 using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
@@ -38,13 +37,5 @@ public class QueryType : ObjectType<Query>
                 );
                 return new AvatarObject(context.ArgumentValue<Address>("address"));
             });
-
-        descriptor
-            .Field(q => q.GetProducts(default!, default!))
-            .Type<ListType<ProductType>>()
-            // .UsePaging<ProductType>()
-            .UseProjection()
-            .UseFiltering()
-            .UseSorting();
     }
 }
