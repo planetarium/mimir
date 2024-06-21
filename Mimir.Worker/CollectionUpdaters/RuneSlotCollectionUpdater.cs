@@ -17,12 +17,16 @@ public static class RuneSlotCollectionUpdater
         MongoDbService store,
         BattleType battleType,
         Address avatarAddress,
-        IEnumerable<RuneSlotInfo> runeSlotInfos)
+        IEnumerable<IValue> runeSlotInfos)
     {
         var collectionName = CollectionNames.GetCollectionName<ItemSlotState>();
         var collection = store.GetCollection(collectionName);
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(avatarAddress, battleType);
-        var orderedRuneSlotInfos = runeSlotInfos.OrderBy(e => e.SlotIndex).ToList();
+        var orderedRuneSlotInfos = runeSlotInfos
+            .OfType<List>()
+            .Select(e => new RuneSlotInfo(e))
+            .OrderBy(e => e.SlotIndex)
+            .ToList();
         if (!HasChanged(collection, runeSlotAddress, orderedRuneSlotInfos) ||
             await stateService.GetState(runeSlotAddress) is not List serialized)
         {

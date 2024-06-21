@@ -58,16 +58,12 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
             return true;
         }
 
-        var deserializedRuneSlotInfos = runeSlotInfos
-            .OfType<List>()
-            .Select(e => new RuneSlotInfo(e))
-            .ToList();
         await RuneSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             battleType,
             avatarAddress,
-            deserializedRuneSlotInfos);
+            runeSlotInfos);
         return true;
     }
 
