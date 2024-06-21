@@ -37,6 +37,7 @@ public class BlockPoller : BaseBlockPoller
             new PatchTableHandler(stateService, store),
             new ProductsHandler(stateService, store),
             new RaidHandler(stateService, store),
+            new RuneSlotStateHandler(stateService, store),
         ];
     }
 
