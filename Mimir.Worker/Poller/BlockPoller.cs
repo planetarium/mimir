@@ -49,7 +49,7 @@ public class BlockPoller : BaseBlockPoller
         CancellationToken stoppingToken)
     {
         long indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
-        int limit = (int)(indexDifference > 100 ? 100 : indexDifference);
+        int limit = 1;
 
         _logger.Information(
             "Process block, current&sync: {CurrentBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",

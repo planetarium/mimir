@@ -37,7 +37,6 @@ public class RaidActionHandler(IStateService stateService, MongoDbService store)
                 Logger.Error("Failed to get this raidId.");
                 return;
             }
-
             var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
             var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
             var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(
@@ -55,7 +54,7 @@ public class RaidActionHandler(IStateService stateService, MongoDbService store)
             await Store.UpsertStateDataAsync(
                 new StateData(
                     worldBossAddress,
-                    new WorldBossState(worldBossAddress, worldBossState)
+                    new WorldBossState(worldBossAddress, raidId, worldBossState)
                 )
             );
             await Store.UpsertStateDataAsync(
@@ -66,6 +65,7 @@ public class RaidActionHandler(IStateService stateService, MongoDbService store)
                     worldBossKillRewardRecordAddress,
                     new WorldBossKillRewardRecordState(
                         worldBossKillRewardRecordAddress,
+                        avatarAddress,
                         worldBossKillRewardRecordState
                     )
                 )
