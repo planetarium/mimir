@@ -25,6 +25,7 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
+            StateService,
             Store,
             BattleType.Arena,
             battleArena.MyAvatarAddress,

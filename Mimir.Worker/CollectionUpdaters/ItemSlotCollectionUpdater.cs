@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
@@ -11,6 +12,7 @@ namespace Mimir.Worker.CollectionUpdaters;
 public static class ItemSlotCollectionUpdater
 {
     public static async Task UpdateAsync(
+        IStateService stateService,
         MongoDbService store,
         BattleType battleType,
         Address avatarAddress,
@@ -22,14 +24,13 @@ public static class ItemSlotCollectionUpdater
         var itemSlotAddress = Nekoyume.Model.State.ItemSlotState.DeriveAddress(avatarAddress, battleType);
         var orderedCostumes = costumes.OrderBy(e => e).ToList();
         var orderedEquipments = equipments.OrderBy(e => e).ToList();
-        if (!HasChanged(collection, itemSlotAddress, orderedCostumes, orderedEquipments))
+        if (!HasChanged(collection, itemSlotAddress, orderedCostumes, orderedEquipments) ||
+            await stateService.GetState(itemSlotAddress) is not List serialized)
         {
             return;
         }
 
-        var itemSlotState = new Nekoyume.Model.State.ItemSlotState(battleType);
-        itemSlotState.UpdateCostumes(orderedCostumes);
-        itemSlotState.UpdateEquipment(orderedEquipments);
+        var itemSlotState = new Nekoyume.Model.State.ItemSlotState(serialized);
         var stateData = new StateData(
             itemSlotAddress,
             new ItemSlotState(

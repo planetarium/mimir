@@ -23,6 +23,7 @@ public class HackAndSlashHandler(IStateService stateService, MongoDbService stor
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
+            StateService,
             Store,
             BattleType.Adventure,
             hackAndSlash.AvatarAddress,

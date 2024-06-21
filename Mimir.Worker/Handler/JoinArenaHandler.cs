@@ -23,6 +23,7 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
+            StateService,
             Store,
             BattleType.Arena,
             joinArena.AvatarAddress,

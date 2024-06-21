@@ -23,6 +23,7 @@ public class RaidHandler(IStateService stateService, MongoDbService store) :
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
+            StateService,
             Store,
             BattleType.Raid,
             raid.AvatarAddress,

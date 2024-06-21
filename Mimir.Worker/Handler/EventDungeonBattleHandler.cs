@@ -23,6 +23,7 @@ public class EventDungeonBattleHandler(IStateService stateService, MongoDbServic
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
+            StateService,
             Store,
             BattleType.Adventure,
             eventDungeonBattle.AvatarAddress,
