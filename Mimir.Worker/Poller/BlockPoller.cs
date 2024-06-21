@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
 using Libplanet.Action.Loader;
+using Libplanet.Types.Tx;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Nekoyume.Action.Loader;
@@ -38,6 +39,7 @@ public class BlockPoller : BaseBlockPoller
             new ProductsHandler(stateService, store),
             new RaidHandler(stateService, store),
             new RuneSlotStateHandler(stateService, store),
+            new RaidActionHandler(stateService, store)
         ];
     }
 
@@ -47,7 +49,7 @@ public class BlockPoller : BaseBlockPoller
         CancellationToken stoppingToken)
     {
         long indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
-        int limit = (int)(indexDifference > 100 ? 100 : indexDifference);
+        int limit = 1;
 
         _logger.Information(
             "Process block, current&sync: {CurrentBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",
@@ -121,10 +123,10 @@ public class BlockPoller : BaseBlockPoller
                 }
             }
 
-            if (!handled)
-            {
-                _logger.Warning("Action is not handled. action: {Action}", actionPlainValue);
-            }
+            // if (!handled)
+            // {
+            //     _logger.Debug("Action is not handled. action: {Action}", actionPlainValue);
+            // }
         }
 
         await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);

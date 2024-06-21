@@ -89,7 +89,7 @@ public class MongoDbService
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
         var existingState = await GetCollection(
-                CollectionNames.GetCollectionName<WrappedProductsState>()
+                CollectionNames.GetCollectionName<ProductsState>()
             )
             .Find(filter)
             .FirstOrDefaultAsync();

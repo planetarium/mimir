@@ -1,11 +1,11 @@
 using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
-using Nekoyume.Model.Market;
 using Serilog;
+using NCProductsState = Nekoyume.Model.Market.ProductsState;
+using ProductsState = Mimir.Worker.Models.ProductsState;
 
 namespace Mimir.Worker.Initializer;
 
@@ -21,9 +21,7 @@ public class MarketInitializer : BaseInitializer
 
     public override async Task<bool> IsInitialized()
     {
-        var collection = _store.GetCollection(
-            CollectionNames.GetCollectionName<WrappedProductsState>()
-        );
+        var collection = _store.GetCollection(CollectionNames.GetCollectionName<ProductsState>());
         var count = await collection.CountDocumentsAsync(new BsonDocument());
 
         return count > 0;
@@ -48,7 +46,7 @@ public class MarketInitializer : BaseInitializer
                 avatarAddress
             );
 
-            var productsStateAddress = ProductsState.DeriveAddress(avatarAddress);
+            var productsStateAddress = NCProductsState.DeriveAddress(avatarAddress);
             var productsState = await _stateGetter.GetProductsState(avatarAddress);
             await productHandler.SyncWrappedProductsStateAsync(
                 avatarAddress,

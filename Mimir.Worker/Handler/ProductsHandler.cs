@@ -10,15 +10,18 @@ using Nekoyume.Model.Market;
 using Nekoyume.TableData;
 using Nekoyume.TableData.Crystal;
 using Serilog;
+using NCProductsState = Nekoyume.Model.Market.ProductsState;
+using ProductsState = Mimir.Worker.Models.ProductsState;
 
 namespace Mimir.Worker.Handler;
 
-public class ProductsHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class ProductsHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(
         stateService,
         store,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductsHandler>())
+        Log.ForContext<ProductsHandler>()
+    )
 {
     protected override async Task HandleAction(
         string actionType,
@@ -35,7 +38,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
                 avatarAddress
             );
 
-            var productsStateAddress = ProductsState.DeriveAddress(avatarAddress);
+            var productsStateAddress = NCProductsState.DeriveAddress(avatarAddress);
             var productsState = await StateGetter.GetProductsState(avatarAddress);
             await SyncWrappedProductsStateAsync(avatarAddress, productsStateAddress, productsState);
         }
@@ -69,7 +72,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
     public async Task SyncWrappedProductsStateAsync(
         Address avatarAddress,
         Address productsStateAddress,
-        ProductsState productsState
+        NCProductsState productsState
     )
     {
         var productIds = productsState.ProductIds.Select(id => Guid.Parse(id.ToString())).ToList();
@@ -85,7 +88,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
         await Store.UpsertStateDataAsync(
             new StateData(
                 productsStateAddress,
-                new WrappedProductsState(productsStateAddress, avatarAddress, productsState)
+                new ProductsState(productsStateAddress, avatarAddress, productsState)
             )
         );
     }

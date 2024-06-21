@@ -205,6 +205,41 @@ public class StateGetter
         };
     }
 
+    public async Task<WorldBossState?> GetWorldBossState(Address worldBossAddress)
+    {
+        var state = await _service.GetState(worldBossAddress);
+
+        return state switch
+        {
+            List list => new WorldBossState(list),
+            _ => throw new InvalidCastException()
+        };
+    }
+
+    public async Task<RaiderState?> GetRaiderState(Address raiderAddress)
+    {
+        var state = await _service.GetState(raiderAddress);
+
+        return state switch
+        {
+            List list => new RaiderState(list),
+            _ => throw new InvalidCastException()
+        };
+    }
+
+    public async Task<WorldBossKillRewardRecord?> GetWorldBossKillRewardRecordState(
+        Address worldBossKillRewardRecordAddress
+    )
+    {
+        var state = await _service.GetState(worldBossKillRewardRecordAddress);
+
+        return state switch
+        {
+            List list => new WorldBossKillRewardRecord(list),
+            _ => throw new InvalidCastException()
+        };
+    }
+
     public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
     {
         var state = await _service.GetState(address, accountAddress);
