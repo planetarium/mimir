@@ -4,6 +4,7 @@ using AgentState = Mimir.Worker.Models.AgentState;
 using AllRuneState = Mimir.Worker.Models.AllRuneState;
 using CollectionState = Mimir.Worker.Models.CollectionState;
 using ItemSlotState = Mimir.Worker.Models.ItemSlotState;
+using RuneSlotState = Mimir.Worker.Models.RuneSlotState;
 
 namespace Mimir.Worker.Constants
 {
@@ -27,6 +28,7 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(WrappedProductsState), "products");
             CollectionMappings.Add(typeof(ProductState), "product");
             CollectionMappings.Add(typeof(ItemSlotState), "item_slot");
+            CollectionMappings.Add(typeof(RuneSlotState), "rune_slot");
         }
 
         public static string GetCollectionName<T>()
