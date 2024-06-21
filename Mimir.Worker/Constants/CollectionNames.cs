@@ -1,10 +1,13 @@
 using Mimir.Worker.Models;
 using Nekoyume.Model.State;
 using AgentState = Mimir.Worker.Models.AgentState;
+using ProductsState = Mimir.Worker.Models.ProductsState;
 using AllRuneState = Mimir.Worker.Models.AllRuneState;
 using CollectionState = Mimir.Worker.Models.CollectionState;
 using ItemSlotState = Mimir.Worker.Models.ItemSlotState;
 using RuneSlotState = Mimir.Worker.Models.RuneSlotState;
+using WorldBossState = Mimir.Worker.Models.WorldBossState;
+using RaiderState = Mimir.Worker.Models.RaiderState;
 
 namespace Mimir.Worker.Constants
 {
@@ -25,10 +28,13 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(AllRuneState), "all_rune");
             CollectionMappings.Add(typeof(CollectionState), "collection");
             CollectionMappings.Add(typeof(DailyRewardState), "daily_reward");
-            CollectionMappings.Add(typeof(WrappedProductsState), "products");
+            CollectionMappings.Add(typeof(ProductsState), "products");
             CollectionMappings.Add(typeof(ProductState), "product");
             CollectionMappings.Add(typeof(ItemSlotState), "item_slot");
             CollectionMappings.Add(typeof(RuneSlotState), "rune_slot");
+            CollectionMappings.Add(typeof(WorldBossState), "world_boss");
+            CollectionMappings.Add(typeof(WorldBossKillRewardRecordState), "world_boss_kill_reward_record");
+            CollectionMappings.Add(typeof(RaiderState), "raider");
         }
 
         public static string GetCollectionName<T>()

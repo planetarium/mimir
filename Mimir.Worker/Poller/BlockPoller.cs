@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
 using Libplanet.Action.Loader;
+using Libplanet.Types.Tx;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Nekoyume.Action.Loader;
@@ -122,10 +123,10 @@ public class BlockPoller : BaseBlockPoller
                 }
             }
 
-            if (!handled)
-            {
-                _logger.Warning("Action is not handled. action: {Action}", actionPlainValue);
-            }
+            // if (!handled)
+            // {
+            //     _logger.Debug("Action is not handled. action: {Action}", actionPlainValue);
+            // }
         }
 
         await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);

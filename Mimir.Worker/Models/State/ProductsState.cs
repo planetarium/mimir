@@ -1,16 +1,16 @@
 using Libplanet.Crypto;
-using Nekoyume.Model.Market;
 using Nekoyume.Model.State;
+using NCProductsState = Nekoyume.Model.Market.ProductsState;
 
 namespace Mimir.Worker.Models;
 
-public class WrappedProductsState : State
+public class ProductsState : State
 {
-    public ProductsState Object;
+    public NCProductsState Object;
 
     public Address AvatarAddress;
 
-    public WrappedProductsState(Address address, Address avatarAddress, ProductsState productsState)
+    public ProductsState(Address address, Address avatarAddress, NCProductsState productsState)
         : base(address)
     {
         Object = productsState;

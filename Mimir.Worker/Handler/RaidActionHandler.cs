@@ -9,12 +9,10 @@ using Serilog;
 
 namespace Mimir.Worker.Handler;
 
-public class RaidActionHandler : BaseActionHandler
+public class RaidActionHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaidActionHandler>())
 {
-    public RaidActionHandler(IStateService stateService, MongoDbService store)
-        : base(stateService, store, "^raid[0-9]*$", Log.ForContext<RaidActionHandler>()) { }
-
-    public override async Task HandleAction(
+    protected override async Task HandleAction(
         string actionType,
         long processBlockIndex,
         Dictionary actionValues
@@ -22,20 +20,60 @@ public class RaidActionHandler : BaseActionHandler
     {
         var avatarAddress = new Address(actionValues["a"]);
 
-        _logger.Information("Handle raid, avatar: {avatarAddress}", avatarAddress);
+        Logger.Information("Handle raid, avatar: {avatarAddress}", avatarAddress);
 
-        var worldBossListSheet = await _store.GetSheetAsync<WorldBossListSheet>();
+        var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>();
 
         if (worldBossListSheet != null)
         {
-            var row = worldBossListSheet.FindRowByBlockIndex(processBlockIndex);
-            int raidId = row.Id;
+            int raidId;
+            try
+            {
+                var row = worldBossListSheet.FindRowByBlockIndex(processBlockIndex);
+                raidId = row.Id;
+            }
+            catch (InvalidOperationException)
+            {
+                Logger.Error("Failed to get this raidId.");
+                return;
+            }
+
             var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
             var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
             var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(
                 avatarAddress,
                 raidId
             );
+
+            var worldBossState = await StateGetter.GetWorldBossState(worldBossAddress);
+            var raiderState = await StateGetter.GetRaiderState(raiderAddress);
+            var worldBossKillRewardRecordState =
+                await StateGetter.GetWorldBossKillRewardRecordState(
+                    worldBossKillRewardRecordAddress
+                );
+
+            await Store.UpsertStateDataAsync(
+                new StateData(
+                    worldBossAddress,
+                    new WorldBossState(worldBossAddress, worldBossState)
+                )
+            );
+            await Store.UpsertStateDataAsync(
+                new StateData(raiderAddress, new RaiderState(raiderAddress, raiderState))
+            );
+            await Store.UpsertStateDataAsync(
+                new StateData(
+                    worldBossKillRewardRecordAddress,
+                    new WorldBossKillRewardRecordState(
+                        worldBossKillRewardRecordAddress,
+                        worldBossKillRewardRecordState
+                    )
+                )
+            );
+        }
+        else
+        {
+            Logger.Error("RaidActionHandler requires worldBossListSheet.");
         }
     }
 }
