@@ -1,5 +1,6 @@
 using Lib9c.Abstractions;
 using Libplanet.Action;
+using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using Nekoyume.Model.EnumType;
@@ -14,7 +15,10 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
         "^join_arena[0-9]*$",
         Log.ForContext<JoinArenaHandler>())
 {
-    protected override async Task HandleAction(long blockIndex, IAction action)
+    protected override async Task HandleAction(
+        long blockIndex,
+        Address signer,
+        IAction action)
     {
         if (action is not IJoinArenaV1 joinArena)
         {

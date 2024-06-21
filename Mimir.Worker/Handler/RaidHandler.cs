@@ -1,5 +1,6 @@
 using Lib9c.Abstractions;
 using Libplanet.Action;
+using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using Nekoyume.Model.EnumType;
@@ -14,7 +15,10 @@ public class RaidHandler(IStateService stateService, MongoDbService store) :
         "^raid[0-9]*$",
         Log.ForContext<RaidHandler>())
 {
-    protected override async Task HandleAction(long blockIndex, IAction action)
+    protected override async Task HandleAction(
+        long blockIndex,
+        Address signer,
+        IAction action)
     {
         if (action is not IRaidV2 raid)
         {
