@@ -1,7 +1,10 @@
-using Bencodex.Types;
+using Lib9c.Abstractions;
+using Libplanet.Action;
 using Libplanet.Crypto;
+using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
+using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.Handler;
@@ -13,15 +16,33 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         "^battle_arena[0-9]*$",
         Log.ForContext<BattleArenaHandler>())
 {
-    protected override async Task HandleAction(
-        string actionType,
-        long processBlockIndex,
-        Dictionary actionValues
-    )
+    protected override async Task HandleAction(long blockIndex, IAction action)
     {
-        var myAvatarAddress = new Address(actionValues["maa"]);
-        var enemyAvatarAddress = new Address(actionValues["eaa"]);
+        if (action is not IBattleArenaV1 battleArena)
+        {
+            throw new NotImplementedException(
+                $"Action is not {nameof(IBattleArenaV1)}: {action.GetType()}");
+        }
 
+        await ItemSlotCollectionUpdater.UpdateAsync(
+            StateService,
+            Store,
+            BattleType.Arena,
+            battleArena.MyAvatarAddress,
+            battleArena.Costumes,
+            battleArena.Equipments);
+
+        await UpdateArenaCollectionAsync(
+            blockIndex,
+            battleArena.MyAvatarAddress,
+            battleArena.EnemyAvatarAddress);
+    }
+
+    private async Task UpdateArenaCollectionAsync(
+        long processBlockIndex,
+        Address myAvatarAddress,
+        Address enemyAvatarAddress)
+    {
         Logger.Information(
             "Handle battle_arena, my: {MyAvatarAddress}, enemy: {EnemyAvatarAddress}",
             myAvatarAddress,
