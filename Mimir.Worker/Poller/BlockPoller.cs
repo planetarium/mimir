@@ -2,8 +2,6 @@ using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
 using Libplanet.Crypto;
-using Libplanet.Action.Loader;
-using Libplanet.Types.Tx;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Nekoyume.Action.Loader;
@@ -40,7 +38,9 @@ public class BlockPoller : BaseBlockPoller
             new ProductsHandler(stateService, store),
             new RaidHandler(stateService, store),
             new RuneSlotStateHandler(stateService, store),
-            new RaidActionHandler(stateService, store)
+            new RaidActionHandler(stateService, store),
+            new StakeHandler(stateService, store),
+            new ClaimStakeRewardHandler(stateService, store),
         ];
     }
 
