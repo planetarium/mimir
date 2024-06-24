@@ -59,7 +59,7 @@ public class AvatarType : ObjectType<AvatarObject>
             .Argument("battleType", a => a
                 .Description("The type of battle that the item slot is used for.")
                 .Type<NonNullType<EnumType<BattleType>>>())
-            .Type<ItemSlotType>()
+            .Type<ItemSlotStateType>()
             .ResolveWith<AvatarResolver>(_ =>
                 AvatarResolver.GetItemSlot(default!, default!, default!, default!));
     }
