@@ -4,7 +4,7 @@ using Nekoyume.Model.State;
 
 namespace Mimir.GraphQL.Types;
 
-public class ItemSlotType : ObjectType<ItemSlotState>
+public class ItemSlotStateType : ObjectType<ItemSlotState>
 {
     protected override void Configure(IObjectTypeDescriptor<ItemSlotState> descriptor)
     {

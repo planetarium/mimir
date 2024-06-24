@@ -45,7 +45,13 @@ public class ItemSlotRepository(MongoDBCollectionService mongoDbCollectionServic
         catch (KeyNotFoundException e)
         {
             throw new KeyNotFoundInBsonDocumentException(
-                "document[\"State\"][\"Object\"] or its children keys \"Costumes\" and \"Equipments\"",
+                "document[\"State\"][\"Object\"] or its children keys",
+                e);
+        }
+        catch (InvalidCastException e)
+        {
+            throw new UnexpectedTypeOfBsonValueException(
+                "document[\"State\"][\"Object\"].AsBsonDocument or its children values",
                 e);
         }
     }

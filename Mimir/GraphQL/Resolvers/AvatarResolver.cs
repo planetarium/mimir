@@ -6,6 +6,7 @@ using Mimir.GraphQL.Objects;
 using Mimir.Models;
 using Mimir.Repositories;
 using Nekoyume.Model.EnumType;
+using Nekoyume.Model.Rune;
 using Nekoyume.Model.State;
 
 namespace Mimir.GraphQL.Resolvers;
@@ -100,4 +101,11 @@ public class AvatarResolver
         [ScopedState("planetName")] PlanetName planetName,
         BattleType battleType) =>
         itemSlotRepo.GetItemSlot(planetName, avatarObject.Address, battleType);
+
+    public static RuneSlot[] GetRuneSlots(
+        [Service] RuneSlotRepository runeSlotRepo,
+        [Parent] AvatarObject avatarObject,
+        [ScopedState("planetName")] PlanetName planetName,
+        BattleType battleType) =>
+        runeSlotRepo.GetRuneSlots(planetName, avatarObject.Address, battleType);
 }

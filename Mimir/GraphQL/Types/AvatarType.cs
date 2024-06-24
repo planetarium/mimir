@@ -59,8 +59,16 @@ public class AvatarType : ObjectType<AvatarObject>
             .Argument("battleType", a => a
                 .Description("The type of battle that the item slot is used for.")
                 .Type<NonNullType<EnumType<BattleType>>>())
-            .Type<ItemSlotType>()
+            .Type<ItemSlotStateType>()
             .ResolveWith<AvatarResolver>(_ =>
                 AvatarResolver.GetItemSlot(default!, default!, default!, default!));
+        descriptor
+            .Field("runeSlots")
+            .Argument("battleType", a => a
+                .Description("The type of battle that the rune slot is used for.")
+                .Type<NonNullType<EnumType<BattleType>>>())
+            .Type<ListType<RuneSlotType>>()
+            .ResolveWith<AvatarResolver>(_ =>
+                AvatarResolver.GetRuneSlots(default!, default!, default!, default!));
     }
 }

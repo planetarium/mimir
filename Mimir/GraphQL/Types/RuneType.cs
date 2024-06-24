@@ -8,9 +8,11 @@ public class RuneType : ObjectType<RuneObject>
     {
         descriptor
             .Field(f => f.RuneSheetId)
+            .Description("The RuneSheet ID of the rune.")
             .Type<NonNullType<IntType>>();
         descriptor
             .Field(f => f.Level)
+            .Description("The level of the rune.")
             .Type<NonNullType<IntType>>();
     }
 }
