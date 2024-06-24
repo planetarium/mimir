@@ -5,6 +5,8 @@ using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
 using Mimir.Repositories;
+using Nekoyume.Model.EnumType;
+using Nekoyume.Model.State;
 
 namespace Mimir.GraphQL.Resolvers;
 
@@ -91,4 +93,11 @@ public class AvatarResolver
         collectionRepo.GetCollection(planetName, avatarObject.Address)
             .CollectionSheetIds.Select(CollectionElementObjectFactory.Create)
             .ToArray();
+
+    public static ItemSlotState GetItemSlot(
+        [Service] ItemSlotRepository itemSlotRepo,
+        [Parent] AvatarObject avatarObject,
+        [ScopedState("planetName")] PlanetName planetName,
+        BattleType battleType) =>
+        itemSlotRepo.GetItemSlot(planetName, avatarObject.Address, battleType);
 }
