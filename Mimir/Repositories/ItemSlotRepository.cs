@@ -45,7 +45,7 @@ public class ItemSlotRepository(MongoDBCollectionService mongoDbCollectionServic
         catch (KeyNotFoundException e)
         {
             throw new KeyNotFoundInBsonDocumentException(
-                "document[\"State\"][\"Object\"] or its children keys \"Costumes\" and \"Equipments\"",
+                "document[\"State\"][\"Object\"] or its children keys",
                 e);
         }
     }
