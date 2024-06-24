@@ -55,6 +55,12 @@ public class RuneSlotRepository(MongoDBCollectionService mongoDbCollectionServic
                 "document[\"State\"][\"Object\"][\"slots\"] or its children keys",
                 e);
         }
+        catch (InvalidCastException e)
+        {
+            throw new UnexpectedTypeOfBsonValueException(
+                "document[\"State\"][\"Object\"][\"slots\"].AsBsonArray or its children values",
+                e);
+        }
     }
 
     protected override string GetCollectionName() => "rune_slot";

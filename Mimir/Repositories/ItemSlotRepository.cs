@@ -48,6 +48,12 @@ public class ItemSlotRepository(MongoDBCollectionService mongoDbCollectionServic
                 "document[\"State\"][\"Object\"] or its children keys",
                 e);
         }
+        catch (InvalidCastException e)
+        {
+            throw new UnexpectedTypeOfBsonValueException(
+                "document[\"State\"][\"Object\"].AsBsonDocument or its children values",
+                e);
+        }
     }
 
     protected override string GetCollectionName() => "item_slot";
