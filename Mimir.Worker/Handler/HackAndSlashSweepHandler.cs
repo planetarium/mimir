@@ -1,5 +1,6 @@
 using Lib9c.Abstractions;
 using Libplanet.Action;
+using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using Nekoyume.Model.EnumType;
@@ -14,7 +15,10 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
         "^hack_and_slash_sweep[0-9]*$",
         Log.ForContext<HackAndSlashSweepHandler>())
 {
-    protected override async Task HandleAction(long blockIndex, IAction action)
+    protected override async Task HandleAction(
+        long blockIndex,
+        Address signer,
+        IAction action)
     {
         if (action is not IHackAndSlashSweepV3 hackAndSlashSweep)
         {

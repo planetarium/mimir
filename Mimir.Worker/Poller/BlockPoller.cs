@@ -1,8 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
-using Libplanet.Action.Loader;
-using Libplanet.Types.Tx;
+using Libplanet.Crypto;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Nekoyume.Action.Loader;
@@ -39,7 +38,9 @@ public class BlockPoller : BaseBlockPoller
             new ProductsHandler(stateService, store),
             new RaidHandler(stateService, store),
             new RuneSlotStateHandler(stateService, store),
-            new RaidActionHandler(stateService, store)
+            new RaidActionHandler(stateService, store),
+            new StakeHandler(stateService, store),
+            new ClaimStakeRewardHandler(stateService, store),
         ];
     }
 
@@ -87,46 +88,47 @@ public class BlockPoller : BaseBlockPoller
             return;
         }
 
-        var actions = txs
-            .Where(tx => tx is not null)
-            .SelectMany(tx => tx!.Actions
-                .Where(action => action is not null)
-                .Select(action => action!.Raw)
-                .ToList())
-            .ToList();
-        _logger.Information(
-            "GetTransaction Success, tx-count: {TxCount}, action counts: {ActionsCounts}",
-            txs.Count,
-            actions.Count
-        );
         var blockIndex = syncedBlockIndex + limit;
-        foreach (var rawAction in actions)
-        {
-            var action = ActionLoader.LoadAction(
-                blockIndex,
-                _codec.Decode(Convert.FromHexString(rawAction)));
-            var actionPlainValue = (Dictionary)action.PlainValue;
-            var actionType = actionPlainValue.ContainsKey("type_id")
-                ? (string)(Text)actionPlainValue["type_id"]
-                : null;
-            var actionPlainValueInternal = (Dictionary)actionPlainValue["values"];
-            var handled = false;
-            foreach (var handler in _handlers)
-            {
-                if (await handler.TryHandleAction(
+        var tuples = txs
+            .Where(tx => tx is not null)
+            .Select(tx => (
+                Signer: new Address(tx!.Signer),
+                actions: tx.Actions
+                    .Where(action => action is not null)
+                    .Select(action => ActionLoader.LoadAction(
                         blockIndex,
-                        action,
-                        actionType,
-                        actionPlainValueInternal))
+                        _codec.Decode(Convert.FromHexString(action!.Raw))))
+                    .ToList()))
+            .ToList();
+        _logger.Information("GetTransaction Success, tx-count: {TxCount}", txs.Count);
+        foreach (var (signer, actions) in tuples)
+        {
+            foreach (var action in actions)
+            {
+                var actionPlainValue = (Dictionary)action.PlainValue;
+                var actionType = actionPlainValue.ContainsKey("type_id")
+                    ? (string)(Text)actionPlainValue["type_id"]
+                    : null;
+                var actionPlainValueInternal = (Dictionary)actionPlainValue["values"];
+                var handled = false;
+                foreach (var handler in _handlers)
                 {
-                    handled = true;
+                    if (await handler.TryHandleAction(
+                            blockIndex,
+                            signer,
+                            action,
+                            actionType,
+                            actionPlainValueInternal))
+                    {
+                        handled = true;
+                    }
+                }
+
+                if (!handled)
+                {
+                    _logger.Warning("Action is not handled. action: {Action}", actionPlainValue);
                 }
             }
-
-            // if (!handled)
-            // {
-            //     _logger.Debug("Action is not handled. action: {Action}", actionPlainValue);
-            // }
         }
 
         await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);

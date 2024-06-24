@@ -16,7 +16,10 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         "^battle_arena[0-9]*$",
         Log.ForContext<BattleArenaHandler>())
 {
-    protected override async Task HandleAction(long blockIndex, IAction action)
+    protected override async Task HandleAction(
+        long blockIndex,
+        Address signer,
+        IAction action)
     {
         if (action is not IBattleArenaV1 battleArena)
         {

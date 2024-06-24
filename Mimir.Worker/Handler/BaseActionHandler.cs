@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Action;
+using Libplanet.Crypto;
 using Mimir.Worker.Util;
 using Mimir.Worker.Services;
 using ILogger = Serilog.ILogger;
@@ -23,13 +24,14 @@ public abstract class BaseActionHandler(
 
     public async Task<bool> TryHandleAction(
         long blockIndex,
+        Address signer,
         IAction action,
         string? actionType,
         Dictionary? actionPlainValueInternal)
     {
         try
         {
-            await HandleAction(blockIndex, action);
+            await HandleAction(blockIndex, signer, action);
             return true;
         }
         catch (NotImplementedException)
@@ -61,6 +63,7 @@ public abstract class BaseActionHandler(
 
     protected virtual Task HandleAction(
         long blockIndex,
+        Address signer,
         IAction action)
     {
         throw new NotImplementedException();

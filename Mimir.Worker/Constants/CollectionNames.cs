@@ -8,6 +8,7 @@ using ItemSlotState = Mimir.Worker.Models.ItemSlotState;
 using RuneSlotState = Mimir.Worker.Models.RuneSlotState;
 using WorldBossState = Mimir.Worker.Models.WorldBossState;
 using RaiderState = Mimir.Worker.Models.RaiderState;
+using StakeState = Mimir.Worker.Models.StakeState;
 
 namespace Mimir.Worker.Constants
 {
@@ -35,6 +36,7 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(WorldBossState), "world_boss");
             CollectionMappings.Add(typeof(WorldBossKillRewardRecordState), "world_boss_kill_reward_record");
             CollectionMappings.Add(typeof(RaiderState), "raider");
+            CollectionMappings.Add(typeof(StakeState), "stake");
         }
 
         public static string GetCollectionName<T>()

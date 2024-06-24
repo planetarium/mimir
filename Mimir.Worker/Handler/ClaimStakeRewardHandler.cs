@@ -3,35 +3,31 @@ using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
-using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.Handler;
 
-public class RaidHandler(IStateService stateService, MongoDbService store) :
+public class ClaimStakeRewardHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(
         stateService,
         store,
-        "^raid[0-9]*$",
-        Log.ForContext<RaidHandler>())
+        "^claim_stake_reward[0-9]*$",
+        Log.ForContext<StakeHandler>())
 {
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IAction action)
     {
-        if (action is not IRaidV2 raid)
+        if (action is not IClaimStakeRewardV1)
         {
             throw new NotImplementedException(
-                $"Action is not {nameof(IRaidV2)}: {action.GetType()}");
+                $"Action is not {nameof(IClaimStakeRewardV1)}: {action.GetType()}");
         }
 
-        await ItemSlotCollectionUpdater.UpdateAsync(
+        await StakeCollectionUpdater.UpdateAsync(
             StateService,
             Store,
-            BattleType.Raid,
-            raid.AvatarAddress,
-            raid.CostumeIds,
-            raid.EquipmentIds);
+            signer);
     }
 }
