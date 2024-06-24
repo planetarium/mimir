@@ -56,7 +56,9 @@ public class AvatarType : ObjectType<AvatarObject>
                 AvatarResolver.GetCollectionElements(default!, default!, default!));
         descriptor
             .Field("itemSlots")
-            .Argument("battleType", a => a.Type<NonNullType<EnumType<BattleType>>>())
+            .Argument("battleType", a => a
+                .Description("The type of battle that the item slot is used for.")
+                .Type<NonNullType<EnumType<BattleType>>>())
             .Type<ItemSlotType>()
             .ResolveWith<AvatarResolver>(_ =>
                 AvatarResolver.GetItemSlot(default!, default!, default!, default!));

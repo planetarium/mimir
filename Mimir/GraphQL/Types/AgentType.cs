@@ -1,6 +1,7 @@
 using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Resolvers;
+using Nekoyume;
 
 namespace Mimir.GraphQL.Types;
 
@@ -28,7 +29,9 @@ public class AgentType : ObjectType<AgentObject>
                 AgentResolver.GetMonsterCollectionRound(default!, default!, default!, default!, default!));
         descriptor
             .Field("avatar")
-            .Argument("index", a => a.Type<NonNullType<IntType>>())
+            .Argument("index", a => a
+                .Description($"The index of the avatar in the agent. (0 ~ {GameConfig.SlotCount - 1}).")
+                .Type<NonNullType<IntType>>())
             .Type<AvatarType>()
             .ResolveWith<AgentResolver>(_ =>
                 AgentResolver.GetAvatar(default!, default!));
