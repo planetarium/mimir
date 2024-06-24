@@ -4,7 +4,7 @@ namespace Mimir.Exceptions;
 
 public class UnexpectedTypeOfBsonValueException : Exception, IDefaultMessageException
 {
-    public const string DefaultMessage = "Unexpected type of BsonValue";
+    private const string DefaultMessage = "Unexpected type of BsonValue";
 
     public string GetDefaultMessage() => DefaultMessage;
 

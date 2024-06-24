@@ -1,6 +1,7 @@
 using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Resolvers;
+using Nekoyume.Model.EnumType;
 
 namespace Mimir.GraphQL.Types;
 
@@ -53,5 +54,13 @@ public class AvatarType : ObjectType<AvatarObject>
             .Type<ListType<NonNullType<CollectionElementType>>>()
             .ResolveWith<AvatarResolver>(_ =>
                 AvatarResolver.GetCollectionElements(default!, default!, default!));
+        descriptor
+            .Field("itemSlots")
+            .Argument("battleType", a => a
+                .Description("The type of battle that the item slot is used for.")
+                .Type<NonNullType<EnumType<BattleType>>>())
+            .Type<ItemSlotType>()
+            .ResolveWith<AvatarResolver>(_ =>
+                AvatarResolver.GetItemSlot(default!, default!, default!, default!));
     }
 }
