@@ -2,7 +2,7 @@ namespace Mimir.Exceptions;
 
 public class KeyNotFoundInBsonDocumentException : Exception, IDefaultMessageException
 {
-    public const string DefaultMessage = "Key not found in BsonDocument";
+    private const string DefaultMessage = "Key not found in BsonDocument";
 
     public string GetDefaultMessage() => DefaultMessage;
 
