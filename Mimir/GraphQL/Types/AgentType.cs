@@ -33,12 +33,14 @@ public class AgentType : ObjectType<AgentObject>
                 .Description($"The index of the avatar in the agent. (0 ~ {GameConfig.SlotCount - 1}).")
                 .Type<NonNullType<IntType>>())
             .Type<AvatarType>()
-            .ResolveWith<AgentResolver>(_ =>
-                AgentResolver.GetAvatar(default!, default!));
+            .ResolveWith<AgentResolver>(_ => AgentResolver.GetAvatar(default!, default!));
         descriptor
             .Field("avatars")
             .Type<NonNullType<ListType<NonNullType<AvatarType>>>>()
-            .ResolveWith<AgentResolver>(_ =>
-                AgentResolver.GetAvatars(default!));
+            .ResolveWith<AgentResolver>(_ => AgentResolver.GetAvatars(default!));
+        descriptor
+            .Field("stake")
+            .Type<StakeStateType>()
+            .ResolveWith<AgentResolver>(_ => AgentResolver.GetStake(default!, default!, default!));
     }
 }

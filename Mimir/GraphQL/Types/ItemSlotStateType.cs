@@ -8,6 +8,7 @@ public class ItemSlotStateType : ObjectType<ItemSlotState>
 {
     protected override void Configure(IObjectTypeDescriptor<ItemSlotState> descriptor)
     {
+        descriptor.BindFieldsExplicitly();
         descriptor
             .Field(f => f.BattleType)
             .Description("The type of battle that the item slot is used for.")

@@ -7,7 +7,7 @@ public class StatMapType : ObjectType<StatMap>
 {
     protected override void Configure(IObjectTypeDescriptor<StatMap> descriptor)
     {
-        descriptor.BindFields(BindingBehavior.Explicit);
+        descriptor.BindFieldsExplicitly();
         descriptor
             .Field(f => f.HP)
             .Type<NonNullType<LongType>>();
