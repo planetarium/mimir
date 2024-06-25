@@ -6,6 +6,7 @@ public class RuneSlotType : ObjectType<RuneSlot>
 {
     protected override void Configure(IObjectTypeDescriptor<RuneSlot> descriptor)
     {
+        descriptor.BindFieldsExplicitly();
         descriptor
             .Field(f => f.Index)
             .Description("The index of the rune slot.")
