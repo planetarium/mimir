@@ -5,6 +5,7 @@ using Mimir.GraphQL.Objects;
 using Mimir.Models;
 using Mimir.Repositories;
 using Nekoyume;
+using Nekoyume.Model.Stake;
 
 namespace Mimir.GraphQL.Resolvers;
 
@@ -69,5 +70,14 @@ public class AgentResolver
                 agentAddress,
                 tuple.index))
             .ToList();
+    }
+
+    public static StakeStateV2 GetStake(
+        [Service] StakeRepository stakeRepo,
+        [Parent] AgentObject agentObject,
+        [ScopedState("planetName")] PlanetName planetName)
+    {
+        var agentAddress = agentObject.Address;
+        return stakeRepo.GetStakeState(planetName, agentAddress);
     }
 }
