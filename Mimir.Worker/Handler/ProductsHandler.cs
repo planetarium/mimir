@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.Worker.Exceptions;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume.Battle;
@@ -26,9 +27,15 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
     protected override async Task HandleAction(
         string actionType,
         long processBlockIndex,
-        Dictionary actionValues
-    )
+        IValue? actionPlainValueInternal)
     {
+        if (actionPlainValueInternal is not Dictionary actionValues)
+        {
+            throw new InvalidTypeOfActionPlainValueInternalException(
+                [ValueKind.Dictionary],
+                actionPlainValueInternal?.Kind);
+        }
+
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
 
         foreach (var avatarAddress in avatarAddresses)

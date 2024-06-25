@@ -1,5 +1,6 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.Worker.Exceptions;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume;
@@ -15,9 +16,15 @@ public class RaidActionHandler(IStateService stateService, MongoDbService store)
     protected override async Task HandleAction(
         string actionType,
         long processBlockIndex,
-        Dictionary actionValues
-    )
+        IValue? actionPlainValueInternal)
     {
+        if (actionPlainValueInternal is not Dictionary actionValues)
+        {
+            throw new InvalidTypeOfActionPlainValueInternalException(
+                [ValueKind.Dictionary],
+                actionPlainValueInternal?.Kind);
+        }
+
         var avatarAddress = new Address(actionValues["a"]);
 
         Logger.Information("Handle raid, avatar: {avatarAddress}", avatarAddress);
@@ -37,6 +44,7 @@ public class RaidActionHandler(IStateService stateService, MongoDbService store)
                 Logger.Error("Failed to get this raidId.");
                 return;
             }
+
             var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
             var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
             var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(

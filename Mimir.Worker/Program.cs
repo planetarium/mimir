@@ -79,14 +79,17 @@ builder.Services.AddHostedService(serviceProvider =>
 
 var host = builder.Build();
 var config = host.Services.GetRequiredService<IOptions<Configuration>>().Value;
-SentrySdk.Init(options =>
+if (!string.IsNullOrEmpty(config.SentryDsn))
 {
-    options.Dsn = config.SentryDsn;
-    options.Debug = config.SentryDebug;
-    options.AutoSessionTracking = true;
-    options.TracesSampleRate = 1.0;
-    options.ProfilesSampleRate = 1.0;
-    options.AddIntegration(new ProfilingIntegration(TimeSpan.FromMilliseconds(500)));
-});
+    SentrySdk.Init(options =>
+    {
+        options.Dsn = config.SentryDsn;
+        options.Debug = config.SentryDebug;
+        options.AutoSessionTracking = true;
+        options.TracesSampleRate = 1.0;
+        options.ProfilesSampleRate = 1.0;
+        options.AddIntegration(new ProfilingIntegration(TimeSpan.FromMilliseconds(500)));
+    });    
+}
 
 host.Run();
