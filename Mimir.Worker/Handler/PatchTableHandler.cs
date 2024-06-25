@@ -1,4 +1,5 @@
 using Bencodex.Types;
+using Mimir.Worker.Exceptions;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume;
@@ -19,9 +20,16 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
     protected override async Task HandleAction(
         string actionType,
         long processBlockIndex,
-        Dictionary actionValues
+        IValue? actionPlainValueInternal
     )
     {
+        if (actionPlainValueInternal is not Dictionary actionValues)
+        {
+            throw new InvalidTypeOfActionPlainValueInternalException(
+                [ValueKind.Dictionary],
+                actionPlainValueInternal?.Kind);
+        }
+
         var sheetTypes = typeof(ISheet)
             .Assembly.GetTypes()
             .Where(type =>
@@ -32,9 +40,7 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
             );
 
         var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
-
-        var sheetType = sheetTypes.Where(type => type.Name == tableName).FirstOrDefault();
-
+        var sheetType = sheetTypes.FirstOrDefault(type => type.Name == tableName);
         if (sheetType == null)
         {
             throw new TypeLoadException(

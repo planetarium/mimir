@@ -105,11 +105,7 @@ public class BlockPoller : BaseBlockPoller
         {
             foreach (var action in actions)
             {
-                var actionPlainValue = (Dictionary)action.PlainValue;
-                var actionType = actionPlainValue.ContainsKey("type_id")
-                    ? (string)(Text)actionPlainValue["type_id"]
-                    : null;
-                var actionPlainValueInternal = (Dictionary)actionPlainValue["values"];
+                var (actionType, actionPlainValueInternal) = DeconstructActionPlainValue(action.PlainValue);
                 var handled = false;
                 foreach (var handler in _handlers)
                 {
@@ -126,11 +122,42 @@ public class BlockPoller : BaseBlockPoller
 
                 if (!handled)
                 {
-                    _logger.Warning("Action is not handled. action: {Action}", actionPlainValue);
+                    _logger.Warning("Action is not handled. action: {Action}", action.PlainValue);
                 }
             }
         }
 
         await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);
+    }
+
+    /// <summary>
+    /// Deconstructs the given action plain value.
+    /// </summary>
+    /// <param name="actionPlainValue"><see cref="Libplanet.Action.IAction.PlainValue"/></param>
+    /// <returns>
+    /// A tuple of two values: the first is the value of the "type_id" key, and the second is the value of the
+    /// "values" key.
+    /// If the given action plain value is not a dictionary, both values are null.
+    /// And if the given action plain value is a dictionary but does not contain the "type_id" or "values" key,
+    /// the value of the key is null.
+    /// "type_id": Bencodex.Types.Text or Bencodex.Types.Integer.
+    ///            (check <see cref="Nekoyume.Action.GameAction.PlainValue"/> with
+    ///            <see cref="Libplanet.Action.ActionTypeAttribute"/>)
+    /// "values": It can be any type of Bencodex.Types.
+    /// </returns>
+    private static (IValue? typeId, IValue? values) DeconstructActionPlainValue(IValue actionPlainValue)
+    {
+        if (actionPlainValue is not Dictionary actionPlainValueDict)
+        {
+            return (null, null);
+        }
+
+        var actionType = actionPlainValueDict.ContainsKey("type_id")
+            ? actionPlainValueDict["type_id"]
+            : null;
+        var actionPlainValueInternal = actionPlainValueDict.ContainsKey("values")
+            ? actionPlainValueDict["values"]
+            : null;
+        return (actionType, actionPlainValueInternal);
     }
 }

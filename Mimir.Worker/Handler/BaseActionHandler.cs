@@ -26,8 +26,8 @@ public abstract class BaseActionHandler(
         long blockIndex,
         Address signer,
         IAction action,
-        string? actionType,
-        Dictionary? actionPlainValueInternal)
+        IValue? actionType,
+        IValue? actionPlainValueInternal)
     {
         try
         {
@@ -39,9 +39,14 @@ public abstract class BaseActionHandler(
             // ignored
         }
 
-        if (actionType is null ||
-            string.IsNullOrEmpty(actionType) ||
-            !Regex.IsMatch(actionType, actionTypeRegex))
+        var actionTypeStr = actionType switch
+        {
+            Integer integer => integer.ToString(),
+            Text text => (string)text,
+            _ => null
+        };
+        if (actionTypeStr is null ||
+            !Regex.IsMatch(actionTypeStr, actionTypeRegex))
         {
             return false;
         }
@@ -49,13 +54,14 @@ public abstract class BaseActionHandler(
         try
         {
             await HandleAction(
-                actionType,
+                actionTypeStr,
                 blockIndex,
-                actionPlainValueInternal ?? Dictionary.Empty);
+                actionPlainValueInternal);
         }
         catch (NotImplementedException)
         {
             // ignored
+            return false;
         }
 
         return false;
@@ -72,7 +78,7 @@ public abstract class BaseActionHandler(
     protected virtual Task HandleAction(
         string actionType,
         long processBlockIndex,
-        Dictionary actionValues)
+        IValue? actionPlainValueInternal)
     {
         throw new NotImplementedException();
     }
