@@ -1,11 +1,12 @@
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
+using Mimir.Models;
+using Mimir.Models.Abstractions;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
-using Nekoyume.Model.Rune;
 using Nekoyume.Model.State;
 
 namespace Mimir.Repositories;
@@ -13,41 +14,43 @@ namespace Mimir.Repositories;
 public class RuneSlotRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public RuneSlot[] GetRuneSlots(
+    public IRuneSlots GetRuneSlots(
         PlanetName planetName,
         Address avatarAddress,
         BattleType battleType)
     {
-        var itemSlotAddress = RuneSlotState.DeriveAddress(avatarAddress, battleType);
+        var runeSlotAddress = RuneSlotState.DeriveAddress(avatarAddress, battleType);
         var collection = GetCollection(planetName);
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", itemSlotAddress.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{itemSlotAddress.ToHex()}'");
+                $"'Address' equals to '{runeSlotAddress.ToHex()}'");
         }
 
         try
         {
-            return document["State"]["Object"]["slots"].AsBsonArray
+            var slots = document["State"]["Object"]["Slots"].AsBsonArray
+                .OfType<BsonDocument>()
                 .Select(doc =>
                 {
                     var slotIndex = doc["SlotIndex"].AsInt32;
                     var runeSlotType = (RuneSlotType)doc["RuneSlotType"].AsInt32;
                     var runeType = (RuneType)doc["RuneType"].AsInt32;
                     var isLock = doc["IsLock"].AsBoolean;
-                    var runeSheetId = doc["RuneSheetId"].AsNullableInt32;
-                    var runeSlot = new RuneSlot(slotIndex, runeSlotType, runeType, isLock);
-                    if (runeSheetId.HasValue)
-                    {
-                        runeSlot.Equip(runeSheetId.Value);
-                    }
-
-                    return runeSlot;
-                })
-                .ToArray();
+                    var runeSheetId = doc.Contains("RuneSheetId")
+                        ? doc["RuneSheetId"].AsNullableInt32
+                        : null;
+                    return new RuneSlot(
+                        slotIndex,
+                        runeSlotType,
+                        runeType,
+                        isLock,
+                        runeSheetId);
+                });
+            return new RuneSlots(runeSlotAddress, battleType, slots);
         }
         catch (KeyNotFoundException e)
         {

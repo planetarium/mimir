@@ -4,6 +4,7 @@ using Libplanet.Crypto;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
+using Mimir.Models.Abstractions;
 using Mimir.Repositories;
 using Nekoyume.Model.EnumType;
 using Nekoyume.Model.Rune;
@@ -102,10 +103,10 @@ public class AvatarResolver
         BattleType battleType) =>
         itemSlotRepo.GetItemSlot(planetName, avatarObject.Address, battleType);
 
-    public static RuneSlot[] GetRuneSlots(
+    public static IEnumerable<IRuneSlot> GetRuneSlots(
         [Service] RuneSlotRepository runeSlotRepo,
         [Parent] AvatarObject avatarObject,
         [ScopedState("planetName")] PlanetName planetName,
         BattleType battleType) =>
-        runeSlotRepo.GetRuneSlots(planetName, avatarObject.Address, battleType);
+        runeSlotRepo.GetRuneSlots(planetName, avatarObject.Address, battleType).Slots;
 }
