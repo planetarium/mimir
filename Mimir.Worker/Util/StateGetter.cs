@@ -173,14 +173,10 @@ public class StateGetter
     public async Task<ProductsState?> GetProductsState(Address avatarAddress)
     {
         var state = await _service.GetState(ProductsState.DeriveAddress(avatarAddress));
-        if (state is null)
-        {
-            return null;
-        }
-
         return state switch
         {
             List list => new ProductsState(list),
+            null => null,
             _ => throw new InvalidCastException(nameof(avatarAddress)),
         };
     }
@@ -189,7 +185,6 @@ public class StateGetter
     {
         var productAddress = Product.DeriveAddress(productId);
         var rawState = await _service.GetState(productAddress);
-
         if (rawState is not List list)
         {
             throw new InvalidCastException(nameof(productId));
@@ -202,7 +197,6 @@ public class StateGetter
     public async Task<MarketState> GetMarketState()
     {
         var state = await _service.GetState(Addresses.Market);
-
         return state switch
         {
             List list => new MarketState(list),
@@ -213,7 +207,6 @@ public class StateGetter
     public async Task<WorldBossState?> GetWorldBossState(Address worldBossAddress)
     {
         var state = await _service.GetState(worldBossAddress);
-
         return state switch
         {
             List list => new WorldBossState(list),
@@ -224,7 +217,6 @@ public class StateGetter
     public async Task<RaiderState?> GetRaiderState(Address raiderAddress)
     {
         var state = await _service.GetState(raiderAddress);
-
         return state switch
         {
             List list => new RaiderState(list),
@@ -237,7 +229,6 @@ public class StateGetter
     )
     {
         var state = await _service.GetState(worldBossKillRewardRecordAddress);
-
         return state switch
         {
             List list => new WorldBossKillRewardRecord(list),
@@ -245,39 +236,22 @@ public class StateGetter
         };
     }
 
-    public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress)
-    {
-        var state = await _service.GetState(address, accountAddress);
-
-        if (state == null)
-        {
-            state = await _service.GetState(address);
-        }
-
-        return state;
-    }
+    public async Task<IValue?> GetStateWithLegacyAccount(
+        Address address,
+        Address accountAddress) =>
+        await _service.GetState(address, accountAddress) ??
+        await _service.GetState(address);
 
     public async Task<IValue?> GetAvatarStateWithLegacyAccount(
         Address avatarAddress,
         Address accountAddress,
-        Address legacyAddress
-    )
-    {
-        var state = await _service.GetState(avatarAddress, accountAddress);
-
-        if (state == null)
-        {
-            state = await _service.GetState(legacyAddress);
-        }
-
-        return state;
-    }
+        Address legacyAddress) =>
+        await _service.GetState(avatarAddress, accountAddress) ??
+        await _service.GetState(legacyAddress);
 
     public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
     {
         var arenaSheet = await GetSheet<ArenaSheet>();
-        var roundData = arenaSheet.GetRoundByBlockIndex(index);
-
-        return roundData;
+        return arenaSheet.GetRoundByBlockIndex(index);
     }
 }
