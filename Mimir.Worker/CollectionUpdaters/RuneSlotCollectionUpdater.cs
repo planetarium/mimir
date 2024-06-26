@@ -80,7 +80,7 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            var storedCostumes = document["State"]["Object"]["Slots"].AsBsonArray
+            var storedRuneSlots = document["State"]["Object"]["Slots"].AsBsonArray
                 .OfType<BsonDocument>()
                 .Select(e => (
                     slotIndex: e["SlotIndex"].AsInt32,
@@ -89,15 +89,15 @@ public static class RuneSlotCollectionUpdater
                         : null))
                 .OrderBy(tuple => tuple.slotIndex)
                 .ToArray();
-            if (storedCostumes.Length != runeSlotInfos.Count)
+            if (storedRuneSlots.Length != runeSlotInfos.Count)
             {
                 return true;
             }
 
-            for (var i = 0; i < storedCostumes.Length; i++)
+            for (var i = 0; i < storedRuneSlots.Length; i++)
             {
-                if (storedCostumes[i].slotIndex != runeSlotInfos[i].SlotIndex ||
-                    storedCostumes[i].runeId != runeSlotInfos[i].RuneId)
+                if (storedRuneSlots[i].slotIndex != runeSlotInfos[i].SlotIndex ||
+                    storedRuneSlots[i].runeId != runeSlotInfos[i].RuneId)
                 {
                     return true;
                 }
