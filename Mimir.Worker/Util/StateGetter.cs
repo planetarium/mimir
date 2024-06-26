@@ -173,10 +173,15 @@ public class StateGetter
     public async Task<ProductsState?> GetProductsState(Address avatarAddress)
     {
         var state = await _service.GetState(ProductsState.DeriveAddress(avatarAddress));
+        if (state is null)
+        {
+            return null;
+        }
+
         return state switch
         {
             List list => new ProductsState(list),
-            _ => throw new InvalidCastException(nameof(avatarAddress))
+            _ => throw new InvalidCastException(nameof(avatarAddress)),
         };
     }
 
@@ -248,6 +253,7 @@ public class StateGetter
         {
             state = await _service.GetState(address);
         }
+
         return state;
     }
 
@@ -263,6 +269,7 @@ public class StateGetter
         {
             state = await _service.GetState(legacyAddress);
         }
+
         return state;
     }
 
