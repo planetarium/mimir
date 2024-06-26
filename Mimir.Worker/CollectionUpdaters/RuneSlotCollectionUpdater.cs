@@ -1,5 +1,6 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.Models;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
@@ -34,11 +35,10 @@ public static class RuneSlotCollectionUpdater
         }
 
         var runeSlotState = new Nekoyume.Model.State.RuneSlotState(serialized);
+        var runeSlots = new RuneSlots(runeSlotAddress, runeSlotState);
         var stateData = new StateData(
             runeSlotAddress,
-            new RuneSlotState(
-                runeSlotAddress,
-                runeSlotState));
+            new RuneSlotState(runeSlotAddress, runeSlots));
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData, avatarAddress);
     }
 
@@ -59,11 +59,10 @@ public static class RuneSlotCollectionUpdater
         }
 
         var runeSlotState = new Nekoyume.Model.State.RuneSlotState(serialized);
+        var runeSlots = new RuneSlots(runeSlotAddress, runeSlotState);
         var stateData = new StateData(
             runeSlotAddress,
-            new RuneSlotState(
-                runeSlotAddress,
-                runeSlotState));
+            new RuneSlotState(runeSlotAddress, runeSlots));
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData, avatarAddress);
     }
 
@@ -81,19 +80,24 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            var storedCostumes = document["State"]["Object"]["slots"].AsBsonArray
-                .Select(e => (slotIndex: e["SlotIndex"].AsInt32, runeId: e["RuneId"].AsNullableInt32))
+            var storedRuneSlots = document["State"]["Object"]["Slots"].AsBsonArray
+                .OfType<BsonDocument>()
+                .Select(e => (
+                    slotIndex: e["SlotIndex"].AsInt32,
+                    runeId: e.Contains("RuneSheetId")
+                        ? e["RuneSheetId"].AsNullableInt32
+                        : null))
                 .OrderBy(tuple => tuple.slotIndex)
                 .ToArray();
-            if (storedCostumes.Length != runeSlotInfos.Count)
+            if (storedRuneSlots.Length != runeSlotInfos.Count)
             {
                 return true;
             }
 
-            for (var i = 0; i < storedCostumes.Length; i++)
+            for (var i = 0; i < storedRuneSlots.Length; i++)
             {
-                if (storedCostumes[i].slotIndex != runeSlotInfos[i].SlotIndex ||
-                    storedCostumes[i].runeId != runeSlotInfos[i].RuneId)
+                if (storedRuneSlots[i].slotIndex != runeSlotInfos[i].SlotIndex ||
+                    storedRuneSlots[i].runeId != runeSlotInfos[i].RuneId)
                 {
                     return true;
                 }
@@ -121,8 +125,10 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            return document["State"]["Object"]["slots"].AsBsonArray
-                .Select(e => (slotIndex: e["SlotIndex"].AsInt32, isLock: e["IsLock"].AsBoolean))
+            return document["State"]["Object"]["Slots"].AsBsonArray
+                .Select(e => (
+                    slotIndex: e["SlotIndex"].AsInt32,
+                    isLock: e["IsLock"].AsBoolean))
                 .Any(tuple => tuple.slotIndex == runeSlotIndexToUnlock && tuple.isLock);
         }
         catch (KeyNotFoundException)

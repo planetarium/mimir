@@ -21,8 +21,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
         stateService,
         store,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductsHandler>()
-    )
+        Log.ForContext<ProductsHandler>())
 {
     protected override async Task HandleAction(
         string actionType,
@@ -42,16 +41,20 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
         {
             Logger.Information(
                 "Handle products for avatar, avatar: {AvatarAddress} ",
-                avatarAddress
-            );
+                avatarAddress);
 
             var productsStateAddress = NCProductsState.DeriveAddress(avatarAddress);
             var productsState = await StateGetter.GetProductsState(avatarAddress);
+            if (productsState is null)
+            {
+                continue;
+            }
+
             await SyncWrappedProductsStateAsync(avatarAddress, productsStateAddress, productsState);
         }
     }
 
-    private List<Address> GetAvatarAddresses(string actionType, Dictionary actionValues)
+    private static List<Address> GetAvatarAddresses(string actionType, Dictionary actionValues)
     {
         var avatarAddresses = new List<Address>();
 

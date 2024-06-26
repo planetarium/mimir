@@ -1,14 +1,14 @@
-using Nekoyume.Model.Rune;
+using Mimir.Models.Abstractions;
 
 namespace Mimir.GraphQL.Types;
 
-public class RuneSlotType : ObjectType<RuneSlot>
+public class RuneSlotType : ObjectType<IRuneSlot>
 {
-    protected override void Configure(IObjectTypeDescriptor<RuneSlot> descriptor)
+    protected override void Configure(IObjectTypeDescriptor<IRuneSlot> descriptor)
     {
         descriptor.BindFieldsExplicitly();
         descriptor
-            .Field(f => f.Index)
+            .Field(f => f.SlotIndex)
             .Description("The index of the rune slot.")
             .Type<NonNullType<IntType>>();
         descriptor
@@ -24,7 +24,7 @@ public class RuneSlotType : ObjectType<RuneSlot>
             .Description("Whether the rune slot is locked.")
             .Type<NonNullType<BooleanType>>();
         descriptor
-            .Field(f => f.RuneId)
+            .Field(f => f.RuneSheetId)
             .Name("runeSheetId")
             .Description("The RuneSheet ID of the rune equipped in the rune slot.")
             .Type<IntType>();

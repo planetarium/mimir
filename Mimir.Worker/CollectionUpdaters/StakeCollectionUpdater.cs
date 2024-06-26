@@ -21,9 +21,7 @@ public static class StakeCollectionUpdater
         var slotState = new StakeStateV2(serialized);
         var stateData = new StateData(
             stakeAddress,
-            new StakeState(
-                stakeAddress,
-                slotState));
-        await store.UpsertStateDataAsyncWithLinkAvatar(stateData, stakeAddress);
+            new StakeState(stakeAddress, slotState));
+        await store.UpsertStateDataAsyncWithLinkAgent(stateData, agentAddress);
     }
 }
