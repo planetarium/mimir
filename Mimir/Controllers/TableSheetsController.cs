@@ -9,12 +9,8 @@ namespace Mimir.Controllers;
 public class TableSheetsController(TableSheetsRepository tableSheetsRepository) : ControllerBase
 {
     [HttpGet("names")]
-    public async Task<string[]> GetSheetNames(string network)
-    {
-        var sheetNames = tableSheetsRepository.GetSheetNames(network);
-
-        return sheetNames;
-    }
+    public string[] GetSheetNames(string network) =>
+        tableSheetsRepository.GetSheetNames(network);
 
     [HttpGet("{sheetName}")]
     [Produces("application/json", "text/csv")]
@@ -35,7 +31,7 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
 
         try
         {
-            var sheet = await tableSheetsRepository.GetSheet(network, sheetName, sheetFormat);
+            var sheet = await tableSheetsRepository.GetSheetAsync(network, sheetName, sheetFormat);
             return Content(sheet, sheetFormat.ToMimeType());
         }
         catch (KeyNotFoundException ex)

@@ -25,12 +25,12 @@ public class ArenaController(
         MetadataRepository metadataRepository
     )
     {
-        var (championshipId, round) = await tableSheetsRepository.GetLatestArenaSeason(
+        var arenaRound = tableSheetsRepository.GetArenaRound(
             network,
             metadataRepository.GetLatestBlockIndex(network, "BlockPoller")
         );
 
-        return new ArenaSeason(championshipId, round);
+        return new ArenaSeason(arenaRound.ChampionshipId, arenaRound.Round);
     }
 
     [HttpGet("ranking/{avatarAddress}/rank")]
