@@ -9,7 +9,7 @@ namespace Mimir.Controllers;
 public class MetadataController : ControllerBase
 {
     [HttpGet("metadata")]
-    public async Task<MetadataResponse> GetMetadata(
+    public MetadataResponse GetMetadata(
         string network,
         string pollerType,
         MetadataRepository metadataRepository
@@ -17,7 +17,7 @@ public class MetadataController : ControllerBase
     {
         return new MetadataResponse(
             pollerType,
-            await metadataRepository.GetLatestBlockIndex(network, pollerType)
+            metadataRepository.GetLatestBlockIndex(network, pollerType)
         );
     }
 }

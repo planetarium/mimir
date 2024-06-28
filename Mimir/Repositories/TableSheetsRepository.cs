@@ -1,10 +1,15 @@
 using System.Text;
+using Lib9c.GraphQL.Enums;
 using Mimir.Enums;
+using Mimir.Exceptions;
+using Mimir.GraphQL.Extensions;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using Nekoyume.Model.EnumType;
+using Nekoyume.TableData;
 
 namespace Mimir.Repositories;
 
@@ -13,20 +18,32 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
 {
     protected override string GetCollectionName() => "table_sheet";
 
-    public async Task<(int, int)> GetLatestArenaSeason(string network, long blockIndex)
+    public ArenaSheet.RoundData GetArenaRound(string network, long blockIndex)
     {
         var collection = GetCollection(network);
+        return GetArenaRound(collection, blockIndex);
+    }
 
+    public ArenaSheet.RoundData GetArenaRound(PlanetName planetName, long blockIndex)
+    {
+        var collection = GetCollection(planetName);
+        return GetArenaRound(collection, blockIndex);
+    }
+
+    private static ArenaSheet.RoundData GetArenaRound(
+        IMongoCollection<BsonDocument> collection,
+        long blockIndex)
+    {
         var pipelines = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument("State.Name", "ArenaSheet")),
-            new BsonDocument(
+            new("$match", new BsonDocument("State.Name", "ArenaSheet")),
+            new(
                 "$addFields",
                 new BsonDocument("SheetJsonArray", new BsonDocument("$objectToArray", "$State.Object"))
             ),
-            new BsonDocument("$unwind", new BsonDocument("path", "$SheetJsonArray")),
-            new BsonDocument("$unwind", new BsonDocument("path", "$SheetJsonArray.v.Round")),
-            new BsonDocument(
+            new("$unwind", new BsonDocument("path", "$SheetJsonArray")),
+            new("$unwind", new BsonDocument("path", "$SheetJsonArray.v.Round")),
+            new(
                 "$match",
                 new BsonDocument(
                     "$and",
@@ -43,37 +60,57 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
                     }
                 )
             ),
-            new BsonDocument(
+            new(
                 "$project",
                 new BsonDocument
                 {
-                    { "_id", 0 },
-                    { "ChampionshipId", "$SheetJsonArray.v.Round.ChampionshipId" },
-                    { "Round", "$SheetJsonArray.v.Round.Round" }
+                    { "Round", "$SheetJsonArray.v.Round" },
                 }
             )
         };
-
         var document = collection.Aggregate<BsonDocument>(pipelines).FirstOrDefault();
         if (document == null)
         {
             throw new InvalidOperationException("No matching document found.");
         }
 
-        return (document["ChampionshipId"].ToInt32(), document["Round"].ToInt32());
+        try
+        {
+            var roundDoc = document["Round"];
+            return new ArenaSheet.RoundData(
+                roundDoc["ChampionshipId"].AsInt32,
+                roundDoc["Round"].AsInt32,
+                (ArenaType)roundDoc["ArenaType"].AsInt32,
+                roundDoc["StartBlockIndex"].ToLong(),
+                roundDoc["EndBlockIndex"].ToLong(),
+                roundDoc["RequiredMedalCount"].AsInt32,
+                roundDoc["EntranceFee"].AsInt32,
+                roundDoc["TicketPrice"].AsInt32,
+                roundDoc["AdditionalTicketPrice"].AsInt32,
+                roundDoc["MaxPurchaseCount"].AsInt32,
+                roundDoc["MaxPurchaseCountWithInterval"].AsInt32);
+        }
+        catch (KeyNotFoundException e)
+        {
+            throw new KeyNotFoundInBsonDocumentException(null, e);
+        }
+        catch (InvalidCastException e)
+        {
+            throw new UnexpectedTypeOfBsonValueException(null, e);
+        }
     }
 
     public string[] GetSheetNames(string network)
     {
         var collection = GetCollection(network);
-
         var projection = Builders<BsonDocument>.Projection.Include("State.Name").Exclude("_id");
         var documents = collection.Find(new BsonDocument()).Project(projection).ToList();
 
-        List<string> names = new List<string>();
+        var names = new List<string>();
         foreach (var document in documents)
         {
-            if (document.Contains("State") && document["State"].AsBsonDocument.Contains("Name"))
+            if (document.Contains("State") &&
+                document["State"].AsBsonDocument.Contains("Name"))
             {
                 names.Add(document["State"]["Name"].AsString);
             }
@@ -82,7 +119,7 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
         return names.ToArray();
     }
 
-    public async Task<string> GetSheet(string network, string sheetName, SheetFormat sheetFormat)
+    public async Task<string> GetSheetAsync(string network, string sheetName, SheetFormat sheetFormat)
     {
         var collection = GetCollection(network);
         var gridFs = new GridFSBucket(GetDatabase(network));
@@ -109,15 +146,15 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
 
         return sheetFormat switch
         {
-            SheetFormat.Csv
-                => await RetrieveFromGridFs(gridFs, document[fieldToInclude].AsObjectId),
-            _
-                => document[fieldToInclude]
-                    .ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict })
+            SheetFormat.Csv => await RetrieveFromGridFs(gridFs, document[fieldToInclude].AsObjectId),
+            _ => document[fieldToInclude].ToJson(new JsonWriterSettings
+            {
+                OutputMode = JsonOutputMode.CanonicalExtendedJson
+            })
         };
     }
 
-    private async Task<string> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)
+    private static async Task<string> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)
     {
         var fileBytes = await gridFs.DownloadAsBytesAsync(fileId);
         return Encoding.UTF8.GetString(fileBytes);
