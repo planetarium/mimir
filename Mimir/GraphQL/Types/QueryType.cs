@@ -45,5 +45,16 @@ public class QueryType : ObjectType<Query>
                     .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
                 return new InventoryObject(context.ArgumentValue<Address>("address"));
             });
+
+        descriptor
+            .Field("arena")
+            .Argument("planetName", a => a.Type<NonNullType<EnumType<PlanetName>>>())
+            .Type<ArenaType>()
+            .Resolve(context =>
+            {
+                context.ScopedContextData = context.ScopedContextData
+                    .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
+                return new ArenaObject();
+            });
     }
 }
