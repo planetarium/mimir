@@ -13,5 +13,12 @@ public class ArenaType : ObjectType<ArenaObject>
             .Type<ArenaSheetRoundDataType>()
             .ResolveWith<ArenaResolver>(_ =>
                 ArenaResolver.GetArenaRound(default!, default!, default!, default!, default!));
+        descriptor
+            .Field("ranking")
+            .Description("The avatar's ranking of the arena.")
+            .Argument("avatarAddress", a => a.Type<NonNullType<AddressType>>())
+            .Type<LongType>()
+            .ResolveWith<ArenaResolver>(_ =>
+                ArenaResolver.GetRanking(default!, default!, default!, default!, default!, default!, default!));
     }
 }
