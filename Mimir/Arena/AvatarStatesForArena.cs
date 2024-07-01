@@ -9,7 +9,11 @@ public record AvatarStatesForArena
     public AllRuneState RuneStates { get; private set; }
     public RuneSlotState RuneSlotState { get; private set; }
 
-    public AvatarStatesForArena(AvatarState avatarState, ItemSlotState itemSlotState, AllRuneState runeStates, RuneSlotState runeSlotState)
+    public AvatarStatesForArena(
+        AvatarState avatarState,
+        ItemSlotState itemSlotState,
+        AllRuneState runeStates,
+        RuneSlotState runeSlotState)
     {
         AvatarState = avatarState;
         ItemSlotState = itemSlotState;
