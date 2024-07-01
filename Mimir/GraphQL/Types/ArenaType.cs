@@ -1,5 +1,7 @@
+using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Resolvers;
+using Mimir.Models.Arena;
 
 namespace Mimir.GraphQL.Types;
 
@@ -20,5 +22,20 @@ public class ArenaType : ObjectType<ArenaObject>
             .Type<LongType>()
             .ResolveWith<ArenaResolver>(_ =>
                 ArenaResolver.GetRanking(default!, default!, default!, default!, default!, default!, default!));
+        descriptor
+            .Field("leaderboard")
+            .Description("The leaderboard of the arena.")
+            .Argument("ranking", a => a
+                .Description("The ranking of the first avatar. default is 1.")
+                .Type<NonNullType<LongType>>()
+                .DefaultValue(1))
+            .Argument("length", a => a
+                .Description("The number of avatars. default is 10.")
+                .Type<NonNullType<IntType>>()
+                .DefaultValue(10))
+            .Type<ListType<ObjectType<ArenaRanking>>>()
+            .ResolveWith<ArenaResolver>(_ =>
+                ArenaResolver.GetLeaderboard(
+                    default!, default!, default!, default!, default!, default!, default!, default!));
     }
 }

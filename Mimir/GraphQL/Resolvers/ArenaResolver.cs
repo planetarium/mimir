@@ -1,6 +1,7 @@
 using HotChocolate.Resolvers;
 using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
+using Mimir.Models.Arena;
 using Mimir.Repositories;
 using Nekoyume.TableData;
 
@@ -46,19 +47,23 @@ public class ArenaResolver
             : rank;
     }
 
-    public static int GetRound(
+    public static async Task<List<ArenaRanking>> GetLeaderboard(
         IResolverContext context,
+        long ranking,
+        int length,
+        [Service] ArenaRankingRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("planetName")] PlanetName planetName,
-        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound) =>
-        GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound).Round;
-
-    // public static int? GetRank(
-    //     IResolverContext context,
-    //     [Service] MetadataRepository metadataRepo,
-    //     [Service] TableSheetsRepository tableSheetsRepo,
-    //     [ScopedState("planetName")] PlanetName planetName,
-    //     [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound) =>
-    //     GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound)?.round;
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
+    {
+        arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound);
+        return await arenaRankingRepo.GetRanking(
+            planetName,
+            ranking - 1,
+            length,
+            arenaRound.ChampionshipId,
+            arenaRound.Round
+        );
+    }
 }
