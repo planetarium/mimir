@@ -10,6 +10,7 @@ using Mimir.Validators;
 using Nekoyume.Model.State;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NCAvatarState = Nekoyume.Model.State.AvatarState;
 
 namespace Mimir.Controllers;
 
@@ -73,7 +74,7 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
 
             var iValue = value switch
             {
-                AvatarState avatarState => avatarState.SerializeList(),
+                NCAvatarState avatarState => avatarState.SerializeList(),
                 IState state => state.Serialize(),
                 _ => null
             };

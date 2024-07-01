@@ -1,4 +1,5 @@
 using Nekoyume.Model.State;
+using NCAvatarState = Nekoyume.Model.State.AvatarState;
 
 namespace Mimir.Models;
 
@@ -17,7 +18,7 @@ public class Avatar(
     public int ActionPoint { get; private set; } = actionPoint;
     public long DailyRewardReceivedIndex { get; private set; } = dailyRewardReceivedIndex;
 
-    public Avatar(AvatarState avatarState) : this(
+    public Avatar(NCAvatarState avatarState) : this(
         avatarState.agentAddress.ToString(),
         avatarState.address.ToString(),
         avatarState.name,
