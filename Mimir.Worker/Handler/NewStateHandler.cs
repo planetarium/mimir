@@ -9,7 +9,7 @@ public class NewStateHandler
     public StateModel ConvertToStateData(StateDiffContext context)
     {
         IValue state = context.RawState;
-        string stateTypeName = null;
+        string stateTypeName;
 
         if (state is List alist)
         {
@@ -42,14 +42,12 @@ public class NewStateHandler
 
     private Type FindStateType(string stateTypeName)
     {
-        // Find all types in the Mimir.Models namespace that inherit from StateModel
         var stateModelType = typeof(StateModel);
         var assembly = stateModelType.Assembly;
         var stateTypes = assembly
             .GetTypes()
             .Where(t => t.Namespace == stateModelType.Namespace && t.IsSubclassOf(stateModelType));
 
-        // Find the type with the matching name
         return stateTypes.FirstOrDefault(t => t.Name == stateTypeName);
     }
 }
