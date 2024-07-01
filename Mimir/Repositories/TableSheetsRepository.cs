@@ -8,6 +8,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using Nekoyume;
+using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Nekoyume.TableData;
 
@@ -119,12 +121,66 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
         return names.ToArray();
     }
 
-    public async Task<string> GetSheetAsync(string network, string sheetName, SheetFormat sheetFormat)
+    public async Task<string> GetSheetAsync(
+        string network,
+        string sheetName,
+        SheetFormat sheetFormat = SheetFormat.Csv)
     {
         var collection = GetCollection(network);
-        var gridFs = new GridFSBucket(GetDatabase(network));
+        var database = GetDatabase(network);
+        return await GetSheetAsync(collection, database, sheetName, sheetFormat);
+    }
 
-        string fieldToInclude = sheetFormat switch
+    public async Task<string> GetSheetAsync(
+        PlanetName planetName,
+        string sheetName,
+        SheetFormat sheetFormat = SheetFormat.Csv)
+    {
+        var collection = GetCollection(planetName);
+        var database = GetDatabase(planetName);
+        return await GetSheetAsync(collection, database, sheetName, sheetFormat);
+    }
+
+    public async Task<T> GetSheetAsync<T>(
+        string network,
+        SheetFormat sheetFormat = SheetFormat.Csv) where T : ISheet
+    {
+        var sheetType = typeof(T);
+        var csv = await GetSheetAsync(network, sheetType.Name, sheetFormat);
+        var sheetConstructorInfo = sheetType.GetConstructor(Type.EmptyTypes);
+        if (sheetConstructorInfo?.Invoke([]) is not ISheet sheet)
+        {
+            throw new FailedLoadSheetException(sheetType);
+        }
+
+        sheet.Set(csv);
+        return (T)sheet;
+    }
+
+    public async Task<T> GetSheetAsync<T>(
+        PlanetName planetName,
+        SheetFormat sheetFormat = SheetFormat.Csv) where T : ISheet
+    {
+        var sheetType = typeof(T);
+        var csv = await GetSheetAsync(planetName, sheetType.Name, sheetFormat);
+        var sheetConstructorInfo = sheetType.GetConstructor(Type.EmptyTypes);
+        if (sheetConstructorInfo?.Invoke([]) is not ISheet sheet)
+        {
+            throw new FailedLoadSheetException(sheetType);
+        }
+
+        sheet.Set(csv);
+        return (T)sheet;
+    }
+
+    private static async Task<string> GetSheetAsync(
+        IMongoCollection<BsonDocument> collection,
+        IMongoDatabase database,
+        string sheetName,
+        SheetFormat sheetFormat)
+    {
+        var gridFs = new GridFSBucket(database);
+        var fieldToInclude = sheetFormat switch
         {
             SheetFormat.Csv => "SheetCsvFileId",
             SheetFormat.Json => "SheetJson",
