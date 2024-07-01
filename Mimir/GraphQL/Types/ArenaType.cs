@@ -26,11 +26,11 @@ public class ArenaType : ObjectType<ArenaObject>
             .Field("leaderboard")
             .Description("The leaderboard of the arena.")
             .Argument("ranking", a => a
-                .Description("The ranking of the first avatar. default is 1.")
+                .Description("The ranking of the first avatar. default is 1. This must be greater than or equal to 1.")
                 .Type<NonNullType<LongType>>()
                 .DefaultValue(1))
             .Argument("length", a => a
-                .Description("The number of avatars. default is 10.")
+                .Description("The number of avatars. default is 10. This must be greater than or equal to 1 and less than or equal to 100.")
                 .Type<NonNullType<IntType>>()
                 .DefaultValue(10))
             .Type<ListType<ObjectType<ArenaRanking>>>()

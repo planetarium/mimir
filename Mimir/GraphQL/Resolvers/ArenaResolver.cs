@@ -57,6 +57,25 @@ public class ArenaResolver
         [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
+        if (ranking < 1)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(ranking),
+                "This must be greater than or equal to 1.");
+        }
+
+        switch (length)
+        {
+            case < 1:
+                throw new ArgumentOutOfRangeException(
+                    nameof(length),
+                    "This must be greater than or equal to 1.");
+            case > 100:
+                throw new ArgumentOutOfRangeException(
+                    nameof(length),
+                    "This must be less than or equal to 100.");
+        }
+
         arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound);
         return await arenaRankingRepo.GetRanking(
             planetName,
