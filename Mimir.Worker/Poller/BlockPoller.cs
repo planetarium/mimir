@@ -2,7 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
 using Libplanet.Crypto;
-using Mimir.Worker.Handler;
+using Mimir.Worker.ActionHandler;
 using Mimir.Worker.Services;
 using Nekoyume.Action.Loader;
 using Serilog;

@@ -6,32 +6,32 @@ using Mimir.Worker.Services;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
-public class RaidHandler(IStateService stateService, MongoDbService store) :
+public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(
         stateService,
         store,
-        "^raid[0-9]*$",
-        Log.ForContext<RaidHandler>())
+        "^hack_and_slash_sweep[0-9]*$",
+        Log.ForContext<HackAndSlashSweepHandler>())
 {
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IAction action)
     {
-        if (action is not IRaidV2 raid)
+        if (action is not IHackAndSlashSweepV3 hackAndSlashSweep)
         {
             throw new NotImplementedException(
-                $"Action is not {nameof(IRaidV2)}: {action.GetType()}");
+                $"Action is not {nameof(IHackAndSlashSweepV3)}: {action.GetType()}");
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
-            BattleType.Raid,
-            raid.AvatarAddress,
-            raid.CostumeIds,
-            raid.EquipmentIds);
+            BattleType.Adventure,
+            hackAndSlashSweep.AvatarAddress,
+            hackAndSlashSweep.Costumes,
+            hackAndSlashSweep.Equipments);
     }
 }

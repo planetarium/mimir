@@ -6,7 +6,7 @@ using Mimir.Worker.Util;
 using Mimir.Worker.Services;
 using ILogger = Serilog.ILogger;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
 public abstract class BaseActionHandler(
     IStateService stateService,

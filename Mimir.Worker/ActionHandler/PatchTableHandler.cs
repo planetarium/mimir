@@ -8,7 +8,7 @@ using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using Serilog;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
 public class PatchTableHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(

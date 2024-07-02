@@ -8,7 +8,7 @@ using Nekoyume.Extensions;
 using Nekoyume.TableData;
 using Serilog;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
 public class RaidActionHandler(IStateService stateService, MongoDbService store)
     : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaidActionHandler>())

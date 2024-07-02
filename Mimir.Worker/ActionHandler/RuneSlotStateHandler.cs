@@ -8,7 +8,7 @@ using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
 public class RuneSlotStateHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(
