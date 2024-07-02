@@ -1,5 +1,7 @@
 using HotChocolate.Resolvers;
 using Lib9c.GraphQL.Enums;
+using Libplanet.Crypto;
+using Mimir.Models.Arena;
 using Mimir.Repositories;
 using Nekoyume.TableData;
 
@@ -25,27 +27,62 @@ public class ArenaResolver
         return arenaRound;
     }
 
-    public static int GetArenaSheetId(
+    public static async Task<long?> GetRanking(
         IResolverContext context,
+        Address avatarAddress,
+        [Service] ArenaRankingRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("planetName")] PlanetName planetName,
-        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound) =>
-        GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound).ChampionshipId;
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
+    {
+        arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound);
+        var rank = await arenaRankingRepo.GetRankingByAvatarAddressAsync(
+            planetName,
+            avatarAddress,
+            arenaRound.ChampionshipId,
+            arenaRound.Round);
+        return rank == 0
+            ? null
+            : rank;
+    }
 
-    public static int GetRound(
+    public static async Task<List<ArenaRanking>> GetLeaderboard(
         IResolverContext context,
+        long ranking,
+        int length,
+        [Service] ArenaRankingRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("planetName")] PlanetName planetName,
-        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound) =>
-        GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound).Round;
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
+    {
+        if (ranking < 1)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(ranking),
+                "This must be greater than or equal to 1.");
+        }
 
-    // public static int? GetRank(
-    //     IResolverContext context,
-    //     [Service] MetadataRepository metadataRepo,
-    //     [Service] TableSheetsRepository tableSheetsRepo,
-    //     [ScopedState("planetName")] PlanetName planetName,
-    //     [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound) =>
-    //     GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound)?.round;
+        switch (length)
+        {
+            case < 1:
+                throw new ArgumentOutOfRangeException(
+                    nameof(length),
+                    "This must be greater than or equal to 1.");
+            case > 100:
+                throw new ArgumentOutOfRangeException(
+                    nameof(length),
+                    "This must be less than or equal to 100.");
+        }
+
+        arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound);
+        return await arenaRankingRepo.GetRanking(
+            planetName,
+            ranking - 1,
+            length,
+            arenaRound.ChampionshipId,
+            arenaRound.Round
+        );
+    }
 }

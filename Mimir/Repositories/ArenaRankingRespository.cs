@@ -1,3 +1,4 @@
+using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Models;
 using Mimir.Models.Arena;
@@ -18,18 +19,35 @@ public class ArenaRankingRepository(
 
     protected override string GetCollectionName() => "arena";
 
-    public async Task<long> GetRankByAvatarAddress(
+    public async Task<long> GetRankingByAvatarAddressAsync(
         string network,
         Address avatarAddress,
         int? championshipId,
-        int? round
-    )
+        int? round)
     {
         var collection = GetCollection(network);
+        return await GetRankingByAvatarAddressAsync(collection, avatarAddress, championshipId, round);
+    }
 
+    public async Task<long> GetRankingByAvatarAddressAsync(
+        PlanetName planetName,
+        Address avatarAddress,
+        int? championshipId,
+        int? round)
+    {
+        var collection = GetCollection(planetName);
+        return await GetRankingByAvatarAddressAsync(collection, avatarAddress, championshipId, round);
+    }
+
+    private static async Task<long> GetRankingByAvatarAddressAsync(
+        IMongoCollection<BsonDocument> collection,
+        Address avatarAddress,
+        int? championshipId,
+        int? round)
+    {
         var pipelines = new BsonDocument[]
         {
-            new BsonDocument(
+            new(
                 "$match",
                 new BsonDocument(
                     "$and",
@@ -62,17 +80,36 @@ public class ArenaRankingRepository(
 
     public async Task<List<ArenaRanking>> GetRanking(
         string network,
-        long limit,
-        long offset,
+        long skip,
+        int limit,
         int? championshipId,
-        int? round
-    )
+        int? round)
     {
         var collection = GetCollection(network);
+        return await GetRanking(collection, skip, limit, championshipId, round);
+    }
 
+    public async Task<List<ArenaRanking>> GetRanking(
+        PlanetName planetName,
+        long skip,
+        int limit,
+        int? championshipId,
+        int? round)
+    {
+        var collection = GetCollection(planetName);
+        return await GetRanking(collection, skip, limit, championshipId, round);
+    }
+
+    private async Task<List<ArenaRanking>> GetRanking(
+        IMongoCollection<BsonDocument> collection,
+        long skip,
+        int limit,
+        int? championshipId,
+        int? round)
+    {
         var pipelines = new List<BsonDocument>
         {
-            new BsonDocument(
+            new(
                 "$match",
                 new BsonDocument(
                     "$and",
@@ -83,7 +120,7 @@ public class ArenaRankingRepository(
                     }
                 )
             ),
-            new BsonDocument(
+            new(
                 "$setWindowFields",
                 new BsonDocument
                 {
@@ -95,9 +132,9 @@ public class ArenaRankingRepository(
                     }
                 }
             ),
-            new BsonDocument("$skip", offset),
-            new BsonDocument("$limit", limit),
-            new BsonDocument(
+            new("$skip", skip),
+            new("$limit", limit),
+            new(
                 "$lookup",
                 new BsonDocument
                 {
@@ -107,11 +144,11 @@ public class ArenaRankingRepository(
                     { "as", "Avatar" }
                 }
             ),
-            new BsonDocument(
+            new(
                 "$unwind",
                 new BsonDocument { { "path", "$Avatar" }, { "preserveNullAndEmptyArrays", true } }
             ),
-            new BsonDocument(
+            new(
                 "$unset",
                 new BsonArray
                 {

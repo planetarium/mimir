@@ -41,7 +41,7 @@ public class ArenaController(
         [BindRequired] int round
     )
     {
-        var rank = await arenaRankingRepository.GetRankByAvatarAddress(
+        var rank = await arenaRankingRepository.GetRankingByAvatarAddressAsync(
             network,
             new Address(avatarAddress),
             championshipId,
@@ -67,8 +67,8 @@ public class ArenaController(
     {
         return await arenaRankingRepository.GetRanking(
             network,
-            limit,
             offset,
+            limit,
             championshipId,
             round
         );
