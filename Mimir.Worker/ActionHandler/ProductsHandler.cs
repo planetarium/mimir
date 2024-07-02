@@ -14,7 +14,7 @@ using Serilog;
 using NCProductsState = Nekoyume.Model.Market.ProductsState;
 using ProductsState = Mimir.Worker.Models.ProductsState;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
 public class ProductsHandler(IStateService stateService, MongoDbService store)
     : BaseActionHandler(

@@ -5,13 +5,13 @@ using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using Serilog;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
-public class ClaimStakeRewardHandler(IStateService stateService, MongoDbService store) :
+public class StakeHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(
         stateService,
         store,
-        "^claim_stake_reward[0-9]*$",
+        "^stake[0-9]*$",
         Log.ForContext<StakeHandler>())
 {
     protected override async Task HandleAction(
@@ -19,10 +19,10 @@ public class ClaimStakeRewardHandler(IStateService stateService, MongoDbService 
         Address signer,
         IAction action)
     {
-        if (action is not IClaimStakeRewardV1)
+        if (action is not IStakeV1)
         {
             throw new NotImplementedException(
-                $"Action is not {nameof(IClaimStakeRewardV1)}: {action.GetType()}");
+                $"Action is not {nameof(IStakeV1)}: {action.GetType()}");
         }
 
         await StakeCollectionUpdater.UpdateAsync(

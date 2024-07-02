@@ -7,7 +7,7 @@ using Mimir.Worker.Services;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.ActionHandler;
 
 public class BattleArenaHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(
