@@ -10,6 +10,7 @@ using WorldBossState = Mimir.Worker.Models.WorldBossState;
 using RaiderState = Mimir.Worker.Models.RaiderState;
 using StakeState = Mimir.Worker.Models.StakeState;
 using CombinationSlotState = Mimir.Worker.Models.CombinationSlotState;
+using GoldBalanceState = Mimir.Worker.Models.GoldBalanceState;
 
 namespace Mimir.Worker.Constants
 {
@@ -39,6 +40,7 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(RaiderState), "raider");
             CollectionMappings.Add(typeof(StakeState), "stake");
             CollectionMappings.Add(typeof(CombinationSlotState), "combination_slot");
+            CollectionMappings.Add(typeof(GoldBalanceState), "gold_balance");
         }
 
         public static string GetCollectionName<T>()

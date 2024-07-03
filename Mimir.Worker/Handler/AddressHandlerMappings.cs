@@ -8,6 +8,8 @@ public static class AddressHandlerMappings
 {
     public static readonly Dictionary<Address, IStateHandler<StateData>> HandlerMappings = new();
 
+    public static readonly string NCGCurrencyAddress = "0xd6663d0EEC2a7c59FF3cfe3089abF8FEd383227D";
+
     static AddressHandlerMappings()
     {
         HandlerMappings.Add(Addresses.Agent, new AgentStateHandler());
@@ -19,5 +21,9 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
+        HandlerMappings.Add(
+            new Address(NCGCurrencyAddress),
+            new GoldBalanceHandler()
+        );
     }
 }
