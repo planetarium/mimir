@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.State;
 using NCProductsState = Nekoyume.Model.Market.ProductsState;
@@ -15,5 +16,10 @@ public class ProductsState : State
     {
         Object = productsState;
         AvatarAddress = avatarAddress;
+    }
+
+    public IValue Serialize()
+    {
+        return Object.Serialize();
     }
 }

@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Models;
 using Nekoyume.Model.State;

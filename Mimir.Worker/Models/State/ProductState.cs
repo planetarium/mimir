@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.Market;
 using Nekoyume.Model.State;
@@ -46,5 +47,10 @@ public class ProductState : State
         UnitPrice = unitPrice;
         Crystal = crystal;
         CrystalPerPrice = crystalPerPrice;
+    }
+
+    public override IValue Serialize()
+    {
+        return Object.Serialize();
     }
 }

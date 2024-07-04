@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.State;
 
@@ -12,4 +13,9 @@ public class WorldBossState(
     public int raidId { get; set; } = raidId;
 
     public Nekoyume.Model.State.WorldBossState Object { get; set; } = worldBossState;
+
+    public override IValue Serialize()
+    {
+        return Object.Serialize();
+    }
 }

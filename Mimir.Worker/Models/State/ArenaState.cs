@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.Arena;
 using Nekoyume.Model.State;
@@ -28,5 +29,16 @@ public class ArenaState : State
         ArenaInformationObject = arenaInformation;
         RoundData = roundData;
         AvatarAddress = avatarAddress;
+    }
+
+    public override IValue Serialize()
+    {
+        return new Dictionary(
+            new KeyValuePair<IKey, IValue>[]
+            {
+                new((Text)"ArenaScore", ArenaScoreObject.Serialize()),
+                new((Text)"ArenaInformation", ArenaInformationObject.Serialize()),
+            }
+        );
     }
 }

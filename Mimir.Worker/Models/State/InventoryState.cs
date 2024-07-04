@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
@@ -12,5 +13,10 @@ public class InventoryState : State
         : base(address)
     {
         Object = inventory;
+    }
+
+    public override IValue Serialize()
+    {
+        return Object.Serialize();
     }
 }

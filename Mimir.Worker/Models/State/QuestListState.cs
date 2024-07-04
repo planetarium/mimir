@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.Quest;
 using Nekoyume.Model.State;
@@ -12,5 +13,10 @@ public class QuestListState : State
         : base(address)
     {
         Object = questList;
+    }
+
+    public override IValue Serialize()
+    {
+        return Object.Serialize();
     }
 }
