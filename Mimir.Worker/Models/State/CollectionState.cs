@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.State;
 
@@ -7,4 +8,9 @@ public class CollectionState(Address address, Nekoyume.Model.State.CollectionSta
     : State(address)
 {
     public Nekoyume.Model.State.CollectionState Object { get; set; } = collectionState;
+
+    public override IValue Serialize()
+    {
+        return Object.Bencoded;
+    }
 }

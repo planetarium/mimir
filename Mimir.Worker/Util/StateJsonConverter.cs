@@ -49,7 +49,8 @@ public class StateJsonConverter : JsonConverter
         IValue? ivalue = value switch
         {
             AvatarState avatarState => avatarState.SerializeList(),
-            IState state => state.Serialize(),
+            AgentState agentState => agentState.SerializeList(),
+            State state => state.Serialize(),
             _ => null
         };
 

@@ -1,3 +1,4 @@
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.State;
 
@@ -14,4 +15,9 @@ public class CombinationSlotState(
     public Address avatarAddress { get; set; } = avatarAddress;
 
     public Nekoyume.Model.State.CombinationSlotState Object { get; set; } = combinationSlotState;
+
+    public override IValue Serialize()
+    {
+        return Object.Serialize();
+    }
 }

@@ -9,7 +9,10 @@
       "cwd": "${workspaceFolder}/Mimir",
       "stopAtEntry": false,
       "console": "internalConsole",
-      "preLaunchTask": "build-backend"
+      "preLaunchTask": "build-backend",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "local"
+      }
     },
     {
       "name": "Debug Mimir.Worker",
