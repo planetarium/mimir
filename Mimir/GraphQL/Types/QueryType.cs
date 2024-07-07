@@ -3,6 +3,7 @@ using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Queries;
+using Mimir.Repositories;
 
 namespace Mimir.GraphQL.Types;
 
@@ -55,6 +56,22 @@ public class QueryType : ObjectType<Query>
                 context.ScopedContextData = context.ScopedContextData
                     .Add("planetName", context.ArgumentValue<PlanetName>("planetName"));
                 return new ArenaObject();
+            });
+
+        descriptor
+            .Field("product")
+            .Argument("planetName", a => a.Type<NonNullType<EnumType<PlanetName>>>())
+            .Argument("skip", a => a.Type<NonNullType<LongType>>())
+            .Argument("limit", a => a.Type<NonNullType<IntType>>())
+            .Type<ListType<ProductType>>()
+            .Resolve(context =>
+            {
+                var repository = context.Service<ProductRepository>();
+                var planetName = context.ArgumentValue<PlanetName>("planetName");
+                var skip = context.ArgumentValue<long>("skip");
+                var limit = context.ArgumentValue<int>("limit");
+
+                return repository.GetProducts(planetName, skip, limit);
             });
     }
 }
