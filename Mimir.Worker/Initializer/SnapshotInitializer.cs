@@ -25,7 +25,7 @@ public class SnapshotInitializer
     {
         _store = store;
         _chainStorePath = chainStorePath;
-        _logger = Log.ForContext<Worker>();
+        _logger = Log.ForContext<SnapshotInitializer>();
     }
 
     public async Task RunAsync(CancellationToken stoppingToken)

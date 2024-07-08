@@ -12,7 +12,7 @@ public class ClaimStakeRewardHandler(IStateService stateService, MongoDbService 
         stateService,
         store,
         "^claim_stake_reward[0-9]*$",
-        Log.ForContext<StakeHandler>())
+        Log.ForContext<ClaimStakeRewardHandler>())
 {
     protected override async Task HandleAction(
         long blockIndex,

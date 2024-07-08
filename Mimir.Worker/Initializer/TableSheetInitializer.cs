@@ -9,7 +9,7 @@ using Serilog;
 namespace Mimir.Worker.Initializer;
 
 public class TableSheetInitializer(IStateService service, MongoDbService store)
-    : BaseInitializer(service, store, Log.ForContext<MarketInitializer>())
+    : BaseInitializer(service, store, Log.ForContext<TableSheetInitializer>())
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
     {
