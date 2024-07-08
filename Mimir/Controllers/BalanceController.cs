@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
@@ -33,7 +34,7 @@ public class BalanceController : ControllerBase
                 out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            Response.ContentType = "application/json";
+            Response.ContentType = MediaTypeNames.Application.Json;
             await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }

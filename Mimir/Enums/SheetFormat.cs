@@ -1,3 +1,5 @@
+using System.Net.Mime;
+
 namespace Mimir.Enums
 {
     public enum SheetFormat
@@ -13,9 +15,9 @@ namespace Mimir.Enums
             switch (format)
             {
                 case SheetFormat.Csv:
-                    return "text/csv";
+                    return MediaTypeNames.Text.Csv;
                 case SheetFormat.Json:
-                    return "application/json";
+                    return MediaTypeNames.Application.Json;
                 default:
                     throw new KeyNotFoundException(format.ToString());
             }
