@@ -1,4 +1,6 @@
+using Lib9c;
 using Libplanet.Crypto;
+using Libplanet.Types.Assets;
 using Mimir.Worker.Models;
 using Nekoyume;
 
@@ -8,7 +10,7 @@ public static class AddressHandlerMappings
 {
     public static readonly Dictionary<Address, IStateHandler<StateData>> HandlerMappings = new();
 
-    public static readonly string NCGCurrencyAddress = "0xd6663d0EEC2a7c59FF3cfe3089abF8FEd383227D";
+    public static readonly Currency OdinNCGCurrency = Currency.Legacy("NCG", 2, new Address("0x47d082a115c63e7b58b1532d20e631538eafadde")); 
 
     static AddressHandlerMappings()
     {
@@ -21,9 +23,26 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
+        
+        RegisterBalanceHandler(OdinNCGCurrency);
+        RegisterBalanceHandler(Currencies.Crystal);
+        RegisterBalanceHandler(Currencies.StakeRune);
+        RegisterBalanceHandler(Currencies.DailyRewardRune);
+        RegisterBalanceHandler(Currencies.Garage);
+        RegisterBalanceHandler(Currencies.Mead);
+        RegisterBalanceHandler(Currencies.FreyaBlessingRune);
+        RegisterBalanceHandler(Currencies.FreyaLiberationRune);
+        RegisterBalanceHandler(Currencies.OdinWeaknessRune);
+        RegisterBalanceHandler(Currencies.OdinWisdomRune);
+    }
+
+    private static void RegisterBalanceHandler(Currency currency)
+    {
         HandlerMappings.Add(
-            new Address(NCGCurrencyAddress),
-            new GoldBalanceHandler()
+            new Address(currency.Hash.ToByteArray()),
+#pragma warning disable CS0618 // Type or member is obsolete
+            new BalanceHandler(currency)
+#pragma warning restore CS0618 // Type or member is obsolete
         );
     }
 }

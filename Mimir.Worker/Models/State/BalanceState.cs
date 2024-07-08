@@ -1,13 +1,13 @@
-using System.Numerics;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Libplanet.Types.Assets;
 using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class GoldBalanceState(Address address, BigInteger value) : State(address)
+public class BalanceState(Address address, FungibleAssetValue value) : State(address)
 {
-    public BigInteger Object { get; set; } = value;
+    public FungibleAssetValue Object { get; set; } = value;
 
     public override IValue Serialize()
     {
