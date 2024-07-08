@@ -39,6 +39,7 @@ builder.Services.AddSingleton<CollectionRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<RuneSlotRepository>();
 builder.Services.AddSingleton<StakeRepository>();
+builder.Services.AddSingleton<ProductRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
