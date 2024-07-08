@@ -25,6 +25,15 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
         
         RegisterBalanceHandler(OdinNCGCurrency);
+        RegisterBalanceHandler(Currencies.Crystal);
+        RegisterBalanceHandler(Currencies.StakeRune);
+        RegisterBalanceHandler(Currencies.DailyRewardRune);
+        RegisterBalanceHandler(Currencies.Garage);
+        RegisterBalanceHandler(Currencies.Mead);
+        RegisterBalanceHandler(Currencies.FreyaBlessingRune);
+        RegisterBalanceHandler(Currencies.FreyaLiberationRune);
+        RegisterBalanceHandler(Currencies.OdinWeaknessRune);
+        RegisterBalanceHandler(Currencies.OdinWisdomRune);
     }
 
     private static void RegisterBalanceHandler(Currency currency)
