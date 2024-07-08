@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using System.Numerics;
 using Bencodex;
 using Libplanet.Common;
@@ -110,7 +111,7 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
                 out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            Response.ContentType = "application/json";
+            Response.ContentType = MediaTypeNames.Application.Json;
             await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }
@@ -144,7 +145,7 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
                 out var errorMessage))
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;
-            Response.ContentType = "application/json";
+            Response.ContentType = MediaTypeNames.Application.Json;
             await Response.WriteAsJsonAsync(new { message = errorMessage });
             return null;
         }

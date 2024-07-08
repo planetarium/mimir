@@ -1,4 +1,6 @@
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Mimir.Enums;
 using Mimir.Repositories;
 
@@ -13,14 +15,15 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
         tableSheetsRepository.GetSheetNames(network);
 
     [HttpGet("{sheetName}")]
-    [Produces("application/json", "text/csv")]
+    [Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Csv)]
     public async Task<IActionResult> GetSheet(string network, string sheetName)
     {
         var acceptHeader = Request.Headers["Accept"].ToString();
+
         SheetFormat? sheetFormatNullable = acceptHeader switch
         {
-            "text/csv" => SheetFormat.Csv,
-            "application/json" => SheetFormat.Json,
+            MediaTypeNames.Text.Csv => SheetFormat.Csv,
+            MediaTypeNames.Application.Json => SheetFormat.Json,
             _ => null,
         };
 
