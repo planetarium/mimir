@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Bencodex.Types;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Models;
@@ -17,6 +18,17 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         "^patch_table_sheet[0-9]*$",
         Log.ForContext<PatchTableHandler>())
 {
+    private static readonly ImmutableArray<Type> SheetTypes = [
+        ..typeof(ISheet)
+            .Assembly.GetTypes()
+            .Where(type =>
+                type.Namespace is { } @namespace
+                && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
+                && !type.IsAbstract
+                && typeof(ISheet).IsAssignableFrom(type)
+            )
+    ];
+
     protected override async Task HandleAction(
         string actionType,
         long processBlockIndex,
@@ -30,21 +42,12 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
                 actionPlainValueInternal?.Kind);
         }
 
-        var sheetTypes = typeof(ISheet)
-            .Assembly.GetTypes()
-            .Where(type =>
-                type.Namespace is { } @namespace
-                && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
-                && !type.IsAbstract
-                && typeof(ISheet).IsAssignableFrom(type)
-            );
-
         var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
         var sheetType = tableName switch
         {
             _ when tableName.StartsWith(nameof(StakeRegularRewardSheet)) => typeof(StakeRegularRewardSheet),
             _ when tableName.StartsWith(nameof(StakeRegularFixedRewardSheet)) => typeof(StakeRegularFixedRewardSheet),
-            _ => sheetTypes.FirstOrDefault(type => type.Name == tableName),
+            _ => SheetTypes.FirstOrDefault(type => type.Name == tableName),
         };
         if (sheetType == null)
         {
