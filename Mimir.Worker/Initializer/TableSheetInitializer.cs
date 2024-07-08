@@ -20,7 +20,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         {
             _logger.Information("Init sheet, table: {TableName} ", sheetType.Name);
 
-            await handler.SyncSheetStateAsync(sheetType);
+            await handler.SyncSheetStateAsync(sheetType.Name, sheetType);
         }
     }
 
