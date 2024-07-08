@@ -10,24 +10,28 @@ public class DecimalStat : IBencodable
 
     public decimal AdditionalValue { get; private set; }
 
-    public StatType StatType { get; private set; }
+    public Nekoyume.Model.Stat.StatType StatType { get; private set; }
 
     public DecimalStat(Dictionary bencoded)
     {
         if (bencoded.TryGetValue((Text)"type", out var legacyStatType))
         {
-            StatType = StatTypeExtension.Deserialize((Binary)legacyStatType);
+            StatType = Nekoyume.Model.Stat.StatTypeExtension.Deserialize((Binary)legacyStatType);
             BaseValue = bencoded["value"].ToDecimal();
         }
         else if (bencoded.TryGetValue((Text)"additionalValue", out var additionalValue))
         {
-            StatType = StatTypeExtension.Deserialize((Binary)bencoded["statType"]);
+            StatType = Nekoyume.Model.Stat.StatTypeExtension.Deserialize(
+                (Binary)bencoded["statType"]
+            );
             BaseValue = bencoded["value"].ToDecimal();
             AdditionalValue = additionalValue.ToDecimal();
         }
         else
         {
-            StatType = StatTypeExtension.Deserialize((Binary)bencoded["statType"]);
+            StatType = Nekoyume.Model.Stat.StatTypeExtension.Deserialize(
+                (Binary)bencoded["statType"]
+            );
             BaseValue = bencoded["value"].ToDecimal();
         }
     }

@@ -14,5 +14,6 @@ public class ItemProductType : ObjectType<ItemProduct>
         descriptor.Field(f => f.Price).Type<FungibleAssetValueType>();
         descriptor.Field(f => f.RegisteredBlockIndex).Type<LongType>();
         descriptor.Field(f => f.ItemCount).Type<IntType>();
+        descriptor.Field(f => f.TradableItem).Type<TradableItemType>();
     }
 }
