@@ -15,7 +15,7 @@ public class Consumable : ItemUsable, IBencodable
         Stats = bencoded["stats"].ToList(i => new DecimalStat((Dictionary)i));
     }
 
-    public IValue Bencoded =>
+    new public IValue Bencoded =>
         ((Dictionary)base.Bencoded).Add(
             "stats",
             new List(

@@ -20,7 +20,7 @@ public abstract class ItemUsable : ItemBase, IBencodable
         RequiredBlockIndex = bencoded["requiredBlockIndex"].ToLong();
     }
 
-    public IValue Bencoded =>
+    new public IValue Bencoded =>
         ((Dictionary)base.Bencoded)
             .Add("itemId", ItemId.Serialize())
             .Add("requiredBlockIndex", RequiredBlockIndex.Serialize());

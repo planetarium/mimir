@@ -20,7 +20,7 @@ public class TradableMaterial : Material, IBencodable
         TradableId = DeriveTradableId(ItemId);
     }
 
-    public IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
+    new public IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
 
     public static Guid DeriveTradableId(HashDigest<SHA256> fungibleId) =>
         new Guid(HashDigest<MD5>.DeriveFrom(fungibleId.ToByteArray()).ToByteArray());
