@@ -10,7 +10,6 @@ using WorldBossState = Mimir.Worker.Models.WorldBossState;
 using RaiderState = Mimir.Worker.Models.RaiderState;
 using StakeState = Mimir.Worker.Models.StakeState;
 using CombinationSlotState = Mimir.Worker.Models.CombinationSlotState;
-using GoldBalanceState = Mimir.Worker.Models.GoldBalanceState;
 
 namespace Mimir.Worker.Constants
 {
@@ -40,7 +39,14 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(RaiderState), "raider");
             CollectionMappings.Add(typeof(StakeState), "stake");
             CollectionMappings.Add(typeof(CombinationSlotState), "combination_slot");
-            CollectionMappings.Add(typeof(GoldBalanceState), "gold_balance");
+
+            // The `Raw` fields of the documents' in 'balances' collection,
+            // will not have the original state.  In Libplanet implementation,
+            // each currency has an account trie. And their states' raw value
+            // may be `Bencodex.Types.Integer`-typed. But `BalanceState` stores
+            // serialized `FungibleAssetValue` instead of `Integer` to query
+            // easily without fetching `Currency` from other source.
+            CollectionMappings.Add(typeof(BalanceState), "balances");
         }
 
         public static string GetCollectionName<T>()

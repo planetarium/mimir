@@ -1,4 +1,6 @@
+using Lib9c;
 using Libplanet.Crypto;
+using Libplanet.Types.Assets;
 using Mimir.Worker.Models;
 using Nekoyume;
 
@@ -23,7 +25,9 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
         HandlerMappings.Add(
             new Address(NCGCurrencyAddress),
-            new GoldBalanceHandler()
+#pragma warning disable CS0618 // Type or member is obsolete
+            new BalanceHandler(Currency.Legacy("NCG", 2, new Address("0x47d082a115c63e7b58b1532d20e631538eafadde")))
+#pragma warning restore CS0618 // Type or member is obsolete
         );
     }
 }

@@ -1,13 +1,12 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Libplanet.Types.Assets;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
-using Nekoyume.Model.State;
-using GoldBalanceState = Mimir.Worker.Models.GoldBalanceState;
 
 namespace Mimir.Worker.Handler;
 
-public class GoldBalanceHandler : IStateHandler<StateData>
+public record BalanceHandler(Currency Currency) : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context)
     {
@@ -15,7 +14,7 @@ public class GoldBalanceHandler : IStateHandler<StateData>
         return new StateData(context.Address, goldBalance);
     }
 
-    private GoldBalanceState ConvertToState(Address address, IValue state)
+    private BalanceState ConvertToState(Address address, IValue state)
     {
         if (state is not Integer value)
         {
@@ -24,7 +23,7 @@ public class GoldBalanceHandler : IStateHandler<StateData>
             );
         }
 
-        return new GoldBalanceState(address, value.ToBigInteger());
+        return new BalanceState(address, FungibleAssetValue.FromRawValue(Currency, value));
     }
 
     public async Task StoreStateData(MongoDbService store, StateData stateData)
