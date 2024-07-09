@@ -16,17 +16,17 @@ public class AgentType : ObjectType<AgentObject>
             .Field("version")
             .Type<IntType>()
             .ResolveWith<AgentResolver>(_ =>
-                AgentResolver.GetVersion(default!, default!, default!, default!, default!));
+                AgentResolver.GetVersion(default!, default!, default!, default!));
         descriptor
             .Field("avatarAddresses")
             .Type<ListType<NonNullType<AddressType>>>()
             .ResolveWith<AgentResolver>(_ =>
-                AgentResolver.GetAvatarAddresses(default!, default!, default!, default!, default!));
+                AgentResolver.GetAvatarAddresses(default!, default!, default!, default!));
         descriptor
             .Field("monsterCollectionRound")
             .Type<IntType>()
             .ResolveWith<AgentResolver>(_ =>
-                AgentResolver.GetMonsterCollectionRound(default!, default!, default!, default!, default!));
+                AgentResolver.GetMonsterCollectionRound(default!, default!, default!, default!));
         descriptor
             .Field("avatar")
             .Argument("index", a => a
@@ -41,6 +41,6 @@ public class AgentType : ObjectType<AgentObject>
         descriptor
             .Field("stake")
             .Type<StakeStateType>()
-            .ResolveWith<AgentResolver>(_ => AgentResolver.GetStake(default!, default!, default!));
+            .ResolveWith<AgentResolver>(_ => AgentResolver.GetStake(default!, default!));
     }
 }

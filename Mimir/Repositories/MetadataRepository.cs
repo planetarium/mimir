@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
 using Mimir.Services;
@@ -12,15 +11,9 @@ public class MetadataRepository(MongoDBCollectionService mongoDbCollectionServic
 {
     protected override string GetCollectionName() => "metadata";
 
-    public long GetLatestBlockIndex(string network, string pollerType)
+    public long GetLatestBlockIndex(string pollerType)
     {
-        var collection = GetCollection(network);
-        return GetLatestBlockIndex(collection, pollerType);
-    }
-
-    public long GetLatestBlockIndex(PlanetName planetName, string pollerType)
-    {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         return GetLatestBlockIndex(collection, pollerType);
     }
 

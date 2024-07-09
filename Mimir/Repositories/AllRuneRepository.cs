@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
 using Mimir.Models.Assets;
@@ -11,9 +10,9 @@ namespace Mimir.Repositories;
 public class AllRuneRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public List<Rune> GetRunes(PlanetName planetName, Address avatarAddress)
+    public List<Rune> GetRunes(Address avatarAddress)
     {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

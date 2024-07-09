@@ -45,21 +45,17 @@ builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
     {
         var headlessStateServiceOption = provider.GetRequiredService<IOptions<HeadlessStateServiceOption>>();
-        var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
-        if (httpContextAccessor.HttpContext is null
-            || !httpContextAccessor.HttpContext.Request.RouteValues.TryGetValue("network", out object? value)
-            || value is not string network
-            || !headlessStateServiceOption.Value.Endpoints.TryGetValue(network, out var endpoint)) return;
-        client.BaseAddress = endpoint.Endpoint;
+        var option = headlessStateServiceOption.Value;
+        client.BaseAddress = new Uri(option.Endpoint);
 
-        if (endpoint.JwtSecretKey is not null && endpoint.JwtIssuer is not null)
+        if (option.JwtSecretKey is not null && option.JwtIssuer is not null)
         {
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(endpoint.JwtSecretKey));
+                Encoding.UTF8.GetBytes(option.JwtSecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: endpoint.JwtIssuer,
+                issuer: option.JwtIssuer,
                 expires: DateTime.UtcNow.AddMinutes(5),
                 signingCredentials: creds);
 

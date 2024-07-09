@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
 using Mimir.Models;
@@ -15,12 +14,11 @@ public class RuneSlotRepository(MongoDBCollectionService mongoDbCollectionServic
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
     public IRuneSlots GetRuneSlots(
-        PlanetName planetName,
         Address avatarAddress,
         BattleType battleType)
     {
         var runeSlotAddress = RuneSlotState.DeriveAddress(avatarAddress, battleType);
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
