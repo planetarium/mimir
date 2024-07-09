@@ -16,7 +16,7 @@ public class FavProduct : Product, IBencodable
     }
 
     [GraphQLIgnore]
-    public IValue Bencoded => Serialize();
+    public new IValue Bencoded => Serialize();
 
     public IValue Serialize()
     {

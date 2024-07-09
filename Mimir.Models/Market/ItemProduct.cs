@@ -20,7 +20,7 @@ public class ItemProduct : Product, IBencodable
     }
 
     [GraphQLIgnore]
-    public IValue Bencoded => Serialize();
+    public new IValue Bencoded => Serialize();
 
     public IValue Serialize()
     {
