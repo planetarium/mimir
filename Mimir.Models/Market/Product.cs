@@ -8,12 +8,12 @@ namespace Mimir.Models.Market;
 
 public abstract class Product : IBencodable
 {
-    public Guid ProductId { get; private set; }
-    public Nekoyume.Model.Market.ProductType ProductType { get; private set; }
-    public FungibleAssetValue Price { get; private set; }
-    public long RegisteredBlockIndex { get; private set; }
-    public Address SellerAvatarAddress { get; private set; }
-    public Address SellerAgentAddress { get; private set; }
+    public Guid ProductId { get; }
+    public Nekoyume.Model.Market.ProductType ProductType { get; }
+    public FungibleAssetValue Price { get; }
+    public long RegisteredBlockIndex { get; }
+    public Address SellerAvatarAddress { get; }
+    public Address SellerAgentAddress { get; }
 
     public Product(List bencoded)
     {

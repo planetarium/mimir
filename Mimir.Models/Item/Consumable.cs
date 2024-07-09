@@ -7,7 +7,7 @@ namespace Mimir.Models.Item;
 
 public class Consumable : ItemUsable, IBencodable
 {
-    public List<DecimalStat> Stats { get; private set; }
+    public List<DecimalStat> Stats { get; }
 
     public Consumable(Dictionary bencoded)
         : base(bencoded)

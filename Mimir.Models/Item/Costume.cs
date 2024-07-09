@@ -7,10 +7,10 @@ namespace Mimir.Models.Item;
 
 public class Costume : ItemBase, IBencodable
 {
-    public bool Equipped { get; private set; }
-    public string SpineResourcePath { get; private set; }
-    public Guid ItemId { get; private set; }
-    public long RequiredBlockIndex { get; private set; }
+    public bool Equipped { get; }
+    public string SpineResourcePath { get; }
+    public Guid ItemId { get; }
+    public long RequiredBlockIndex { get; }
 
     public Costume(Dictionary bencoded)
         : base(bencoded)

@@ -9,9 +9,9 @@ namespace Mimir.Models.Item;
 
 public class TradableMaterial : Material, IBencodable
 {
-    public Guid TradableId { get; private set; }
+    public Guid TradableId { get; }
 
-    public long RequiredBlockIndex { get; private set; }
+    public long RequiredBlockIndex { get; }
 
     public TradableMaterial(Dictionary bencoded)
         : base(bencoded)

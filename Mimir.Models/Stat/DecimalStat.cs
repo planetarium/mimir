@@ -6,11 +6,11 @@ namespace Mimir.Models.Stat;
 
 public class DecimalStat : IBencodable
 {
-    public decimal BaseValue { get; private set; }
+    public decimal BaseValue { get; }
 
-    public decimal AdditionalValue { get; private set; }
+    public decimal AdditionalValue { get; }
 
-    public Nekoyume.Model.Stat.StatType StatType { get; private set; }
+    public Nekoyume.Model.Stat.StatType StatType { get; }
 
     public DecimalStat(Dictionary bencoded)
     {
