@@ -21,7 +21,7 @@ public class Costume : ItemBase, IBencodable
         RequiredBlockIndex = bencoded["rbi"].ToLong();
     }
 
-    new public IValue Bencoded => Serialize();
+    public new IValue Bencoded => Serialize();
 
     public IValue Serialize()
     {

@@ -17,5 +17,5 @@ public class Material : ItemBase, IBencodable
         ItemId = bencoded["item_id"].ToItemId();
     }
 
-    new public IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
+    public new IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
 }

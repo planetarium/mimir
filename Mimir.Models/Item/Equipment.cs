@@ -52,7 +52,7 @@ public class Equipment : ItemUsable, IBencodable
         }
     }
 
-    new public IValue Bencoded => Serialize();
+    public new IValue Bencoded => Serialize();
 
     public IValue Serialize()
     {
