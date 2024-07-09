@@ -90,8 +90,8 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
                 {
                     return;
                 }
-                
-                
+
+
                 petId = combinationSlotState.PetId.Value;
             }
             else

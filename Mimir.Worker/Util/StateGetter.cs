@@ -250,7 +250,7 @@ public class StateGetter
             _ => throw new InvalidCastException()
         };
     }
-    
+
     public async Task<PetState?> GetPetState(Address petStateAddress)
     {
         var state = await _service.GetState(petStateAddress);

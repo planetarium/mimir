@@ -39,11 +39,11 @@ public class AddressType : ScalarType<Address, StringValueNode>
             resultValue = address.ToString();
             return true;
         }
-        
+
         resultValue = null;
         return false;
     }
-    
+
     public override bool TryDeserialize(object? resultValue, out object? runtimeValue)
     {
         if (resultValue is string s)

@@ -5,7 +5,7 @@ namespace Mimir.Arena;
 public record AvatarStatesForArena
 {
     public AvatarState AvatarState { get; private set; }
-    public ItemSlotState ItemSlotState { get;  private set; }
+    public ItemSlotState ItemSlotState { get; private set; }
     public AllRuneState RuneStates { get; private set; }
     public RuneSlotState RuneSlotState { get; private set; }
 

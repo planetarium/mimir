@@ -84,7 +84,7 @@ public class ArenaBulkSimulator
             deBuffLimitSheet,
             buffLinkSheet,
             true);
-        
+
         return arenaLog;
     }
 }

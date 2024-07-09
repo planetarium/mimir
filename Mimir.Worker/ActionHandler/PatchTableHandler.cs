@@ -19,7 +19,7 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         Log.ForContext<PatchTableHandler>())
 {
     private static readonly ImmutableArray<Type> SheetTypes = [
-        ..typeof(ISheet)
+        .. typeof(ISheet)
             .Assembly.GetTypes()
             .Where(type =>
                 type.Namespace is { } @namespace
