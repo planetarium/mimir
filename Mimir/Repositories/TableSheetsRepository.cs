@@ -1,5 +1,4 @@
 using System.Text;
-using Lib9c.GraphQL.Enums;
 using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
@@ -20,15 +19,9 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
 {
     protected override string GetCollectionName() => "table_sheet";
 
-    public ArenaSheet.RoundData GetArenaRound(string network, long blockIndex)
+    public ArenaSheet.RoundData GetArenaRound(long blockIndex)
     {
-        var collection = GetCollection(network);
-        return GetArenaRound(collection, blockIndex);
-    }
-
-    public ArenaSheet.RoundData GetArenaRound(PlanetName planetName, long blockIndex)
-    {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         return GetArenaRound(collection, blockIndex);
     }
 
@@ -102,9 +95,9 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
         }
     }
 
-    public string[] GetSheetNames(string network)
+    public string[] GetSheetNames()
     {
-        var collection = GetCollection(network);
+        var collection = GetCollection();
         var projection = Builders<BsonDocument>.Projection.Include("State.Name").Exclude("_id");
         var documents = collection.Find(new BsonDocument()).Project(projection).ToList();
 
@@ -122,47 +115,19 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
     }
 
     public async Task<string> GetSheetAsync(
-        string network,
         string sheetName,
         SheetFormat sheetFormat = SheetFormat.Csv)
     {
-        var collection = GetCollection(network);
-        var database = GetDatabase(network);
-        return await GetSheetAsync(collection, database, sheetName, sheetFormat);
-    }
-
-    public async Task<string> GetSheetAsync(
-        PlanetName planetName,
-        string sheetName,
-        SheetFormat sheetFormat = SheetFormat.Csv)
-    {
-        var collection = GetCollection(planetName);
-        var database = GetDatabase(planetName);
+        var collection = GetCollection();
+        var database = GetDatabase();
         return await GetSheetAsync(collection, database, sheetName, sheetFormat);
     }
 
     public async Task<T> GetSheetAsync<T>(
-        string network,
         SheetFormat sheetFormat = SheetFormat.Csv) where T : ISheet
     {
         var sheetType = typeof(T);
-        var csv = await GetSheetAsync(network, sheetType.Name, sheetFormat);
-        var sheetConstructorInfo = sheetType.GetConstructor(Type.EmptyTypes);
-        if (sheetConstructorInfo?.Invoke([]) is not ISheet sheet)
-        {
-            throw new FailedLoadSheetException(sheetType);
-        }
-
-        sheet.Set(csv);
-        return (T)sheet;
-    }
-
-    public async Task<T> GetSheetAsync<T>(
-        PlanetName planetName,
-        SheetFormat sheetFormat = SheetFormat.Csv) where T : ISheet
-    {
-        var sheetType = typeof(T);
-        var csv = await GetSheetAsync(planetName, sheetType.Name, sheetFormat);
+        var csv = await GetSheetAsync(sheetType.Name, sheetFormat);
         var sheetConstructorInfo = sheetType.GetConstructor(Type.EmptyTypes);
         if (sheetConstructorInfo?.Invoke([]) is not ISheet sheet)
         {

@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 namespace Mimir.Controllers;
 
 [ApiController]
-[Route("{network}/avatars/{address}")]
+[Route("avatars/{address}")]
 public class AvatarController(AvatarRepository avatarRepository, InventoryRepository inventoryRepository) : ControllerBase
 {
     #region temporary snippets
@@ -101,7 +101,6 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
 
     [HttpGet]
     public async Task<Avatar?> GetState(
-        string network,
         string address,
         IStateService stateService)
     {
@@ -116,7 +115,7 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
             return null;
         }
 
-        var avatar = avatarRepository.GetAvatar(network, avatarAddress);
+        var avatar = avatarRepository.GetAvatar(avatarAddress);
         if (avatar is not null)
         {
             return avatar;
@@ -135,7 +134,6 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
 
     [HttpGet("inventory")]
     public async Task<Inventory?> GetInventory(
-        string network,
         string address,
         IStateService stateService)
     {
@@ -150,7 +148,7 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
             return null;
         }
 
-        var inventory = inventoryRepository.GetInventory(network, inventoryAddress);
+        var inventory = inventoryRepository.GetInventory(inventoryAddress);
         if (inventory is not null)
         {
             return inventory;

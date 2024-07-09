@@ -1,5 +1,4 @@
 using HotChocolate.Resolvers;
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
@@ -15,7 +14,6 @@ public class AgentResolver
         IResolverContext context,
         [Service] AgentRepository agentRepo,
         [Parent] AgentObject agentObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("agent")] Agent? agent)
     {
         if (agent is not null)
@@ -24,7 +22,7 @@ public class AgentResolver
         }
 
         var agentAddress = agentObject.Address;
-        agent = agentRepo.GetAgent(planetName, agentAddress);
+        agent = agentRepo.GetAgent(agentAddress);
         context.ScopedContextData = context.ScopedContextData.Add("agent", agent);
         return agent;
     }
@@ -33,25 +31,22 @@ public class AgentResolver
         IResolverContext context,
         [Service] AgentRepository agentRepo,
         [Parent] AgentObject agentObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("agent")] Agent? agent) =>
-        GetAgent(context, agentRepo, agentObject, planetName, agent).Version;
+        GetAgent(context, agentRepo, agentObject, agent).Version;
 
     public static Address[] GetAvatarAddresses(
         IResolverContext context,
         [Service] AgentRepository agentRepo,
         [Parent] AgentObject agentObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("agent")] Agent? agent) =>
-        GetAgent(context, agentRepo, agentObject, planetName, agent).AvatarAddresses.Values.ToArray();
+        GetAgent(context, agentRepo, agentObject, agent).AvatarAddresses.Values.ToArray();
 
     public static int GetMonsterCollectionRound(
         IResolverContext context,
         [Service] AgentRepository agentRepo,
         [Parent] AgentObject agentObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("agent")] Agent? agent) =>
-        GetAgent(context, agentRepo, agentObject, planetName, agent).MonsterCollectionRound;
+        GetAgent(context, agentRepo, agentObject, agent).MonsterCollectionRound;
 
     public static AvatarObject GetAvatar(int index, [Parent] AgentObject agentObject)
     {
@@ -74,10 +69,9 @@ public class AgentResolver
 
     public static StakeStateV2 GetStake(
         [Service] StakeRepository stakeRepo,
-        [Parent] AgentObject agentObject,
-        [ScopedState("planetName")] PlanetName planetName)
+        [Parent] AgentObject agentObject)
     {
         var agentAddress = agentObject.Address;
-        return stakeRepo.GetStakeState(planetName, agentAddress);
+        return stakeRepo.GetStakeState(agentAddress);
     }
 }

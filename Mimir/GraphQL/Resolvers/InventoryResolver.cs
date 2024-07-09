@@ -1,5 +1,4 @@
 using HotChocolate.Resolvers;
-using Lib9c.GraphQL.Enums;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
@@ -13,7 +12,6 @@ public class InventoryResolver
         IResolverContext context,
         [Service] InventoryRepository inventoryRepo,
         [Parent] InventoryObject inventoryObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("inventory")] Inventory? inventory)
     {
         if (inventory is not null)
@@ -22,7 +20,7 @@ public class InventoryResolver
         }
 
         var avatarAddress = inventoryObject.Address;
-        inventory = inventoryRepo.GetInventory(planetName, avatarAddress);
+        inventory = inventoryRepo.GetInventory(avatarAddress);
         context.ScopedContextData = context.ScopedContextData.Add("inventory", inventory);
         return inventory;
     }
@@ -31,9 +29,8 @@ public class InventoryResolver
         IResolverContext context,
         [Service] InventoryRepository inventoryRepo,
         [Parent] InventoryObject inventoryObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, planetName, inventory)
+        GetInventory(context, inventoryRepo, inventoryObject, inventory)
             .Consumables
             .Select(ItemObjectFactory.Create)
             .ToArray();
@@ -42,9 +39,8 @@ public class InventoryResolver
         IResolverContext context,
         [Service] InventoryRepository inventoryRepo,
         [Parent] InventoryObject inventoryObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, planetName, inventory)
+        GetInventory(context, inventoryRepo, inventoryObject, inventory)
             .Costumes
             .Select(ItemObjectFactory.Create)
             .ToArray();
@@ -53,9 +49,8 @@ public class InventoryResolver
         IResolverContext context,
         [Service] InventoryRepository inventoryRepo,
         [Parent] InventoryObject inventoryObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, planetName, inventory)
+        GetInventory(context, inventoryRepo, inventoryObject, inventory)
             .Equipments
             .Select(ItemObjectFactory.Create)
             .ToArray();
@@ -64,9 +59,8 @@ public class InventoryResolver
         IResolverContext context,
         [Service] InventoryRepository inventoryRepo,
         [Parent] InventoryObject inventoryObject,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, planetName, inventory)
+        GetInventory(context, inventoryRepo, inventoryObject, inventory)
             .Materials
             .Select(ItemObjectFactory.Create)
             .ToArray();

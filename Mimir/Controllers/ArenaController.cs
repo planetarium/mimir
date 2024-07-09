@@ -13,7 +13,7 @@ using Nekoyume.TableData.Rune;
 namespace Mimir.Controllers;
 
 [ApiController]
-[Route("{network}/arena")]
+[Route("arena")]
 public class ArenaController(
     ArenaRankingRepository arenaRankingRepository,
     TableSheetsRepository tableSheetsRepository
@@ -21,13 +21,11 @@ public class ArenaController(
 {
     [HttpGet("season")]
     public ArenaSeason GetLatestSeason(
-        string network,
         MetadataRepository metadataRepository
     )
     {
         var arenaRound = tableSheetsRepository.GetArenaRound(
-            network,
-            metadataRepository.GetLatestBlockIndex(network, "BlockPoller")
+            metadataRepository.GetLatestBlockIndex("BlockPoller")
         );
 
         return new ArenaSeason(arenaRound.ChampionshipId, arenaRound.Round);
@@ -35,14 +33,12 @@ public class ArenaController(
 
     [HttpGet("ranking/{avatarAddress}/rank")]
     public async Task<long> GetRankByAvatarAddress(
-        string network,
         string avatarAddress,
         [BindRequired] int championshipId,
         [BindRequired] int round
     )
     {
         var rank = await arenaRankingRepository.GetRankingByAvatarAddressAsync(
-            network,
             new Address(avatarAddress),
             championshipId,
             round
@@ -58,7 +54,6 @@ public class ArenaController(
 
     [HttpGet("ranking")]
     public async Task<List<ArenaRanking>> GetRanking(
-        string network,
         [BindRequired] int limit,
         [BindRequired] int offset,
         [BindRequired] int championshipId,
@@ -66,7 +61,6 @@ public class ArenaController(
     )
     {
         return await arenaRankingRepository.GetRanking(
-            network,
             offset,
             limit,
             championshipId,
@@ -76,7 +70,6 @@ public class ArenaController(
 
     [HttpPost("simulate")]
     public async Task<ArenaSimulateResponse> Simulate(
-        string network,
         [FromBody] ArenaSimulateRequest arenaSimulateRequest,
         IStateService stateService
     )

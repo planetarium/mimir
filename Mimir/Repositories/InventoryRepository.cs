@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
 using Mimir.Models;
@@ -11,11 +10,8 @@ namespace Mimir.Repositories;
 public class InventoryRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public Inventory GetInventory(string network, Address avatarAddress) =>
-        GetInventory(GetCollection(network), avatarAddress);
-
-    public Inventory GetInventory(PlanetName planetName, Address avatarAddress) =>
-        GetInventory(GetCollection(planetName), avatarAddress);
+    public Inventory GetInventory(Address avatarAddress) =>
+        GetInventory(GetCollection(), avatarAddress);
 
     private static Inventory GetInventory(
         IMongoCollection<BsonDocument> collection,

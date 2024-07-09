@@ -5,19 +5,18 @@ using Mimir.Repositories;
 namespace Mimir.Controllers;
 
 [ApiController]
-[Route("{network}")]
+[Route("metadata")]
 public class MetadataController : ControllerBase
 {
-    [HttpGet("metadata")]
+    [HttpGet]
     public MetadataResponse GetMetadata(
-        string network,
         string pollerType,
         MetadataRepository metadataRepository
     )
     {
         return new MetadataResponse(
             pollerType,
-            metadataRepository.GetLatestBlockIndex(network, pollerType)
+            metadataRepository.GetLatestBlockIndex(pollerType)
         );
     }
 }

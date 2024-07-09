@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
 using Mimir.Services;
@@ -13,12 +12,11 @@ public class ItemSlotRepository(MongoDBCollectionService mongoDbCollectionServic
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
     public ItemSlotState GetItemSlot(
-        PlanetName planetName,
         Address avatarAddress,
         BattleType battleType)
     {
         var itemSlotAddress = ItemSlotState.DeriveAddress(avatarAddress, battleType);
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", itemSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

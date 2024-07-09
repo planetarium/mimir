@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Models;
 using Mimir.Models.Arena;
@@ -20,22 +19,11 @@ public class ArenaRankingRepository(
     protected override string GetCollectionName() => "arena";
 
     public async Task<long> GetRankingByAvatarAddressAsync(
-        string network,
         Address avatarAddress,
         int? championshipId,
         int? round)
     {
-        var collection = GetCollection(network);
-        return await GetRankingByAvatarAddressAsync(collection, avatarAddress, championshipId, round);
-    }
-
-    public async Task<long> GetRankingByAvatarAddressAsync(
-        PlanetName planetName,
-        Address avatarAddress,
-        int? championshipId,
-        int? round)
-    {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         return await GetRankingByAvatarAddressAsync(collection, avatarAddress, championshipId, round);
     }
 
@@ -79,24 +67,12 @@ public class ArenaRankingRepository(
     }
 
     public async Task<List<ArenaRanking>> GetRanking(
-        string network,
         long skip,
         int limit,
         int? championshipId,
         int? round)
     {
-        var collection = GetCollection(network);
-        return await GetRanking(collection, skip, limit, championshipId, round);
-    }
-
-    public async Task<List<ArenaRanking>> GetRanking(
-        PlanetName planetName,
-        long skip,
-        int limit,
-        int? championshipId,
-        int? round)
-    {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         return await GetRanking(collection, skip, limit, championshipId, round);
     }
 

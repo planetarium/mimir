@@ -12,7 +12,7 @@ using Mimir.Validators;
 namespace Mimir.Controllers;
 
 [ApiController]
-[Route("{network}/agent/{address}")]
+[Route("agent/{address}")]
 public class AgentController : ControllerBase
 {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -24,7 +24,6 @@ public class AgentController : ControllerBase
 
     [HttpGet("balances")]
     public async Task<List<Balance>?> GetBalances(
-        string network,
         string address,
         IStateService stateService)
     {
@@ -51,7 +50,6 @@ public class AgentController : ControllerBase
 
     [HttpGet("avatars")]
     public async Task<AvatarsResponse> GetAvatars(
-        string network,
         string address,
         IStateService stateService)
     {

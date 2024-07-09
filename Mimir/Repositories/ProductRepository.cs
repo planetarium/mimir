@@ -1,6 +1,5 @@
 using Bencodex;
 using Bencodex.Types;
-using Lib9c.GraphQL.Enums;
 using Mimir.Models.Factories;
 using Mimir.Models.Market;
 using Mimir.Services;
@@ -16,11 +15,8 @@ public class ProductRepository(MongoDBCollectionService mongoDbCollectionService
 
     private static readonly Codec Codec = new();
 
-    // public List<Product> GetProducts(string network, long skip, int limit) =>
-    //     GetProducts(GetCollection(network), skip, limit);
-
-    public List<Product> GetProducts(PlanetName planetName, long skip, int limit) =>
-        GetProducts(GetCollection(planetName), skip, limit);
+    public List<Product> GetProducts(long skip, int limit) =>
+        GetProducts(GetCollection(), skip, limit);
 
     private static List<Product> GetProducts(
         IMongoCollection<BsonDocument> collection,

@@ -1,5 +1,4 @@
 using HotChocolate.Resolvers;
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Models.Arena;
 using Mimir.Repositories;
@@ -13,7 +12,6 @@ public class ArenaResolver
         IResolverContext context,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
         if (arenaRound is not null)
@@ -21,8 +19,8 @@ public class ArenaResolver
             return arenaRound;
         }
 
-        var latestBlockIndex = metadataRepo.GetLatestBlockIndex(planetName, "BlockPoller");
-        arenaRound = tableSheetsRepo.GetArenaRound(planetName, latestBlockIndex);
+        var latestBlockIndex = metadataRepo.GetLatestBlockIndex("BlockPoller");
+        arenaRound = tableSheetsRepo.GetArenaRound(latestBlockIndex);
         context.ScopedContextData = context.ScopedContextData.Add("arenaRound", arenaRound);
         return arenaRound;
     }
@@ -33,12 +31,10 @@ public class ArenaResolver
         [Service] ArenaRankingRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound);
+        arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, arenaRound);
         var rank = await arenaRankingRepo.GetRankingByAvatarAddressAsync(
-            planetName,
             avatarAddress,
             arenaRound.ChampionshipId,
             arenaRound.Round);
@@ -54,7 +50,6 @@ public class ArenaResolver
         [Service] ArenaRankingRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [ScopedState("planetName")] PlanetName planetName,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
         if (ranking < 1)
@@ -76,9 +71,8 @@ public class ArenaResolver
                     "This must be less than or equal to 100.");
         }
 
-        arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, planetName, arenaRound);
+        arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetRanking(
-            planetName,
             ranking - 1,
             length,
             arenaRound.ChampionshipId,

@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
 using Mimir.Models;
@@ -11,9 +10,9 @@ namespace Mimir.Repositories;
 public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public Agent GetAgent(PlanetName planetName, Address agentAddress)
+    public Agent GetAgent(Address agentAddress)
     {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", agentAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

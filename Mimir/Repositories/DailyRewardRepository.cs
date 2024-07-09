@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
@@ -11,9 +10,9 @@ namespace Mimir.Repositories;
 public class DailyRewardRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public long GetDailyReward(PlanetName planetName, Address avatarAddress)
+    public long GetDailyReward(Address avatarAddress)
     {
-        var collection = GetCollection(planetName);
+        var collection = GetCollection();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

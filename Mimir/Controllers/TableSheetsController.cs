@@ -7,16 +7,16 @@ using Mimir.Repositories;
 namespace Mimir.Controllers;
 
 [ApiController]
-[Route("{network}/sheets")]
+[Route("sheets")]
 public class TableSheetsController(TableSheetsRepository tableSheetsRepository) : ControllerBase
 {
     [HttpGet("names")]
-    public string[] GetSheetNames(string network) =>
-        tableSheetsRepository.GetSheetNames(network);
+    public string[] GetSheetNames() =>
+        tableSheetsRepository.GetSheetNames();
 
     [HttpGet("{sheetName}")]
     [Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Csv)]
-    public async Task<IActionResult> GetSheet(string network, string sheetName)
+    public async Task<IActionResult> GetSheet(string sheetName)
     {
         var acceptHeader = Request.Headers["Accept"].ToString();
 
@@ -34,7 +34,7 @@ public class TableSheetsController(TableSheetsRepository tableSheetsRepository) 
 
         try
         {
-            var sheet = await tableSheetsRepository.GetSheetAsync(network, sheetName, sheetFormat);
+            var sheet = await tableSheetsRepository.GetSheetAsync(sheetName, sheetFormat);
             return Content(sheet, sheetFormat.ToMimeType());
         }
         catch (KeyNotFoundException ex)

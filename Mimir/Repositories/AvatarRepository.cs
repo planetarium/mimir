@@ -1,4 +1,3 @@
-using Lib9c.GraphQL.Enums;
 using Libplanet.Crypto;
 using Mimir.Exceptions;
 using Mimir.Models;
@@ -11,11 +10,8 @@ namespace Mimir.Repositories;
 public class AvatarRepository(MongoDBCollectionService mongoDbCollectionService)
     : BaseRepository<BsonDocument>(mongoDbCollectionService)
 {
-    public Avatar GetAvatar(string network, Address avatarAddress) =>
-        GetAvatar(GetCollection(network), avatarAddress);
-
-    public Avatar GetAvatar(PlanetName planetName, Address avatarAddress) =>
-        GetAvatar(GetCollection(planetName), avatarAddress);
+    public Avatar GetAvatar(Address avatarAddress) =>
+        GetAvatar(GetCollection(), avatarAddress);
 
     private static Avatar GetAvatar(
         IMongoCollection<BsonDocument> collection,

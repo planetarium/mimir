@@ -6,17 +6,15 @@ namespace Mimir.Services;
 
 public class MongoDBCollectionService(IOptions<DatabaseOption> databaseOption)
 {
-    private readonly IOptions<DatabaseOption> _databaseOption = databaseOption;
-
-    public IMongoCollection<T> GetCollection<T>(string collectionName, string databaseName)
+    public IMongoCollection<T> GetCollection<T>(string collectionName)
     {
-        var database = GetDatabase(databaseName);
+        var database = GetDatabase();
         return database.GetCollection<T>(collectionName);
     }
 
-    public IMongoDatabase GetDatabase(string databaseName)
+    public IMongoDatabase GetDatabase()
     {
-        var client = new MongoClient(_databaseOption.Value.ConnectionString);
-        return client.GetDatabase(databaseName);
+        var client = new MongoClient(databaseOption.Value.ConnectionString);
+        return client.GetDatabase(databaseOption.Value.Database);
     }
 }
