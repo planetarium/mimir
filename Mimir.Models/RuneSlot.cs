@@ -3,20 +3,14 @@ using Nekoyume.Model.EnumType;
 
 namespace Mimir.Models;
 
-public class RuneSlot(
-    int slotIndex,
-    RuneSlotType runeSlotType,
-    RuneType runeType,
-    bool isLock,
-    int? runeSheetId)
+public record RuneSlot(
+    int SlotIndex,
+    RuneSlotType RuneSlotType,
+    RuneType RuneType,
+    bool IsLock,
+    int? RuneSheetId)
     : IRuneSlot
 {
-    public int SlotIndex { get; } = slotIndex;
-    public RuneSlotType RuneSlotType { get; } = runeSlotType;
-    public RuneType RuneType { get; } = runeType;
-    public bool IsLock { get; } = isLock;
-    public int? RuneSheetId { get; } = runeSheetId;
-
     public RuneSlot(Nekoyume.Model.Rune.RuneSlot runeSlot)
         : this(
             runeSlot.Index,

@@ -9,8 +9,8 @@ namespace Mimir.Models.Market;
 
 public class ItemProduct : Product, IBencodable
 {
-    public ItemUsable TradableItem { get; private set; }
-    public int ItemCount { get; private set; }
+    public ItemUsable TradableItem { get; }
+    public int ItemCount { get; }
 
     public ItemProduct(List bencoded)
         : base(bencoded)
@@ -20,7 +20,7 @@ public class ItemProduct : Product, IBencodable
     }
 
     [GraphQLIgnore]
-    public IValue Bencoded => Serialize();
+    public new IValue Bencoded => Serialize();
 
     public IValue Serialize()
     {

@@ -11,16 +11,16 @@ public abstract class ItemUsable : ItemBase, IBencodable
     // public StatsMap StatsMap { get; private set; }
     // public Skills Skills { get; private set; }
     // public BuffSkills BuffSkills { get; private set; }
-    public long RequiredBlockIndex { get; private set; }
+    public long RequiredBlockIndex { get; }
 
-    public ItemUsable(Dictionary bencoded)
+    protected ItemUsable(Dictionary bencoded)
         : base(bencoded)
     {
         ItemId = bencoded["itemId"].ToGuid();
         RequiredBlockIndex = bencoded["requiredBlockIndex"].ToLong();
     }
 
-    new public IValue Bencoded =>
+    public new IValue Bencoded =>
         ((Dictionary)base.Bencoded)
             .Add("itemId", ItemId.Serialize())
             .Add("requiredBlockIndex", RequiredBlockIndex.Serialize());

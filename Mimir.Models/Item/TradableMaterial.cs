@@ -9,9 +9,9 @@ namespace Mimir.Models.Item;
 
 public class TradableMaterial : Material, IBencodable
 {
-    public Guid TradableId { get; private set; }
+    public Guid TradableId { get; }
 
-    public long RequiredBlockIndex { get; private set; }
+    public long RequiredBlockIndex { get; }
 
     public TradableMaterial(Dictionary bencoded)
         : base(bencoded)
@@ -20,7 +20,7 @@ public class TradableMaterial : Material, IBencodable
         TradableId = DeriveTradableId(ItemId);
     }
 
-    new public IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
+    public new IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
 
     public static Guid DeriveTradableId(HashDigest<SHA256> fungibleId) =>
         new Guid(HashDigest<MD5>.DeriveFrom(fungibleId.ToByteArray()).ToByteArray());

@@ -10,15 +10,15 @@ namespace Mimir.Models.Item;
 
 public class Equipment : ItemUsable, IBencodable
 {
-    public bool Equipped { get; private set; }
-    public int Level { get; private set; }
-    public long? Exp { get; private set; }
-    public int? OptionCountFromCombination { get; private set; }
+    public bool Equipped { get; }
+    public int Level { get; }
+    public long? Exp { get; }
+    public int? OptionCountFromCombination { get; }
 
     public DecimalStat Stat { get; }
-    public int SetId { get; private set; }
-    public string SpineResourcePath { get; private set; }
-    public bool MadeWithMimisbrunnrRecipe { get; private set; }
+    public int SetId { get; }
+    public string SpineResourcePath { get; }
+    public bool MadeWithMimisbrunnrRecipe { get; }
 
     public Equipment(Dictionary bencoded)
         : base(bencoded)
@@ -52,7 +52,7 @@ public class Equipment : ItemUsable, IBencodable
         }
     }
 
-    new public IValue Bencoded => Serialize();
+    public new IValue Bencoded => Serialize();
 
     public IValue Serialize()
     {

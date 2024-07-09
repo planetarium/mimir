@@ -173,7 +173,7 @@ public class StateGetter(IStateService stateService)
 
         return new RuneSlotState(battleType);
     }
-    
+
     public async Task<List<RuneState>> GetArenaRuneSlotStateAsync(Address avatarAddress)
     {
         var state = await stateService.GetState(

@@ -251,6 +251,18 @@ public class StateGetter
         };
     }
 
+    public async Task<PetState?> GetPetState(Address petStateAddress)
+    {
+        var state = await _service.GetState(petStateAddress);
+
+        return state switch
+        {
+            List list => new PetState(list),
+            null => null,
+            _ => throw new InvalidCastException()
+        };
+    }
+
     public async Task<IValue?> GetAvatarStateWithLegacyAccount(
         Address avatarAddress,
         Address accountAddress,

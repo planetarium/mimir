@@ -5,15 +5,12 @@ using Nekoyume.Model.State;
 
 namespace Mimir.Models;
 
-public class RuneSlots(
-    Address address,
-    BattleType battleType,
-    IEnumerable<IRuneSlot> slots)
-    : StateModel(address), IRuneSlots
+public record RuneSlots(
+    Address Address,
+    BattleType BattleType,
+    IEnumerable<IRuneSlot> Slots)
+    : StateModel(Address), IRuneSlots
 {
-    public BattleType BattleType { get; } = battleType;
-    public IEnumerable<IRuneSlot> Slots { get; } = slots;
-
     public RuneSlots(
         Address address,
         RuneSlotState runeSlotState)

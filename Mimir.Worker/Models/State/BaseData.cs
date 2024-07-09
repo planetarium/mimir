@@ -3,7 +3,7 @@ using Mimir.Worker.Util;
 
 namespace Mimir.Worker.Models;
 
-public class BaseData
+public record BaseData
 {
     protected static JsonSerializerSettings JsonSerializerSettings => new JsonSerializerSettings
     {

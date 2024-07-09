@@ -57,7 +57,7 @@ public class CpRepository(IStateService stateService)
                     }
                 }
             }
-            
+
             var runeListSheet = await _stateGetter.GetSheetAsync<RuneListSheet>();
             var runeStates = await _stateGetter.GetRuneStatesAsync(avatarAddress);
             var runeLevelBonusSheet = await _stateGetter.GetSheetAsync<RuneLevelBonusSheet>();

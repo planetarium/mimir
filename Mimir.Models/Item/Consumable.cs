@@ -7,7 +7,7 @@ namespace Mimir.Models.Item;
 
 public class Consumable : ItemUsable, IBencodable
 {
-    public List<DecimalStat> Stats { get; private set; }
+    public List<DecimalStat> Stats { get; }
 
     public Consumable(Dictionary bencoded)
         : base(bencoded)
@@ -15,7 +15,7 @@ public class Consumable : ItemUsable, IBencodable
         Stats = bencoded["stats"].ToList(i => new DecimalStat((Dictionary)i));
     }
 
-    new public IValue Bencoded =>
+    public new IValue Bencoded =>
         ((Dictionary)base.Bencoded).Add(
             "stats",
             new List(

@@ -7,7 +7,7 @@ namespace Mimir.Models.Market;
 
 public class FavProduct : Product, IBencodable
 {
-    public FungibleAssetValue Asset { get; private set; }
+    public FungibleAssetValue Asset { get; }
 
     public FavProduct(List bencoded)
         : base(bencoded)
@@ -16,7 +16,7 @@ public class FavProduct : Product, IBencodable
     }
 
     [GraphQLIgnore]
-    public IValue Bencoded => Serialize();
+    public new IValue Bencoded => Serialize();
 
     public IValue Serialize()
     {

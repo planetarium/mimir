@@ -10,7 +10,7 @@ public static class AddressHandlerMappings
 {
     public static readonly Dictionary<Address, IStateHandler<StateData>> HandlerMappings = new();
 
-    public static readonly Currency OdinNCGCurrency = Currency.Legacy("NCG", 2, new Address("0x47d082a115c63e7b58b1532d20e631538eafadde")); 
+    public static readonly Currency OdinNCGCurrency = Currency.Legacy("NCG", 2, new Address("0x47d082a115c63e7b58b1532d20e631538eafadde"));
 
     static AddressHandlerMappings()
     {
@@ -23,7 +23,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
-        
+
         RegisterBalanceHandler(OdinNCGCurrency);
         RegisterBalanceHandler(Currencies.Crystal);
         RegisterBalanceHandler(Currencies.StakeRune);

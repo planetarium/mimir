@@ -89,7 +89,7 @@ if (!string.IsNullOrEmpty(config.SentryDsn))
         options.TracesSampleRate = 1.0;
         options.ProfilesSampleRate = 1.0;
         options.AddIntegration(new ProfilingIntegration(TimeSpan.FromMilliseconds(500)));
-    });    
+    });
 }
 
 host.Run();
