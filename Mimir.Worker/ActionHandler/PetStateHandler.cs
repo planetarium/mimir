@@ -45,14 +45,14 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
                 )
             )
             {
-                avatarAddress = new Address(actionValues["a"]);
-                petId = (Integer)actionValues["p"];
+                avatarAddress = actionValues["a"].ToAddress();
+                petId = actionValues["p"].ToInteger();
             }
             else if (
                 System.Text.RegularExpressions.Regex.IsMatch(actionType, "^combination_equipment[0-9]*$")
             )
             {
-                avatarAddress = new Address(actionValues["a"]);
+                avatarAddress = actionValues["a"].ToAddress();
                 var pid = actionValues["pid"].ToNullableInteger();
                 if (pid is null)
                 {
@@ -67,7 +67,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
                 )
             )
             {
-                avatarAddress = new Address(actionValues["avatarAddress"]);
+                avatarAddress = actionValues["avatarAddress"].ToAddress();
                 int slotIndex = actionValues["slotIndex"].ToInteger();
 
                 var slotAddress = avatarAddress.Derive(

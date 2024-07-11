@@ -5,8 +5,11 @@ using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume;
 using Nekoyume.Extensions;
+using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using Serilog;
+using RaiderState = Mimir.Worker.Models.RaiderState;
+using WorldBossState = Mimir.Worker.Models.WorldBossState;
 
 namespace Mimir.Worker.ActionHandler;
 
@@ -16,16 +19,18 @@ public class RaidActionHandler(IStateService stateService, MongoDbService store)
     protected override async Task HandleAction(
         string actionType,
         long processBlockIndex,
-        IValue? actionPlainValueInternal)
+        IValue? actionPlainValueInternal
+    )
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind);
+                actionPlainValueInternal?.Kind
+            );
         }
 
-        var avatarAddress = new Address(actionValues["a"]);
+        var avatarAddress = actionValues["a"].ToAddress();
 
         Logger.Information("Handle raid, avatar: {avatarAddress}", avatarAddress);
 
