@@ -68,7 +68,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
             )
             {
                 avatarAddress = new Address(actionValues["avatarAddress"]);
-                int slotIndex = (Integer)actionValues["slotIndex"];
+                int slotIndex = actionValues["slotIndex"].ToInteger();
 
                 var slotAddress = avatarAddress.Derive(
                     string.Format(
