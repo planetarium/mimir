@@ -39,6 +39,7 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(RaiderState), "raider");
             CollectionMappings.Add(typeof(StakeState), "stake");
             CollectionMappings.Add(typeof(CombinationSlotState), "combination_slot");
+            CollectionMappings.Add(typeof(PetState), "pet_state");
 
             // The `Raw` fields of the documents' in 'balances' collection,
             // will not have the original state.  In Libplanet implementation,
