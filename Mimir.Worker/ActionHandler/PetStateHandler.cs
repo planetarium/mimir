@@ -53,7 +53,12 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
             )
             {
                 avatarAddress = new Address(actionValues["a"]);
-                petId = (Integer)actionValues["pid"];
+                var pid = actionValues["pid"].ToNullableInteger();
+                if (pid is null)
+                {
+                    return;
+                }
+                petId = pid.Value;
             }
             else if (
                 System.Text.RegularExpressions.Regex.IsMatch(

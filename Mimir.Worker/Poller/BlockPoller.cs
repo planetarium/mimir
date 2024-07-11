@@ -121,11 +121,6 @@ public class BlockPoller : BaseBlockPoller
                         handled = true;
                     }
                 }
-
-                if (!handled)
-                {
-                    _logger.Warning("Action is not handled. action: {Action}", action.PlainValue);
-                }
             }
         }
 
