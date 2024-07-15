@@ -14,8 +14,8 @@
     <PackageReference Include="Lib9c" Version="1.12.0-dev.a5dd5bdf928d819b063a0c193fb9608e9f84f6e9" />
     <PackageReference Include="Libplanet.RocksDBStore" Version="5.0.0" />
     <PackageReference Include="Libplanet" Version="5.0.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.25.0" />
-    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.25.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
+    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.27.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Sentry" Version="4.7.0" />
     <PackageReference Include="Sentry.Profiling" Version="4.7.0" />

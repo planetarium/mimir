@@ -58,7 +58,7 @@ builder
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    return new MongoDbService(config.MongoDbConnectionString, config.DatabaseName);
+    return new MongoDbService(config.MongoDbConnectionString, config.DatabaseName, config.MongoDbCAFile);
 });
 builder.Services.AddHostedService(serviceProvider =>
 {
