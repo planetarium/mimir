@@ -1,3 +1,4 @@
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Libplanet.Crypto;
@@ -31,28 +32,37 @@ public class MongoDbService
 
     public MongoDbService(string connectionString, string databaseName, string? pathToCAFile)
     {
+        var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+
         if (pathToCAFile is not null)
         {
-            X509Store localTrustStore = new X509Store(StoreName.Root);
-            X509Certificate2Collection certificateCollection = new X509Certificate2Collection();
-            certificateCollection.Import(pathToCAFile);
-            try
-            {
-                localTrustStore.Open(OpenFlags.ReadWrite);
-                localTrustStore.AddRange(certificateCollection);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Root certificate import failed: " + ex.Message);
-                throw;
-            }
-            finally
-            {
-                localTrustStore.Close();
-            }
-        }
+            var caCertificate = new X509Certificate2(pathToCAFile);
 
-        var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+            settings.SslSettings = new SslSettings
+            {
+                ServerCertificateValidationCallback = (sender, certificate, chain, errors) =>
+                {
+                    if (errors == SslPolicyErrors.None)
+                        return true;
+
+                    if ((errors & SslPolicyErrors.RemoteCertificateChainErrors) != 0)
+                    {
+                        foreach (var status in chain.ChainStatus)
+                        {
+                            if (
+                                status.Status != X509ChainStatusFlags.UntrustedRoot
+                                && status.Status != X509ChainStatusFlags.PartialChain
+                            )
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                },
+                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+            };
+        }
         _database = new MongoClient(settings).GetDatabase(databaseName);
         _gridFs = new GridFSBucket(_database);
         _logger = Log.ForContext<MongoDbService>();
