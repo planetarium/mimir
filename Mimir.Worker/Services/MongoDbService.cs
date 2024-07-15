@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Libplanet.Crypto;
 using Mimir.Models.Abstractions;
@@ -28,9 +29,31 @@ public class MongoDbService
     private IMongoCollection<BsonDocument> MetadataCollection =>
         _database.GetCollection<BsonDocument>("metadata");
 
-    public MongoDbService(string connectionString, string databaseName)
+    public MongoDbService(string connectionString, string databaseName, string? pathToCAFile)
     {
-        _database = new MongoClient(connectionString).GetDatabase(databaseName);
+        if (pathToCAFile is not null)
+        {
+            X509Store localTrustStore = new X509Store(StoreName.Root);
+            X509Certificate2Collection certificateCollection = new X509Certificate2Collection();
+            certificateCollection.Import(pathToCAFile);
+            try
+            {
+                localTrustStore.Open(OpenFlags.ReadWrite);
+                localTrustStore.AddRange(certificateCollection);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Root certificate import failed: " + ex.Message);
+                throw;
+            }
+            finally
+            {
+                localTrustStore.Close();
+            }
+        }
+
+        var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+        _database = new MongoClient(settings).GetDatabase(databaseName);
         _gridFs = new GridFSBucket(_database);
         _logger = Log.ForContext<MongoDbService>();
         _stateCollectionMappings = InitStateCollections();
@@ -52,7 +75,8 @@ public class MongoDbService
         if (!_stateCollectionMappings.TryGetValue(collectionName, out var collection))
         {
             throw new InvalidOperationException(
-                $"No collection mapping found for name: {collectionName}");
+                $"No collection mapping found for name: {collectionName}"
+            );
         }
 
         return collection;
@@ -93,18 +117,15 @@ public class MongoDbService
     public async Task<BsonDocument> GetProductsStateByAddress(Address address)
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
-        return await GetCollection<ProductsState>()
-            .Find(filter)
-            .FirstOrDefaultAsync();
+        return await GetCollection<ProductsState>().Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<T?> GetSheetAsync<T>() where T : ISheet, new()
+    public async Task<T?> GetSheetAsync<T>()
+        where T : ISheet, new()
     {
         var address = Addresses.GetSheetAddress<T>();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
-        var document = await GetCollection<SheetState>()
-            .Find(filter)
-            .FirstOrDefaultAsync();
+        var document = await GetCollection<SheetState>().Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             return default;
@@ -120,33 +141,37 @@ public class MongoDbService
     {
         var productFilter = Builders<BsonDocument>.Filter.Eq(
             "State.Object.TradableItem.TradableId",
-            productId.ToString());
-        await GetCollection<ProductState>()
-            .DeleteOneAsync(productFilter);
+            productId.ToString()
+        );
+        await GetCollection<ProductState>().DeleteOneAsync(productFilter);
     }
 
     public async Task UpsertStateDataAsyncWithLinkAgent(
         StateData stateData,
-        Address? agentAddress = null)
+        Address? agentAddress = null
+    )
     {
         var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
         var upsertResult = await UpsertStateDataAsync(stateData, collectionName);
         await LinkToOtherCollectionAsync<AgentState>(
             upsertResult,
             agentAddress ?? stateData.Address,
-            collectionName);
+            collectionName
+        );
     }
 
     public async Task UpsertStateDataAsyncWithLinkAvatar(
         StateData stateData,
-        Address? avatarAddress = null)
+        Address? avatarAddress = null
+    )
     {
         var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
         var upsertResult = await UpsertStateDataAsync(stateData, collectionName);
         await LinkToOtherCollectionAsync<AvatarState>(
             upsertResult,
             avatarAddress ?? stateData.Address,
-            collectionName);
+            collectionName
+        );
     }
 
     public async Task UpsertStateDataAsync(StateData stateData)
@@ -157,7 +182,8 @@ public class MongoDbService
 
     private async Task<UpdateResult> UpsertStateDataAsync(
         StateData stateData,
-        string collectionName)
+        string collectionName
+    )
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
         var bsonDocument = BsonDocument.Parse(stateData.ToJson());
@@ -168,7 +194,8 @@ public class MongoDbService
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
             stateData.Address.ToHex(),
-            collectionName);
+            collectionName
+        );
         return result;
     }
 
@@ -207,9 +234,7 @@ public class MongoDbService
         await UpsertStateModelAsync(stateModel, collectionName);
     }
 
-    private async Task<UpdateResult> UpsertStateModelAsync<T>(
-        T stateModel,
-        string collectionName)
+    private async Task<UpdateResult> UpsertStateModelAsync<T>(T stateModel, string collectionName)
         where T : IStateModel
     {
         var addr = stateModel.Address.ToHex();
@@ -219,20 +244,17 @@ public class MongoDbService
         var result = await GetCollection(collectionName)
             .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
 
-        _logger.Debug(
-            "Address: {Address} - Stored at {CollectionName}",
-            addr,
-            collectionName);
+        _logger.Debug("Address: {Address} - Stored at {CollectionName}", addr, collectionName);
         return result;
     }
 
     private async Task LinkToOtherCollectionAsync<T>(
         UpdateResult upsertResult,
         Address address,
-        string collectionName)
+        string collectionName
+    )
     {
-        if (!upsertResult.IsAcknowledged ||
-            upsertResult.UpsertedId == null)
+        if (!upsertResult.IsAcknowledged || upsertResult.UpsertedId == null)
         {
             return;
         }

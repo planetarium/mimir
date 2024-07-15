@@ -23,4 +23,6 @@ public class Configuration
     public string? JwtIssuer { get; set; }
 
     public string? JwtSecretKey { get; set; }
+
+    public string? MongoDbCAFile { get; init; }
 }
