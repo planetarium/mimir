@@ -43,4 +43,6 @@ RUN apt-get update \
         libc6-dev jq curl \
      && rm -rf /var/lib/apt/lists/*
 
+COPY certs /app/certs
+
 ENTRYPOINT ["dotnet", "Mimir.Worker.dll"]
