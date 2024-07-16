@@ -2,6 +2,8 @@ namespace Mimir.Worker;
 
 public class Configuration
 {
+    public string[] ActivePollers { get; init; }
+
     public string SentryDsn { get; init; }
 
     public bool SentryDebug { get; init; }
