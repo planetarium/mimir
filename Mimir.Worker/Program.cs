@@ -71,6 +71,7 @@ builder.Services.AddHostedService(serviceProvider =>
         headlessGqlClient,
         stateService,
         store,
+        config.ActivePollers,
         config.SnapshotPath,
         config.EnableSnapshotInitializing,
         config.EnableInitializing

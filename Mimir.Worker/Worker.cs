@@ -13,6 +13,7 @@ public class Worker : BackgroundService
     private readonly MongoDbService _store;
     private readonly IStateService _stateService;
     private readonly HeadlessGQLClient _headlessGqlClient;
+    private readonly string[] _activePollers;
     private readonly string _snapshotPath;
     private readonly bool _enableSnapshotInitializing;
     private readonly bool _enableInitializing;
@@ -21,6 +22,7 @@ public class Worker : BackgroundService
         HeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         MongoDbService store,
+        string[] activePollers,
         string snapshotPath,
         bool enableSnapshotInitializing,
         bool enableInitializing
@@ -32,6 +34,7 @@ public class Worker : BackgroundService
         _snapshotPath = snapshotPath;
         _enableSnapshotInitializing = enableSnapshotInitializing;
         _enableInitializing = enableInitializing;
+        _activePollers = activePollers;
 
         _logger = Log.ForContext<Worker>();
     }
@@ -45,9 +48,6 @@ public class Worker : BackgroundService
             _enableSnapshotInitializing,
             _enableInitializing
         );
-
-        var diffPoller = new DiffBlockPoller(_stateService, _headlessGqlClient, _store);
-        var blockPoller = new BlockPoller(_stateService, _headlessGqlClient, _store);
 
         if (_enableSnapshotInitializing)
         {
@@ -65,13 +65,19 @@ public class Worker : BackgroundService
             await initializerManager.RunInitializersAsync(stoppingToken);
         }
 
+        var tasks = new List<Task>();
+        var pollerTypeMap = new Dictionary<string, BaseBlockPoller>()
+        {
+            { "DiffBlockPoller", new DiffBlockPoller(_stateService, _headlessGqlClient, _store) },
+            { "BlockPoller", new BlockPoller(_stateService, _headlessGqlClient, _store) }
+        };
+
         try
         {
-            var tasks = new[]
+            foreach (var pollerType in _activePollers)
             {
-                diffPoller.RunAsync(stoppingToken),
-                blockPoller.RunAsync(stoppingToken)
-            };
+                tasks.Add(pollerTypeMap[pollerType].RunAsync(stoppingToken));
+            }
 
             _logger.Information("Start Polling");
 
