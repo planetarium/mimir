@@ -37,7 +37,6 @@ public class MongoDbService
         if (pathToCAFile is not null)
         {
             var caCertificate = new X509Certificate2(pathToCAFile);
-            settings.AllowInsecureTls = true;
             settings.SslSettings = new SslSettings() { ClientCertificates = [caCertificate] };
         }
         _database = new MongoClient(settings).GetDatabase(databaseName);
@@ -81,17 +80,11 @@ public class MongoDbService
 
         var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
-        var response = await MetadataCollection.UpdateOneAsync(filter, update);
-        if (response?.ModifiedCount < 1)
-        {
-            var context = new SyncContext
-            {
-                Id = ObjectId.GenerateNewId().ToString(),
-                PollerType = pollerType,
-                LatestBlockIndex = blockIndex,
-            };
-            await MetadataCollection.InsertOneAsync(context.ToBsonDocument());
-        }
+        await MetadataCollection.UpdateOneAsync(
+            filter,
+            update,
+            new UpdateOptions { IsUpsert = true }
+        );
     }
 
     public async Task<long> GetLatestBlockIndex(string pollerType)
