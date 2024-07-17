@@ -8,9 +8,9 @@ namespace Mimir.Worker.Handler;
 public class ActionPointStateHandler : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context) =>
-        new(context.Address, ConvertToState(context.Address, context.RawState));
+        new(context.Address, ConvertToState(context.RawState));
 
-    private static ActionPointState ConvertToState(Address address, IValue state)
+    private static ActionPointState ConvertToState(IValue state)
     {
         if (state is not Integer value)
         {
@@ -19,7 +19,7 @@ public class ActionPointStateHandler : IStateHandler<StateData>
             );
         }
 
-        return new ActionPointState(address, value);
+        return new ActionPointState(value);
     }
 
     public async Task StoreStateData(MongoDbService store, StateData stateData)

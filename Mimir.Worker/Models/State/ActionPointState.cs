@@ -1,15 +1,12 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class ActionPointState(Address address, int value) : State(address)
+public class ActionPointState(int value) : IBencodable
 {
     public int Object { get; set; } = value;
 
-    public override IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

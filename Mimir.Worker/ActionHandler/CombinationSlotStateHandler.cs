@@ -118,7 +118,6 @@ public class CombinationSlotStateHandler(IStateService stateService, MongoDbServ
                 new StateData(
                     slotAddress,
                     new CombinationSlotState(
-                        slotAddress,
                         avatarAddress,
                         slotIndex,
                         combinationSlotState

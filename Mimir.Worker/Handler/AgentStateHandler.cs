@@ -8,9 +8,9 @@ namespace Mimir.Worker.Handler;
 public class AgentStateHandler : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context) =>
-        new(context.Address, ConvertToState(context.Address, context.RawState));
+        new(context.Address, ConvertToState(context.RawState));
 
-    private static AgentState ConvertToState(Address address, IValue state)
+    private static AgentState ConvertToState(IValue state)
     {
         var agentState = state switch
         {
@@ -22,7 +22,7 @@ public class AgentStateHandler : IStateHandler<StateData>
                 ),
         };
 
-        return new AgentState(address, agentState);
+        return new AgentState(agentState);
     }
 
     public async Task StoreStateData(MongoDbService store, StateData stateData)

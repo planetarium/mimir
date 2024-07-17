@@ -24,7 +24,6 @@ public class DailyRewardStateHandlerTests
 
         Assert.IsType<DailyRewardState>(stateData.State);
         var dataState = (DailyRewardState)stateData.State;
-        Assert.Equal(address, dataState.address);
         Assert.Equal(dailyRewardReceivedBlockIndex, dataState.Object);
     }
 }

@@ -1,21 +1,16 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
 public class WorldBossState(
-    Address address,
     int raidId,
     Nekoyume.Model.State.WorldBossState worldBossState
-) : State(address)
+) : IBencodable
 {
     public int raidId { get; set; } = raidId;
 
     public Nekoyume.Model.State.WorldBossState Object { get; set; } = worldBossState;
 
-    public override IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

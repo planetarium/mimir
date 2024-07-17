@@ -6,13 +6,12 @@ using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class WorldInformationState : State
+public class WorldInformationState : IBencodable
 {
     public IDictionary<int, WorldInformation.World> Object;
     private WorldInformation WorldInformationStateObject;
 
-    public WorldInformationState(Address address, WorldInformation worldInformation)
-        : base(address)
+    public WorldInformationState(WorldInformation worldInformation)
     {
         Object = ((Dictionary)worldInformation.Serialize()).ToDictionary(
             (KeyValuePair<IKey, IValue> kv) => kv.Key.ToInteger(),
@@ -22,8 +21,5 @@ public class WorldInformationState : State
         WorldInformationStateObject = worldInformation;
     }
 
-    public override IValue Serialize()
-    {
-        return WorldInformationStateObject.Serialize();
-    }
+    public IValue Bencoded => WorldInformationStateObject.Serialize();
 }

@@ -22,7 +22,7 @@ public static class StakeCollectionUpdater
         try
         {
             var slotState = new StakeStateV2(serialized);
-            var stateData = new StateData(stakeAddress, new StakeState(stakeAddress, slotState));
+            var stateData = new StateData(stakeAddress, new StakeState(slotState));
             await store.UpsertStateDataAsyncWithLinkAgent(stateData, agentAddress);
         }
         catch (System.ArgumentException)

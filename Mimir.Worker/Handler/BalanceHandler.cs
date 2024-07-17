@@ -10,11 +10,11 @@ public record BalanceHandler(Currency Currency) : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context)
     {
-        var goldBalance = ConvertToState(context.Address, context.RawState);
+        var goldBalance = ConvertToState(context.RawState);
         return new StateData(context.Address, goldBalance);
     }
 
-    private BalanceState ConvertToState(Address address, IValue state)
+    private BalanceState ConvertToState(IValue state)
     {
         if (state is not Integer value)
         {
@@ -23,7 +23,7 @@ public record BalanceHandler(Currency Currency) : IStateHandler<StateData>
             );
         }
 
-        return new BalanceState(address, FungibleAssetValue.FromRawValue(Currency, value));
+        return new BalanceState(FungibleAssetValue.FromRawValue(Currency, value));
     }
 
     public async Task StoreStateData(MongoDbService store, StateData stateData)

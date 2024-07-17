@@ -1,11 +1,12 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Mimir.Models;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class RuneSlotState(Address address, RuneSlots runeSlots) : State(address)
+public class RuneSlotState(RuneSlots runeSlots) : IBencodable
 {
     public RuneSlots Object { get; } = runeSlots;
+    // Can't Bencodable
+    public IValue Bencoded => Object.Address.Bencoded;
 }

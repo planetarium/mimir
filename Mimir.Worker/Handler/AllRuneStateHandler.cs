@@ -8,9 +8,9 @@ namespace Mimir.Worker.Handler;
 public class AllRuneStateHandler : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context) =>
-        new(context.Address, ConvertToState(context.Address, context.RawState));
+        new(context.Address, ConvertToState(context.RawState));
 
-    private static AllRuneState ConvertToState(Address address, IValue state)
+    private static AllRuneState ConvertToState(IValue state)
     {
         if (state is not List value)
         {
@@ -20,7 +20,7 @@ public class AllRuneStateHandler : IStateHandler<StateData>
         }
 
         var allRuneState = new Nekoyume.Model.State.AllRuneState(value);
-        return new AllRuneState(address, allRuneState);
+        return new AllRuneState(allRuneState);
     }
 
     public async Task StoreStateData(MongoDbService store, StateData stateData)

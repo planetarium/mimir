@@ -8,9 +8,9 @@ namespace Mimir.Worker.Handler;
 public class DailyRewardStateHandler : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context) =>
-        new(context.Address, ConvertToState(context.Address, context.RawState));
+        new(context.Address, ConvertToState(context.RawState));
 
-    private static DailyRewardState ConvertToState(Address address, IValue state)
+    private static DailyRewardState ConvertToState(IValue state)
     {
         if (state is not Integer value)
         {
@@ -20,7 +20,7 @@ public class DailyRewardStateHandler : IStateHandler<StateData>
             );
         }
 
-        return new DailyRewardState(address, value);
+        return new DailyRewardState(value);
     }
 
     public async Task StoreStateData(MongoDbService store, StateData stateData)

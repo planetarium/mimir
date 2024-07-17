@@ -1,16 +1,11 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class ItemSlotState(Address address, Nekoyume.Model.State.ItemSlotState itemSlotState)
-    : State(address)
+public class ItemSlotState(Nekoyume.Model.State.ItemSlotState itemSlotState) : IBencodable
 {
     public Nekoyume.Model.State.ItemSlotState Object { get; } = itemSlotState;
 
-    public override IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

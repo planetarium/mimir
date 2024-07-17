@@ -1,10 +1,11 @@
-using Libplanet.Crypto;
+using Bencodex;
+using Bencodex.Types;
 using Nekoyume.Model.Stake;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class StakeState(Address address, StakeStateV2 stakeState) : State(address)
+public class StakeState(StakeStateV2 stakeState) : IBencodable
 {
     public StakeStateV2 Object { get; set; } = stakeState;
+    public IValue Bencoded => Object.Serialize();
 }

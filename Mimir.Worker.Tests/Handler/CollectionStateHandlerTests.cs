@@ -31,7 +31,6 @@ public class CollectionStateHandlerTests
 
         Assert.IsType<CollectionState>(stateData.State);
         var dataState = (CollectionState)stateData.State;
-        Assert.Equal(address, dataState.address);
         Assert.Equal(collectionState.Ids, dataState.Object.Ids);
     }
 }

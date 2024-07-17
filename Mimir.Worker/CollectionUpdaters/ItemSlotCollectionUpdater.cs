@@ -33,7 +33,7 @@ public static class ItemSlotCollectionUpdater
         var itemSlotState = new Nekoyume.Model.State.ItemSlotState(serialized);
         var stateData = new StateData(
             itemSlotAddress,
-            new ItemSlotState(itemSlotAddress, itemSlotState));
+            new ItemSlotState(itemSlotState));
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData, avatarAddress);
     }
 

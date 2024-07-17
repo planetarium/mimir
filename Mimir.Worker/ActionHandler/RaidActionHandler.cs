@@ -67,17 +67,16 @@ public class RaidActionHandler(IStateService stateService, MongoDbService store)
             await Store.UpsertStateDataAsync(
                 new StateData(
                     worldBossAddress,
-                    new WorldBossState(worldBossAddress, raidId, worldBossState)
+                    new WorldBossState(raidId, worldBossState)
                 )
             );
             await Store.UpsertStateDataAsync(
-                new StateData(raiderAddress, new RaiderState(raiderAddress, raiderState))
+                new StateData(raiderAddress, new RaiderState(raiderState))
             );
             await Store.UpsertStateDataAsync(
                 new StateData(
                     worldBossKillRewardRecordAddress,
                     new WorldBossKillRewardRecordState(
-                        worldBossKillRewardRecordAddress,
                         avatarAddress,
                         worldBossKillRewardRecordState
                     )

@@ -1,16 +1,10 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class RaiderState(Address address, Nekoyume.Model.State.RaiderState raiderState)
-    : State(address)
+public class RaiderState(Nekoyume.Model.State.RaiderState raiderState) : IBencodable
 {
     public Nekoyume.Model.State.RaiderState Object { get; set; } = raiderState;
-
-    public override IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

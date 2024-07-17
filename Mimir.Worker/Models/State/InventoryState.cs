@@ -1,22 +1,17 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Nekoyume.Model.Item;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class InventoryState : State
+public class InventoryState : IBencodable
 {
     public Inventory Object;
 
-    public InventoryState(Address address, Inventory inventory)
-        : base(address)
+    public InventoryState(Inventory inventory)
     {
         Object = inventory;
     }
 
-    public override IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

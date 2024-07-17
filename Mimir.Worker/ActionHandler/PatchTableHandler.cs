@@ -11,14 +11,16 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PatchTableHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class PatchTableHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(
         stateService,
         store,
         "^patch_table_sheet[0-9]*$",
-        Log.ForContext<PatchTableHandler>())
+        Log.ForContext<PatchTableHandler>()
+    )
 {
-    private static readonly ImmutableArray<Type> SheetTypes = [
+    private static readonly ImmutableArray<Type> SheetTypes =
+    [
         .. typeof(ISheet)
             .Assembly.GetTypes()
             .Where(type =>
@@ -39,14 +41,17 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind);
+                actionPlainValueInternal?.Kind
+            );
         }
 
         var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
         var sheetType = tableName switch
         {
-            _ when tableName.StartsWith(nameof(StakeRegularRewardSheet)) => typeof(StakeRegularRewardSheet),
-            _ when tableName.StartsWith(nameof(StakeRegularFixedRewardSheet)) => typeof(StakeRegularFixedRewardSheet),
+            _ when tableName.StartsWith(nameof(StakeRegularRewardSheet))
+                => typeof(StakeRegularRewardSheet),
+            _ when tableName.StartsWith(nameof(StakeRegularFixedRewardSheet))
+                => typeof(StakeRegularFixedRewardSheet),
             _ => SheetTypes.FirstOrDefault(type => type.Name == tableName),
         };
         if (sheetType == null)
@@ -97,8 +102,8 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
 
         var stateData = new StateData(
             sheetAddress,
-            new SheetState(sheetAddress, sheet, sheetName)
+            new SheetState(sheet, sheetName, sheetState.ToDotnetString())
         );
-        await Store.UpsertTableSheets(stateData, sheetState.ToDotnetString());
+        await Store.UpsertStateDataAsync(stateData);
     }
 }

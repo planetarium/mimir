@@ -1,25 +1,21 @@
+using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Nekoyume.Model.State;
 using NCProductsState = Nekoyume.Model.Market.ProductsState;
 
 namespace Mimir.Worker.Models;
 
-public class ProductsState : State
+public class ProductsState : IBencodable
 {
     public NCProductsState Object;
 
     public Address AvatarAddress;
 
-    public ProductsState(Address address, Address avatarAddress, NCProductsState productsState)
-        : base(address)
+    public ProductsState(Address avatarAddress, NCProductsState productsState)
     {
         Object = productsState;
         AvatarAddress = avatarAddress;
     }
 
-    public IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

@@ -16,7 +16,7 @@ public class QuestListStateHandler : IStateHandler<StateData>
     public StateData ConvertToStateData(StateDiffContext context)
     {
         var questList = ConvertToState(context.RawState);
-        return new StateData(context.Address, new QuestListState(context.Address, questList));
+        return new StateData(context.Address, new QuestListState(questList));
     }
 
     private QuestList ConvertToState(IValue state)

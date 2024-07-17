@@ -8,9 +8,9 @@ namespace Mimir.Worker.Handler;
 public class CollectionStateHandler : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context) =>
-        new(context.Address, ConvertToState(context.Address, context.RawState));
+        new(context.Address, ConvertToState(context.RawState));
 
-    private static CollectionState ConvertToState(Address address, IValue state)
+    private static CollectionState ConvertToState(IValue state)
     {
         if (state is not List value)
         {
@@ -20,7 +20,7 @@ public class CollectionStateHandler : IStateHandler<StateData>
         }
 
         var collectionState = new Nekoyume.Model.State.CollectionState(value);
-        return new CollectionState(address, collectionState);
+        return new CollectionState(collectionState);
     }
 
     public async Task StoreStateData(MongoDbService store, StateData stateData)
