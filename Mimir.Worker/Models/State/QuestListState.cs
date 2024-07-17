@@ -1,22 +1,17 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Nekoyume.Model.Quest;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class QuestListState : State
+public class QuestListState : IBencodable
 {
     public QuestList Object;
 
-    public QuestListState(Address address, QuestList questList)
-        : base(address)
+    public QuestListState(QuestList questList)
     {
         Object = questList;
     }
 
-    public override IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

@@ -26,7 +26,6 @@ public class AllRuneStateHandlerTests
 
         Assert.IsType<AllRuneState>(stateData.State);
         var dataState = (AllRuneState)stateData.State;
-        Assert.Equal(address, dataState.address);
         Assert.Equal(allRuneState.Runes.Count, dataState.Object.Runes.Count);
         foreach (var (key, value) in allRuneState.Runes)
         {

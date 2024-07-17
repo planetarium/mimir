@@ -7,8 +7,9 @@ using Mimir.Worker.Services;
 using Nekoyume.Action;
 using Nekoyume.Model.State;
 using Serilog;
-using CombinationSlotState = Mimir.Worker.Models.CombinationSlotState;
 using NCCombinationSlotState = Nekoyume.Model.State.CombinationSlotState;
+using NCPetState = Nekoyume.Model.State.PetState;
+using PetState = Mimir.Worker.Models.PetState;
 
 namespace Mimir.Worker.ActionHandler;
 
@@ -38,18 +39,16 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
             Address avatarAddress;
             int petId;
 
-            if (
-                System.Text.RegularExpressions.Regex.IsMatch(
-                    actionType,
-                    "^pet_enhancement[0-9]*$"
-                )
-            )
+            if (System.Text.RegularExpressions.Regex.IsMatch(actionType, "^pet_enhancement[0-9]*$"))
             {
                 avatarAddress = actionValues["a"].ToAddress();
                 petId = actionValues["p"].ToInteger();
             }
             else if (
-                System.Text.RegularExpressions.Regex.IsMatch(actionType, "^combination_equipment[0-9]*$")
+                System.Text.RegularExpressions.Regex.IsMatch(
+                    actionType,
+                    "^combination_equipment[0-9]*$"
+                )
             )
             {
                 avatarAddress = actionValues["a"].ToAddress();
@@ -96,7 +95,6 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
                     return;
                 }
 
-
                 petId = combinationSlotState.PetId.Value;
             }
             else
@@ -110,22 +108,16 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
                 avatarAddress
             );
 
-            var petStateAddress = PetState.DeriveAddress(avatarAddress, petId);
+            var petStateAddress = NCPetState.DeriveAddress(avatarAddress, petId);
             if (!(await StateGetter.GetPetState(petStateAddress) is { } petState))
             {
-                Logger.Error(
-                    "PetState is null. (address: {address})",
-                    petStateAddress
-                );
+                Logger.Error("PetState is null. (address: {address})", petStateAddress);
 
                 return;
             }
 
             await Store.UpsertStateDataAsync(
-                new StateData(
-                    petStateAddress,
-                    petState
-                )
+                new StateData(petStateAddress, new PetState(petState))
             );
         }
     }

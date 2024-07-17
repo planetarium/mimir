@@ -5,26 +5,26 @@ using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Nekoyume.Model.EnumType;
+using Nekoyume.Model.State;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class BattleArenaHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class BattleArenaHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(
         stateService,
         store,
         "^battle_arena[0-9]*$",
-        Log.ForContext<BattleArenaHandler>())
+        Log.ForContext<BattleArenaHandler>()
+    )
 {
-    protected override async Task HandleAction(
-        long blockIndex,
-        Address signer,
-        IAction action)
+    protected override async Task HandleAction(long blockIndex, Address signer, IAction action)
     {
         if (action is not IBattleArenaV1 battleArena)
         {
             throw new NotImplementedException(
-                $"Action is not {nameof(IBattleArenaV1)}: {action.GetType()}");
+                $"Action is not {nameof(IBattleArenaV1)}: {action.GetType()}"
+            );
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
@@ -33,18 +33,21 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             BattleType.Arena,
             battleArena.MyAvatarAddress,
             battleArena.Costumes,
-            battleArena.Equipments);
+            battleArena.Equipments
+        );
 
         await UpdateArenaCollectionAsync(
             blockIndex,
             battleArena.MyAvatarAddress,
-            battleArena.EnemyAvatarAddress);
+            battleArena.EnemyAvatarAddress
+        );
     }
 
     private async Task UpdateArenaCollectionAsync(
         long processBlockIndex,
         Address myAvatarAddress,
-        Address enemyAvatarAddress)
+        Address enemyAvatarAddress
+    )
     {
         Logger.Information(
             "Handle battle_arena, my: {MyAvatarAddress}, enemy: {EnemyAvatarAddress}",
@@ -79,26 +82,28 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             await Store.UpsertStateDataAsyncWithLinkAvatar(
                 new StateData(
                     myArenaScore.Address,
-                    new ArenaState(
-                        myArenaScore,
-                        myArenaInfo,
-                        roundData,
-                        myArenaScore.Address,
-                        myAvatarAddress
-                    )
+                    new ArenaScoreState(myArenaScore, roundData, myAvatarAddress)
+                ),
+                myAvatarAddress
+            );
+            await Store.UpsertStateDataAsyncWithLinkAvatar(
+                new StateData(
+                    myArenaScore.Address,
+                    new ArenaInformationState(myArenaInfo, roundData, myAvatarAddress)
                 ),
                 myAvatarAddress
             );
             await Store.UpsertStateDataAsyncWithLinkAvatar(
                 new StateData(
                     enemyArenaScore.Address,
-                    new ArenaState(
-                        enemyArenaScore,
-                        enemyArenaInfo,
-                        roundData,
-                        enemyArenaScore.Address,
-                        enemyAvatarAddress
-                    )
+                    new ArenaScoreState(enemyArenaScore, roundData, enemyAvatarAddress)
+                ),
+                enemyAvatarAddress
+            );
+            await Store.UpsertStateDataAsyncWithLinkAvatar(
+                new StateData(
+                    enemyArenaScore.Address,
+                    new ArenaInformationState(enemyArenaInfo, roundData, enemyAvatarAddress)
                 ),
                 enemyAvatarAddress
             );

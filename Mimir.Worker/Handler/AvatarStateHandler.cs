@@ -1,7 +1,6 @@
 using Bencodex.Types;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Handler;
 
@@ -17,11 +16,11 @@ public class AvatarStateHandler : IStateHandler<StateData>
     {
         if (state is Dictionary dictionary)
         {
-            return new AvatarState(dictionary);
+            return new AvatarState(new Nekoyume.Model.State.AvatarState(dictionary));
         }
         else if (state is List alist)
         {
-            return new AvatarState(alist);
+            return new AvatarState(new Nekoyume.Model.State.AvatarState(alist));
         }
         else
         {

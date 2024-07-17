@@ -14,7 +14,7 @@ public class WorldInformationStateHandler : IStateHandler<StateData>
         var worldInformation = ConvertToState(context.RawState);
         return new StateData(
             context.Address,
-            new WorldInformationState(context.Address, worldInformation)
+            new WorldInformationState(worldInformation)
         );
     }
 

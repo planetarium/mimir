@@ -1,11 +1,11 @@
+using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.Market;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 
-public class ProductState : State
+public class ProductState : IBencodable
 {
     public Address AvatarAddress;
     public Address ProductsStateAddress;
@@ -16,12 +16,10 @@ public class ProductState : State
     public int? CrystalPerPrice;
 
     public ProductState(
-        Address address,
         Address avatarAddress,
         Address productsStateAddress,
         Product product
     )
-        : base(address)
     {
         Object = product;
         AvatarAddress = avatarAddress;
@@ -29,7 +27,6 @@ public class ProductState : State
     }
 
     public ProductState(
-        Address address,
         Address avatarAddress,
         Address productsStateAddress,
         Product product,
@@ -38,7 +35,6 @@ public class ProductState : State
         int? crystal,
         int? crystalPerPrice
     )
-        : base(address)
     {
         Object = product;
         AvatarAddress = avatarAddress;
@@ -49,8 +45,5 @@ public class ProductState : State
         CrystalPerPrice = crystalPerPrice;
     }
 
-    public override IValue Serialize()
-    {
-        return Object.Serialize();
-    }
+    public IValue Bencoded => Object.Serialize();
 }

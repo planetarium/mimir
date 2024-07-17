@@ -1,6 +1,7 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Bencodex;
 using Libplanet.Crypto;
 using Mimir.Models.Abstractions;
 using Mimir.Worker.Constants;
@@ -13,6 +14,7 @@ using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using Serilog;
 using AgentState = Mimir.Worker.Models.AgentState;
+using AvatarState = Mimir.Worker.Models.AvatarState;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Services;
@@ -165,8 +167,18 @@ public class MongoDbService
         string collectionName
     )
     {
+        var rawStateBytes = new Codec().Encode(stateData.State.Bencoded);
+        var rawStateId = await _gridFs.UploadFromBytesAsync(
+            $"{stateData.Address.ToHex()}-rawstate",
+            rawStateBytes
+        );
+        var stateJson = stateData.ToJson();
+        var bsonDocument = BsonDocument.Parse(stateJson);
+        var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
+        stateBsonDocument.Remove("Bencoded");
+        stateBsonDocument.Add("RawStateFileId", rawStateId);
+
         var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
-        var bsonDocument = BsonDocument.Parse(stateData.ToJson());
         var update = new BsonDocument("$set", bsonDocument);
         var result = await GetCollection(collectionName)
             .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
@@ -177,28 +189,6 @@ public class MongoDbService
             collectionName
         );
         return result;
-    }
-
-    public async Task UpsertTableSheets(StateData stateData, string csv)
-    {
-        var sheetCsvBytes = Encoding.UTF8.GetBytes(csv);
-        var sheetCsvId = await _gridFs.UploadFromBytesAsync(
-            $"{stateData.Address.ToHex()}-csv",
-            sheetCsvBytes
-        );
-
-        var document = BsonDocument.Parse(stateData.ToJson());
-        document.Remove("SheetCsv");
-        document.Add("SheetCsvFileId", sheetCsvId);
-
-        var tableSheetCollectionName = CollectionNames.GetCollectionName<SheetState>();
-        var tableSheetCollection = GetCollection(tableSheetCollectionName);
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
-        await tableSheetCollection.ReplaceOneAsync(
-            filter,
-            document,
-            new ReplaceOptions { IsUpsert = true }
-        );
     }
 
     private static async Task<string> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)

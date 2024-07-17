@@ -98,7 +98,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
         await Store.UpsertStateDataAsync(
             new StateData(
                 productsStateAddress,
-                new ProductsState(productsStateAddress, avatarAddress, productsState)
+                new ProductsState(avatarAddress, productsState)
             )
         );
     }
@@ -149,7 +149,6 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
             return new StateData(
                 productAddress,
                 new ProductState(
-                    productAddress,
                     avatarAddress,
                     productsStateAddress,
                     product,
@@ -164,7 +163,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
         {
             return new StateData(
                 productAddress,
-                new ProductState(productAddress, avatarAddress, productsStateAddress, product)
+                new ProductState(avatarAddress, productsStateAddress, product)
             );
         }
     }

@@ -38,7 +38,7 @@ public static class RuneSlotCollectionUpdater
         var runeSlots = new RuneSlots(runeSlotAddress, runeSlotState);
         var stateData = new StateData(
             runeSlotAddress,
-            new RuneSlotState(runeSlotAddress, runeSlots));
+            new RuneSlotState(runeSlots));
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData, avatarAddress);
     }
 
@@ -62,7 +62,7 @@ public static class RuneSlotCollectionUpdater
         var runeSlots = new RuneSlots(runeSlotAddress, runeSlotState);
         var stateData = new StateData(
             runeSlotAddress,
-            new RuneSlotState(runeSlotAddress, runeSlots));
+            new RuneSlotState(runeSlots));
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData, avatarAddress);
     }
 

@@ -12,7 +12,7 @@ public class InventoryStateHandler : IStateHandler<StateData>
     public StateData ConvertToStateData(StateDiffContext context)
     {
         var inventoryState = ConvertToState(context.RawState);
-        return new StateData(context.Address, new InventoryState(context.Address, inventoryState));
+        return new StateData(context.Address, new InventoryState(inventoryState));
     }
 
     private Inventory ConvertToState(IValue state)
