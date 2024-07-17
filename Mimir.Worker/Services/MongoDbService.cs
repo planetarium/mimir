@@ -38,9 +38,25 @@ public class MongoDbService
 
         if (pathToCAFile is not null)
         {
-            var caCertificate = new X509Certificate2(pathToCAFile);
-            settings.SslSettings = new SslSettings() { ClientCertificates = [caCertificate] };
+            X509Store localTrustStore = new X509Store(StoreName.Root);
+            X509Certificate2Collection certificateCollection = new X509Certificate2Collection();
+            certificateCollection.Import(pathToCAFile);
+            try 
+            {
+                localTrustStore.Open(OpenFlags.ReadWrite);
+                localTrustStore.AddRange(certificateCollection);
+            } 
+            catch (Exception ex) 
+            {
+                Console.WriteLine("Root certificate import failed: " + ex.Message);
+                throw;
+            } 
+            finally 
+            {
+                localTrustStore.Close();
+            }
         }
+
         _database = new MongoClient(settings).GetDatabase(databaseName);
         _gridFs = new GridFSBucket(_database);
         _logger = Log.ForContext<MongoDbService>();
