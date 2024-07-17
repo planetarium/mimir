@@ -16,14 +16,31 @@ public class MongoDBCollectionService(IOptions<DatabaseOption> databaseOption)
 
     public IMongoDatabase GetDatabase()
     {
-        var settings = MongoClientSettings.FromUrl(new MongoUrl(databaseOption.Value.ConnectionString));
+        var settings = MongoClientSettings.FromUrl(
+            new MongoUrl(databaseOption.Value.ConnectionString)
+        );
 
         if (databaseOption.Value.CAFile is not null)
         {
-            var caCertificate = new X509Certificate2(databaseOption.Value.CAFile);
-            settings.AllowInsecureTls = true;
-            settings.SslSettings = new SslSettings() { ClientCertificates = [caCertificate] };
+            X509Store localTrustStore = new X509Store(StoreName.Root);
+            X509Certificate2Collection certificateCollection = new X509Certificate2Collection();
+            certificateCollection.Import(databaseOption.Value.CAFile);
+            try
+            {
+                localTrustStore.Open(OpenFlags.ReadWrite);
+                localTrustStore.AddRange(certificateCollection);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Root certificate import failed: " + ex.Message);
+                throw;
+            }
+            finally
+            {
+                localTrustStore.Close();
+            }
         }
+
         var client = new MongoClient(settings);
         return client.GetDatabase(databaseOption.Value.Database);
     }
