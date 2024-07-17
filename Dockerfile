@@ -44,6 +44,5 @@ RUN apt-get update \
      && rm -rf /var/lib/apt/lists/*
 
 COPY certs /app/certs
-RUN chmod 644 /app/certs/global-bundle.pem
 
 ENTRYPOINT ["dotnet", "Mimir.dll"]
