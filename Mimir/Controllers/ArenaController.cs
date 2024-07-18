@@ -15,7 +15,7 @@ namespace Mimir.Controllers;
 [ApiController]
 [Route("arena")]
 public class ArenaController(
-    ArenaRankingRepository arenaRankingRepository,
+    ArenaRepository arenaRankingRepository,
     TableSheetsRepository tableSheetsRepository
 ) : ControllerBase
 {

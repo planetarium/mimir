@@ -25,8 +25,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IStateService, HeadlessStateService>();
-builder.Services.AddSingleton<MongoDBCollectionService>();
-builder.Services.AddSingleton<ArenaRankingRepository>();
+builder.Services.AddSingleton<MongoDbService>();
+builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<MetadataRepository>();
 builder.Services.AddSingleton<AgentRepository>();

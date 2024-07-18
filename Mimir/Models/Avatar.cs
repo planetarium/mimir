@@ -8,7 +8,8 @@ public class Avatar(
     string avatarName,
     int level,
     int actionPoint,
-    long dailyRewardReceivedIndex)
+    long dailyRewardReceivedIndex,
+    int characterId)
 {
     public string AgentAddress { get; set; } = agentAddress;
     public string AvatarAddress { get; set; } = avatarAddress;
@@ -16,6 +17,7 @@ public class Avatar(
     public int Level { get; set; } = level;
     public int ActionPoint { get; private set; } = actionPoint;
     public long DailyRewardReceivedIndex { get; private set; } = dailyRewardReceivedIndex;
+    public int CharacterId { get; private set; } = characterId;
 
     public Avatar(AvatarState avatarState) : this(
         avatarState.agentAddress.ToString(),
@@ -23,7 +25,8 @@ public class Avatar(
         avatarState.name,
         avatarState.level,
         avatarState.actionPoint,
-        avatarState.dailyRewardReceivedIndex)
+        avatarState.dailyRewardReceivedIndex,
+        avatarState.characterId)
     {
     }
 }

@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -6,12 +7,11 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class ActionPointRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class ActionPointRepository(MongoDbService dbService)
 {
     public int GetActionPoint(Address avatarAddress)
     {
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.ActionPoint.Value);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
@@ -32,6 +32,4 @@ public class ActionPointRepository(MongoDBCollectionService mongoDbCollectionSer
                 e);
         }
     }
-
-    protected override string GetCollectionName() => "action_point";
 }

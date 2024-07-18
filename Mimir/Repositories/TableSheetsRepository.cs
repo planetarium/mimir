@@ -14,27 +14,28 @@ using Nekoyume.TableData;
 
 namespace Mimir.Repositories;
 
-public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class TableSheetsRepository(MongoDbService dbService)
 {
-    protected override string GetCollectionName() => "table_sheet";
-
     public ArenaSheet.RoundData GetArenaRound(long blockIndex)
     {
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
         return GetArenaRound(collection, blockIndex);
     }
 
     private static ArenaSheet.RoundData GetArenaRound(
         IMongoCollection<BsonDocument> collection,
-        long blockIndex)
+        long blockIndex
+    )
     {
         var pipelines = new BsonDocument[]
         {
             new("$match", new BsonDocument("State.Name", "ArenaSheet")),
             new(
                 "$addFields",
-                new BsonDocument("SheetJsonArray", new BsonDocument("$objectToArray", "$State.Object"))
+                new BsonDocument(
+                    "SheetJsonArray",
+                    new BsonDocument("$objectToArray", "$State.Object")
+                )
             ),
             new("$unwind", new BsonDocument("path", "$SheetJsonArray")),
             new("$unwind", new BsonDocument("path", "$SheetJsonArray.v.Round")),
@@ -55,13 +56,7 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
                     }
                 )
             ),
-            new(
-                "$project",
-                new BsonDocument
-                {
-                    { "Round", "$SheetJsonArray.v.Round" },
-                }
-            )
+            new("$project", new BsonDocument { { "Round", "$SheetJsonArray.v.Round" }, })
         };
         var document = collection.Aggregate<BsonDocument>(pipelines).FirstOrDefault();
         if (document == null)
@@ -83,7 +78,8 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
                 roundDoc["TicketPrice"].AsInt32,
                 roundDoc["AdditionalTicketPrice"].AsInt32,
                 roundDoc["MaxPurchaseCount"].AsInt32,
-                roundDoc["MaxPurchaseCountWithInterval"].AsInt32);
+                roundDoc["MaxPurchaseCountWithInterval"].AsInt32
+            );
         }
         catch (KeyNotFoundException e)
         {
@@ -97,15 +93,14 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
 
     public string[] GetSheetNames()
     {
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
         var projection = Builders<BsonDocument>.Projection.Include("State.Name").Exclude("_id");
         var documents = collection.Find(new BsonDocument()).Project(projection).ToList();
 
         var names = new List<string>();
         foreach (var document in documents)
         {
-            if (document.Contains("State") &&
-                document["State"].AsBsonDocument.Contains("Name"))
+            if (document.Contains("State") && document["State"].AsBsonDocument.Contains("Name"))
             {
                 names.Add(document["State"]["Name"].AsString);
             }
@@ -116,15 +111,15 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
 
     public async Task<string> GetSheetAsync(
         string sheetName,
-        SheetFormat sheetFormat = SheetFormat.Csv)
+        SheetFormat sheetFormat = SheetFormat.Csv
+    )
     {
-        var collection = GetCollection();
-        var database = GetDatabase();
-        return await GetSheetAsync(collection, database, sheetName, sheetFormat);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        return await GetSheetAsync(collection, dbService.GetDatabase(), sheetName, sheetFormat);
     }
 
-    public async Task<T> GetSheetAsync<T>(
-        SheetFormat sheetFormat = SheetFormat.Csv) where T : ISheet
+    public async Task<T> GetSheetAsync<T>(SheetFormat sheetFormat = SheetFormat.Csv)
+        where T : ISheet
     {
         var sheetType = typeof(T);
         var csv = await GetSheetAsync(sheetType.Name, sheetFormat);
@@ -142,7 +137,8 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
         IMongoCollection<BsonDocument> collection,
         IMongoDatabase database,
         string sheetName,
-        SheetFormat sheetFormat)
+        SheetFormat sheetFormat
+    )
     {
         var gridFs = new GridFSBucket(database);
         var fieldToInclude = sheetFormat switch
@@ -167,17 +163,18 @@ public class TableSheetsRepository(MongoDBCollectionService mongoDbCollectionSer
 
         return sheetFormat switch
         {
-            SheetFormat.Csv => await RetrieveFromGridFs(gridFs, document[fieldToInclude].AsObjectId),
-            _ => document[fieldToInclude].ToJson(new JsonWriterSettings
-            {
-                OutputMode = JsonOutputMode.CanonicalExtendedJson
-            })
+            SheetFormat.Csv
+                => Encoding.UTF8.GetString(
+                    await MongoDbService.RetrieveFromGridFs(
+                        gridFs,
+                        document[fieldToInclude].AsObjectId
+                    )
+                ),
+            _
+                => document[fieldToInclude]
+                    .ToJson(
+                        new JsonWriterSettings { OutputMode = JsonOutputMode.CanonicalExtendedJson }
+                    )
         };
-    }
-
-    private static async Task<string> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)
-    {
-        var fileBytes = await gridFs.DownloadAsBytesAsync(fileId);
-        return Encoding.UTF8.GetString(fileBytes);
     }
 }

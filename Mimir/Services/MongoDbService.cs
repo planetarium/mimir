@@ -1,20 +1,20 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Microsoft.Extensions.Options;
 using Mimir.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
 
 namespace Mimir.Services;
 
-public class MongoDBCollectionService(IOptions<DatabaseOption> databaseOption)
+public class MongoDbService
 {
-    public IMongoCollection<T> GetCollection<T>(string collectionName)
-    {
-        var database = GetDatabase();
-        return database.GetCollection<T>(collectionName);
-    }
+    private IMongoDatabase database;
+    private GridFSBucket gridFs;
 
-    public IMongoDatabase GetDatabase()
+    public MongoDbService(IOptions<DatabaseOption> databaseOption)
     {
         var settings = MongoClientSettings.FromUrl(
             new MongoUrl(databaseOption.Value.ConnectionString)
@@ -42,6 +42,34 @@ public class MongoDBCollectionService(IOptions<DatabaseOption> databaseOption)
         }
 
         var client = new MongoClient(settings);
-        return client.GetDatabase(databaseOption.Value.Database);
+        database = client.GetDatabase(databaseOption.Value.Database);
+        gridFs = new GridFSBucket(database);
+    }
+
+    public IMongoCollection<T> GetCollection<T>(string collectionName)
+    {
+        var database = GetDatabase();
+        return database.GetCollection<T>(collectionName);
+    }
+
+    public IMongoDatabase GetDatabase()
+    {
+        return database;
+    }
+
+    public GridFSBucket GetGridFs()
+    {
+        return gridFs;
+    }
+
+    public async Task<byte[]> RetrieveFromGridFs(ObjectId fileId)
+    {
+        return await RetrieveFromGridFs(gridFs, fileId);
+    }
+
+    public static async Task<byte[]> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)
+    {
+        var fileBytes = await gridFs.DownloadAsBytesAsync(fileId);
+        return fileBytes;
     }
 }

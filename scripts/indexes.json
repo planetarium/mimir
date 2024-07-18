@@ -1,14 +1,10 @@
 {
-    "arena": [
+    "arena_score": [
         {
             "AvatarAddress": 1
         },
         {
-            "Score.Score": 1
-        },
-        {
-            "Score.Score": -1,
-            "AvatarAddress": 1
+            "Object.Score": 1
         },
         {
             "RoundData.ChampionshipId": 1,

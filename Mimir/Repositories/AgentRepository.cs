@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.Models;
 using Mimir.Services;
@@ -7,12 +8,11 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class AgentRepository(MongoDbService dbService)
 {
     public Agent GetAgent(Address agentAddress)
     {
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Agent.Value);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", agentAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
@@ -34,6 +34,4 @@ public class AgentRepository(MongoDBCollectionService mongoDbCollectionService)
                 e);
         }
     }
-
-    protected override string GetCollectionName() => "agent";
 }

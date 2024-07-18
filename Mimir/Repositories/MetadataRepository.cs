@@ -1,3 +1,4 @@
+using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
 using Mimir.Services;
@@ -6,14 +7,12 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class MetadataRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class MetadataRepository(MongoDbService dbService)
 {
-    protected override string GetCollectionName() => "metadata";
 
     public long GetLatestBlockIndex(string pollerType)
     {
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Metadata.Value);
         return GetLatestBlockIndex(collection, pollerType);
     }
 
