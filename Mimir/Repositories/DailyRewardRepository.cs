@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
 using Mimir.Services;
@@ -7,12 +8,11 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class DailyRewardRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class DailyRewardRepository(MongoDbService dbService)
 {
     public long GetDailyReward(Address avatarAddress)
     {
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.DailyReward.Value);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
@@ -33,6 +33,4 @@ public class DailyRewardRepository(MongoDBCollectionService mongoDbCollectionSer
                 e);
         }
     }
-
-    protected override string GetCollectionName() => "daily_reward";
 }

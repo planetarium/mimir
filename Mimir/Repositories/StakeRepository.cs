@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
 using Mimir.Services;
@@ -8,12 +9,11 @@ using Nekoyume.Model.Stake;
 
 namespace Mimir.Repositories;
 
-public class StakeRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class StakeRepository(MongoDbService dbService)
 {
     public StakeStateV2 GetStakeState(Address agentAddress)
     {
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Stake.Value);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", agentAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
@@ -49,6 +49,4 @@ public class StakeRepository(MongoDBCollectionService mongoDbCollectionService)
                 e);
         }
     }
-
-    protected override string GetCollectionName() => "stake";
 }

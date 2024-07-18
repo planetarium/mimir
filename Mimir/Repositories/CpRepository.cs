@@ -18,9 +18,6 @@ public class CpRepository(IStateService stateService)
 
     public async Task<int?> CalculateCp(
         Avatar avatar,
-        int characterId,
-        IEnumerable<Guid> equipmentIds,
-        IEnumerable<Guid> costumeIds,
         IEnumerable<RuneState> runeOption
     )
     {
@@ -28,7 +25,7 @@ public class CpRepository(IStateService stateService)
         {
             var avatarAddress = new Address(avatar.AvatarAddress);
 
-            var characterRow = await GetCharacterRow(characterId);
+            var characterRow = await GetCharacterRow(avatar.CharacterId);
             var costumeStatSheet = await _stateGetter.GetSheetAsync<CostumeStatSheet>();
             var collectionSheets = await _stateGetter.GetSheetAsync<CollectionSheet>();
 

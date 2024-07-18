@@ -28,7 +28,7 @@ public class ArenaResolver
     public static async Task<long?> GetRanking(
         IResolverContext context,
         Address avatarAddress,
-        [Service] ArenaRankingRepository arenaRankingRepo,
+        [Service] ArenaRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
@@ -47,7 +47,7 @@ public class ArenaResolver
         IResolverContext context,
         long ranking,
         int length,
-        [Service] ArenaRankingRepository arenaRankingRepo,
+        [Service] ArenaRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)

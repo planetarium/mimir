@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.Models;
 using Mimir.Models.Abstractions;
@@ -10,15 +11,14 @@ using Nekoyume.Model.State;
 
 namespace Mimir.Repositories;
 
-public class RuneSlotRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class RuneSlotRepository(MongoDbService dbService)
 {
     public IRuneSlots GetRuneSlots(
         Address avatarAddress,
         BattleType battleType)
     {
         var runeSlotAddress = RuneSlotState.DeriveAddress(avatarAddress, battleType);
-        var collection = GetCollection();
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.RuneSlot.Value);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
@@ -63,6 +63,4 @@ public class RuneSlotRepository(MongoDBCollectionService mongoDbCollectionServic
                 e);
         }
     }
-
-    protected override string GetCollectionName() => "rune_slot";
 }

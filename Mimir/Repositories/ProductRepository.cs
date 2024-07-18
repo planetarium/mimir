@@ -1,24 +1,27 @@
 using Bencodex;
 using Bencodex.Types;
+using Mimir.Enums;
 using Mimir.Models.Factories;
 using Mimir.Models.Market;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
 
 namespace Mimir.Repositories;
 
-public class ProductRepository(MongoDBCollectionService mongoDbCollectionService)
-    : BaseRepository<BsonDocument>(mongoDbCollectionService)
+public class ProductRepository(MongoDbService dbService)
 {
-    protected override string GetCollectionName() => "product";
-
     private static readonly Codec Codec = new();
 
     public List<Product> GetProducts(long skip, int limit) =>
-        GetProducts(GetCollection(), skip, limit);
+        GetProducts(
+            dbService.GetCollection<BsonDocument>(CollectionNames.Product.Value),
+            skip,
+            limit
+        );
 
-    private static List<Product> GetProducts(
+    private List<Product> GetProducts(
         IMongoCollection<BsonDocument> collection,
         long skip,
         int limit
@@ -28,15 +31,25 @@ public class ProductRepository(MongoDBCollectionService mongoDbCollectionService
 
         var aggregation = collection.Aggregate<BsonDocument>(pipelines).ToList();
         List<Product> products = aggregation
-            .Select(doc => DeserializeProduct(doc["State"]["Raw"].AsString))
+            .Select(async doc =>
+                await GetRawState(dbService.GetGridFs(), doc["State"]["RawStateFileId"].AsObjectId)
+            )
+            .Select(doc => doc.Result)
+            .Where(doc => doc != null)
+            .Select(DeserializeProduct)
             .ToList();
 
         return products;
     }
 
-    public static Product DeserializeProduct(string rawState)
+    private async Task<byte[]> GetRawState(GridFSBucket gridFs, ObjectId rawStateFileId)
     {
-        IValue ivalue = Codec.Decode(Convert.FromHexString(rawState));
+        return await MongoDbService.RetrieveFromGridFs(gridFs, rawStateFileId);
+    }
+
+    public Product DeserializeProduct(byte[] rawState)
+    {
+        IValue ivalue = Codec.Decode(rawState);
 
         if (ivalue is not List list)
         {
