@@ -58,5 +58,16 @@ public class QueryType : ObjectType<Query>
 
                 return repository.GetProducts(skip, limit);
             });
+
+        descriptor
+            .Field("metadata")
+            .Argument("pollerType", a => a.Type<NonNullType<StringType>>())
+            .Type<IntType>()
+            .Resolve(context =>
+            {
+                var repository = context.Service<MetadataRepository>();
+
+                return repository.GetLatestBlockIndex(context.ArgumentValue<string>("pollerType"));
+            });
     }
 }
