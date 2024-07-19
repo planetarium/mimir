@@ -1,4 +1,5 @@
 using Mimir.Worker.Models;
+using Mimir.Worker.Models.State.AdventureBoss;
 
 namespace Mimir.Worker.Constants
 {
@@ -33,6 +34,11 @@ namespace Mimir.Worker.Constants
             CollectionMappings.Add(typeof(StakeState), "stake");
             CollectionMappings.Add(typeof(CombinationSlotState), "combination_slot");
             CollectionMappings.Add(typeof(PetState), "pet_state");
+            CollectionMappings.Add(typeof(BountyBoardState), "adventure_boss_bounty_board");
+            CollectionMappings.Add(typeof(ExploreBoardState), "adventure_boss_explore_board");
+            CollectionMappings.Add(typeof(ExplorerListState), "adventure_boss_explorer_list");
+            CollectionMappings.Add(typeof(ExplorerState), "adventure_boss_explorer");
+            CollectionMappings.Add(typeof(SeasonInfoState), "adventure_boss_season_info");
 
             // The `Raw` fields of the documents' in 'balances' collection,
             // will not have the original state.  In Libplanet implementation,
