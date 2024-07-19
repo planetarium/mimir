@@ -28,6 +28,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.AdventureBoss, new SeasonInfoHandler());
         HandlerMappings.Add(Addresses.BountyBoard, new BountyBoardHandler());
         HandlerMappings.Add(Addresses.ExploreBoard, new ExploreBoardHandler());
+        HandlerMappings.Add(Addresses.ExploreBoard, new ExplorerListHandler());
 
         RegisterBalanceHandler(OdinNCGCurrency);
         RegisterBalanceHandler(Currencies.Crystal);
