@@ -1,7 +1,7 @@
 using Mimir.Models.Abstractions;
 using Nekoyume.Model.EnumType;
 
-namespace Mimir.Models;
+namespace Mimir.Models.Rune;
 
 public record RuneSlot(
     int SlotIndex,

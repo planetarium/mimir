@@ -1,8 +1,8 @@
 using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Exceptions;
-using Mimir.Models;
 using Mimir.Models.Abstractions;
+using Mimir.Models.Rune;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;

@@ -3,7 +3,7 @@ using Mimir.Models.Abstractions;
 using Nekoyume.Model.EnumType;
 using Nekoyume.Model.State;
 
-namespace Mimir.Models;
+namespace Mimir.Models.Rune;
 
 public record RuneSlots(
     Address Address,
