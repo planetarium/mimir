@@ -1,7 +1,6 @@
-using Mimir.Models.Abstractions;
 using Nekoyume.Model.EnumType;
 
-namespace Mimir.Models;
+namespace Mimir.Models.Rune;
 
 public record RuneSlot(
     int SlotIndex,
@@ -9,7 +8,6 @@ public record RuneSlot(
     RuneType RuneType,
     bool IsLock,
     int? RuneSheetId)
-    : IRuneSlot
 {
     public RuneSlot(Nekoyume.Model.Rune.RuneSlot runeSlot)
         : this(

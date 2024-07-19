@@ -1,6 +1,5 @@
 using Bencodex;
 using Libplanet.Crypto;
-using Nekoyume.Model.State;
 
 namespace Mimir.Worker.Models;
 

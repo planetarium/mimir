@@ -1,10 +1,10 @@
-using Mimir.Models.Abstractions;
+using Mimir.Models.Rune;
 
 namespace Mimir.GraphQL.Types;
 
-public class RuneSlotType : ObjectType<IRuneSlot>
+public class RuneSlotType : ObjectType<RuneSlot>
 {
-    protected override void Configure(IObjectTypeDescriptor<IRuneSlot> descriptor)
+    protected override void Configure(IObjectTypeDescriptor<RuneSlot> descriptor)
     {
         descriptor.BindFieldsExplicitly();
         descriptor

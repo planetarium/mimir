@@ -1,11 +1,10 @@
 using Bencodex;
 using Bencodex.Types;
-using Mimir.Models.Abstractions;
 using Nekoyume.Model.State;
 
 namespace Mimir.Models.Item;
 
-public abstract class ItemBase : IItem, IBencodable
+public abstract class ItemBase : IBencodable
 {
     public int Id { get; private set; }
     public int Grade { get; private set; }

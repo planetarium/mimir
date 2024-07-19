@@ -1,6 +1,6 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Mimir.Models;
+using Mimir.Models.Rune;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
