@@ -23,6 +23,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
+        HandlerMappings.Add(Addresses.AdventureBoss, new AdventureBossSeasonInfoHandler());
 
         RegisterBalanceHandler(OdinNCGCurrency);
         RegisterBalanceHandler(Currencies.Crystal);
