@@ -1,5 +1,4 @@
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 
@@ -9,6 +8,9 @@ public class ActionPointStateHandler : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context) =>
         new(context.Address, ConvertToState(context.RawState));
+
+    public async Task StoreStateData(MongoDbService store, StateData stateData) =>
+        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
 
     private static ActionPointState ConvertToState(IValue state)
     {
@@ -20,10 +22,5 @@ public class ActionPointStateHandler : IStateHandler<StateData>
         }
 
         return new ActionPointState(value);
-    }
-
-    public async Task StoreStateData(MongoDbService store, StateData stateData)
-    {
-        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }
