@@ -1,11 +1,12 @@
 using Bencodex.Types;
 using Mimir.Worker.Models;
+using Mimir.Worker.Models.State.AdventureBoss;
 using Mimir.Worker.Services;
 using Nekoyume.Model.AdventureBoss;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.Handler.AdventureBoss;
 
-public class AdventureBossSeasonInfoHandler : IStateHandler<StateData>
+public class SeasonInfoHandler : IStateHandler<StateData>
 {
     public StateData ConvertToStateData(StateDiffContext context) =>
         new(context.Address, ConvertToState(context.RawState));
@@ -13,7 +14,7 @@ public class AdventureBossSeasonInfoHandler : IStateHandler<StateData>
     public async Task StoreStateData(MongoDbService store, StateData stateData) =>
         await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
 
-    private static AdventureBossSeasonInfoState ConvertToState(IValue state)
+    private static SeasonInfoState ConvertToState(IValue state)
     {
         if (state is not List list)
         {
@@ -23,6 +24,6 @@ public class AdventureBossSeasonInfoHandler : IStateHandler<StateData>
         }
 
         var seasonInfo = new SeasonInfo(list);
-        return new AdventureBossSeasonInfoState(seasonInfo);
+        return new SeasonInfoState(seasonInfo);
     }
 }

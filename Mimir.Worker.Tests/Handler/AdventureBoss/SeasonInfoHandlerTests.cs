@@ -1,13 +1,14 @@
 using Libplanet.Crypto;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
+using Mimir.Worker.Handler.AdventureBoss;
+using Mimir.Worker.Models.State.AdventureBoss;
 using Nekoyume.Model.AdventureBoss;
 
-namespace Mimir.Worker.Tests.Handler;
+namespace Mimir.Worker.Tests.Handler.AdventureBoss;
 
-public class AdventureBossSeasonInfoHandlerTests
+public class SeasonInfoHandlerTests
 {
-    private readonly AdventureBossSeasonInfoHandler _handler = new();
+    private readonly SeasonInfoHandler _handler = new();
 
     [Theory]
     [InlineData(0, 0, 0, 0)]
@@ -41,8 +42,8 @@ public class AdventureBossSeasonInfoHandlerTests
         };
         var stateData = _handler.ConvertToStateData(context);
 
-        Assert.IsType<AdventureBossSeasonInfoState>(stateData.State);
-        var dataState = (AdventureBossSeasonInfoState)stateData.State;
+        Assert.IsType<SeasonInfoState>(stateData.State);
+        var dataState = (SeasonInfoState)stateData.State;
         var obj = dataState.Object;
         endBlockIndex ??= startBlockIndex + activeInterval;
         nextStartBlockIndex ??= endBlockIndex.Value + inactiveInterval;

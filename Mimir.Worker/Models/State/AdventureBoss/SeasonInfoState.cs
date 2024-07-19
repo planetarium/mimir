@@ -2,9 +2,9 @@ using Bencodex;
 using Bencodex.Types;
 using Nekoyume.Model.AdventureBoss;
 
-namespace Mimir.Worker.Models;
+namespace Mimir.Worker.Models.State.AdventureBoss;
 
-public record AdventureBossSeasonInfoState(SeasonInfo Object) : IBencodable
+public record SeasonInfoState(SeasonInfo Object) : IBencodable
 {
     public IValue Bencoded => Object.Bencoded;
 }

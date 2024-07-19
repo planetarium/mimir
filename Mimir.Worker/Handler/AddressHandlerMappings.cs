@@ -1,6 +1,7 @@
 using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
+using Mimir.Worker.Handler.AdventureBoss;
 using Mimir.Worker.Models;
 using Nekoyume;
 
@@ -23,7 +24,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
-        HandlerMappings.Add(Addresses.AdventureBoss, new AdventureBossSeasonInfoHandler());
+        HandlerMappings.Add(Addresses.AdventureBoss, new SeasonInfoHandler());
 
         RegisterBalanceHandler(OdinNCGCurrency);
         RegisterBalanceHandler(Currencies.Crystal);
