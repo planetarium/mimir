@@ -1,6 +1,5 @@
 using Bencodex;
 using Bencodex.Types;
-using Mimir.Models.Abstractions;
 using Mimir.Models.Factories;
 using Mimir.Models.Item;
 using Nekoyume.Model.State;
