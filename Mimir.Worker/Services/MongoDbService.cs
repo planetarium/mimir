@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
 using Libplanet.Crypto;
+using Mimir.Models;
 using Mimir.Models.Abstractions;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
@@ -214,14 +215,14 @@ public class MongoDbService
     }
 
     public async Task UpsertStateModelAsync<T>(T stateModel)
-        where T : IStateModel
+        where T : StateModel
     {
         var collectionName = CollectionNames.GetCollectionName<T>();
         await UpsertStateModelAsync(stateModel, collectionName);
     }
 
     private async Task<UpdateResult> UpsertStateModelAsync<T>(T stateModel, string collectionName)
-        where T : IStateModel
+        where T : StateModel
     {
         var addr = stateModel.Address.ToHex();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", addr);
