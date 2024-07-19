@@ -44,16 +44,20 @@ public class BountyBoardHandlerTests
         if (initOthers)
         {
             Assert.Single(obj.Investors);
-            var expectedInvestor = state.Investors[0]; 
+            var expectedInvestor = state.Investors[0];
             var actualInvestor = obj.Investors[0];
             Assert.Equal(expectedInvestor.AvatarAddress, actualInvestor.AvatarAddress);
             Assert.Equal(expectedInvestor.Name, actualInvestor.Name);
             Assert.Equal(expectedInvestor.Price, actualInvestor.Price);
-
-            Assert.Equal(int.MaxValue, obj.FixedRewardItemId);
-            Assert.Equal(int.MaxValue, obj.FixedRewardFavId);
-            Assert.Equal(int.MaxValue, obj.RandomRewardItemId);
-            Assert.Equal(int.MaxValue, obj.RandomRewardFavId);
         }
+        else
+        {
+            Assert.Empty(obj.Investors);
+        }
+
+        Assert.Equal(state.FixedRewardItemId, obj.FixedRewardItemId);
+        Assert.Equal(state.FixedRewardFavId, obj.FixedRewardFavId);
+        Assert.Equal(state.RandomRewardItemId, obj.RandomRewardItemId);
+        Assert.Equal(state.RandomRewardFavId, obj.RandomRewardFavId);
     }
 }
