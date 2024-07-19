@@ -3,13 +3,12 @@ namespace Mimir.Worker.Tests.Handler;
 using Bencodex;
 using Libplanet.Crypto;
 using Mimir.Worker.Handler;
-using Nekoyume.Model.State;
 using Xunit;
 
 public class AvatarStateHandlerTests
 {
     private readonly Codec Codec = new();
-    private readonly AvatarStateHandler _handler = new AvatarStateHandler();
+    private readonly AvatarStateHandler _handler = new();
 
     [Fact]
     public void ConvertToStateData()
@@ -23,6 +22,6 @@ public class AvatarStateHandlerTests
         };
         var stateData = _handler.ConvertToStateData(context);
 
-        Assert.IsType<AvatarState>(stateData.State);
+        Assert.IsType<Mimir.Worker.Models.AvatarState>(stateData.State);
     }
 }
