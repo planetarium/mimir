@@ -1,7 +1,6 @@
 using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Exceptions;
-using Mimir.Models.Abstractions;
 using Mimir.Models.Rune;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -13,7 +12,7 @@ namespace Mimir.Repositories;
 
 public class RuneSlotRepository(MongoDbService dbService)
 {
-    public IRuneSlots GetRuneSlots(
+    public RuneSlots GetRuneSlots(
         Address avatarAddress,
         BattleType battleType)
     {

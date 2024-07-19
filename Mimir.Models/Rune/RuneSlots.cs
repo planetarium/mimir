@@ -1,5 +1,4 @@
 ﻿using Libplanet.Crypto;
-using Mimir.Models.Abstractions;
 using Nekoyume.Model.EnumType;
 using Nekoyume.Model.State;
 
@@ -8,8 +7,8 @@ namespace Mimir.Models.Rune;
 public record RuneSlots(
     Address Address,
     BattleType BattleType,
-    IEnumerable<IRuneSlot> Slots)
-    : StateModel(Address), IRuneSlots
+    IEnumerable<RuneSlot> Slots)
+    : StateModel(Address)
 {
     public RuneSlots(
         Address address,

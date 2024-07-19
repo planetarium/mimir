@@ -3,7 +3,7 @@ using Libplanet.Crypto;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
-using Mimir.Models.Abstractions;
+using Mimir.Models.Rune;
 using Mimir.Repositories;
 using Nekoyume.Model.EnumType;
 using Nekoyume.Model.State;
@@ -92,7 +92,7 @@ public class AvatarResolver
         BattleType battleType) =>
         itemSlotRepo.GetItemSlot(avatarObject.Address, battleType);
 
-    public static IEnumerable<IRuneSlot> GetRuneSlots(
+    public static IEnumerable<RuneSlot> GetRuneSlots(
         [Service] RuneSlotRepository runeSlotRepo,
         [Parent] AvatarObject avatarObject,
         BattleType battleType) =>
