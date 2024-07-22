@@ -8,7 +8,6 @@ public record RuneSlots(
     Address Address,
     BattleType BattleType,
     IEnumerable<RuneSlot> Slots)
-    : StateModel(Address)
 {
     public RuneSlots(
         Address address,

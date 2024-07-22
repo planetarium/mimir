@@ -211,27 +211,6 @@ public class MongoDbService
         return Encoding.UTF8.GetString(fileBytes);
     }
 
-    public async Task UpsertStateModelAsync<T>(T stateModel)
-        where T : StateModel
-    {
-        var collectionName = CollectionNames.GetCollectionName<T>();
-        await UpsertStateModelAsync(stateModel, collectionName);
-    }
-
-    private async Task<UpdateResult> UpsertStateModelAsync<T>(T stateModel, string collectionName)
-        where T : StateModel
-    {
-        var addr = stateModel.Address.ToHex();
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", addr);
-        var bsonDocument = stateModel.ToBsonDocument();
-        var update = new BsonDocument("$set", bsonDocument);
-        var result = await GetCollection(collectionName)
-            .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
-
-        _logger.Debug("Address: {Address} - Stored at {CollectionName}", addr, collectionName);
-        return result;
-    }
-
     private async Task LinkToOtherCollectionAsync<T>(
         UpdateResult upsertResult,
         Address address,
