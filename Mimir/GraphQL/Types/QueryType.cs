@@ -14,36 +14,24 @@ public class QueryType : ObjectType<Query>
             .Field("agent")
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<AgentType>()
-            .Resolve(context =>
-            {
-                return new AgentObject(context.ArgumentValue<Address>("address"));
-            });
+            .Resolve(context => new AgentObject(context.ArgumentValue<Address>("address")));
 
         descriptor
             .Field("avatar")
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<AvatarType>()
-            .Resolve(context =>
-            {
-                return new AvatarObject(context.ArgumentValue<Address>("address"));
-            });
+            .Resolve(context => new AvatarObject(context.ArgumentValue<Address>("address")));
 
         descriptor
             .Field("inventory")
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<InventoryType>()
-            .Resolve(context =>
-            {
-                return new InventoryObject(context.ArgumentValue<Address>("address"));
-            });
+            .Resolve(context => new InventoryObject(context.ArgumentValue<Address>("address")));
 
         descriptor
             .Field("arena")
             .Type<ArenaType>()
-            .Resolve(context =>
-            {
-                return new ArenaObject();
-            });
+            .Resolve(_ => new ArenaObject());
 
         descriptor
             .Field("product")
