@@ -8,6 +8,7 @@ using Mimir.GraphQL;
 using Mimir.Services;
 using Mimir.Options;
 using Mimir.Repositories;
+using Mimir.Repositories.AdventureBoss;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,7 @@ builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<RuneSlotRepository>();
 builder.Services.AddSingleton<StakeRepository>();
 builder.Services.AddSingleton<ProductRepository>();
+builder.Services.AddSingleton<SeasonInfoRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
