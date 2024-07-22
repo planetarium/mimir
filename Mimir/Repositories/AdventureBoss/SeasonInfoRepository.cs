@@ -14,15 +14,15 @@ public class SeasonInfoRepository(MongoDbService dbService)
 {
     public SeasonInfo GetSeasonInfo(long number)
     {
-        var seasonAddress = new Address(AdventureBossHelper.GetSeasonAsAddressForm(number));
+        var address = new Address(AdventureBossHelper.GetSeasonAsAddressForm(number));
         var collection = dbService.GetCollection<BsonDocument>("adventure_boss_season_info");
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", seasonAddress.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{seasonAddress.ToHex()}'");
+                $"'Address' equals to '{address.ToHex()}'");
         }
 
         try

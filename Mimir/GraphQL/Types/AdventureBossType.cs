@@ -17,6 +17,6 @@ public class AdventureBossType : ObjectType<AdventureBossObject>
                 .DefaultValue(0))
             .Type<SeasonInfoType>()
             .ResolveWith<AdventureBossResolver>(_ =>
-                AdventureBossResolver.GetSeasonInfoAsync(default!, default!));
+                AdventureBossResolver.GetSeasonInfo(default!, default!));
     }
 }
