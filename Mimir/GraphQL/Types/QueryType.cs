@@ -57,5 +57,10 @@ public class QueryType : ObjectType<Query>
 
                 return repository.GetLatestBlockIndex(context.ArgumentValue<string>("pollerType"));
             });
+
+        descriptor
+            .Field("adventureBoss")
+            .Type<AdventureBossType>()
+            .Resolve(_ => new AdventureBossObject());
     }
 }
