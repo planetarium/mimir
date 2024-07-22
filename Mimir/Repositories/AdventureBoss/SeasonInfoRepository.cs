@@ -5,22 +5,24 @@ using Mimir.Models.AdventureBoss;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Nekoyume.Helper;
 using Nekoyume.Module;
 
 namespace Mimir.Repositories.AdventureBoss;
 
 public class SeasonInfoRepository(MongoDbService dbService)
 {
-    public SeasonInfo GetSeasonInfo()
+    public SeasonInfo GetSeasonInfo(long number)
     {
+        var seasonAddress = new Address(AdventureBossHelper.GetSeasonAsAddressForm(number));
         var collection = dbService.GetCollection<BsonDocument>("adventure_boss_season_info");
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", AdventureBossModule.LatestSeasonAddress.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", seasonAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{AdventureBossModule.LatestSeasonAddress.ToHex()}'");
+                $"'Address' equals to '{seasonAddress.ToHex()}'");
         }
 
         try
