@@ -11,8 +11,12 @@ public class AdventureBossType : ObjectType<AdventureBossObject>
         descriptor
             .Field("season")
             .Description("The season of the adventure boss")
+            .Argument("number", a => a
+                .Description("The number of season. 0 is latest season.")
+                .Type<LongType>()
+                .DefaultValue(0))
             .Type<SeasonInfoType>()
             .ResolveWith<AdventureBossResolver>(_ =>
-                AdventureBossResolver.GetSeasonInfoAsync(default!, default!, default!));
+                AdventureBossResolver.GetSeasonInfoAsync(default!, default!));
     }
 }
