@@ -48,6 +48,7 @@ public class SeasonInfoHandlerTests
         endBlockIndex ??= startBlockIndex + activeInterval;
         nextStartBlockIndex ??= endBlockIndex.Value + inactiveInterval;
         bossId ??= default;
+        Assert.Equal(address, obj.Address);
         Assert.Equal(season, obj.Season);
         Assert.Equal(startBlockIndex, obj.StartBlockIndex);
         Assert.Equal(endBlockIndex.Value, obj.EndBlockIndex);
