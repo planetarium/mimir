@@ -1,6 +1,7 @@
 using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Resolvers;
+using Mimir.Models.Rune;
 using Nekoyume.Model.EnumType;
 
 namespace Mimir.GraphQL.Types;
@@ -67,7 +68,7 @@ public class AvatarType : ObjectType<AvatarObject>
             .Argument("battleType", a => a
                 .Description("The type of battle that the rune slot is used for.")
                 .Type<NonNullType<EnumType<BattleType>>>())
-            .Type<ListType<RuneSlotType>>()
+            .Type<ListType<ObjectType<RuneSlot>>>()
             .ResolveWith<AvatarResolver>(_ =>
                 AvatarResolver.GetRuneSlots(default!, default!, default!));
     }
