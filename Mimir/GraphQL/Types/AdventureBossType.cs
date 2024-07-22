@@ -9,7 +9,7 @@ public class AdventureBossType : ObjectType<AdventureBossObject>
     protected override void Configure(IObjectTypeDescriptor<AdventureBossObject> descriptor)
     {
         descriptor
-            .Field("seasonInfo")
+            .Field("season")
             .Description("The season of the adventure boss")
             .Type<SeasonInfoType>()
             .ResolveWith<AdventureBossResolver>(_ =>
