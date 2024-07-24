@@ -9,6 +9,9 @@ using static Lib9c.SerializeKeys;
 
 namespace Mimir.Models;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.AvatarState"/>
+/// </summary>
 public record Avatar : State
 {
     public int Version { get; init; }
