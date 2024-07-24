@@ -1,5 +1,5 @@
 using Bencodex.Types;
-using Mimir.Models.Assets;
+using Libplanet.Types.Assets;
 using Mimir.Models.Exceptions;
 using Mimir.Models.Item;
 using Nekoyume.Model.State;
@@ -16,6 +16,11 @@ public record Buy7SellerResult : AttachmentActionResult
     public Guid Id { get; init; }
     public FungibleAssetValue Gold { get; init; }
 
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add("shopItem", ShopItem.Bencoded)
+        .Add("id", Id.Serialize())
+        .Add("gold", Gold.Serialize());
+
     public Buy7SellerResult(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -30,9 +35,4 @@ public record Buy7SellerResult : AttachmentActionResult
         Id = d["id"].ToGuid();
         Gold = new FungibleAssetValue(d["gold"]);
     }
-
-    public override IValue Bencoded => ((Dictionary)base.Bencoded)
-        .Add("shopItem", ShopItem.Bencoded)
-        .Add("id", Id.Serialize())
-        .Add("gold", Gold.Bencoded);
 }

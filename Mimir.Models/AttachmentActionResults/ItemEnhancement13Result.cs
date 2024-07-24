@@ -23,27 +23,6 @@ public record ItemEnhancement13Result : AttachmentActionResult
     public ItemUsable? PreItemUsable { get; init; }
     public FungibleAssetValue Crystal { get; init; }
 
-    public ItemEnhancement13Result(IValue bencoded) : base(bencoded)
-    {
-        if (bencoded is not Dictionary d)
-        {
-            throw new UnsupportedArgumentTypeException<ValueKind>(
-                nameof(bencoded),
-                [ValueKind.Dictionary],
-                bencoded.Kind);
-        }
-
-        Id = d["id"].ToGuid();
-        MaterialItemIdList = d["materialItemIdList"].ToList(StateExtensions.ToGuid);
-        Gold = d["gold"].ToBigInteger();
-        ActionPoint = d["actionPoint"].ToInteger();
-        EnhancementResult = d["enhancementResult"].ToEnum<ItemEnhancement9.EnhancementResult>();
-        PreItemUsable = d.ContainsKey("preItemUsable")
-            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["preItemUsable"])
-            : null;
-        Crystal = new FungibleAssetValue(d["c"]);
-    }
-
     public override IValue Bencoded
     {
         get
@@ -64,5 +43,26 @@ public record ItemEnhancement13Result : AttachmentActionResult
 
             return d.Add("c", Crystal.Serialize());
         }
+    }
+
+    public ItemEnhancement13Result(IValue bencoded) : base(bencoded)
+    {
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
+
+        Id = d["id"].ToGuid();
+        MaterialItemIdList = d["materialItemIdList"].ToList(StateExtensions.ToGuid);
+        Gold = d["gold"].ToBigInteger();
+        ActionPoint = d["actionPoint"].ToInteger();
+        EnhancementResult = d["enhancementResult"].ToEnum<ItemEnhancement9.EnhancementResult>();
+        PreItemUsable = d.ContainsKey("preItemUsable")
+            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["preItemUsable"])
+            : null;
+        Crystal = new FungibleAssetValue(d["c"]);
     }
 }

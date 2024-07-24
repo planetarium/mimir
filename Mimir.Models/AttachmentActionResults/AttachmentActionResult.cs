@@ -30,32 +30,6 @@ public record AttachmentActionResult : IBencodable
 
     public int TradableFungibleItemCount { get; init; }
 
-    public AttachmentActionResult(IValue bencoded)
-    {
-        if (bencoded is not Dictionary d)
-        {
-            throw new UnsupportedArgumentTypeException<ValueKind>(
-                nameof(bencoded),
-                [ValueKind.Dictionary],
-                bencoded.Kind);
-        }
-
-        TypeId = d["typeId"].ToDotnetString();
-        ItemUsable = d.ContainsKey("itemUsable")
-            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["itemUsable"])
-            : null;
-        Costume = d.ContainsKey("costume")
-            ? (Costume)ItemFactory.Deserialize((Dictionary)d["costume"])
-            : null;
-        TradableFungibleItem = d.ContainsKey("tradableFungibleItem")
-            ? (TradableMaterial)ItemFactory.Deserialize(
-                (Dictionary)d["tradableFungibleItem"])
-            : null;
-        TradableFungibleItemCount = d.ContainsKey("tradableFungibleItemCount")
-            ? d["tradableFungibleItemCount"].ToInteger()
-            : default;
-    }
-
     public virtual IValue Bencoded
     {
         get
@@ -80,5 +54,31 @@ public record AttachmentActionResult : IBencodable
 
             return d;
         }
+    }
+
+    public AttachmentActionResult(IValue bencoded)
+    {
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
+
+        TypeId = d["typeId"].ToDotnetString();
+        ItemUsable = d.ContainsKey("itemUsable")
+            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["itemUsable"])
+            : null;
+        Costume = d.ContainsKey("costume")
+            ? (Costume)ItemFactory.Deserialize((Dictionary)d["costume"])
+            : null;
+        TradableFungibleItem = d.ContainsKey("tradableFungibleItem")
+            ? (TradableMaterial)ItemFactory.Deserialize(
+                (Dictionary)d["tradableFungibleItem"])
+            : null;
+        TradableFungibleItemCount = d.ContainsKey("tradableFungibleItemCount")
+            ? d["tradableFungibleItemCount"].ToInteger()
+            : default;
     }
 }

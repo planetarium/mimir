@@ -20,6 +20,18 @@ public record CombinationConsumable5Result : AttachmentActionResult
     public int RecipeId { get; init; }
     public int? SubRecipeId { get; init; }
 
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add("materials", new List(Materials
+            .OrderBy(kv => kv.Key.Id)
+            .Select(pair => (IValue)Dictionary.Empty
+                .Add("material", pair.Key.Bencoded)
+                .Add("count", pair.Value.Serialize()))))
+        .Add("id", Id.Serialize())
+        .Add("gold", Gold.Serialize())
+        .Add("actionPoint", ActionPoint.Serialize())
+        .Add("recipeId", RecipeId.Serialize())
+        .Add("subRecipeId", SubRecipeId.Serialize());
+
     public CombinationConsumable5Result(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -41,16 +53,4 @@ public record CombinationConsumable5Result : AttachmentActionResult
         RecipeId = d["recipeId"].ToInteger();
         SubRecipeId = d["subRecipeId"].ToNullableInteger();
     }
-
-    public override IValue Bencoded => ((Dictionary)base.Bencoded)
-        .Add("materials", new List(Materials
-            .OrderBy(kv => kv.Key.Id)
-            .Select(pair => (IValue)Dictionary.Empty
-                .Add("material", pair.Key.Bencoded)
-                .Add("count", pair.Value.Serialize()))))
-        .Add("id", Id.Serialize())
-        .Add("gold", Gold.Serialize())
-        .Add("actionPoint", ActionPoint.Serialize())
-        .Add("recipeId", RecipeId.Serialize())
-        .Add("subRecipeId", SubRecipeId.Serialize());
 }

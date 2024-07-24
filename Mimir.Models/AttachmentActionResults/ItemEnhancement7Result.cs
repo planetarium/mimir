@@ -16,6 +16,15 @@ public record ItemEnhancement7Result : AttachmentActionResult
     public BigInteger Gold { get; init; }
     public int ActionPoint { get; init; }
 
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add("id", Id.Serialize())
+        .Add("materialItemIdList", MaterialItemIdList
+            .OrderBy(i => i)
+            .Select(g => g.Serialize())
+            .Serialize())
+        .Add("gold", Gold.Serialize())
+        .Add("actionPoint", ActionPoint.Serialize());
+
     public ItemEnhancement7Result(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -31,13 +40,4 @@ public record ItemEnhancement7Result : AttachmentActionResult
         Gold = d["gold"].ToBigInteger();
         ActionPoint = d["actionPoint"].ToInteger();
     }
-
-    public override IValue Bencoded => ((Dictionary)base.Bencoded)
-        .Add("id", Id.Serialize())
-        .Add("materialItemIdList", MaterialItemIdList
-            .OrderBy(i => i)
-            .Select(g => g.Serialize())
-            .Serialize())
-        .Add("gold", Gold.Serialize())
-        .Add("actionPoint", ActionPoint.Serialize());
 }
