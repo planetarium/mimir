@@ -9,7 +9,7 @@ namespace Mimir.Models.Mails;
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.ClaimItemsMail"/>
 /// </summary>
-public record ClaimItemsMail : AttachmentMail
+public record ClaimItemsMail : Mail
 {
     public List<FungibleAssetValue> FungibleAssetValues { get; init; }
     public List<(int id, int count)> Items { get; init; }

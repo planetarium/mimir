@@ -13,7 +13,7 @@ namespace Mimir.Models.Mails;
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.UnloadFromMyGaragesRecipientMail"/>
 /// </summary>
-public record UnloadFromMyGaragesRecipientMail : AttachmentMail
+public record UnloadFromMyGaragesRecipientMail : Mail
 {
     public IOrderedEnumerable<(Address balanceAddr, FungibleAssetValue value)>?
         FungibleAssetValues { get; init; }

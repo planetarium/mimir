@@ -9,7 +9,7 @@ namespace Mimir.Models.Mails;
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.GrindingMail"/>
 /// </summary>
-public record GrindingMail : AttachmentMail
+public record GrindingMail : Mail
 {
     public int ItemCount { get; init; }
     public FungibleAssetValue Asset { get; init; }
