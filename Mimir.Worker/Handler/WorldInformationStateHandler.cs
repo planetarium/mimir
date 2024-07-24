@@ -7,33 +7,19 @@ using Nekoyume.Model;
 
 namespace Mimir.Worker.Handler;
 
-public class WorldInformationStateHandler : IStateHandler<StateData>
+public class WorldInformationStateHandler : IStateHandler
 {
-    public StateData ConvertToStateData(StateDiffContext context)
+    public IBencodable ConvertToState(StateDiffContext context)
     {
-        var worldInformation = ConvertToState(context.RawState);
-        return new StateData(
-            context.Address,
-            new WorldInformationState(worldInformation)
-        );
-    }
-
-    private WorldInformation ConvertToState(IValue state)
-    {
-        if (state is Dictionary dict)
+        if (context.RawState is Dictionary dict)
         {
-            return new WorldInformation(dict);
+            return new WorldInformationState(new WorldInformation(dict));
         }
         else
         {
             throw new InvalidCastException(
-                $"{nameof(state)} Invalid state type. Expected Dictionary."
+                $"{nameof(context.RawState)} Invalid state type. Expected Dictionary."
             );
         }
-    }
-
-    public async Task StoreStateData(MongoDbService store, StateData stateData)
-    {
-        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }

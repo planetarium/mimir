@@ -1,5 +1,5 @@
-using Mimir.Worker.Constants;
 using Mimir.Worker.ActionHandler;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
@@ -20,7 +20,12 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         {
             _logger.Information("Init sheet, table: {TableName} ", sheetType.Name);
 
-            await handler.SyncSheetStateAsync(sheetType.Name, sheetType);
+            using (var session = await _store.GetMongoClient().StartSessionAsync())
+            {
+                session.StartTransaction();
+                await handler.SyncSheetStateAsync(sheetType.Name, sheetType, session);
+                session.CommitTransaction();
+            }
         }
     }
 

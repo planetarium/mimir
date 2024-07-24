@@ -20,8 +20,8 @@ public class AvatarStateHandlerTests
             Address = address,
             RawState = Codec.Decode(Convert.FromHexString(rawState)),
         };
-        var stateData = _handler.ConvertToStateData(context);
+        var state = _handler.ConvertToState(context);
 
-        Assert.IsType<Mimir.Worker.Models.AvatarState>(stateData.State);
+        Assert.IsType<Mimir.Worker.Models.AvatarState>(state);
     }
 }

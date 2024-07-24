@@ -1,7 +1,7 @@
+using Bencodex;
 using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
-using Mimir.Worker.Handler.AdventureBoss;
 using Mimir.Worker.Models;
 using Nekoyume;
 
@@ -9,7 +9,7 @@ namespace Mimir.Worker.Handler;
 
 public static class AddressHandlerMappings
 {
-    public static readonly Dictionary<Address, IStateHandler<StateData>> HandlerMappings = new();
+    public static readonly Dictionary<Address, IStateHandler> HandlerMappings = new();
 
     public static readonly Currency OdinNCGCurrency =
         Currency.Legacy("NCG", 2, new Address("0x47d082a115c63e7b58b1532d20e631538eafadde"));
@@ -21,14 +21,14 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
         HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());
         HandlerMappings.Add(Addresses.ActionPoint, new ActionPointStateHandler());
-        HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
+        // HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
-        HandlerMappings.Add(Addresses.AdventureBoss, new SeasonInfoHandler());
-        HandlerMappings.Add(Addresses.BountyBoard, new BountyBoardHandler());
-        HandlerMappings.Add(Addresses.ExploreBoard, new ExploreBoardHandler());
-        HandlerMappings.Add(Addresses.ExplorerList, new ExplorerListHandler());
+        // HandlerMappings.Add(Addresses.AdventureBoss, new SeasonInfoHandler());
+        // HandlerMappings.Add(Addresses.BountyBoard, new BountyBoardHandler());
+        // HandlerMappings.Add(Addresses.ExploreBoard, new ExploreBoardHandler());
+        // HandlerMappings.Add(Addresses.ExplorerList, new ExplorerListHandler());
 
         RegisterBalanceHandler(OdinNCGCurrency);
         RegisterBalanceHandler(Currencies.Crystal);

@@ -19,6 +19,8 @@ namespace Mimir.Worker.Services;
 
 public class MongoDbService
 {
+    private readonly MongoClient _client;
+
     private readonly IMongoDatabase _database;
 
     private readonly GridFSBucket _gridFs;
@@ -39,32 +41,38 @@ public class MongoDbService
             X509Store localTrustStore = new X509Store(StoreName.Root);
             X509Certificate2Collection certificateCollection = new X509Certificate2Collection();
             certificateCollection.Import(pathToCAFile);
-            try 
+            try
             {
                 localTrustStore.Open(OpenFlags.ReadWrite);
                 localTrustStore.AddRange(certificateCollection);
-            } 
-            catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine("Root certificate import failed: " + ex.Message);
                 throw;
-            } 
-            finally 
+            }
+            finally
             {
                 localTrustStore.Close();
             }
         }
 
-        _database = new MongoClient(settings).GetDatabase(databaseName);
+        _client = new MongoClient(settings);
+        _database = _client.GetDatabase(databaseName);
         _gridFs = new GridFSBucket(_database);
         _logger = Log.ForContext<MongoDbService>();
         _stateCollectionMappings = InitStateCollections();
     }
 
+    public MongoClient GetMongoClient()
+    {
+        return _client;
+    }
+
     private Dictionary<string, IMongoCollection<BsonDocument>> InitStateCollections()
     {
         var mappings = new Dictionary<string, IMongoCollection<BsonDocument>>();
-        foreach (var (_, collectionName) in CollectionNames.CollectionMappings)
+        foreach (var (_, collectionName) in CollectionNames.CollectionAndStateTypeMappings)
         {
             mappings[collectionName] = _database.GetCollection<BsonDocument>(collectionName);
         }
@@ -90,17 +98,33 @@ public class MongoDbService
         return GetCollection(collectionName);
     }
 
-    public async Task UpdateLatestBlockIndex(long blockIndex, string pollerType)
+    public async Task UpdateLatestBlockIndex(
+        long blockIndex,
+        string pollerType,
+        IClientSessionHandle? session = null
+    )
     {
         _logger.Debug("Update latest block index to {BlockIndex}", blockIndex);
 
         var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
         var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
-        await MetadataCollection.UpdateOneAsync(
-            filter,
-            update,
-            new UpdateOptions { IsUpsert = true }
-        );
+        if (session is null)
+        {
+            await MetadataCollection.UpdateOneAsync(
+                filter,
+                update,
+                new UpdateOptions { IsUpsert = true }
+            );
+        }
+        else
+        {
+            await MetadataCollection.UpdateOneAsync(
+                session,
+                filter,
+                update,
+                new UpdateOptions { IsUpsert = true }
+            );
+        }
     }
 
     public async Task<long> GetLatestBlockIndex(string pollerType)
@@ -142,50 +166,84 @@ public class MongoDbService
         await GetCollection<ProductState>().DeleteOneAsync(productFilter);
     }
 
-    public async Task UpsertStateDataAsyncWithLinkAgent(
-        StateData stateData,
-        Address? agentAddress = null
+    public async Task<BulkWriteResult> UpsertStateDataManyAsync(
+        string collectionName,
+        List<StateData> stateDatas,
+        IClientSessionHandle? session = null
     )
     {
+        List<UpdateOneModel<BsonDocument>> bulkOps = new List<UpdateOneModel<BsonDocument>>();
+        foreach (var stateData in stateDatas)
+        {
+            var stateUpdateModel = GetStateDataUpdateModel(stateData);
+            bulkOps.Add(stateUpdateModel);
+        }
+
+        if (session is null)
+        {
+            return await GetCollection(collectionName).BulkWriteAsync(bulkOps);
+        }
+        else
+        {
+            return await GetCollection(collectionName).BulkWriteAsync(session, bulkOps);
+        }
+    }
+
+    public async Task<BulkWriteResult> UpsertStateDataWithRawDataAsync(
+        string collectionName,
+        List<StateData> stateDatas,
+        IClientSessionHandle? session = null
+    )
+    {
+        List<UpdateOneModel<BsonDocument>> bulkOps = new List<UpdateOneModel<BsonDocument>>();
+        foreach (var stateData in stateDatas)
+        {
+            var stateUpdateModel = await GetStateDataWithRawDataUpdateModel(stateData);
+            bulkOps.Add(stateUpdateModel);
+        }
+
+        if (session is null)
+        {
+            return await GetCollection(collectionName).BulkWriteAsync(bulkOps);
+        }
+        else
+        {
+            return await GetCollection(collectionName).BulkWriteAsync(session, bulkOps);
+        }
+    }
+
+    public UpdateOneModel<BsonDocument> GetStateDataUpdateModel(StateData stateData)
+    {
         var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
-        var upsertResult = await UpsertStateDataAsync(stateData, collectionName);
-        await LinkToOtherCollectionAsync<AgentState>(
-            upsertResult,
-            agentAddress ?? stateData.Address,
+        var stateJson = stateData.ToJson();
+        var bsonDocument = BsonDocument.Parse(stateJson);
+        var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
+        stateBsonDocument.Remove("Bencoded");
+
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
+        var update = new BsonDocument("$set", bsonDocument);
+        var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
+
+        _logger.Debug(
+            "Address: {Address} - Stored at {CollectionName}",
+            stateData.Address.ToHex(),
             collectionName
         );
+
+        return upsertOne;
     }
 
-    public async Task UpsertStateDataAsyncWithLinkAvatar(
-        StateData stateData,
-        Address? avatarAddress = null
+    public async Task<UpdateOneModel<BsonDocument>> GetStateDataWithRawDataUpdateModel(
+        StateData stateData
     )
     {
         var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
-        var upsertResult = await UpsertStateDataAsync(stateData, collectionName);
-        await LinkToOtherCollectionAsync<AvatarState>(
-            upsertResult,
-            avatarAddress ?? stateData.Address,
-            collectionName
-        );
-    }
-
-    public async Task UpsertStateDataAsync(StateData stateData)
-    {
-        var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
-        await UpsertStateDataAsync(stateData, collectionName);
-    }
-
-    private async Task<UpdateResult> UpsertStateDataAsync(
-        StateData stateData,
-        string collectionName
-    )
-    {
         var rawStateBytes = new Codec().Encode(stateData.State.Bencoded);
         var rawStateId = await _gridFs.UploadFromBytesAsync(
             $"{stateData.Address.ToHex()}-rawstate",
             rawStateBytes
         );
+
         var stateJson = stateData.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
         var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
@@ -194,50 +252,20 @@ public class MongoDbService
 
         var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
-        var result = await GetCollection(collectionName)
-            .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
+        var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
             stateData.Address.ToHex(),
             collectionName
         );
-        return result;
+
+        return upsertOne;
     }
 
     private static async Task<string> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)
     {
         var fileBytes = await gridFs.DownloadAsBytesAsync(fileId);
         return Encoding.UTF8.GetString(fileBytes);
-    }
-
-    private async Task LinkToOtherCollectionAsync<T>(
-        UpdateResult upsertResult,
-        Address address,
-        string collectionName
-    )
-    {
-        if (!upsertResult.IsAcknowledged || upsertResult.UpsertedId == null)
-        {
-            return;
-        }
-
-        var collection = GetCollection<T>();
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
-        var doc = await collection.Find(filter).FirstOrDefaultAsync();
-        if (doc is null)
-        {
-            return;
-        }
-
-        var field = $"{collectionName.ToPascalCase()}ObjectId";
-        if (doc.Contains(field))
-        {
-            return;
-        }
-
-        var update = Builders<BsonDocument>.Update.Set(field, upsertResult.UpsertedId);
-        await collection.UpdateOneAsync(filter, update);
-        _logger.Debug("{TypeName} updated with {CollectionNameObjectId}", typeof(T).Name, field);
     }
 }

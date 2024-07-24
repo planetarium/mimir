@@ -2,10 +2,12 @@ using Lib9c.Abstractions;
 using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Constants;
+using Mimir.Worker.Exceptions;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
+using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
-using Nekoyume.Model.State;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
@@ -18,13 +20,16 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         Log.ForContext<BattleArenaHandler>()
     )
 {
-    protected override async Task HandleAction(long blockIndex, Address signer, IAction action)
+    protected override async Task<bool> TryHandleAction(
+        long blockIndex,
+        Address signer,
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
         if (action is not IBattleArenaV1 battleArena)
         {
-            throw new NotImplementedException(
-                $"Action is not {nameof(IBattleArenaV1)}: {action.GetType()}"
-            );
+            return false;
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
@@ -39,14 +44,18 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         await UpdateArenaCollectionAsync(
             blockIndex,
             battleArena.MyAvatarAddress,
-            battleArena.EnemyAvatarAddress
+            battleArena.EnemyAvatarAddress,
+            session
         );
+
+        return true;
     }
 
     private async Task UpdateArenaCollectionAsync(
         long processBlockIndex,
         Address myAvatarAddress,
-        Address enemyAvatarAddress
+        Address enemyAvatarAddress,
+        IClientSessionHandle? session = null
     )
     {
         Logger.Information(
@@ -55,67 +64,56 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             enemyAvatarAddress
         );
 
-        try
-        {
-            var roundData = await StateGetter.GetArenaRoundData(processBlockIndex);
-            var myArenaScore = await StateGetter.GetArenaScoreState(
-                myAvatarAddress,
-                roundData.ChampionshipId,
-                roundData.Round
-            );
-            var myArenaInfo = await StateGetter.GetArenaInfoState(
-                myAvatarAddress,
-                roundData.ChampionshipId,
-                roundData.Round
-            );
-            var enemyArenaScore = await StateGetter.GetArenaScoreState(
-                enemyAvatarAddress,
-                roundData.ChampionshipId,
-                roundData.Round
-            );
-            var enemyArenaInfo = await StateGetter.GetArenaInfoState(
-                enemyAvatarAddress,
-                roundData.ChampionshipId,
-                roundData.Round
-            );
+        var roundData = await StateGetter.GetArenaRoundData(processBlockIndex);
+        var myArenaScore = await StateGetter.GetArenaScoreState(
+            myAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round
+        );
+        var myArenaInfo = await StateGetter.GetArenaInfoState(
+            myAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round
+        );
+        var enemyArenaScore = await StateGetter.GetArenaScoreState(
+            enemyAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round
+        );
+        var enemyArenaInfo = await StateGetter.GetArenaInfoState(
+            enemyAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round
+        );
 
-            await Store.UpsertStateDataAsyncWithLinkAvatar(
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<ArenaInformationState>(),
+            [
+                new StateData(
+                    myArenaInfo.Address,
+                    new ArenaInformationState(myArenaInfo, roundData, myAvatarAddress)
+                ),
+                new StateData(
+                    enemyArenaInfo.Address,
+                    new ArenaInformationState(enemyArenaInfo, roundData, enemyAvatarAddress)
+                )
+            ],
+            session
+        );
+
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<ArenaInformationState>(),
+            [
                 new StateData(
                     myArenaScore.Address,
                     new ArenaScoreState(myArenaScore, roundData, myAvatarAddress)
                 ),
-                myAvatarAddress
-            );
-            await Store.UpsertStateDataAsyncWithLinkAvatar(
-                new StateData(
-                    myArenaScore.Address,
-                    new ArenaInformationState(myArenaInfo, roundData, myAvatarAddress)
-                ),
-                myAvatarAddress
-            );
-            await Store.UpsertStateDataAsyncWithLinkAvatar(
                 new StateData(
                     enemyArenaScore.Address,
                     new ArenaScoreState(enemyArenaScore, roundData, enemyAvatarAddress)
-                ),
-                enemyAvatarAddress
-            );
-            await Store.UpsertStateDataAsyncWithLinkAvatar(
-                new StateData(
-                    enemyArenaScore.Address,
-                    new ArenaInformationState(enemyArenaInfo, roundData, enemyAvatarAddress)
-                ),
-                enemyAvatarAddress
-            );
-        }
-        catch (InvalidCastException ex)
-        {
-            Logger.Error(
-                "Failed to arena states. my: {MyAvatarAddress}, enemy: {EnemyAvatarAddress}, error:\n{Error}",
-                myAvatarAddress,
-                enemyAvatarAddress,
-                ex.Message
-            );
-        }
+                )
+            ],
+            session
+        );
     }
 }

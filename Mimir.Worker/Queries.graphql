@@ -6,21 +6,13 @@ query GetTip {
     }
 }
 
-query GetTransactionResults($transactionIds: [TxId]!) {
-  transaction {
-    transactionResults(txIds: $transactionIds) {
-      txStatus
-    }
-  }
-}
-
 query GetState($accountAddress: Address! $address: Address!) {
     state(accountAddress: $accountAddress, address: $address)
 }
 
 query GetTransactions($blockIndex: Long!, $limit: Long!) {
     transaction {
-        ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: "^.*$") {
+        ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: "^.*$", txStatusFilter: [SUCCESS]) {
             signer
             id
             serializedPayload

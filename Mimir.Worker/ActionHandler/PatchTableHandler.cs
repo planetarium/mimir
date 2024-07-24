@@ -1,8 +1,10 @@
 using System.Collections.Immutable;
 using Bencodex.Types;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
+using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.Model.State;
@@ -31,10 +33,11 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
             )
     ];
 
-    protected override async Task HandleAction(
+    protected override async Task<bool> TryHandleAction(
         string actionType,
         long processBlockIndex,
-        IValue? actionPlainValueInternal
+        IValue? actionPlainValueInternal,
+        IClientSessionHandle? session = null
     )
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
@@ -63,10 +66,15 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
 
         Logger.Information("Handle patch_table, table: {TableName} ", tableName);
 
-        await SyncSheetStateAsync(tableName, sheetType);
+        await SyncSheetStateAsync(tableName, sheetType, session);
+        return true;
     }
 
-    public async Task SyncSheetStateAsync(string sheetName, Type sheetType)
+    public async Task SyncSheetStateAsync(
+        string sheetName,
+        Type sheetType,
+        IClientSessionHandle? session = null
+    )
     {
         if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
         {
@@ -104,6 +112,11 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
             sheetAddress,
             new SheetState(sheet, sheetName, sheetState.ToDotnetString())
         );
-        await Store.UpsertStateDataAsync(stateData);
+
+        await Store.UpsertStateDataWithRawDataAsync(
+            CollectionNames.GetCollectionName<SheetState>(),
+            [stateData],
+            session
+        );
     }
 }

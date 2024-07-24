@@ -22,10 +22,10 @@ public class AllRuneStateHandlerTests
             Address = address,
             RawState = allRuneState.Serialize(),
         };
-        var stateData = _handler.ConvertToStateData(context);
+        var state = _handler.ConvertToState(context);
 
-        Assert.IsType<AllRuneState>(stateData.State);
-        var dataState = (AllRuneState)stateData.State;
+        Assert.IsType<AllRuneState>(state);
+        var dataState = (AllRuneState)state;
         Assert.Equal(allRuneState.Runes.Count, dataState.Object.Runes.Count);
         foreach (var (key, value) in allRuneState.Runes)
         {

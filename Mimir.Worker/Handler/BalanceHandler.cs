@@ -1,3 +1,4 @@
+using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
@@ -6,28 +7,17 @@ using Mimir.Worker.Services;
 
 namespace Mimir.Worker.Handler;
 
-public record BalanceHandler(Currency Currency) : IStateHandler<StateData>
+public record BalanceHandler(Currency Currency) : IStateHandler
 {
-    public StateData ConvertToStateData(StateDiffContext context)
+    public IBencodable ConvertToState(StateDiffContext context)
     {
-        var goldBalance = ConvertToState(context.RawState);
-        return new StateData(context.Address, goldBalance);
-    }
-
-    private BalanceState ConvertToState(IValue state)
-    {
-        if (state is not Integer value)
+        if (context.RawState is not Integer value)
         {
             throw new InvalidCastException(
-                $"{nameof(state)} Invalid state type. Expected {nameof(Integer)}, got {state.GetType().Name}."
+                $"{nameof(context.RawState)} Invalid state type. Expected {nameof(Integer)}, got {context.RawState.GetType().Name}."
             );
         }
 
         return new BalanceState(FungibleAssetValue.FromRawValue(Currency, value));
-    }
-
-    public async Task StoreStateData(MongoDbService store, StateData stateData)
-    {
-        await store.UpsertStateDataAsync(stateData);
     }
 }

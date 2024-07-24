@@ -20,10 +20,10 @@ public class DailyRewardStateHandlerTests
             Address = address,
             RawState = new Integer(dailyRewardReceivedBlockIndex),
         };
-        var stateData = _handler.ConvertToStateData(context);
+        var state = _handler.ConvertToState(context);
 
-        Assert.IsType<DailyRewardState>(stateData.State);
-        var dataState = (DailyRewardState)stateData.State;
+        Assert.IsType<DailyRewardState>(state);
+        var dataState = (DailyRewardState)state;
         Assert.Equal(dailyRewardReceivedBlockIndex, dataState.Object);
     }
 }

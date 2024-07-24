@@ -2,8 +2,9 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Action;
 using Libplanet.Crypto;
-using Mimir.Worker.Util;
 using Mimir.Worker.Services;
+using Mimir.Worker.Util;
+using MongoDB.Driver;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.ActionHandler;
@@ -12,7 +13,8 @@ public abstract class BaseActionHandler(
     IStateService stateService,
     MongoDbService store,
     string actionTypeRegex,
-    ILogger logger)
+    ILogger logger
+)
 {
     protected readonly IStateService StateService = stateService;
 
@@ -27,16 +29,13 @@ public abstract class BaseActionHandler(
         Address signer,
         IAction action,
         IValue? actionType,
-        IValue? actionPlainValueInternal)
+        IValue? actionPlainValueInternal,
+        IClientSessionHandle? session = null
+    )
     {
-        try
+        if (await TryHandleAction(blockIndex, signer, action, session))
         {
-            await HandleAction(blockIndex, signer, action);
             return true;
-        }
-        catch (NotImplementedException)
-        {
-            // ignored
         }
 
         var actionTypeStr = actionType switch
@@ -45,41 +44,31 @@ public abstract class BaseActionHandler(
             Text text => (string)text,
             _ => null
         };
-        if (actionTypeStr is null ||
-            !Regex.IsMatch(actionTypeStr, actionTypeRegex))
+        if (actionTypeStr is null || !Regex.IsMatch(actionTypeStr, actionTypeRegex))
         {
             return false;
         }
 
-        try
-        {
-            await HandleAction(
-                actionTypeStr,
-                blockIndex,
-                actionPlainValueInternal);
-        }
-        catch (NotImplementedException)
-        {
-            // ignored
-            return false;
-        }
-
-        return false;
+        return await TryHandleAction(actionTypeStr, blockIndex, actionPlainValueInternal, session);
     }
 
-    protected virtual Task HandleAction(
+    protected virtual Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action)
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
-        throw new NotImplementedException();
+        return Task.FromResult(false);
     }
 
-    protected virtual Task HandleAction(
+    protected virtual Task<bool> TryHandleAction(
         string actionType,
         long processBlockIndex,
-        IValue? actionPlainValueInternal)
+        IValue? actionPlainValueInternal,
+        IClientSessionHandle? session = null
+    )
     {
-        throw new NotImplementedException();
+        return Task.FromResult(false);
     }
 }

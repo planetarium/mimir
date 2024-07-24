@@ -8,6 +8,9 @@ type StandaloneQuery {
   stateQuery(
     # Offset block hash for query.
     hash: ByteString
+
+    # Offset block index for query.
+    index: Long
   ): StateQuery!
 
   # This field allows you to query the diffs between two blocks. `baseIndex` is the reference block index, and changedIndex is the block index from which to check what changes have occurred relative to `baseIndex`. Both indices must not be higher than the current block on the chain nor lower than the genesis block index (0). The difference between the two blocks must be greater than zero for a valid comparison and less than ten for performance reasons.
@@ -21,6 +24,9 @@ type StandaloneQuery {
   state(
     # The hash of the block used to fetch state from chain.
     hash: ByteString
+
+    # The index of the block used to fetch state from chain.
+    index: Long
 
     # The address of account to fetch from the chain.
     accountAddress: Address!
@@ -437,6 +443,7 @@ enum ItemSubType {
     )
   TITLE
   AURA
+  GRIMOIRE
 }
 
 enum ElementalType {
@@ -1278,6 +1285,7 @@ type ExplorerQuery {
   stateQuery: LibplanetStateQuery
   nodeState: NodeState!
   helperQuery: HelperQuery
+  rawStateQuery: RawStateQuery
 }
 
 type BlockQuery {
@@ -1343,6 +1351,9 @@ type Block {
 
   # The hash of PreEvaluationBlock.
   preEvaluationHash: ByteString!
+
+  # The protocol version number of the block.
+  protocolVersion: Int!
 }
 
 scalar PublicKey
@@ -1560,6 +1571,24 @@ type WorldState {
     # The list of addresses of accounts to retrieve.
     addresses: [Address!]!
   ): [AccountState!]!
+
+  # Balance at given address and currency pair.
+  balance(
+    # The currency to look up.
+    currency: CurrencyInput!
+
+    # The address to look up.
+    address: Address!
+  ): FungibleAssetValue!
+
+  # Total supply in circulation for given currency.
+  totalSupply(
+    # The currency to look up.
+    currency: CurrencyInput!
+  ): FungibleAssetValue!
+
+  # The validator set.
+  validatorSet: IValue!
 }
 
 scalar HashDigestSHA256
@@ -1588,7 +1617,7 @@ type AccountState {
 
     # The currency hash to look up.
     currencyHash: HashDigestSHA1!
-  ): IValue
+  ): IValue @deprecated(reason: "Does not work post block protocol version 7.")
 
   # Balances at given addresses and currency hash pair.
   balances(
@@ -1598,15 +1627,17 @@ type AccountState {
     # The currency hash to look up.
     currencyHash: HashDigestSHA1!
   ): [IValue]!
+    @deprecated(reason: "Does not work post block protocol version 7.")
 
   # Total supply in circulation, if recorded, for given currency hash.
   totalSupply(
     # The currency hash to look up.
     currencyHash: HashDigestSHA1!
-  ): IValue
+  ): IValue @deprecated(reason: "Does not work post block protocol version 7.")
 
   # The validator set.
   validatorSet: IValue
+    @deprecated(reason: "Does not work post block protocol version 6.")
 }
 
 type IValue {
@@ -1668,6 +1699,33 @@ type HelperQuery {
     # The byte array in hex representation to decode.
     hex: String!
   ): IValue!
+
+  # Converts string to key hex representation
+  keyHex(
+    # The string value to convert to key hex.
+    value: String!
+  ): KeyBytes!
+}
+
+scalar KeyBytes
+
+type RawStateQuery {
+  # Retrieves trie from given state root hash.
+  trie(stateRootHash: HashDigest_SHA256): Trie!
+}
+
+type Trie {
+  # Gets the value stored at given key.
+  value(
+    # The key to search.
+    key: KeyBytes!
+  ): IValue
+
+  # Gets the values stored at given multiple keys.
+  values(
+    # The list of keys to search.
+    keys: [KeyBytes!]!
+  ): IValue
 }
 
 type ValidationQuery {
@@ -1756,6 +1814,9 @@ type TransactionHeadlessQuery {
 
     # filter tx by having actions' type. It is regular expression.
     actionType: String!
+
+    # filter txStatus.
+    txStatusFilter: [TxStatus]
   ): [TransactionType]
   createUnsignedTx(
     # The base64-encoded public key for Transaction.

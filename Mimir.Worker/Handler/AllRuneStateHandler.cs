@@ -1,30 +1,21 @@
+using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Mimir.Worker.Models;
-using Mimir.Worker.Services;
 
 namespace Mimir.Worker.Handler;
 
-public class AllRuneStateHandler : IStateHandler<StateData>
+public class AllRuneStateHandler : IStateHandler
 {
-    public StateData ConvertToStateData(StateDiffContext context) =>
-        new(context.Address, ConvertToState(context.RawState));
-
-    private static AllRuneState ConvertToState(IValue state)
+    public IBencodable ConvertToState(StateDiffContext context)
     {
-        if (state is not List value)
+        if (context.RawState is not List value)
         {
             throw new InvalidCastException(
-                $"{nameof(state)} Invalid state type. Expected {nameof(List)}, got {state.GetType().Name}."
+                $"{nameof(context.RawState)} Invalid state type. Expected {nameof(List)}, got {context.RawState.GetType().Name}."
             );
         }
 
         var allRuneState = new Nekoyume.Model.State.AllRuneState(value);
         return new AllRuneState(allRuneState);
-    }
-
-    public async Task StoreStateData(MongoDbService store, StateData stateData)
-    {
-        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }

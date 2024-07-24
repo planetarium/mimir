@@ -27,10 +27,10 @@ public class CollectionStateHandlerTests
             Address = address,
             RawState = collectionState.Bencoded,
         };
-        var stateData = _handler.ConvertToStateData(context);
+        var state = _handler.ConvertToState(context);
 
-        Assert.IsType<CollectionState>(stateData.State);
-        var dataState = (CollectionState)stateData.State;
+        Assert.IsType<CollectionState>(state);
+        var dataState = (CollectionState)state;
         Assert.Equal(collectionState.Ids, dataState.Object.Ids);
     }
 }

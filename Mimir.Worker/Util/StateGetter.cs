@@ -1,5 +1,6 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.Worker.Exceptions;
 using Mimir.Worker.Services;
 using Nekoyume;
 using Nekoyume.Action;
@@ -44,7 +45,11 @@ public class StateGetter
         return state switch
         {
             List list => new ArenaParticipants(list),
-            _ => throw new InvalidCastException(nameof(arenaParticipantsAddress))
+            _
+                => throw new StateNotFoundException(
+                    arenaParticipantsAddress,
+                    typeof(ArenaParticipants)
+                )
         };
     }
 
@@ -59,7 +64,7 @@ public class StateGetter
         return state switch
         {
             List list => new ArenaScore(list),
-            _ => throw new InvalidCastException(nameof(arenaScoreAddress))
+            _ => throw new StateNotFoundException(arenaScoreAddress, typeof(ArenaScore))
         };
     }
 
@@ -78,7 +83,7 @@ public class StateGetter
         return state switch
         {
             List list => new ArenaInformation(list),
-            _ => throw new InvalidCastException(nameof(arenaInfoAddress))
+            _ => throw new StateNotFoundException(arenaInfoAddress, typeof(ArenaInformation))
         };
     }
 
@@ -90,10 +95,7 @@ public class StateGetter
         {
             Dictionary dictionary => new AvatarState(dictionary) { inventory = inventory },
             List list => new AvatarState(list) { inventory = inventory },
-            _
-                => throw new InvalidCastException(
-                    $"Unsupported state type for address: {avatarAddress}"
-                )
+            _ => throw new StateNotFoundException(avatarAddress, typeof(AvatarState))
         };
 
         if (await _service.GetState(avatarAddress, Addresses.ActionPoint) is Integer actionPoint)
@@ -138,7 +140,11 @@ public class StateGetter
         {
             List list => new ItemSlotState(list),
             null => new ItemSlotState(BattleType.Arena),
-            _ => throw new InvalidCastException(nameof(avatarAddress))
+            _
+                => throw new StateNotFoundException(
+                    ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena),
+                    typeof(ItemSlotState)
+                )
         };
     }
 
@@ -151,7 +157,11 @@ public class StateGetter
         {
             List list => new RuneSlotState(list),
             null => new RuneSlotState(BattleType.Arena),
-            _ => throw new InvalidCastException(nameof(avatarAddress))
+            _
+                => throw new StateNotFoundException(
+                    RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena),
+                    typeof(RuneSlotState)
+                )
         };
 
         var runes = new List<RuneState>();
@@ -177,21 +187,24 @@ public class StateGetter
         {
             List list => new ProductsState(list),
             null => null,
-            _ => throw new InvalidCastException(nameof(avatarAddress)),
+            _
+                => throw new StateNotFoundException(
+                    ProductsState.DeriveAddress(avatarAddress),
+                    typeof(ProductsState)
+                ),
         };
     }
 
-    public async Task<Product?> GetProductState(Guid productId)
+    public async Task<Product> GetProductState(Guid productId)
     {
         var productAddress = Product.DeriveAddress(productId);
-        var rawState = await _service.GetState(productAddress);
-        if (rawState is not List list)
-        {
-            throw new InvalidCastException(nameof(productId));
-        }
+        var state = await _service.GetState(productAddress);
 
-        var product = ProductFactory.DeserializeProduct(list);
-        return product;
+        return state switch
+        {
+            List list => ProductFactory.DeserializeProduct(list),
+            _ => throw new StateNotFoundException(productAddress, typeof(Product))
+        };
     }
 
     public async Task<MarketState> GetMarketState()
@@ -200,31 +213,31 @@ public class StateGetter
         return state switch
         {
             List list => new MarketState(list),
-            _ => throw new InvalidCastException()
+            _ => throw new StateNotFoundException(Addresses.Market, typeof(MarketState))
         };
     }
 
-    public async Task<WorldBossState?> GetWorldBossState(Address worldBossAddress)
+    public async Task<WorldBossState> GetWorldBossState(Address worldBossAddress)
     {
         var state = await _service.GetState(worldBossAddress);
         return state switch
         {
             List list => new WorldBossState(list),
-            _ => throw new InvalidCastException()
+            _ => throw new StateNotFoundException(worldBossAddress, typeof(WorldBossState))
         };
     }
 
-    public async Task<RaiderState?> GetRaiderState(Address raiderAddress)
+    public async Task<RaiderState> GetRaiderState(Address raiderAddress)
     {
         var state = await _service.GetState(raiderAddress);
         return state switch
         {
             List list => new RaiderState(list),
-            _ => throw new InvalidCastException()
+            _ => throw new StateNotFoundException(raiderAddress, typeof(RaiderState))
         };
     }
 
-    public async Task<WorldBossKillRewardRecord?> GetWorldBossKillRewardRecordState(
+    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordState(
         Address worldBossKillRewardRecordAddress
     )
     {
@@ -232,34 +245,36 @@ public class StateGetter
         return state switch
         {
             List list => new WorldBossKillRewardRecord(list),
-            _ => throw new InvalidCastException()
+            _
+                => throw new StateNotFoundException(
+                    worldBossKillRewardRecordAddress,
+                    typeof(WorldBossKillRewardRecord)
+                )
         };
     }
 
     public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress) =>
         await _service.GetState(address, accountAddress) ?? await _service.GetState(address);
 
-    public async Task<CombinationSlotState?> GetCombinationSlotState(Address slotAddress)
+    public async Task<CombinationSlotState> GetCombinationSlotState(Address slotAddress)
     {
         var state = await _service.GetState(slotAddress);
 
         return state switch
         {
             Dictionary dict => new CombinationSlotState(dict),
-            null => null,
-            _ => throw new InvalidCastException()
+            _ => throw new StateNotFoundException(slotAddress, typeof(CombinationSlotState))
         };
     }
 
-    public async Task<PetState?> GetPetState(Address petStateAddress)
+    public async Task<PetState> GetPetState(Address petStateAddress)
     {
         var state = await _service.GetState(petStateAddress);
 
         return state switch
         {
             List list => new PetState(list),
-            null => null,
-            _ => throw new InvalidCastException()
+            _ => throw new StateNotFoundException(petStateAddress, typeof(CombinationSlotState))
         };
     }
 
