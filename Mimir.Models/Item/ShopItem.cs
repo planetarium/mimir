@@ -10,6 +10,9 @@ using static Lib9c.SerializeKeys;
 
 namespace Mimir.Models.Item;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.ShopItem"/>
+/// </summary>
 public record ShopItem : IBencodable
 {
     public Address SellerAgentAddress { get; init; }
