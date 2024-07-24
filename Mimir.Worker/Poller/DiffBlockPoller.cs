@@ -60,43 +60,26 @@ public class DiffBlockPoller : BaseBlockPoller
 
         var tasks = new List<Task>();
 
-        using (var session = await _store.GetMongoClient().StartSessionAsync())
+        foreach (var diff in diffResult.Data.Diffs)
         {
-            session.StartTransaction();
-            try
+            switch (diff)
             {
-                foreach (var diff in diffResult.Data.Diffs)
-                {
-                    switch (diff)
-                    {
-                        case IGetDiffs_Diffs_RootStateDiff rootDiff:
-                            tasks.Add(ProcessRootStateDiff(session, rootDiff));
-                            break;
+                case IGetDiffs_Diffs_RootStateDiff rootDiff:
+                    tasks.Add(ProcessRootStateDiff(rootDiff));
+                    break;
 
-                        case IGetDiffs_Diffs_StateDiff stateDiff:
-                            // await ProcessStateDiff(stateDiff);
-                            break;
-                    }
-                }
-
-                await Task.WhenAll(tasks);
-
-                await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType, session);
-
-                session.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                await session.AbortTransactionAsync();
-                _logger.Error($"Transaction aborted: {ex.Message}");
+                case IGetDiffs_Diffs_StateDiff stateDiff:
+                    // await ProcessStateDiff(stateDiff);
+                    break;
             }
         }
+
+        await Task.WhenAll(tasks);
+
+        await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType);
     }
 
-    private async Task ProcessRootStateDiff(
-        IClientSessionHandle session,
-        IGetDiffs_Diffs_RootStateDiff rootDiff
-    )
+    private async Task ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
     {
         var accountAddress = new Address(rootDiff.Path);
         if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
@@ -125,11 +108,25 @@ public class DiffBlockPoller : BaseBlockPoller
                 }
             }
 
-            await _store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName(accountAddress),
-                stateDatas,
-                session
-            );
+            using (var session = await _store.GetMongoClient().StartSessionAsync())
+            {
+                session.StartTransaction();
+                try
+                {
+                    await _store.UpsertStateDataManyAsync(
+                        CollectionNames.GetCollectionName(accountAddress),
+                        stateDatas,
+                        session
+                    );
+
+                    session.CommitTransaction();
+                }
+                catch (Exception ex)
+                {
+                    await session.AbortTransactionAsync();
+                    _logger.Error($"Transaction aborted: {ex.Message}");
+                }
+            }
         }
     }
 
