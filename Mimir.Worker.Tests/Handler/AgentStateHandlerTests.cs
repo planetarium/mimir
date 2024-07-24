@@ -27,10 +27,10 @@ public class AgentStateHandlerTests
             Address = address,
             RawState = agentState.SerializeList(),
         };
-        var stateData = _handler.ConvertToStateData(context);
+        var state = _handler.ConvertToState(context);
 
-        Assert.IsType<AgentState>(stateData.State);
-        var dataState = (AgentState)stateData.State;
+        Assert.IsType<AgentState>(state);
+        var dataState = (AgentState)state;
         Assert.Equal(agentState.address, dataState.Object.address);
         Assert.Equal(agentState.avatarAddresses.Count, dataState.Object.avatarAddresses.Count);
         foreach (var (key, value) in agentState.avatarAddresses)

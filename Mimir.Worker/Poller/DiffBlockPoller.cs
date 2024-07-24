@@ -1,8 +1,11 @@
 using Bencodex;
 using HeadlessGQL;
 using Libplanet.Crypto;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
+using Mimir.Worker.Models;
 using Mimir.Worker.Services;
+using MongoDB.Driver;
 using Serilog;
 
 namespace Mimir.Worker.Poller;
@@ -29,8 +32,7 @@ public class DiffBlockPoller : BaseBlockPoller
     )
     {
         long indexDifference = Math.Abs(syncedBlockIndex - currentBlockIndex);
-        long currentBaseIndex = syncedBlockIndex;
-        long currentTargetIndex = currentBaseIndex + (indexDifference > 2 ? 2 : indexDifference);
+        long currentTargetIndex = syncedBlockIndex + (indexDifference > 1 ? 9 : indexDifference);
 
         _logger.Information(
             "Process diff, current&sync: {CurrentBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, currentTargetIndex: {CurrentTargetIndex}",
@@ -41,7 +43,7 @@ public class DiffBlockPoller : BaseBlockPoller
         );
 
         var diffResult = await _headlessGqlClient.GetDiffs.ExecuteAsync(
-            currentBaseIndex,
+            syncedBlockIndex,
             currentTargetIndex
         );
         if (diffResult.Data is null)
@@ -56,28 +58,50 @@ public class DiffBlockPoller : BaseBlockPoller
             diffResult.Data.Diffs.Count
         );
 
-        foreach (var diff in diffResult.Data.Diffs)
-        {
-            switch (diff)
-            {
-                case IGetDiffs_Diffs_RootStateDiff rootDiff:
-                    await ProcessRootStateDiff(rootDiff);
-                    break;
+        var tasks = new List<Task>();
 
-                case IGetDiffs_Diffs_StateDiff stateDiff:
-                    await ProcessStateDiff(stateDiff);
-                    break;
+        using (var session = await _store.GetMongoClient().StartSessionAsync())
+        {
+            session.StartTransaction();
+            try
+            {
+                foreach (var diff in diffResult.Data.Diffs)
+                {
+                    switch (diff)
+                    {
+                        case IGetDiffs_Diffs_RootStateDiff rootDiff:
+                            tasks.Add(ProcessRootStateDiff(session, rootDiff));
+                            break;
+
+                        case IGetDiffs_Diffs_StateDiff stateDiff:
+                            // await ProcessStateDiff(stateDiff);
+                            break;
+                    }
+                }
+
+                await Task.WhenAll(tasks);
+
+                await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType, session);
+
+                session.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                await session.AbortTransactionAsync();
+                _logger.Error($"Transaction aborted: {ex.Message}");
             }
         }
-
-        await _store.UpdateLatestBlockIndex(currentTargetIndex, _pollerType);
     }
 
-    private async Task ProcessRootStateDiff(IGetDiffs_Diffs_RootStateDiff rootDiff)
+    private async Task ProcessRootStateDiff(
+        IClientSessionHandle session,
+        IGetDiffs_Diffs_RootStateDiff rootDiff
+    )
     {
         var accountAddress = new Address(rootDiff.Path);
         if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
         {
+            List<StateData> stateDatas = new List<StateData>();
             foreach (var subDiff in rootDiff.Diffs)
             {
                 if (subDiff.ChangedState is not null)
@@ -87,17 +111,25 @@ public class DiffBlockPoller : BaseBlockPoller
                         handler.GetType().Name,
                         subDiff.Path
                     );
+                    var address = new Address(subDiff.Path);
 
-                    var stateData = handler.ConvertToStateData(
+                    var state = handler.ConvertToState(
                         new()
                         {
-                            Address = new Address(subDiff.Path),
+                            Address = address,
                             RawState = Codec.Decode(Convert.FromHexString(subDiff.ChangedState))
                         }
                     );
-                    await handler.StoreStateData(_store, stateData);
+
+                    stateDatas.Add(new StateData(address, state));
                 }
             }
+
+            await _store.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName(accountAddress),
+                stateDatas,
+                session
+            );
         }
     }
 

@@ -7,28 +7,19 @@ using Nekoyume.Model.Item;
 
 namespace Mimir.Worker.Handler;
 
-public class InventoryStateHandler : IStateHandler<StateData>
+public class InventoryStateHandler : IStateHandler
 {
-    public StateData ConvertToStateData(StateDiffContext context)
+    public IBencodable ConvertToState(StateDiffContext context)
     {
-        var inventoryState = ConvertToState(context.RawState);
-        return new StateData(context.Address, new InventoryState(inventoryState));
-    }
-
-    private Inventory ConvertToState(IValue state)
-    {
-        if (state is List list)
+        if (context.RawState is List list)
         {
-            return new Inventory(list);
+            return new InventoryState(new Inventory(list));
         }
         else
         {
-            throw new InvalidCastException($"{nameof(state)} Invalid state type. Expected List.");
+            throw new InvalidCastException(
+                $"{nameof(context.RawState)} Invalid state type. Expected List."
+            );
         }
-    }
-
-    public async Task StoreStateData(MongoDbService store, StateData stateData)
-    {
-        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
     }
 }

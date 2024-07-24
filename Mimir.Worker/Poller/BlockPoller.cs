@@ -22,7 +22,8 @@ public class BlockPoller : BaseBlockPoller
     public BlockPoller(
         IStateService stateService,
         IHeadlessGQLClient headlessGqlClient,
-        MongoDbService store)
+        MongoDbService store
+    )
         : base(stateService, store, "BlockPoller", Log.ForContext<BlockPoller>())
     {
         _headlessGqlClient = headlessGqlClient;
@@ -35,21 +36,18 @@ public class BlockPoller : BaseBlockPoller
             new HackAndSlashSweepHandler(stateService, store),
             new JoinArenaHandler(stateService, store),
             new PatchTableHandler(stateService, store),
-            new ProductsHandler(stateService, store),
+            // new ProductsHandler(stateService, store),
             new RaidHandler(stateService, store),
             new RuneSlotStateHandler(stateService, store),
-            new RaidActionHandler(stateService, store),
-            new StakeHandler(stateService, store),
-            new ClaimStakeRewardHandler(stateService, store),
-            new CombinationSlotStateHandler(stateService, store),
-            new PetStateHandler(stateService, store),
+            // new RaidActionHandler(stateService, stord,
         ];
     }
 
     protected override async Task ProcessBlocksAsync(
         long syncedBlockIndex,
         long currentBlockIndex,
-        CancellationToken stoppingToken)
+        CancellationToken stoppingToken
+    )
     {
         long indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
         int limit = 1;
@@ -91,38 +89,46 @@ public class BlockPoller : BaseBlockPoller
         }
 
         var blockIndex = syncedBlockIndex + limit;
-        var tuples = txs
-            .Where(tx => tx is not null)
-            .Select(tx => (
-                Signer: new Address(tx!.Signer),
-                actions: tx.Actions
-                    .Where(action => action is not null)
-                    .Select(action => ActionLoader.LoadAction(
-                        blockIndex,
-                        _codec.Decode(Convert.FromHexString(action!.Raw))))
-                    .ToList()))
+        var tuples = txs.Where(tx => tx is not null)
+            .Select(tx =>
+                (
+                    Signer: new Address(tx!.Signer),
+                    actions: tx.Actions.Where(action => action is not null)
+                        .Select(action =>
+                            ActionLoader.LoadAction(
+                                blockIndex,
+                                _codec.Decode(Convert.FromHexString(action!.Raw))
+                            )
+                        )
+                        .ToList()
+                )
+            )
             .ToList();
         _logger.Information("GetTransaction Success, tx-count: {TxCount}", txs.Count);
+        var tasks = new List<Task>();
+
         foreach (var (signer, actions) in tuples)
         {
             foreach (var action in actions)
             {
-                var (actionType, actionPlainValueInternal) = DeconstructActionPlainValue(action.PlainValue);
-                var handled = false;
+                var (actionType, actionPlainValueInternal) = DeconstructActionPlainValue(
+                    action.PlainValue
+                );
                 foreach (var handler in _handlers)
                 {
-                    if (await handler.TryHandleAction(
+                    tasks.Add(
+                        handler.TryHandleAction(
                             blockIndex,
                             signer,
                             action,
                             actionType,
-                            actionPlainValueInternal))
-                    {
-                        handled = true;
-                    }
+                            actionPlainValueInternal
+                        )
+                    );
                 }
             }
         }
+        await Task.WhenAll(tasks);
 
         await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);
     }
@@ -142,7 +148,9 @@ public class BlockPoller : BaseBlockPoller
     ///            <see cref="Libplanet.Action.ActionTypeAttribute"/>)
     /// "values": It can be any type of Bencodex.Types.
     /// </returns>
-    private static (IValue? typeId, IValue? values) DeconstructActionPlainValue(IValue actionPlainValue)
+    private static (IValue? typeId, IValue? values) DeconstructActionPlainValue(
+        IValue actionPlainValue
+    )
     {
         if (actionPlainValue is not Dictionary actionPlainValueDict)
         {

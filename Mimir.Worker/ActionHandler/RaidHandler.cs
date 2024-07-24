@@ -3,27 +3,25 @@ using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
+using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RaidHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
-        stateService,
-        store,
-        "^raid[0-9]*$",
-        Log.ForContext<RaidHandler>())
+public class RaidHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaidHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action)
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
         if (action is not IRaidV2 raid)
         {
-            throw new NotImplementedException(
-                $"Action is not {nameof(IRaidV2)}: {action.GetType()}");
+            return false;
         }
 
         await ItemSlotCollectionUpdater.UpdateAsync(
@@ -32,6 +30,10 @@ public class RaidHandler(IStateService stateService, MongoDbService store) :
             BattleType.Raid,
             raid.AvatarAddress,
             raid.CostumeIds,
-            raid.EquipmentIds);
+            raid.EquipmentIds,
+            session
+        );
+
+        return true;
     }
 }

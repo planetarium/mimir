@@ -3,28 +3,36 @@ using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
+using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(
         stateService,
         store,
         "^hack_and_slash_sweep[0-9]*$",
-        Log.ForContext<HackAndSlashSweepHandler>())
+        Log.ForContext<HackAndSlashSweepHandler>()
+    )
 {
-    protected override async Task HandleAction(
+    protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action)
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
         if (action is not IHackAndSlashSweepV3 hackAndSlashSweep)
         {
-            throw new NotImplementedException(
-                $"Action is not {nameof(IHackAndSlashSweepV3)}: {action.GetType()}");
+            return false;
         }
+
+        Logger.Information(
+            "Handle hack_and_slash_sweep, address: {AvatarAddress}",
+            hackAndSlashSweep.AvatarAddress
+        );
 
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
@@ -32,6 +40,10 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
             BattleType.Adventure,
             hackAndSlashSweep.AvatarAddress,
             hackAndSlashSweep.Costumes,
-            hackAndSlashSweep.Equipments);
+            hackAndSlashSweep.Equipments,
+            session
+        );
+
+        return true;
     }
 }

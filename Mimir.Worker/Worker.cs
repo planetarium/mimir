@@ -49,13 +49,13 @@ public class Worker : BackgroundService
             _enableInitializing
         );
 
-        if (_enableSnapshotInitializing)
-        {
-            _logger.Information("Snapshot Initializing enabled, start initializing");
+        // if (_enableSnapshotInitializing)
+        // {
+        //     _logger.Information("Snapshot Initializing enabled, start initializing");
 
-            var initializer = new SnapshotInitializer(_store, _snapshotPath);
-            await initializer.RunAsync(stoppingToken);
-        }
+        //     var initializer = new SnapshotInitializer(_store, _snapshotPath);
+        //     await initializer.RunAsync(stoppingToken);
+        // }
 
         if (_enableInitializing)
         {

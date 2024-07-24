@@ -1,11 +1,8 @@
-using Mimir.Worker.Models;
-using Mimir.Worker.Services;
+using Bencodex;
 
 namespace Mimir.Worker.Handler;
 
-public interface IStateHandler<T>
-    where T : StateData
+public interface IStateHandler
 {
-    T ConvertToStateData(StateDiffContext context);
-    Task StoreStateData(MongoDbService store, StateData stateData);
+    IBencodable ConvertToState(StateDiffContext context);
 }

@@ -4,51 +4,67 @@ using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
+using MongoDB.Driver;
 using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RuneSlotStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class RuneSlotStateHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(
         stateService,
         store,
         "^(battle_arena[0-9]*|event_dungeon_battle[0-9]*|join_arena[0-9]*|hack_and_slash[0-9]*|hack_and_slash_sweep[0-9]*|raid[0-9]*|unlock_rune_slot[0-9]*)$",
-        Log.ForContext<RuneSlotStateHandler>())
+        Log.ForContext<RuneSlotStateHandler>()
+    )
 {
     private static readonly BattleType[] BattleTypes = Enum.GetValues<BattleType>();
 
-    protected override async Task HandleAction(
+    protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action)
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
-        if (await TryProcessRuneSlotStateAsync(action))
+        Logger.Information(
+            "RuneSlotStateHandler, address: {Signer}",
+            signer
+        );
+
+        if (await TryProcessRuneSlotStateAsync(action, session))
         {
-            return;
+            return true;
         }
 
-        if (await TryProcessUnlockRuneSlotAsync(action))
+        if (await TryProcessUnlockRuneSlotAsync(action, session))
         {
-            return;
+            return true;
         }
 
-        throw new NotImplementedException();
+        return false;
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(IAction action)
+    private async Task<bool> TryProcessRuneSlotStateAsync(
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
-        (BattleType battleType, Address avatarAddress, IEnumerable<IValue>? runeSlotInfos)? tuple = action switch
-        {
-            IBattleArenaV1 ba => (BattleType.Arena, ba.MyAvatarAddress, ba.RuneSlotInfos),
-            IEventDungeonBattleV2 edb => (BattleType.Adventure, edb.AvatarAddress, edb.RuneSlotInfos),
-            IJoinArenaV1 ja => (BattleType.Arena, ja.AvatarAddress, ja.RuneSlotInfos),
-            IHackAndSlashV10 has => (BattleType.Adventure, has.AvatarAddress, has.RuneSlotInfos),
-            IHackAndSlashSweepV3 hass => (BattleType.Adventure, hass.AvatarAddress, hass.RuneSlotInfos),
-            IRaidV2 r => (BattleType.Raid, r.AvatarAddress, r.RuneSlotInfos),
-            _ => null,
-        };
+        (BattleType battleType, Address avatarAddress, IEnumerable<IValue>? runeSlotInfos)? tuple =
+            action switch
+            {
+                IBattleArenaV1 ba => (BattleType.Arena, ba.MyAvatarAddress, ba.RuneSlotInfos),
+                IEventDungeonBattleV2 edb
+                    => (BattleType.Adventure, edb.AvatarAddress, edb.RuneSlotInfos),
+                IJoinArenaV1 ja => (BattleType.Arena, ja.AvatarAddress, ja.RuneSlotInfos),
+                IHackAndSlashV10 has
+                    => (BattleType.Adventure, has.AvatarAddress, has.RuneSlotInfos),
+                IHackAndSlashSweepV3 hass
+                    => (BattleType.Adventure, hass.AvatarAddress, hass.RuneSlotInfos),
+                IRaidV2 r => (BattleType.Raid, r.AvatarAddress, r.RuneSlotInfos),
+                _ => null,
+            };
         if (tuple is null)
         {
             return false;
@@ -58,7 +74,7 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
         if (runeSlotInfos is null)
         {
             // ignore
-            return true;
+            return false;
         }
 
         await RuneSlotCollectionUpdater.UpdateAsync(
@@ -66,11 +82,16 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
             Store,
             battleType,
             avatarAddress,
-            runeSlotInfos);
+            runeSlotInfos,
+            session
+        );
         return true;
     }
 
-    private async Task<bool> TryProcessUnlockRuneSlotAsync(IAction action)
+    private async Task<bool> TryProcessUnlockRuneSlotAsync(
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
         if (action is not IUnlockRuneSlotV1 unlockRuneSlot)
         {
@@ -84,7 +105,9 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
                 Store,
                 battleType,
                 unlockRuneSlot.AvatarAddress,
-                unlockRuneSlot.SlotIndex);
+                unlockRuneSlot.SlotIndex,
+                session
+            );
         }
 
         return true;

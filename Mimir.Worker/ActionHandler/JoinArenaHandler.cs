@@ -3,28 +3,36 @@ using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
+using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class JoinArenaHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class JoinArenaHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(
         stateService,
         store,
         "^join_arena[0-9]*$",
-        Log.ForContext<JoinArenaHandler>())
+        Log.ForContext<JoinArenaHandler>()
+    )
 {
-    protected override async Task HandleAction(
+    protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action)
+        IAction action,
+        IClientSessionHandle? session = null
+    )
     {
         if (action is not IJoinArenaV1 joinArena)
         {
-            throw new NotImplementedException(
-                $"Action is not {nameof(IJoinArenaV1)}: {action.GetType()}");
+            return false;
         }
+
+        Logger.Information(
+            "Handle join_arena, address: {AvatarAddress}",
+            joinArena.AvatarAddress
+        );
 
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
@@ -32,6 +40,10 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
             BattleType.Arena,
             joinArena.AvatarAddress,
             joinArena.Costumes,
-            joinArena.Equipments);
+            joinArena.Equipments,
+            session
+        );
+
+        return true;
     }
 }

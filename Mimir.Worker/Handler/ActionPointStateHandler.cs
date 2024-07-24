@@ -1,23 +1,17 @@
+using Bencodex;
 using Bencodex.Types;
 using Mimir.Worker.Models;
-using Mimir.Worker.Services;
 
 namespace Mimir.Worker.Handler;
 
-public class ActionPointStateHandler : IStateHandler<StateData>
+public class ActionPointStateHandler : IStateHandler
 {
-    public StateData ConvertToStateData(StateDiffContext context) =>
-        new(context.Address, ConvertToState(context.RawState));
-
-    public async Task StoreStateData(MongoDbService store, StateData stateData) =>
-        await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
-
-    private static ActionPointState ConvertToState(IValue state)
+    public IBencodable ConvertToState(StateDiffContext context)
     {
-        if (state is not Integer value)
+        if (context.RawState is not Integer value)
         {
             throw new InvalidCastException(
-                $"{nameof(state)} Invalid state type. Expected {nameof(Integer)}, got {state.GetType().Name}."
+                $"{nameof(context.RawState)} Invalid state type. Expected {nameof(Integer)}, got {context.RawState.GetType().Name}."
             );
         }
 

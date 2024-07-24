@@ -20,10 +20,10 @@ public class ActionPointStateHandlerTests
             Address = address,
             RawState = new Integer(actionPoint),
         };
-        var stateData = _handler.ConvertToStateData(context);
+        var state = _handler.ConvertToState(context);
 
-        Assert.IsType<ActionPointState>(stateData.State);
-        var dataState = (ActionPointState)stateData.State;
+        Assert.IsType<ActionPointState>(state);
+        var dataState = (ActionPointState)state;
         Assert.Equal(actionPoint, dataState.Object);
     }
 }
