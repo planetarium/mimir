@@ -10,7 +10,7 @@ namespace Mimir.Models;
 
 public record State : IBencodable
 {
-    public required Address Address { get; init; }
+    public Address Address { get; init; }
 
     public virtual IValue Bencoded => new List(Address.Serialize());
 
