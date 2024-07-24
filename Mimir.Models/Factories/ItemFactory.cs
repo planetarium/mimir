@@ -3,6 +3,7 @@ using Mimir.Models.Item;
 using Nekoyume.Model.State;
 using ItemType = Nekoyume.Model.Item.ItemType;
 using ItemSubType = Nekoyume.Model.Item.ItemSubType;
+using static Lib9c.SerializeKeys;
 
 namespace Mimir.Models.Factories;
 
@@ -10,10 +11,8 @@ public static class ItemFactory
 {
     public static ItemBase Deserialize(Dictionary serialized)
     {
-        if (
-            serialized.TryGetValue((Text)"item_type", out var type)
-            && serialized.TryGetValue((Text)"item_sub_type", out var subType)
-        )
+        if (serialized.TryGetValue((Text)"item_type", out var type) &&
+            serialized.TryGetValue((Text)"item_sub_type", out var subType))
         {
             var itemType = type.ToEnum<ItemType>();
             var itemSubType = subType.ToEnum<ItemSubType>();
@@ -42,14 +41,10 @@ public static class ItemFactory
                     }
                     break;
                 case ItemType.Material:
-                    if (serialized.ContainsKey("rbi"))
-                    {
-                        return new TradableMaterial(serialized);
-                    }
-                    else
-                    {
-                        return new Material(serialized);
-                    }
+                    return serialized.ContainsKey(RequiredBlockIndexKey)
+                        ? new TradableMaterial(serialized)
+                        : new Material(serialized);
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(itemType));
             }
