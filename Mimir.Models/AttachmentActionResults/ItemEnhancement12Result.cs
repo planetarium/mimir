@@ -1,6 +1,6 @@
 using System.Numerics;
 using Bencodex.Types;
-using Mimir.Models.Assets;
+using Libplanet.Types.Assets;
 using Mimir.Models.Exceptions;
 using Mimir.Models.Factories;
 using Mimir.Models.Item;
@@ -62,7 +62,7 @@ public record ItemEnhancement12Result : AttachmentActionResult
                 d = d.Add("preItemUsable", PreItemUsable.Bencoded);
             }
 
-            return d.Add("c", Crystal.Bencoded);
+            return d.Add("c", Crystal.Serialize());
         }
     }
 }
