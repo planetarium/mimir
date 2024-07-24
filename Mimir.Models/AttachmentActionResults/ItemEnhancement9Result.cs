@@ -21,26 +21,6 @@ public record ItemEnhancement9Result : AttachmentActionResult
     public ItemEnhancement9.EnhancementResult EnhancementResult { get; init; }
     public ItemUsable? PreItemUsable { get; init; }
 
-    public ItemEnhancement9Result(IValue bencoded) : base(bencoded)
-    {
-        if (bencoded is not Dictionary d)
-        {
-            throw new UnsupportedArgumentTypeException<ValueKind>(
-                nameof(bencoded),
-                [ValueKind.Dictionary],
-                bencoded.Kind);
-        }
-
-        Id = d["id"].ToGuid();
-        MaterialItemIdList = d["materialItemIdList"].ToList(StateExtensions.ToGuid);
-        Gold = d["gold"].ToBigInteger();
-        ActionPoint = d["actionPoint"].ToInteger();
-        EnhancementResult = d["enhancementResult"].ToEnum<ItemEnhancement9.EnhancementResult>();
-        PreItemUsable = d.ContainsKey("preItemUsable")
-            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["preItemUsable"])
-            : null;
-    }
-
     public override IValue Bencoded
     {
         get
@@ -61,5 +41,25 @@ public record ItemEnhancement9Result : AttachmentActionResult
 
             return d;
         }
+    }
+
+    public ItemEnhancement9Result(IValue bencoded) : base(bencoded)
+    {
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
+
+        Id = d["id"].ToGuid();
+        MaterialItemIdList = d["materialItemIdList"].ToList(StateExtensions.ToGuid);
+        Gold = d["gold"].ToBigInteger();
+        ActionPoint = d["actionPoint"].ToInteger();
+        EnhancementResult = d["enhancementResult"].ToEnum<ItemEnhancement9.EnhancementResult>();
+        PreItemUsable = d.ContainsKey("preItemUsable")
+            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["preItemUsable"])
+            : null;
     }
 }

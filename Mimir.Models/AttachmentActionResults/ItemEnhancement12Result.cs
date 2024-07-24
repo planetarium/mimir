@@ -1,6 +1,6 @@
 using System.Numerics;
 using Bencodex.Types;
-using Mimir.Models.Assets;
+using Libplanet.Types.Assets;
 using Mimir.Models.Exceptions;
 using Mimir.Models.Factories;
 using Mimir.Models.Item;
@@ -23,6 +23,28 @@ public record ItemEnhancement12Result : AttachmentActionResult
     public ItemUsable? PreItemUsable { get; init; }
     public FungibleAssetValue Crystal { get; init; }
 
+    public override IValue Bencoded
+    {
+        get
+        {
+            var d = ((Dictionary)base.Bencoded)
+                .Add("id", Id.Serialize())
+                .Add("materialItemIdList", MaterialItemIdList
+                    .OrderBy(i => i)
+                    .Select(g => g.Serialize())
+                    .Serialize())
+                .Add("gold", Gold.Serialize())
+                .Add("actionPoint", ActionPoint.Serialize())
+                .Add("enhancementResult", EnhancementResult.Serialize());
+            if (PreItemUsable is not null)
+            {
+                d = d.Add("preItemUsable", PreItemUsable.Bencoded);
+            }
+
+            return d.Add("c", Crystal.Serialize());
+        }
+    }
+
     public ItemEnhancement12Result(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -42,27 +64,5 @@ public record ItemEnhancement12Result : AttachmentActionResult
             ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["preItemUsable"])
             : null;
         Crystal = new FungibleAssetValue(d["c"]);
-    }
-
-    public override IValue Bencoded
-    {
-        get
-        {
-            var d = ((Dictionary)base.Bencoded)
-                .Add("id", Id.Serialize())
-                .Add("materialItemIdList", MaterialItemIdList
-                    .OrderBy(i => i)
-                    .Select(g => g.Serialize())
-                    .Serialize())
-                .Add("gold", Gold.Serialize())
-                .Add("actionPoint", ActionPoint.Serialize())
-                .Add("enhancementResult", EnhancementResult.Serialize());
-            if (PreItemUsable is not null)
-            {
-                d = d.Add("preItemUsable", PreItemUsable.Bencoded);
-            }
-
-            return d.Add("c", Crystal.Bencoded);
-        }
     }
 }

@@ -17,6 +17,11 @@ public record MonsterCollectionResult : AttachmentActionResult
     public Address AvatarAddress { get; init; }
     public List<MonsterCollectionRewardSheet.RewardInfo> Rewards { get; init; }
 
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add("id", Id.Serialize())
+        .Add(AvatarAddressKey, AvatarAddress.Serialize())
+        .Add(MonsterCollectionResultKey, new List(Rewards.Select(r => r.Serialize())));
+
     public MonsterCollectionResult(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -32,9 +37,4 @@ public record MonsterCollectionResult : AttachmentActionResult
         Rewards = d[MonsterCollectionResultKey]
             .ToList(s => new MonsterCollectionRewardSheet.RewardInfo((Dictionary)s));
     }
-
-    public override IValue Bencoded => ((Dictionary)base.Bencoded)
-        .Add("id", Id.Serialize())
-        .Add(AvatarAddressKey, AvatarAddress.Serialize())
-        .Add(MonsterCollectionResultKey, new List(Rewards.Select(r => r.Serialize())));
 }

@@ -15,6 +15,14 @@ public record DailyReward2Result : AttachmentActionResult
     public Dictionary<Material, int> Materials { get; init; }
     public Guid Id { get; init; }
 
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add("materials", new List(Materials
+            .OrderBy(kv => kv.Key.Id)
+            .Select(pair => (IValue)Dictionary.Empty
+                .Add("material", pair.Key.Bencoded)
+                .Add("count", pair.Value.Serialize()))))
+        .Add("id", Id.Serialize());
+
     public DailyReward2Result(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -33,12 +41,4 @@ public record DailyReward2Result : AttachmentActionResult
 
         Id = d["id"].ToGuid();
     }
-
-    public override IValue Bencoded => ((Dictionary)base.Bencoded)
-        .Add("materials", new List(Materials
-            .OrderBy(kv => kv.Key.Id)
-            .Select(pair => (IValue)Dictionary.Empty
-                .Add("material", pair.Key.Bencoded)
-                .Add("count", pair.Value.Serialize()))))
-        .Add("id", Id.Serialize());
 }
