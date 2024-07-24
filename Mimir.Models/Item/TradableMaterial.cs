@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Common;
-using Mimir.Models.Stat;
 using Nekoyume.Model.State;
 
 namespace Mimir.Models.Item;
