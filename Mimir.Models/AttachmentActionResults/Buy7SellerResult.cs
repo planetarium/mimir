@@ -12,7 +12,6 @@ namespace Mimir.Models.AttachmentActionResults;
 /// </summary>
 public record Buy7SellerResult : AttachmentActionResult
 {
-    // FIXME to mimir's ShopItem
     public ShopItem ShopItem { get; init; }
     public Guid Id { get; init; }
     public FungibleAssetValue Gold { get; init; }
