@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Worker.Tests", "Mimir
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Models", "Mimir.Models\Mimir.Models.csproj", "{06D4386F-255D-4754-9D5F-A814DFD97C36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib9c.Models.Tests", "Lib9c.Models.Tests\Lib9c.Models.Tests.csproj", "{8560ED3F-9EE6-4FE0-83FD-2A045174F48C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{06D4386F-255D-4754-9D5F-A814DFD97C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06D4386F-255D-4754-9D5F-A814DFD97C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06D4386F-255D-4754-9D5F-A814DFD97C36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8560ED3F-9EE6-4FE0-83FD-2A045174F48C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8560ED3F-9EE6-4FE0-83FD-2A045174F48C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8560ED3F-9EE6-4FE0-83FD-2A045174F48C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8560ED3F-9EE6-4FE0-83FD-2A045174F48C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

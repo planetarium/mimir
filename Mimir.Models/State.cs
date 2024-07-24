@@ -8,6 +8,9 @@ using static Lib9c.SerializeKeys;
 
 namespace Mimir.Models;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.State"/>
+/// </summary>
 public record State : IBencodable
 {
     public Address Address { get; init; }
