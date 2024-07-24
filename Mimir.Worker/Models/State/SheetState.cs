@@ -10,16 +10,16 @@ public class SheetState : IBencodable
 
     public ISheet Object;
 
-    private string RawState;
+    private IValue _rawState;
 
     public string Name { get; }
 
-    public SheetState(ISheet sheet, string name, string rawState)
+    public SheetState(ISheet sheet, string name, IValue rawState)
     {
         Object = sheet;
         Name = name;
-        RawState = rawState;
+        _rawState = rawState;
     }
 
-    public IValue Bencoded => Codec.Decode(Convert.FromHexString(RawState));
+    public IValue Bencoded => _rawState;
 }

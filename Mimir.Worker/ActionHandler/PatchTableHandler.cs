@@ -110,7 +110,7 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
 
         var stateData = new StateData(
             sheetAddress,
-            new SheetState(sheet, sheetName, sheetState.ToDotnetString())
+            new SheetState(sheet, sheetName, sheetState)
         );
 
         await Store.UpsertStateDataWithRawDataAsync(
