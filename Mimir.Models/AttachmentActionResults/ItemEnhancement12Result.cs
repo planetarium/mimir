@@ -21,7 +21,7 @@ public record ItemEnhancement12Result : AttachmentActionResult
     public int ActionPoint { get; init; }
     public ItemEnhancement9.EnhancementResult EnhancementResult { get; init; }
     public ItemUsable? PreItemUsable { get; init; }
-    public FungibleAssetValue CRYSTAL { get; init; }
+    public FungibleAssetValue Crystal { get; init; }
 
     public ItemEnhancement12Result(IValue bencoded) : base(bencoded)
     {
@@ -41,7 +41,7 @@ public record ItemEnhancement12Result : AttachmentActionResult
         PreItemUsable = d.ContainsKey("preItemUsable")
             ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["preItemUsable"])
             : null;
-        CRYSTAL = new FungibleAssetValue(d["c"]);
+        Crystal = new FungibleAssetValue(d["c"]);
     }
 
     public override IValue Bencoded
@@ -62,7 +62,7 @@ public record ItemEnhancement12Result : AttachmentActionResult
                 d = d.Add("preItemUsable", PreItemUsable.Bencoded);
             }
 
-            return d.Add("c", CRYSTAL.Bencoded);
+            return d.Add("c", Crystal.Bencoded);
         }
     }
 }
