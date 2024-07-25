@@ -5,7 +5,7 @@ using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 
-namespace Lib9c.Models.Item;
+namespace Lib9c.Models.Items;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Costume"/>

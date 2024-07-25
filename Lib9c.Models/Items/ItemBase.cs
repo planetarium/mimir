@@ -4,7 +4,7 @@ using Lib9c.Models.Exceptions;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
-namespace Lib9c.Models.Item;
+namespace Lib9c.Models.Items;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.ItemBase"/>

@@ -1,6 +1,6 @@
 using Nekoyume.Model.EnumType;
 
-namespace Lib9c.Models.Rune;
+namespace Lib9c.Models.Runes;
 
 public record RuneSlot(
     int SlotIndex,

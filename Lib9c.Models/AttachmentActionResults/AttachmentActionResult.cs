@@ -1,16 +1,16 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Lib9c.Models.Item;
+using Lib9c.Models.Items;
 using Nekoyume.Model.Item;
 using Nekoyume.Model.State;
-using Costume = Lib9c.Models.Item.Costume;
-using Item_Costume = Lib9c.Models.Item.Costume;
-using Item_ItemUsable = Lib9c.Models.Item.ItemUsable;
-using Item_TradableMaterial = Lib9c.Models.Item.TradableMaterial;
+using Costume = Lib9c.Models.Items.Costume;
+using Item_Costume = Lib9c.Models.Items.Costume;
+using Item_ItemUsable = Lib9c.Models.Items.ItemUsable;
+using Item_TradableMaterial = Lib9c.Models.Items.TradableMaterial;
 using ItemFactory = Lib9c.Models.Factories.ItemFactory;
-using ItemUsable = Lib9c.Models.Item.ItemUsable;
-using TradableMaterial = Lib9c.Models.Item.TradableMaterial;
+using ItemUsable = Lib9c.Models.Items.ItemUsable;
+using TradableMaterial = Lib9c.Models.Items.TradableMaterial;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
@@ -28,7 +28,7 @@ public record AttachmentActionResult : IBencodable
     /// The type of the <see cref="Nekoyume.Action.AttachmentActionResult.tradableFungibleItem"/> field in Lib9c
     /// that this property corresponds to is <see cref="ITradableFungibleItem"/>. However,
     /// only <see cref="Nekoyume.Model.Item.TradableMaterial"/> implements this type's interface in Lib9c,
-    /// so we define it here as <see cref="Item.TradableMaterial"/> type that corresponding it.
+    /// so we define it here as <see cref="Items.TradableMaterial"/> type that corresponding it.
     /// </summary>
     public Item_TradableMaterial? TradableFungibleItem { get; init; }
 

@@ -6,7 +6,7 @@ using Nekoyume.Model.State;
 using ItemFactory = Lib9c.Models.Factories.ItemFactory;
 using ValueKind = Bencodex.Types.ValueKind;
 
-namespace Lib9c.Models.Item;
+namespace Lib9c.Models.Items;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Inventory.Item"/>
