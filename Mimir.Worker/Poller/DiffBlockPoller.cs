@@ -32,7 +32,7 @@ public class DiffBlockPoller : BaseBlockPoller
     )
     {
         long indexDifference = Math.Abs(syncedBlockIndex - currentBlockIndex);
-        long currentTargetIndex = syncedBlockIndex + (indexDifference > 1 ? 9 : indexDifference);
+        long currentTargetIndex = syncedBlockIndex + (indexDifference > 9 ? 9 : indexDifference);
 
         _logger.Information(
             "Process diff, current&sync: {CurrentBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, currentTargetIndex: {CurrentTargetIndex}",
