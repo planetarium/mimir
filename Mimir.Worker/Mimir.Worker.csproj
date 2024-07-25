@@ -27,6 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mimir.Models\Mimir.Models.csproj" />
+    <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj" />
   </ItemGroup>
 </Project>
