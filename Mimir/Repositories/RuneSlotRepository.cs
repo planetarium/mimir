@@ -33,12 +33,12 @@ public class RuneSlotRepository(MongoDbService dbService)
                 .OfType<BsonDocument>()
                 .Select(doc =>
                 {
-                    var slotIndex = doc["SlotIndex"].AsInt32;
+                    var slotIndex = doc["Index"].AsInt32;
                     var runeSlotType = (RuneSlotType)doc["RuneSlotType"].AsInt32;
                     var runeType = (RuneType)doc["RuneType"].AsInt32;
                     var isLock = doc["IsLock"].AsBoolean;
                     var runeSheetId = doc.Contains("RuneSheetId")
-                        ? doc["RuneSheetId"].AsNullableInt32
+                        ? doc["RuneId"].AsNullableInt32
                         : null;
                     return new RuneSlot(
                         slotIndex,
