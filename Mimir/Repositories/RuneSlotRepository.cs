@@ -37,7 +37,7 @@ public class RuneSlotRepository(MongoDbService dbService)
                     var runeSlotType = (RuneSlotType)doc["RuneSlotType"].AsInt32;
                     var runeType = (RuneType)doc["RuneType"].AsInt32;
                     var isLock = doc["IsLock"].AsBoolean;
-                    var runeSheetId = doc.Contains("RuneSheetId")
+                    var runeSheetId = doc.Contains("RuneId")
                         ? doc["RuneId"].AsNullableInt32
                         : null;
                     return new RuneSlot(
