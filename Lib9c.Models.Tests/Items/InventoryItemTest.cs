@@ -1,22 +1,21 @@
 using Bencodex.Types;
+using Lib9c.Models.Item;
 using Lib9c.Models.Tests.Fixtures.States;
-using Nekoyume.Model.State;
 
-namespace Lib9c.Models.Tests;
+namespace Lib9c.Models.Tests.Items;
 
-public class AvatarTest
+public class InventoryItemTest
 {
     [Fact]
     public void Test()
     {
         // Prepare target state
-        var value = StateReader.ReadState("AvatarState");
-        var target = new AvatarState((List)value);
+        var value = StateReader.ReadState("InventoryItem");
+        var target = new Nekoyume.Model.Item.Inventory.Item((Dictionary)value);
 
         // serialize target state and deserialize as paired state
-        var serialized = target.SerializeList();
-        var paired = new Avatar(serialized);
-        Assert.Equal(target.address, paired.Address);
+        var serialized = target.Serialize();
+        var paired = new InventoryItem(serialized);
         // ...
 
         // serialize paired state and verify
@@ -24,8 +23,8 @@ public class AvatarTest
         Assert.Equal(serialized, bencoded);
 
         // deserialize bencoded state as target2 and verify
-        var target2 = new AvatarState((List)bencoded);
-        var serialized2 = target2.SerializeList();
+        var target2 = new Nekoyume.Model.Item.Inventory.Item((Dictionary)bencoded);
+        var serialized2 = target2.Serialize();
         Assert.Equal(serialized, serialized2);
     }
 }

@@ -1,36 +1,62 @@
 using Bencodex;
 using Bencodex.Types;
-using Lib9c.Models.Stat;
+using Lib9c.Models.Exceptions;
 using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
+using static Lib9c.SerializeKeys;
 
 namespace Lib9c.Models.Item;
 
-public class Costume : ItemBase, IBencodable
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.Costume"/>
+/// </summary>
+public record Costume : ItemBase, IBencodable
 {
     public bool Equipped { get; }
     public string SpineResourcePath { get; }
     public Guid ItemId { get; }
     public long RequiredBlockIndex { get; }
 
-    public Costume(Dictionary bencoded)
-        : base(bencoded)
+    public override IValue Bencoded
     {
-        ItemId = bencoded["item_id"].ToGuid();
-        Equipped = bencoded["equipped"].ToBoolean();
-        SpineResourcePath = bencoded["spine_resource_path"].ToDotnetString();
-        RequiredBlockIndex = bencoded["rbi"].ToLong();
+        get
+        {
+            var d = ((Dictionary)base.Bencoded)
+                .Add("equipped", Equipped.Serialize())
+                .Add("spine_resource_path", SpineResourcePath.Serialize())
+                .Add(LegacyCostumeItemIdKey, ItemId.Serialize());
+
+            return RequiredBlockIndex > 0
+                ? d.Add(RequiredBlockIndexKey, RequiredBlockIndex.Serialize())
+                : d;
+        }
     }
 
-    public new IValue Bencoded => Serialize();
-
-    public IValue Serialize()
+    public Costume(IValue bencoded) : base(bencoded)
     {
-        var dict = ((Dictionary)base.Bencoded)
-            .Add("equipped", Equipped.Serialize())
-            .Add("item_id", ItemId.Serialize())
-            .Add("rbi", RequiredBlockIndex.Serialize())
-            .Add("spine_resource_path", SpineResourcePath.Serialize());
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
 
-        return dict;
+        if (d.TryGetValue((Text)"equipped", out var toEquipped))
+        {
+            Equipped = toEquipped.ToBoolean();
+        }
+
+        if (d.TryGetValue((Text)"spine_resource_path", out var spineResourcePath))
+        {
+            SpineResourcePath = (Text)spineResourcePath;
+        }
+
+        ItemId = d[LegacyCostumeItemIdKey].ToGuid();
+
+        if (d.ContainsKey(RequiredBlockIndexKey))
+        {
+            RequiredBlockIndex = d[RequiredBlockIndexKey].ToLong();
+        }
     }
 }

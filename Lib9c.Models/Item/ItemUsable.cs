@@ -1,27 +1,59 @@
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Exceptions;
+using Lib9c.Models.Factories;
+using Lib9c.Models.Skills;
+using Lib9c.Models.Stat;
 using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Item;
 
-public abstract class ItemUsable : ItemBase, IBencodable
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.ItemUsable"/>
+/// </summary>
+public record ItemUsable : ItemBase, IBencodable
 {
-    public Guid ItemId { get; private set; }
+    public Guid ItemId { get; init; }
 
-    // public StatsMap StatsMap { get; private set; }
-    // public Skills Skills { get; private set; }
-    // public BuffSkills BuffSkills { get; private set; }
-    public long RequiredBlockIndex { get; }
+    public StatMap StatsMap { get; init; }
 
-    protected ItemUsable(Dictionary bencoded)
-        : base(bencoded)
+    public List<Skill> Skills { get; init; }
+
+    public List<Skill> BuffSkills { get; init; }
+    public long RequiredBlockIndex { get; init; }
+
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add("itemId", ItemId.Serialize())
+        .Add("statsMap", StatsMap.Bencoded)
+        .Add("skills", new List(Skills
+            .OrderByDescending(i => i.Chance)
+            .ThenByDescending(i => i.Power)
+            .Select(s => s.Bencoded)))
+        .Add("buffSkills", new List(BuffSkills
+            .OrderByDescending(i => i.Chance)
+            .ThenByDescending(i => i.Power)
+            .Select(s => s.Bencoded)))
+        .Add("requiredBlockIndex", RequiredBlockIndex.Serialize());
+
+    public ItemUsable(IValue bencoded) : base(bencoded)
     {
-        ItemId = bencoded["itemId"].ToGuid();
-        RequiredBlockIndex = bencoded["requiredBlockIndex"].ToLong();
-    }
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
 
-    public new IValue Bencoded =>
-        ((Dictionary)base.Bencoded)
-            .Add("itemId", ItemId.Serialize())
-            .Add("requiredBlockIndex", RequiredBlockIndex.Serialize());
+        ItemId = d["itemId"].ToGuid();
+        StatsMap = new StatMap(d["statsMap"]);
+        Skills = ((List)d["skills"])
+            .Select(SkillFactory.Create)
+            .ToList();
+        BuffSkills = ((List)d["buffSkills"])
+            .Select(SkillFactory.Create)
+            .ToList();
+        RequiredBlockIndex = d["requiredBlockIndex"].ToLong();
+    }
 }

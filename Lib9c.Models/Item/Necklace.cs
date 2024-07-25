@@ -2,4 +2,12 @@ using Bencodex.Types;
 
 namespace Lib9c.Models.Item;
 
-public class Necklace(Dictionary bencoded) : Equipment(bencoded);
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.Necklace"/>
+/// </summary>
+public record Necklace : Equipment
+{
+    public Necklace(IValue bencoded) : base(bencoded)
+    {
+    }
+}

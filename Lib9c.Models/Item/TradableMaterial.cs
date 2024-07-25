@@ -1,26 +1,34 @@
-using System.Security.Cryptography;
 using Bencodex;
 using Bencodex.Types;
-using Libplanet.Common;
+using Lib9c.Models.Exceptions;
 using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
+using static Lib9c.SerializeKeys;
 
 namespace Lib9c.Models.Item;
 
-public class TradableMaterial : Material, IBencodable
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.TradableMaterial"/>
+/// </summary>
+public record TradableMaterial : Material, IBencodable
 {
-    public Guid TradableId { get; }
+    public long RequiredBlockIndex { get; init; }
 
-    public long RequiredBlockIndex { get; }
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add(RequiredBlockIndexKey, RequiredBlockIndex.Serialize());
 
-    public TradableMaterial(Dictionary bencoded)
-        : base(bencoded)
+    public TradableMaterial(IValue bencoded) : base(bencoded)
     {
-        RequiredBlockIndex = bencoded.ContainsKey("rbi") ? bencoded["rbi"].ToLong() : default;
-        TradableId = DeriveTradableId(ItemId);
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
+
+        RequiredBlockIndex = d.ContainsKey(RequiredBlockIndexKey)
+            ? d[RequiredBlockIndexKey].ToLong()
+            : default;
     }
-
-    public new IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
-
-    public static Guid DeriveTradableId(HashDigest<SHA256> fungibleId) =>
-        new Guid(HashDigest<MD5>.DeriveFrom(fungibleId.ToByteArray()).ToByteArray());
 }

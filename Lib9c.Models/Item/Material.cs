@@ -1,20 +1,36 @@
 using System.Security.Cryptography;
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Exceptions;
 using Libplanet.Common;
 using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Item;
 
-public class Material : ItemBase, IBencodable
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.Material"/>
+/// </summary>
+public record Material : ItemBase, IBencodable
 {
-    public HashDigest<SHA256> ItemId { get; private set; }
+    public HashDigest<SHA256> ItemId { get; init; }
 
-    public Material(Dictionary bencoded)
-        : base(bencoded)
+    public override IValue Bencoded => ((Dictionary)base.Bencoded)
+        .Add("item_id", ItemId.Serialize());
+
+    public Material(IValue bencoded) : base(bencoded)
     {
-        ItemId = bencoded["item_id"].ToItemId();
-    }
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
 
-    public new IValue Bencoded => ((Dictionary)base.Bencoded).Add("item_id", ItemId.Serialize());
+        if (d.TryGetValue((Text) "item_id", out var itemId))
+        {
+            ItemId = itemId.ToItemId();
+        }
+    }
 }
