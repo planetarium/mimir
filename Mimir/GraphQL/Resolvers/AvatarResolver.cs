@@ -96,5 +96,5 @@ public class AvatarResolver
         [Service] RuneSlotRepository runeSlotRepo,
         [Parent] AvatarObject avatarObject,
         BattleType battleType) =>
-        runeSlotRepo.GetRuneSlots(avatarObject.Address, battleType).Slots;
+        runeSlotRepo.GetRuneSlotState(avatarObject.Address, battleType).Slots;
 }

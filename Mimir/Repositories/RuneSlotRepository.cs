@@ -6,17 +6,17 @@ using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
-using Nekoyume.Model.State;
+using RuneSlotState = Lib9c.Models.Runes.RuneSlotState;
 
 namespace Mimir.Repositories;
 
 public class RuneSlotRepository(MongoDbService dbService)
 {
-    public RuneSlots GetRuneSlots(
+    public RuneSlotState GetRuneSlotState(
         Address avatarAddress,
         BattleType battleType)
     {
-        var runeSlotAddress = RuneSlotState.DeriveAddress(avatarAddress, battleType);
+        var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(avatarAddress, battleType);
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.RuneSlot.Value);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
@@ -46,8 +46,9 @@ public class RuneSlotRepository(MongoDbService dbService)
                         runeType,
                         isLock,
                         runeSheetId);
-                });
-            return new RuneSlots(runeSlotAddress, battleType, slots);
+                })
+                .ToList();
+            return new RuneSlotState(battleType, slots);
         }
         catch (KeyNotFoundException e)
         {

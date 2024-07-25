@@ -4,9 +4,8 @@ using Lib9c.Models.Runes;
 
 namespace Mimir.Worker.Models;
 
-public class RuneSlotState(RuneSlots runeSlots) : IBencodable
+public class RuneSlotState(Lib9c.Models.Runes.RuneSlotState runeSlotState) : IBencodable
 {
-    public RuneSlots Object { get; } = runeSlots;
-    // Can't Bencodable
-    public IValue Bencoded => Object.Address.Bencoded;
+    public Lib9c.Models.Runes.RuneSlotState Object { get; } = runeSlotState;
+    public IValue Bencoded => Object.Bencoded;
 }
