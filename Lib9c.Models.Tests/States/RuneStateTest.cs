@@ -1,7 +1,7 @@
 using Bencodex.Types;
 using RuneState = Lib9c.Models.States.RuneState;
 
-namespace Lib9c.Models.Tests.Runes;
+namespace Lib9c.Models.Tests.States;
 
 public class RuneStateTest
 {
