@@ -1,6 +1,6 @@
 using Bencodex;
 using Bencodex.Types;
-using Lib9c.Models.Rune;
+using Lib9c.Models.Runes;
 
 namespace Mimir.Worker.Models;
 

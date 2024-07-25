@@ -1,5 +1,5 @@
 using Bencodex.Types;
-using Lib9c.Models.Item;
+using Lib9c.Models.Items;
 using Nekoyume.Model.State;
 using ItemType = Nekoyume.Model.Item.ItemType;
 using ItemSubType = Nekoyume.Model.Item.ItemSubType;

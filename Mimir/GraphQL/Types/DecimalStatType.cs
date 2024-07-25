@@ -1,4 +1,4 @@
-using Lib9c.Models.Stat;
+using Lib9c.Models.Stats;
 
 namespace Lib9c.GraphQL.Types;
 

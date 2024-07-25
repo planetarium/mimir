@@ -5,7 +5,7 @@ using Nekoyume.Model.Stat;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
-namespace Lib9c.Models.Stat;
+namespace Lib9c.Models.Stats;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Stat.DecimalStat"/>.

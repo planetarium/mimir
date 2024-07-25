@@ -1,5 +1,5 @@
 using Lib9c.GraphQL.Types;
-using Lib9c.Models.Rune;
+using Lib9c.Models.Runes;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Resolvers;
 using Nekoyume.Model.EnumType;

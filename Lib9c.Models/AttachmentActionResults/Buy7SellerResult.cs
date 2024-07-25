@@ -1,6 +1,6 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Lib9c.Models.Item;
+using Lib9c.Models.Items;
 using Libplanet.Types.Assets;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;

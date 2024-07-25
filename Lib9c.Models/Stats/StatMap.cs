@@ -4,7 +4,7 @@ using Lib9c.Models.Exceptions;
 using Nekoyume.Model.Stat;
 using ValueKind = Bencodex.Types.ValueKind;
 
-namespace Lib9c.Models.Stat;
+namespace Lib9c.Models.Stats;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Stat.StatMap"/>.

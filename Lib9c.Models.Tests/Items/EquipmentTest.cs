@@ -1,5 +1,5 @@
 using Bencodex.Types;
-using Lib9c.Models.Item;
+using Lib9c.Models.Items;
 using Lib9c.Models.Tests.Fixtures.States;
 
 namespace Lib9c.Models.Tests.Items;

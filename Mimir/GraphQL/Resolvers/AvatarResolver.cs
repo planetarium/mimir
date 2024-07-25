@@ -1,5 +1,5 @@
 using HotChocolate.Resolvers;
-using Lib9c.Models.Rune;
+using Lib9c.Models.Runes;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;

@@ -1,6 +1,6 @@
 using Nekoyume.Model.Stat;
 using Nekoyume.Model.State;
-using DecimalStat = Lib9c.Models.Stat.DecimalStat;
+using DecimalStat = Lib9c.Models.Stats.DecimalStat;
 
 namespace Lib9c.Models.Tests.Stats;
 

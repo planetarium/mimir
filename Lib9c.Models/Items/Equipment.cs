@@ -1,12 +1,12 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Lib9c.Models.Stat;
+using Lib9c.Models.Stats;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 
-namespace Lib9c.Models.Item;
+namespace Lib9c.Models.Items;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Equipment"/>

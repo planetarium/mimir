@@ -2,7 +2,7 @@
 using Nekoyume.Model.EnumType;
 using Nekoyume.Model.State;
 
-namespace Lib9c.Models.Rune;
+namespace Lib9c.Models.Runes;
 
 public record RuneSlots(
     Address Address,
