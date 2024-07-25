@@ -108,10 +108,13 @@ public class DiffBlockPoller : BaseBlockPoller
                 }
             }
 
-            await _store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName(accountAddress),
-                stateDatas
-            );
+            if (stateDatas.Count > 0)
+            {
+                await _store.UpsertStateDataManyAsync(
+                    CollectionNames.GetCollectionName(accountAddress),
+                    stateDatas
+                );
+            }
         }
     }
 
