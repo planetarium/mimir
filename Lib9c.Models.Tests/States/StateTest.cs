@@ -1,7 +1,8 @@
-using Lib9c.Models.Tests.Fixtures.Types;
+using Lib9c.Models.States;
+using Lib9c.Models.Tests.Fixtures.Types.States;
 using Libplanet.Crypto;
 
-namespace Lib9c.Models.Tests;
+namespace Lib9c.Models.Tests.States;
 
 public class StateTest
 {

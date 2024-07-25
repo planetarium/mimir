@@ -1,7 +1,7 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 
-namespace Lib9c.Models.Tests.Fixtures.Types;
+namespace Lib9c.Models.Tests.Fixtures.Types.States;
 
 public class VanillaState : Nekoyume.Model.State.State
 {

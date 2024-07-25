@@ -1,21 +1,70 @@
+using Bencodex;
+using Bencodex.Types;
+using Lib9c.Models.Exceptions;
 using Nekoyume.Model.EnumType;
+using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Runes;
 
-public record RuneSlot(
-    int SlotIndex,
-    RuneSlotType RuneSlotType,
-    RuneType RuneType,
-    bool IsLock,
-    int? RuneSheetId)
+public record RuneSlot : IBencodable
 {
-    public RuneSlot(Nekoyume.Model.Rune.RuneSlot runeSlot)
-        : this(
-            runeSlot.Index,
-            runeSlot.RuneSlotType,
-            runeSlot.RuneType,
-            runeSlot.IsLock,
-            runeSlot.RuneId)
+    public int Index { get; init; }
+    public RuneSlotType RuneSlotType { get; init; }
+    public RuneType RuneType { get; init; }
+    public bool IsLock { get; init; }
+    public int? RuneId { get; init; }
+
+    public IValue Bencoded
     {
+        get
+        {
+            var l = List.Empty
+                .Add(Index.Serialize())
+                .Add(RuneSlotType.Serialize())
+                .Add(RuneType.Serialize())
+                .Add(IsLock.Serialize());
+
+            if (RuneId.HasValue)
+            {
+                l = l.Add(RuneId.Serialize());
+            }
+
+            return l;
+        }
+    }
+
+    public RuneSlot(IValue bencoded)
+    {
+        if (bencoded is not List l)
+        {
+            throw new UnsupportedArgumentValueException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.List],
+                bencoded.Kind);
+        }
+
+        Index = l[0].ToInteger();
+        RuneSlotType = l[1].ToEnum<RuneSlotType>();
+        RuneType = l[2].ToEnum<RuneType>();
+        IsLock = l[3].ToBoolean();
+        if (l.Count > 4)
+        {
+            RuneId = l[4].ToNullableInteger();
+        }
+    }
+
+    public RuneSlot(
+        int index,
+        RuneSlotType runeSlotType,
+        RuneType runeType,
+        bool isLock,
+        int? runeId = null)
+    {
+        Index = index;
+        RuneSlotType = runeSlotType;
+        RuneType = runeType;
+        IsLock = isLock;
+        RuneId = runeId;
     }
 }

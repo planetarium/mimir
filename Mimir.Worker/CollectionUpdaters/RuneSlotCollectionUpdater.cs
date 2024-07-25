@@ -1,6 +1,5 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Lib9c.Models.Runes;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Models;
 using Mimir.Worker.Services;
@@ -8,6 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
+using RuneSlotState = Lib9c.Models.States.RuneSlotState;
 
 namespace Mimir.Worker.CollectionUpdaters;
 
@@ -41,9 +41,8 @@ public static class RuneSlotCollectionUpdater
             return;
         }
 
-        var runeSlotState = new Nekoyume.Model.State.RuneSlotState(serialized);
-        var runeSlots = new RuneSlots(runeSlotAddress, runeSlotState);
-        var stateData = new StateData(runeSlotAddress, new RuneSlotState(runeSlots));
+        var runeSlotState = new RuneSlotState(serialized);
+        var stateData = new StateData(runeSlotAddress, runeSlotState);
 
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<RuneSlotState>(),
@@ -75,9 +74,8 @@ public static class RuneSlotCollectionUpdater
             return;
         }
 
-        var runeSlotState = new Nekoyume.Model.State.RuneSlotState(serialized);
-        var runeSlots = new RuneSlots(runeSlotAddress, runeSlotState);
-        var stateData = new StateData(runeSlotAddress, new RuneSlotState(runeSlots));
+        var runeSlotState = new RuneSlotState(serialized);
+        var stateData = new StateData(runeSlotAddress, runeSlotState);
 
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<RuneSlotState>(),
