@@ -5,15 +5,15 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Runes;
 
-public record AllRune : IBencodable
+public record AllRuneState : IBencodable
 {
-    public Dictionary<int, Rune> Runes { get; }
+    public Dictionary<int, RuneState> Runes { get; }
 
     public IValue Bencoded => new List(Runes
         .OrderBy(e => e.Key)
         .Select(e => e.Value.Bencoded));
 
-    public AllRune(IValue bencoded)
+    public AllRuneState(IValue bencoded)
     {
         if (bencoded is not List l)
         {
@@ -23,10 +23,10 @@ public record AllRune : IBencodable
                 bencoded.Kind);
         }
 
-        Runes = new Dictionary<int, Rune>();
+        Runes = new Dictionary<int, RuneState>();
         foreach (var e in l)
         {
-            var runeState = new Rune(e);
+            var runeState = new RuneState(e);
             Runes.Add(runeState.RuneId, runeState);
         }
     }

@@ -6,7 +6,7 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Runes;
 
-public record Rune : IBencodable
+public record RuneState : IBencodable
 {
     public int RuneId { get; init; }
     public int Level { get; init; }
@@ -15,7 +15,7 @@ public record Rune : IBencodable
         .Add(RuneId.Serialize())
         .Add(Level.Serialize());
 
-    public Rune(IValue bencoded)
+    public RuneState(IValue bencoded)
     {
         if (bencoded is not List l)
         {
