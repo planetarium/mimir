@@ -108,25 +108,10 @@ public class DiffBlockPoller : BaseBlockPoller
                 }
             }
 
-            using (var session = await _store.GetMongoClient().StartSessionAsync())
-            {
-                session.StartTransaction();
-                try
-                {
-                    await _store.UpsertStateDataManyAsync(
-                        CollectionNames.GetCollectionName(accountAddress),
-                        stateDatas,
-                        session
-                    );
-
-                    session.CommitTransaction();
-                }
-                catch (Exception ex)
-                {
-                    await session.AbortTransactionAsync();
-                    _logger.Error($"Transaction aborted: {ex.Message}");
-                }
-            }
+            await _store.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName(accountAddress),
+                stateDatas
+            );
         }
     }
 
