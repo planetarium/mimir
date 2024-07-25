@@ -1,6 +1,6 @@
 // using Bencodex.Types;
 // using Libplanet.Crypto;
-// using Mimir.Models.AdventureBoss;
+// using Lib9c.Models.AdventureBoss;
 // using Mimir.Worker.Models;
 // using Mimir.Worker.Models.State.AdventureBoss;
 // using Mimir.Worker.Services;

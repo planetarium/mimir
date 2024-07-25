@@ -1,12 +1,11 @@
 using Libplanet.Crypto;
+using Lib9c.Models.AdventureBoss;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
-using Mimir.Models.AdventureBoss;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Helper;
-using Nekoyume.Module;
 
 namespace Mimir.Repositories.AdventureBoss;
 

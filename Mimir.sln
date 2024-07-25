@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib9c.GraphQL", "Lib9c.Grap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Worker.Tests", "Mimir.Worker.Tests\Mimir.Worker.Tests.csproj", "{C8E3A9D9-11C8-4B16-B3EE-4B046CC77226}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Models", "Mimir.Models\Mimir.Models.csproj", "{06D4386F-255D-4754-9D5F-A814DFD97C36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib9c.Models", "Lib9c.Models\Lib9c.Models.csproj", "{06D4386F-255D-4754-9D5F-A814DFD97C36}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib9c.Models.Tests", "Lib9c.Models.Tests\Lib9c.Models.Tests.csproj", "{8560ED3F-9EE6-4FE0-83FD-2A045174F48C}"
 EndProject
