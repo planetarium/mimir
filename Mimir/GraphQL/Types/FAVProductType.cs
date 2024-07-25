@@ -1,5 +1,5 @@
 using Lib9c.GraphQL.Types;
-using Mimir.Models.Market;
+using Lib9c.Models.Market;
 
 namespace Mimir.GraphQL.Types;
 

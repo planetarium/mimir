@@ -1,6 +1,6 @@
 using Bencodex;
 using Bencodex.Types;
-using Mimir.Models.AdventureBoss;
+using Lib9c.Models.AdventureBoss;
 
 namespace Mimir.Worker.Models.State.AdventureBoss;
 

@@ -1,4 +1,4 @@
-using Mimir.Models.Stat;
+using Lib9c.Models.Stat;
 
 namespace Lib9c.GraphQL.Types;
 

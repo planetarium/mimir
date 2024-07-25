@@ -1,4 +1,4 @@
-using Mimir.Models.AdventureBoss;
+using Lib9c.Models.AdventureBoss;
 using Mimir.Repositories.AdventureBoss;
 
 namespace Mimir.GraphQL.Resolvers;

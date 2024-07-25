@@ -1,6 +1,6 @@
 using Lib9c.Models.Tests.Fixtures.Types;
 using Libplanet.Crypto;
-using Mimir.Models;
+using Lib9c.Models;
 
 namespace Lib9c.Models.Tests;
 

@@ -1,10 +1,9 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Nekoyume.Model.State;
 
 namespace Lib9c.Models.Tests.Fixtures.Types;
 
-public class VanillaState : State
+public class VanillaState : Nekoyume.Model.State.State
 {
     public VanillaState(Address address) : base(address)
     {

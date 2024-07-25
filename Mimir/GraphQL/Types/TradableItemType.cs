@@ -1,4 +1,4 @@
-using Mimir.Models.Item;
+using Lib9c.Models.Item;
 
 namespace Mimir.GraphQL.Types;
 

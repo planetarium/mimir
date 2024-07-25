@@ -1,4 +1,4 @@
-using Mimir.Models.Market;
+using Lib9c.Models.Market;
 
 namespace Mimir.GraphQL.Types;
 

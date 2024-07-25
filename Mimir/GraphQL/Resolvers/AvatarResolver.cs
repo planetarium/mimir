@@ -1,9 +1,9 @@
 using HotChocolate.Resolvers;
+using Lib9c.Models.Rune;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Factories;
 using Mimir.GraphQL.Objects;
 using Mimir.Models;
-using Mimir.Models.Rune;
 using Mimir.Repositories;
 using Nekoyume.Model.EnumType;
 using Nekoyume.Model.State;

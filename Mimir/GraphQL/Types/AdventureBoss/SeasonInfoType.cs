@@ -1,5 +1,5 @@
 using Lib9c.GraphQL.Types;
-using Mimir.Models.AdventureBoss;
+using Lib9c.Models.AdventureBoss;
 
 namespace Mimir.GraphQL.Types.AdventureBoss;
 
