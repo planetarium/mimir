@@ -1,41 +1,85 @@
-using System.Security.Cryptography;
 using Bencodex;
 using Bencodex.Types;
-using Lib9c;
+using Lib9c.Models.Exceptions;
 using Lib9c.Models.Stat;
-using Libplanet.Common;
 using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
+using static Lib9c.SerializeKeys;
 
 namespace Lib9c.Models.Item;
 
-public class Equipment : ItemUsable, IBencodable
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.Equipment"/>
+/// </summary>
+public record Equipment : ItemUsable, IBencodable
 {
-    public bool Equipped { get; }
-    public int Level { get; }
-    public long? Exp { get; }
-    public int? OptionCountFromCombination { get; }
+    public bool Equipped { get; init; }
+    public int Level { get; init; }
+    public long Exp { get; init; }
+    public DecimalStat Stat { get; init; }
+    public int SetId { get; init; }
+    public string SpineResourcePath { get; init; }
+    public int OptionCountFromCombination { get; init; }
+    public bool MadeWithMimisbrunnrRecipe { get; init; }
 
-    public DecimalStat Stat { get; }
-    public int SetId { get; }
-    public string SpineResourcePath { get; }
-    public bool MadeWithMimisbrunnrRecipe { get; }
-
-    public Equipment(Dictionary bencoded)
-        : base(bencoded)
+    public override IValue Bencoded
     {
-        Equipped = bencoded["equipped"].ToBoolean();
-        Level = bencoded["level"].ToInteger();
-        Stat = new DecimalStat((Dictionary)bencoded["stat"]);
-        SetId = bencoded["set_id"].ToInteger();
-        SpineResourcePath = bencoded["spine_resource_path"].ToDotnetString();
-        OptionCountFromCombination = bencoded["oc"]?.ToInteger();
-
-        if (bencoded.TryGetValue((Text)SerializeKeys.MadeWithMimisbrunnrRecipeKey, out var value))
+        get
         {
-            MadeWithMimisbrunnrRecipe = value.ToBoolean();
+            var d = ((Dictionary)base.Bencoded)
+                .Add(LegacyEquippedKey, Equipped.Serialize())
+                .Add(LegacyLevelKey, Level.Serialize())
+                .Add(LegacyStatKey, Stat.BencodedAsLegacy)
+                .Add(LegacySetIdKey, SetId.Serialize())
+                .Add(LegacySpineResourcePathKey, SpineResourcePath.Serialize());
+
+            if (OptionCountFromCombination > 0)
+            {
+                d = d.SetItem(OptionCountFromCombinationKey, OptionCountFromCombination.Serialize());
+            }
+
+            if (MadeWithMimisbrunnrRecipe)
+            {
+                d = d.SetItem(MadeWithMimisbrunnrRecipeKey, MadeWithMimisbrunnrRecipe.Serialize());
+            }
+
+            if (Exp > 0)
+            {
+                d = d.SetItem(EquipmentExpKey, Exp.Serialize());
+            }
+
+            return d;
+        }
+    }
+
+    public Equipment(IValue bencoded) : base(bencoded)
+    {
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
         }
 
-        if (bencoded.TryGetValue((Text)SerializeKeys.EquipmentExpKey, out value))
+        if (d.TryGetValue((Text)LegacyEquippedKey, out var value))
+        {
+            Equipped = value.ToBoolean();
+        }
+
+        if (d.TryGetValue((Text)LegacyLevelKey, out value))
+        {
+            try
+            {
+                Level = value.ToInteger();
+            }
+            catch (InvalidCastException)
+            {
+                Level = (int)((Integer)value).Value;
+            }
+        }
+
+        if (d.TryGetValue((Text)EquipmentExpKey, out value))
         {
             try
             {
@@ -50,34 +94,30 @@ public class Equipment : ItemUsable, IBencodable
         {
             Exp = 0L;
         }
-    }
 
-    public new IValue Bencoded => Serialize();
-
-    public IValue Serialize()
-    {
-        var dict = ((Dictionary)base.Bencoded)
-            .Add("equipped", Equipped.Serialize())
-            .Add("level", Level.Serialize())
-            .Add("stat", Stat.Bencoded)
-            .Add("set_id", SetId.Serialize())
-            .Add("spine_resource_path", SpineResourcePath.Serialize());
-
-        if (OptionCountFromCombination > 0)
+        if (d.TryGetValue((Text)LegacyStatKey, out value))
         {
-            dict = dict.SetItem("oc", OptionCountFromCombination.Serialize());
+            Stat = new DecimalStat(value);
         }
 
-        if (MadeWithMimisbrunnrRecipe)
+        if (d.TryGetValue((Text)LegacySetIdKey, out value))
         {
-            dict = dict.SetItem("mwmr", MadeWithMimisbrunnrRecipe.Serialize());
+            SetId = value.ToInteger();
         }
 
-        if (Exp > 0)
+        if (d.TryGetValue((Text)LegacySpineResourcePathKey, out value))
         {
-            dict = dict.SetItem("eq_exp", Exp.Serialize());
+            SpineResourcePath = (Text)value;
         }
 
-        return dict;
+        if (d.TryGetValue((Text)OptionCountFromCombinationKey, out value))
+        {
+            OptionCountFromCombination = value.ToInteger();
+        }
+
+        if (d.TryGetValue((Text)MadeWithMimisbrunnrRecipeKey, out value))
+        {
+            MadeWithMimisbrunnrRecipe = value.ToBoolean();
+        }
     }
 }

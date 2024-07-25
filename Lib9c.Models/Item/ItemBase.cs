@@ -1,31 +1,43 @@
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Exceptions;
 using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Item;
 
-public abstract class ItemBase : IBencodable
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.ItemBase"/>
+/// </summary>
+public record ItemBase : IBencodable
 {
-    public int Id { get; private set; }
-    public int Grade { get; private set; }
-    public Nekoyume.Model.Item.ItemType ItemType { get; private set; }
-    public Nekoyume.Model.Item.ItemSubType ItemSubType { get; private set; }
-    public Nekoyume.Model.Elemental.ElementalType ElementalType { get; private set; }
+    public int Id { get; init; }
+    public int Grade { get; init; }
+    public Nekoyume.Model.Item.ItemType ItemType { get; init; }
+    public Nekoyume.Model.Item.ItemSubType ItemSubType { get; init; }
+    public Nekoyume.Model.Elemental.ElementalType ElementalType { get; init; }
 
-    public ItemBase(Dictionary bencoded)
+    public virtual IValue Bencoded => Dictionary.Empty
+        .Add("id", Id.Serialize())
+        .Add("item_type", ItemType.Serialize())
+        .Add("item_sub_type", ItemSubType.Serialize())
+        .Add("grade", Grade.Serialize())
+        .Add("elemental_type", ElementalType.Serialize());
+
+    public ItemBase(IValue bencoded)
     {
-        Id = bencoded["id"].ToInteger();
-        Grade = bencoded["grade"].ToInteger();
-        ItemType = bencoded["item_type"].ToEnum<Nekoyume.Model.Item.ItemType>();
-        ItemSubType = bencoded["item_sub_type"].ToEnum<Nekoyume.Model.Item.ItemSubType>();
-        ElementalType = bencoded["elemental_type"].ToEnum<Nekoyume.Model.Elemental.ElementalType>();
-    }
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
 
-    public IValue Bencoded =>
-        Dictionary
-            .Empty.Add("id", Id.Serialize())
-            .Add("item_type", ItemType.Serialize())
-            .Add("item_sub_type", ItemSubType.Serialize())
-            .Add("grade", Grade.Serialize())
-            .Add("elemental_type", ElementalType.Serialize());
+        Id = d["id"].ToInteger();
+        Grade = d["grade"].ToInteger();
+        ItemType = d["item_type"].ToEnum<Nekoyume.Model.Item.ItemType>();
+        ItemSubType = d["item_sub_type"].ToEnum<Nekoyume.Model.Item.ItemSubType>();
+        ElementalType = d["elemental_type"].ToEnum<Nekoyume.Model.Elemental.ElementalType>();
+    }
 }

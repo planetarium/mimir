@@ -9,10 +9,6 @@ public class MaterialType : ObjectType<TradableMaterial>
     {
         descriptor.BindFieldsExplicitly();
         descriptor
-            .Field(f => f.TradableId)
-            .Description("The tradable ID of the item.")
-            .Type<NonNullType<GuidType>>();
-        descriptor
             .Field(f => f.ItemId)
             .Name("materialItemId")
             .Description("The ItemSheet ID of the item.")

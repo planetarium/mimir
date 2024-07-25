@@ -33,38 +33,6 @@ public record ShopItem : IBencodable
     public int TradableFungibleItemCount { get; init; }
     public long ExpiredBlockIndex { get; init; }
 
-    public ShopItem(IValue bencoded)
-    {
-        if (bencoded is not Dictionary d)
-        {
-            throw new UnsupportedArgumentTypeException<ValueKind>(
-                nameof(bencoded),
-                [ValueKind.Dictionary],
-                bencoded.Kind);
-        }
-
-        SellerAgentAddress = d[LegacySellerAgentAddressKey].ToAddress();
-        SellerAvatarAddress = d[LegacySellerAvatarAddressKey].ToAddress();
-        ProductId = d[LegacyProductIdKey].ToGuid();
-        Price = d[LegacyPriceKey].ToFungibleAssetValue();
-        ItemUsable = d.ContainsKey(LegacyItemUsableKey)
-            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d[LegacyItemUsableKey])
-            : null;
-        Costume = d.ContainsKey(LegacyCostumeKey)
-            ? (Costume)ItemFactory.Deserialize((Dictionary)d[LegacyCostumeKey])
-            : null;
-        TradableFungibleItem = d.ContainsKey(TradableFungibleItemKey)
-            ? (TradableMaterial)ItemFactory.Deserialize((Dictionary)d[TradableFungibleItemKey])
-            : null;
-        TradableFungibleItemCount = d.ContainsKey(TradableFungibleItemCountKey)
-            ? d[TradableFungibleItemCountKey].ToInteger()
-            : default;
-        if (d.ContainsKey(ExpiredBlockIndexKey))
-        {
-            ExpiredBlockIndex = d[ExpiredBlockIndexKey].ToLong();
-        }
-    }
-
     public IValue Bencoded
     {
         get
@@ -101,6 +69,38 @@ public record ShopItem : IBencodable
             }
 
             return d;
+        }
+    }
+
+    public ShopItem(IValue bencoded)
+    {
+        if (bencoded is not Dictionary d)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                [ValueKind.Dictionary],
+                bencoded.Kind);
+        }
+
+        SellerAgentAddress = d[LegacySellerAgentAddressKey].ToAddress();
+        SellerAvatarAddress = d[LegacySellerAvatarAddressKey].ToAddress();
+        ProductId = d[LegacyProductIdKey].ToGuid();
+        Price = d[LegacyPriceKey].ToFungibleAssetValue();
+        ItemUsable = d.ContainsKey(LegacyItemUsableKey)
+            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d[LegacyItemUsableKey])
+            : null;
+        Costume = d.ContainsKey(LegacyCostumeKey)
+            ? (Costume)ItemFactory.Deserialize((Dictionary)d[LegacyCostumeKey])
+            : null;
+        TradableFungibleItem = d.ContainsKey(TradableFungibleItemKey)
+            ? (TradableMaterial)ItemFactory.Deserialize((Dictionary)d[TradableFungibleItemKey])
+            : null;
+        TradableFungibleItemCount = d.ContainsKey(TradableFungibleItemCountKey)
+            ? d[TradableFungibleItemCountKey].ToInteger()
+            : default;
+        if (d.ContainsKey(ExpiredBlockIndexKey))
+        {
+            ExpiredBlockIndex = d[ExpiredBlockIndexKey].ToLong();
         }
     }
 }

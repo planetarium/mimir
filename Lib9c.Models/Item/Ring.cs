@@ -2,4 +2,12 @@ using Bencodex.Types;
 
 namespace Lib9c.Models.Item;
 
-public class Ring(Dictionary bencoded) : Equipment(bencoded);
+/// <summary>
+/// <see cref="Nekoyume.Model.Item.Ring"/>
+/// </summary>
+public record Ring : Equipment
+{
+    public Ring(IValue bencoded) : base(bencoded)
+    {
+    }
+}
