@@ -3,7 +3,7 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using ValueKind = Bencodex.Types.ValueKind;
 
-namespace Lib9c.Models.Runes;
+namespace Lib9c.Models.States;
 
 public record AllRuneState : IBencodable
 {

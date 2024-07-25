@@ -1,8 +1,9 @@
 using Bencodex.Types;
+using Lib9c.Models.States;
 using Lib9c.Models.Tests.Fixtures.States;
 using Nekoyume.Model.State;
 
-namespace Lib9c.Models.Tests;
+namespace Lib9c.Models.Tests.States;
 
 public class AvatarTest
 {

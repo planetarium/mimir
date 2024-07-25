@@ -1,7 +1,5 @@
 using Bencodex.Types;
-using Lib9c.Models.Runes;
-using Nekoyume.Model.State;
-using RuneState = Lib9c.Models.Runes.RuneState;
+using RuneState = Lib9c.Models.States.RuneState;
 
 namespace Lib9c.Models.Tests.Runes;
 

@@ -7,7 +7,7 @@ using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 
-namespace Lib9c.Models;
+namespace Lib9c.Models.States;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.State.AvatarState"/>

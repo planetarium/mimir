@@ -6,7 +6,7 @@ using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
-using RuneSlotState = Lib9c.Models.Runes.RuneSlotState;
+using RuneSlotState = Lib9c.Models.States.RuneSlotState;
 
 namespace Mimir.Repositories;
 
