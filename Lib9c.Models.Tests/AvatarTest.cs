@@ -1,6 +1,5 @@
 using Bencodex.Types;
 using Lib9c.Models.Tests.Fixtures.States;
-using Lib9c.Models;
 using Nekoyume.Model.State;
 
 namespace Lib9c.Models.Tests;
