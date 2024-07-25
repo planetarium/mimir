@@ -80,7 +80,16 @@ public class MongoDbService
             var count = collection.CountDocuments(new BsonDocument());
 
             if (count == 0)
-                _database.CreateCollection(collectionName);
+            {
+                try
+                {
+                    _database.CreateCollection(collectionName);
+                }
+                catch (MongoCommandException)
+                {
+                    // ignore already exists
+                }
+            }
         }
 
         return mappings;
