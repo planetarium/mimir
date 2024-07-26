@@ -1,5 +1,5 @@
 using Libplanet.Crypto;
-using Mimir.Worker.Json.Converters;
+using Mimir.MongoDB.Json.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
