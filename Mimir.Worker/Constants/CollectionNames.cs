@@ -45,7 +45,7 @@ namespace Mimir.Worker.Constants
             CollectionAndStateTypeMappings.Add(typeof(AgentDocument), "agent");
             CollectionAndStateTypeMappings.Add(typeof(AvatarDocument), "avatar");
             CollectionAndStateTypeMappings.Add(typeof(InventoryDocument), "inventory");
-            CollectionAndStateTypeMappings.Add(typeof(QuestListDocument), "quest_list");
+            // CollectionAndStateTypeMappings.Add(typeof(QuestListDocument), "quest_list");
             CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
             CollectionAndStateTypeMappings.Add(typeof(ActionPointDocument), "action_point");
             CollectionAndStateTypeMappings.Add(typeof(SheetDocument), "table_sheet");
@@ -54,24 +54,24 @@ namespace Mimir.Worker.Constants
             CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
             CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
             CollectionAndStateTypeMappings.Add(typeof(DailyRewardDocument), "daily_reward");
-            CollectionAndStateTypeMappings.Add(typeof(ProductsDocument), "products");
-            CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
+            // CollectionAndStateTypeMappings.Add(typeof(ProductsDocument), "products");
+            // CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
             CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
             CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
-            CollectionAndStateTypeMappings.Add(typeof(WorldBossDocument), "world_boss");
-            CollectionAndStateTypeMappings.Add(
-                typeof(WorldBossKillRewardRecordDocument),
-                "world_boss_kill_reward_record"
-            );
-            CollectionAndStateTypeMappings.Add(typeof(RaiderDocument), "raider");
-            CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
-            CollectionAndStateTypeMappings.Add(typeof(CombinationSlotDocument), "combination_slot");
-            CollectionAndStateTypeMappings.Add(typeof(PetDocument), "pet_state");
-            CollectionAndStateTypeMappings.Add(typeof(BountyBoardDocument), "adventure_boss_bounty_board");
-            CollectionAndStateTypeMappings.Add(typeof(ExploreBoardDocument), "adventure_boss_explore_board");
-            CollectionAndStateTypeMappings.Add(typeof(ExplorerListDocument), "adventure_boss_explorer_list");
-            CollectionAndStateTypeMappings.Add(typeof(ExplorerDocument), "adventure_boss_explorer");
-            CollectionAndStateTypeMappings.Add(typeof(SeasonInfoDocument), "adventure_boss_season_info");
+            // CollectionAndStateTypeMappings.Add(typeof(WorldBossDocument), "world_boss");
+            // CollectionAndStateTypeMappings.Add(
+            //     typeof(WorldBossKillRewardRecordDocument),
+            //     "world_boss_kill_reward_record"
+            // );
+            // CollectionAndStateTypeMappings.Add(typeof(RaiderDocument), "raider");
+            // CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
+            // CollectionAndStateTypeMappings.Add(typeof(CombinationSlotDocument), "combination_slot");
+            // CollectionAndStateTypeMappings.Add(typeof(PetDocument), "pet_state");
+            // CollectionAndStateTypeMappings.Add(typeof(BountyBoardDocument), "adventure_boss_bounty_board");
+            // CollectionAndStateTypeMappings.Add(typeof(ExploreBoardDocument), "adventure_boss_explore_board");
+            // CollectionAndStateTypeMappings.Add(typeof(ExplorerListDocument), "adventure_boss_explorer_list");
+            // CollectionAndStateTypeMappings.Add(typeof(ExplorerDocument), "adventure_boss_explorer");
+            // CollectionAndStateTypeMappings.Add(typeof(SeasonInfoDocument), "adventure_boss_season_info");
 
             // The `Raw` fields of the documents' in 'balances' collection,
             // will not have the original state.  In Libplanet implementation,

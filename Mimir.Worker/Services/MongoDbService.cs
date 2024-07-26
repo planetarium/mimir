@@ -265,7 +265,7 @@ public class MongoDbService
         var stateJson = mongoDbCollectionDocument.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
         var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
-        stateBsonDocument.Remove("Bencoded");
+        stateBsonDocument.Remove("RawState");
         stateBsonDocument.Add("RawStateFileId", rawStateId);
 
         var filter = Builders<BsonDocument>.Filter.Eq(
