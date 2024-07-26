@@ -2,17 +2,14 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
 using Libplanet.Crypto;
-using Lib9c.Models;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
-using Mimir.Worker.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using Nekoyume;
 using Nekoyume.TableData;
 using Serilog;
-using AgentState = Mimir.Worker.Models.AgentState;
-using AvatarState = Mimir.Worker.Models.AvatarState;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Services;

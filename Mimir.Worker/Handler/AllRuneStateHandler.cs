@@ -1,6 +1,6 @@
 using Bencodex;
 using Bencodex.Types;
-using Mimir.Worker.Models;
+using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
 

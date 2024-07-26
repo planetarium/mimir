@@ -1,9 +1,9 @@
-namespace Mimir.Worker.Tests.Handler;
-
 using Bencodex;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Handler;
-using Xunit;
+
+namespace Mimir.Worker.Tests.Handler;
 
 public class AvatarStateHandlerTests
 {
@@ -22,6 +22,6 @@ public class AvatarStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<Mimir.Worker.Models.AvatarState>(state);
+        Assert.IsType<AvatarState>(state);
     }
 }

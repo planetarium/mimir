@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using Bencodex.Types;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Services;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Exceptions;
-using Mimir.Worker.Models;
-using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Action;

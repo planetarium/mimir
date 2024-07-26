@@ -1,9 +1,9 @@
 using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
+using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Bson.AdventureBoss;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
-using Mimir.Worker.Models.State.AdventureBoss;
 
 namespace Mimir.Worker.Constants
 {
@@ -43,7 +43,7 @@ namespace Mimir.Worker.Constants
             RegisterBalanceAddress(Currencies.OdinWisdomRune);
 
             CollectionAndStateTypeMappings.Add(typeof(AgentState), "agent");
-            CollectionAndStateTypeMappings.Add(typeof(AvatarState), "avatar");
+            CollectionAndStateTypeMappings.Add(typeof(Lib9c.Models.States.AvatarState), "avatar");
             CollectionAndStateTypeMappings.Add(typeof(InventoryState), "inventory");
             CollectionAndStateTypeMappings.Add(typeof(QuestListState), "quest_list");
             CollectionAndStateTypeMappings.Add(typeof(WorldInformationState), "world_information");
@@ -57,7 +57,7 @@ namespace Mimir.Worker.Constants
             CollectionAndStateTypeMappings.Add(typeof(ProductsState), "products");
             CollectionAndStateTypeMappings.Add(typeof(ProductState), "product");
             CollectionAndStateTypeMappings.Add(typeof(ItemSlotState), "item_slot");
-            CollectionAndStateTypeMappings.Add(typeof(RuneSlotState), "rune_slot");
+            CollectionAndStateTypeMappings.Add(typeof(Lib9c.Models.States.RuneSlotState), "rune_slot");
             CollectionAndStateTypeMappings.Add(typeof(WorldBossState), "world_boss");
             CollectionAndStateTypeMappings.Add(
                 typeof(WorldBossKillRewardRecordState),
@@ -87,7 +87,7 @@ namespace Mimir.Worker.Constants
             if (!CollectionAndStateTypeMappings.TryGetValue(typeof(T), out var collectionName))
             {
                 throw new InvalidOperationException(
-                    $"No collection mapping found for state type: {typeof(T).Name}"
+                    $"No collection mapping found for state type: {typeof(T).FullName}"
                 );
             }
 
@@ -99,7 +99,7 @@ namespace Mimir.Worker.Constants
             if (!CollectionAndStateTypeMappings.TryGetValue(type, out var collectionName))
             {
                 throw new InvalidOperationException(
-                    $"No collection mapping found for state type: {type.Name}"
+                    $"No collection mapping found for state type: {type.FullName}"
                 );
             }
 

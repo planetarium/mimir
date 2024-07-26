@@ -1,11 +1,10 @@
 using Bencodex;
 using HeadlessGQL;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
 using Mimir.Worker.Services;
-using MongoDB.Driver;
 using Serilog;
 
 namespace Mimir.Worker.Poller;
@@ -84,7 +83,7 @@ public class DiffBlockPoller : BaseBlockPoller
         var accountAddress = new Address(rootDiff.Path);
         if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
         {
-            List<StateData> stateDatas = new List<StateData>();
+            var stateDatas = new List<StateData>();
             foreach (var subDiff in rootDiff.Diffs)
             {
                 if (subDiff.ChangedState is not null)

@@ -1,7 +1,7 @@
 using Bencodex;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
 
 namespace Mimir.Worker.Tests.Handler;
 
