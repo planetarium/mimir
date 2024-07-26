@@ -23,20 +23,10 @@ query GetTransactions($blockIndex: Long!, $limit: Long!) {
     }
 }
 
-query GetDiffs($baseIndex: Long! $changedIndex: Long!) {
-  diffs(baseIndex: $baseIndex, changedIndex: $changedIndex) {
-    ... on RootStateDiff {
-        path
-        diffs {
-            path
-            baseState
-            changedState
-        }
-    }
-    ... on StateDiff {
-        path
-        baseState
-        changedState
-    }
+query GetAccountDiffs($baseIndex: Long! $changedIndex: Long!, $accountAddress: Address!) {
+  accountDiffs(baseIndex: $baseIndex, changedIndex: $changedIndex, accountAddress: $accountAddress) {
+    path
+    baseState
+    changedState
   }
 }
