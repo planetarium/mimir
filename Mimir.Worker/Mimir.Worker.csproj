@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.9.8" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Lib9c" Version="1.12.0-dev.a5dd5bdf928d819b063a0c193fb9608e9f84f6e9" />
     <PackageReference Include="Libplanet.RocksDBStore" Version="5.0.0" />
@@ -28,5 +29,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj" />
+    <ProjectReference Include="..\Mimir.MongoDB\Mimir.MongoDB.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\State\" />
   </ItemGroup>
 </Project>

@@ -2,17 +2,14 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
 using Libplanet.Crypto;
-using Lib9c.Models;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
-using Mimir.Worker.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using Nekoyume;
 using Nekoyume.TableData;
 using Serilog;
-using AgentState = Mimir.Worker.Models.AgentState;
-using AvatarState = Mimir.Worker.Models.AvatarState;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Services;
@@ -152,7 +149,7 @@ public class MongoDbService
     public async Task<BsonDocument> GetProductsStateByAddress(Address address)
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
-        return await GetCollection<ProductsState>().Find(filter).FirstOrDefaultAsync();
+        return await GetCollection<ProductsDocument>().Find(filter).FirstOrDefaultAsync();
     }
 
     public async Task<T?> GetSheetAsync<T>()
@@ -160,7 +157,7 @@ public class MongoDbService
     {
         var address = Addresses.GetSheetAddress<T>();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
-        var document = await GetCollection<SheetState>().Find(filter).FirstOrDefaultAsync();
+        var document = await GetCollection<SheetDocument>().Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             return default;
@@ -178,12 +175,12 @@ public class MongoDbService
             "State.Object.TradableItem.TradableId",
             productId.ToString()
         );
-        await GetCollection<ProductState>().DeleteOneAsync(productFilter);
+        await GetCollection<ProductDocument>().DeleteOneAsync(productFilter);
     }
 
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
-        List<StateData> stateDatas,
+        List<MongoDbCollectionDocument> stateDatas,
         IClientSessionHandle? session = null
     )
     {
@@ -206,7 +203,7 @@ public class MongoDbService
 
     public async Task<BulkWriteResult> UpsertStateDataWithRawDataAsync(
         string collectionName,
-        List<StateData> stateDatas,
+        List<MongoDbCollectionDocument> stateDatas,
         IClientSessionHandle? session = null
     )
     {
@@ -227,21 +224,21 @@ public class MongoDbService
         }
     }
 
-    public UpdateOneModel<BsonDocument> GetStateDataUpdateModel(StateData stateData)
+    public UpdateOneModel<BsonDocument> GetStateDataUpdateModel(MongoDbCollectionDocument mongoDbCollectionDocument)
     {
-        var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
-        var stateJson = stateData.ToJson();
+        var collectionName = CollectionNames.GetCollectionName(mongoDbCollectionDocument.State.GetType());
+        var stateJson = mongoDbCollectionDocument.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
         var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
         stateBsonDocument.Remove("Bencoded");
 
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", mongoDbCollectionDocument.Address.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
-            stateData.Address.ToHex(),
+            mongoDbCollectionDocument.Address.ToHex(),
             collectionName
         );
 
@@ -249,29 +246,29 @@ public class MongoDbService
     }
 
     public async Task<UpdateOneModel<BsonDocument>> GetStateDataWithRawDataUpdateModel(
-        StateData stateData
+        MongoDbCollectionDocument mongoDbCollectionDocument
     )
     {
-        var collectionName = CollectionNames.GetCollectionName(stateData.State.GetType());
-        var rawStateBytes = new Codec().Encode(stateData.State.Bencoded);
+        var collectionName = CollectionNames.GetCollectionName(mongoDbCollectionDocument.State.GetType());
+        var rawStateBytes = new Codec().Encode(mongoDbCollectionDocument.State.Bencoded);
         var rawStateId = await _gridFs.UploadFromBytesAsync(
-            $"{stateData.Address.ToHex()}-rawstate",
+            $"{mongoDbCollectionDocument.Address.ToHex()}-rawstate",
             rawStateBytes
         );
 
-        var stateJson = stateData.ToJson();
+        var stateJson = mongoDbCollectionDocument.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
         var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
         stateBsonDocument.Remove("Bencoded");
         stateBsonDocument.Add("RawStateFileId", rawStateId);
 
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", stateData.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", mongoDbCollectionDocument.Address.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
-            stateData.Address.ToHex(),
+            mongoDbCollectionDocument.Address.ToHex(),
             collectionName
         );
 

@@ -1,8 +1,8 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Mimir.Worker.Constants;
-using Mimir.Worker.Models;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
+using Mimir.Worker.Constants;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
@@ -21,7 +21,7 @@ public static class ItemSlotCollectionUpdater
         IClientSessionHandle? session = null
     )
     {
-        var collectionName = CollectionNames.GetCollectionName<ItemSlotState>();
+        var collectionName = CollectionNames.GetCollectionName<ItemSlotDocument>();
         var collection = store.GetCollection(collectionName);
         var itemSlotAddress = Nekoyume.Model.State.ItemSlotState.DeriveAddress(
             avatarAddress,
@@ -38,11 +38,11 @@ public static class ItemSlotCollectionUpdater
         }
 
         var itemSlotState = new Nekoyume.Model.State.ItemSlotState(serialized);
-        var stateData = new StateData(itemSlotAddress, new ItemSlotState(itemSlotState));
-
+        var itemSlotDocument = new ItemSlotDocument(itemSlotState);
+        var document = new MongoDbCollectionDocument(itemSlotAddress, itemSlotDocument);
         await store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ItemSlotState>(),
-            [stateData],
+            CollectionNames.GetCollectionName<ItemSlotDocument>(),
+            [document],
             session
         );
     }

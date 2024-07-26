@@ -1,7 +1,7 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
 
 namespace Mimir.Worker.Tests.Handler;
 
@@ -22,8 +22,8 @@ public class ActionPointStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<ActionPointState>(state);
-        var dataState = (ActionPointState)state;
+        Assert.IsType<ActionPointDocument>(state);
+        var dataState = (ActionPointDocument)state;
         Assert.Equal(actionPoint, dataState.Object);
     }
 }

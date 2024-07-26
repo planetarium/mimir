@@ -1,7 +1,7 @@
 using Bencodex;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
 
 namespace Mimir.Worker.Tests.Handler;
 
@@ -24,8 +24,8 @@ public class AllRuneStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<AllRuneState>(state);
-        var dataState = (AllRuneState)state;
+        Assert.IsType<AllRuneDocument>(state);
+        var dataState = (AllRuneDocument)state;
         Assert.Equal(allRuneState.Runes.Count, dataState.Object.Runes.Count);
         foreach (var (key, value) in allRuneState.Runes)
         {

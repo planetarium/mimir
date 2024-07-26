@@ -1,15 +1,12 @@
-using Bencodex;
 using Bencodex.Types;
-using Libplanet.Crypto;
 using Libplanet.Types.Assets;
-using Mimir.Worker.Models;
-using Mimir.Worker.Services;
+using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
 
 public record BalanceHandler(Currency Currency) : IStateHandler
 {
-    public IBencodable ConvertToState(StateDiffContext context)
+    public IMimirBsonDocument ConvertToState(StateDiffContext context)
     {
         if (context.RawState is not Integer value)
         {
@@ -18,6 +15,6 @@ public record BalanceHandler(Currency Currency) : IStateHandler
             );
         }
 
-        return new BalanceState(FungibleAssetValue.FromRawValue(Currency, value));
+        return new BalanceDocument(FungibleAssetValue.FromRawValue(Currency, value));
     }
 }

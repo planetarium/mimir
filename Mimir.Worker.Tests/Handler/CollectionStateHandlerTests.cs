@@ -1,7 +1,7 @@
 using Bencodex;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
 
 namespace Mimir.Worker.Tests.Handler;
 
@@ -29,8 +29,8 @@ public class CollectionStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<CollectionState>(state);
-        var dataState = (CollectionState)state;
+        Assert.IsType<CollectionDocument>(state);
+        var dataState = (CollectionDocument)state;
         Assert.Equal(collectionState.Ids, dataState.Object.Ids);
     }
 }

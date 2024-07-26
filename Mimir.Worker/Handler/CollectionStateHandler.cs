@@ -1,12 +1,11 @@
-using Bencodex;
 using Bencodex.Types;
-using Mimir.Worker.Models;
+using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
 
 public class CollectionStateHandler : IStateHandler
 {
-    public IBencodable ConvertToState(StateDiffContext context)
+    public IMimirBsonDocument ConvertToState(StateDiffContext context)
     {
         if (context.RawState is not List value)
         {
@@ -16,6 +15,6 @@ public class CollectionStateHandler : IStateHandler
         }
 
         var collectionState = new Nekoyume.Model.State.CollectionState(value);
-        return new CollectionState(collectionState);
+        return new CollectionDocument(collectionState);
     }
 }

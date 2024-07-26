@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Mimir.MongoDB\Mimir.MongoDB.csproj" />
     <ProjectReference Include="..\Mimir.Worker\Mimir.Worker.csproj" />
   </ItemGroup>
 

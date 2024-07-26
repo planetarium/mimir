@@ -1,9 +1,9 @@
 using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
+using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Bson.AdventureBoss;
 using Mimir.Worker.Handler;
-using Mimir.Worker.Models;
-using Mimir.Worker.Models.State.AdventureBoss;
 
 namespace Mimir.Worker.Constants
 {
@@ -42,36 +42,36 @@ namespace Mimir.Worker.Constants
             RegisterBalanceAddress(Currencies.OdinWeaknessRune);
             RegisterBalanceAddress(Currencies.OdinWisdomRune);
 
-            CollectionAndStateTypeMappings.Add(typeof(AgentState), "agent");
-            CollectionAndStateTypeMappings.Add(typeof(AvatarState), "avatar");
-            CollectionAndStateTypeMappings.Add(typeof(InventoryState), "inventory");
-            CollectionAndStateTypeMappings.Add(typeof(QuestListState), "quest_list");
-            CollectionAndStateTypeMappings.Add(typeof(WorldInformationState), "world_information");
-            CollectionAndStateTypeMappings.Add(typeof(ActionPointState), "action_point");
-            CollectionAndStateTypeMappings.Add(typeof(SheetState), "table_sheet");
-            CollectionAndStateTypeMappings.Add(typeof(ArenaScoreState), "arena_score");
-            CollectionAndStateTypeMappings.Add(typeof(ArenaInformationState), "arena_information");
-            CollectionAndStateTypeMappings.Add(typeof(AllRuneState), "all_rune");
-            CollectionAndStateTypeMappings.Add(typeof(CollectionState), "collection");
-            CollectionAndStateTypeMappings.Add(typeof(DailyRewardState), "daily_reward");
-            CollectionAndStateTypeMappings.Add(typeof(ProductsState), "products");
-            CollectionAndStateTypeMappings.Add(typeof(ProductState), "product");
-            CollectionAndStateTypeMappings.Add(typeof(ItemSlotState), "item_slot");
-            CollectionAndStateTypeMappings.Add(typeof(RuneSlotState), "rune_slot");
-            CollectionAndStateTypeMappings.Add(typeof(WorldBossState), "world_boss");
+            CollectionAndStateTypeMappings.Add(typeof(AgentDocument), "agent");
+            CollectionAndStateTypeMappings.Add(typeof(AvatarDocument), "avatar");
+            CollectionAndStateTypeMappings.Add(typeof(InventoryDocument), "inventory");
+            CollectionAndStateTypeMappings.Add(typeof(QuestListDocument), "quest_list");
+            CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
+            CollectionAndStateTypeMappings.Add(typeof(ActionPointDocument), "action_point");
+            CollectionAndStateTypeMappings.Add(typeof(SheetDocument), "table_sheet");
+            CollectionAndStateTypeMappings.Add(typeof(ArenaScoreDocument), "arena_score");
+            CollectionAndStateTypeMappings.Add(typeof(ArenaInformationDocument), "arena_information");
+            CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
+            CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
+            CollectionAndStateTypeMappings.Add(typeof(DailyRewardDocument), "daily_reward");
+            CollectionAndStateTypeMappings.Add(typeof(ProductsDocument), "products");
+            CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
+            CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
+            CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
+            CollectionAndStateTypeMappings.Add(typeof(WorldBossDocument), "world_boss");
             CollectionAndStateTypeMappings.Add(
-                typeof(WorldBossKillRewardRecordState),
+                typeof(WorldBossKillRewardRecordDocument),
                 "world_boss_kill_reward_record"
             );
-            CollectionAndStateTypeMappings.Add(typeof(RaiderState), "raider");
-            CollectionAndStateTypeMappings.Add(typeof(StakeState), "stake");
-            CollectionAndStateTypeMappings.Add(typeof(CombinationSlotState), "combination_slot");
-            CollectionAndStateTypeMappings.Add(typeof(PetState), "pet_state");
-            CollectionAndStateTypeMappings.Add(typeof(BountyBoardState), "adventure_boss_bounty_board");
-            CollectionAndStateTypeMappings.Add(typeof(ExploreBoardState), "adventure_boss_explore_board");
-            CollectionAndStateTypeMappings.Add(typeof(ExplorerListState), "adventure_boss_explorer_list");
-            CollectionAndStateTypeMappings.Add(typeof(ExplorerState), "adventure_boss_explorer");
-            CollectionAndStateTypeMappings.Add(typeof(SeasonInfoState), "adventure_boss_season_info");
+            CollectionAndStateTypeMappings.Add(typeof(RaiderDocument), "raider");
+            CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
+            CollectionAndStateTypeMappings.Add(typeof(CombinationSlotDocument), "combination_slot");
+            CollectionAndStateTypeMappings.Add(typeof(PetDocument), "pet_state");
+            CollectionAndStateTypeMappings.Add(typeof(BountyBoardDocument), "adventure_boss_bounty_board");
+            CollectionAndStateTypeMappings.Add(typeof(ExploreBoardDocument), "adventure_boss_explore_board");
+            CollectionAndStateTypeMappings.Add(typeof(ExplorerListDocument), "adventure_boss_explorer_list");
+            CollectionAndStateTypeMappings.Add(typeof(ExplorerDocument), "adventure_boss_explorer");
+            CollectionAndStateTypeMappings.Add(typeof(SeasonInfoDocument), "adventure_boss_season_info");
 
             // The `Raw` fields of the documents' in 'balances' collection,
             // will not have the original state.  In Libplanet implementation,
@@ -79,7 +79,7 @@ namespace Mimir.Worker.Constants
             // may be `Bencodex.Types.Integer`-typed. But `BalanceState` stores
             // serialized `FungibleAssetValue` instead of `Integer` to query
             // easily without fetching `Currency` from other source.
-            CollectionAndStateTypeMappings.Add(typeof(BalanceState), "balances");
+            CollectionAndStateTypeMappings.Add(typeof(BalanceDocument), "balances");
         }
 
         public static string GetCollectionName<T>()
@@ -87,7 +87,7 @@ namespace Mimir.Worker.Constants
             if (!CollectionAndStateTypeMappings.TryGetValue(typeof(T), out var collectionName))
             {
                 throw new InvalidOperationException(
-                    $"No collection mapping found for state type: {typeof(T).Name}"
+                    $"No collection mapping found for state type: {typeof(T).FullName}"
                 );
             }
 
@@ -99,7 +99,7 @@ namespace Mimir.Worker.Constants
             if (!CollectionAndStateTypeMappings.TryGetValue(type, out var collectionName))
             {
                 throw new InvalidOperationException(
-                    $"No collection mapping found for state type: {type.Name}"
+                    $"No collection mapping found for state type: {type.FullName}"
                 );
             }
 

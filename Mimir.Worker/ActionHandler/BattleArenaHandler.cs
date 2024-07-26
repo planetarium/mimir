@@ -1,11 +1,10 @@
 using Lib9c.Abstractions;
 using Libplanet.Action;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Constants;
-using Mimir.Worker.Exceptions;
-using Mimir.Worker.Models;
-using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 using Serilog;
@@ -87,30 +86,30 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         );
 
         await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ArenaInformationState>(),
+            CollectionNames.GetCollectionName<ArenaInformationDocument>(),
             [
-                new StateData(
+                new MongoDbCollectionDocument(
                     myArenaInfo.Address,
-                    new ArenaInformationState(myArenaInfo, roundData, myAvatarAddress)
+                    new ArenaInformationDocument(myArenaInfo, roundData, myAvatarAddress)
                 ),
-                new StateData(
+                new MongoDbCollectionDocument(
                     enemyArenaInfo.Address,
-                    new ArenaInformationState(enemyArenaInfo, roundData, enemyAvatarAddress)
+                    new ArenaInformationDocument(enemyArenaInfo, roundData, enemyAvatarAddress)
                 )
             ],
             session
         );
 
         await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ArenaInformationState>(),
+            CollectionNames.GetCollectionName<ArenaInformationDocument>(),
             [
-                new StateData(
+                new MongoDbCollectionDocument(
                     myArenaScore.Address,
-                    new ArenaScoreState(myArenaScore, roundData, myAvatarAddress)
+                    new ArenaScoreDocument(myArenaScore, roundData, myAvatarAddress)
                 ),
-                new StateData(
+                new MongoDbCollectionDocument(
                     enemyArenaScore.Address,
-                    new ArenaScoreState(enemyArenaScore, roundData, enemyAvatarAddress)
+                    new ArenaScoreDocument(enemyArenaScore, roundData, enemyAvatarAddress)
                 )
             ],
             session

@@ -1,7 +1,7 @@
 using Libplanet.Action;
 using Libplanet.Crypto;
-using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
+using Mimir.Worker.CollectionUpdaters;
 using MongoDB.Driver;
 using Nekoyume.Action;
 using Nekoyume.Model.EnumType;

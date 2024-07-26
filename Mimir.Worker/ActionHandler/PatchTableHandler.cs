@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using Bencodex.Types;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Services;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Exceptions;
-using Mimir.Worker.Models;
-using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Action;
@@ -108,13 +108,13 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
 
         sheet.Set(sheetValue.Value);
 
-        var stateData = new StateData(
+        var stateData = new MongoDbCollectionDocument(
             sheetAddress,
-            new SheetState(sheet, sheetName, sheetState)
+            new SheetDocument(sheet, sheetName, sheetState)
         );
 
         await Store.UpsertStateDataWithRawDataAsync(
-            CollectionNames.GetCollectionName<SheetState>(),
+            CollectionNames.GetCollectionName<SheetDocument>(),
             [stateData],
             session
         );
