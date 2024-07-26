@@ -1,40 +1,37 @@
-using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Nekoyume.Model.Market;
 
 namespace Mimir.MongoDB.Bson;
 
-public class ProductState : IBencodable
+public record ProductDocument : IMimirBsonDocument
 {
-    public Address AvatarAddress;
-    public Address ProductsStateAddress;
-    public Product Object;
-    public int? CombatPoint;
-    public decimal? UnitPrice;
-    public int? Crystal;
-    public int? CrystalPerPrice;
+    public Address AvatarAddress { get; init; }
+    public Address ProductsStateAddress { get; init; }
+    public Product Object { get; init; }
+    public int? CombatPoint { get; init; }
+    public decimal? UnitPrice { get; init; }
+    public int? Crystal { get; init; }
+    public int? CrystalPerPrice { get; init; }
 
-    public ProductState(
+    public ProductDocument(
         Address avatarAddress,
         Address productsStateAddress,
-        Product product
-    )
+        Product product)
     {
         Object = product;
         AvatarAddress = avatarAddress;
         ProductsStateAddress = productsStateAddress;
     }
 
-    public ProductState(
+    public ProductDocument(
         Address avatarAddress,
         Address productsStateAddress,
         Product product,
         decimal unitPrice,
         int? combatPoint,
         int? crystal,
-        int? crystalPerPrice
-    )
+        int? crystalPerPrice)
     {
         Object = product;
         AvatarAddress = avatarAddress;

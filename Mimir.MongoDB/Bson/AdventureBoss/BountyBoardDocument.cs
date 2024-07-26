@@ -1,10 +1,9 @@
-using Bencodex;
 using Bencodex.Types;
 using Nekoyume.Model.AdventureBoss;
 
 namespace Mimir.MongoDB.Bson.AdventureBoss;
 
-public record ExplorerState(Explorer Object) : IBencodable
+public record BountyBoardDocument(BountyBoard Object) : IMimirBsonDocument
 {
     public IValue Bencoded => Object.Bencoded;
 }

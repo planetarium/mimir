@@ -1,13 +1,13 @@
+using Libplanet.Crypto;
 using Mimir.Worker.Json.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace Mimir.MongoDB.Bson;
 
-public record BaseData
+public record MongoDbCollectionDocument(Address Address, IMimirBsonDocument State)
 {
-    protected static JsonSerializerSettings JsonSerializerSettings => new()
+    public static readonly JsonSerializerSettings JsonSerializerSettings = new()
     {
         Formatting = Formatting.Indented,
         NullValueHandling = NullValueHandling.Ignore,

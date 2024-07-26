@@ -33,7 +33,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
     {
         var sheetTypes = TableSheetUtil.GetTableSheetTypes();
 
-        var collection = _store.GetCollection(CollectionNames.GetCollectionName<SheetState>());
+        var collection = _store.GetCollection(CollectionNames.GetCollectionName<SheetDocument>());
         var count = await collection.CountDocumentsAsync(new BsonDocument());
         var sheetTypesCount = sheetTypes.Count() - 4;
 

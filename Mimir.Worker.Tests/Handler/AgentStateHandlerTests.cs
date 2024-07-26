@@ -29,8 +29,8 @@ public class AgentStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<AgentState>(state);
-        var dataState = (AgentState)state;
+        Assert.IsType<AgentDocument>(state);
+        var dataState = (AgentDocument)state;
         Assert.Equal(agentState.address, dataState.Object.address);
         Assert.Equal(agentState.avatarAddresses.Count, dataState.Object.avatarAddresses.Count);
         foreach (var (key, value) in agentState.avatarAddresses)

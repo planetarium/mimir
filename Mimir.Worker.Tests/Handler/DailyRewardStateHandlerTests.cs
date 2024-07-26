@@ -22,8 +22,8 @@ public class DailyRewardStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<DailyRewardState>(state);
-        var dataState = (DailyRewardState)state;
+        Assert.IsType<DailyRewardDocument>(state);
+        var dataState = (DailyRewardDocument)state;
         Assert.Equal(dailyRewardReceivedBlockIndex, dataState.Object);
     }
 }

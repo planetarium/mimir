@@ -22,6 +22,6 @@ public class AvatarStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<AvatarState>(state);
+        Assert.IsType<AvatarDocument>(state);
     }
 }

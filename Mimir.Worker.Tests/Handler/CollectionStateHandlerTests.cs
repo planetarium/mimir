@@ -29,8 +29,8 @@ public class CollectionStateHandlerTests
         };
         var state = _handler.ConvertToState(context);
 
-        Assert.IsType<CollectionState>(state);
-        var dataState = (CollectionState)state;
+        Assert.IsType<CollectionDocument>(state);
+        var dataState = (CollectionDocument)state;
         Assert.Equal(collectionState.Ids, dataState.Object.Ids);
     }
 }

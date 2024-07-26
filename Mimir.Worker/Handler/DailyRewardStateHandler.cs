@@ -1,4 +1,3 @@
-using Bencodex;
 using Bencodex.Types;
 using Mimir.MongoDB.Bson;
 
@@ -6,7 +5,7 @@ namespace Mimir.Worker.Handler;
 
 public class DailyRewardStateHandler : IStateHandler
 {
-    public IBencodable ConvertToState(StateDiffContext context)
+    public IMimirBsonDocument ConvertToState(StateDiffContext context)
     {
         if (context.RawState is not Integer value)
         {
@@ -16,6 +15,6 @@ public class DailyRewardStateHandler : IStateHandler
             );
         }
 
-        return new DailyRewardState(value);
+        return new DailyRewardDocument(value);
     }
 }

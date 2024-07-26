@@ -22,7 +22,7 @@ public static class RuneSlotCollectionUpdater
         IClientSessionHandle? session = null
     )
     {
-        var collectionName = CollectionNames.GetCollectionName<RuneSlotState>();
+        var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
         var collection = store.GetCollection(collectionName);
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
             avatarAddress,
@@ -42,10 +42,10 @@ public static class RuneSlotCollectionUpdater
         }
 
         var runeSlotState = new RuneSlotState(serialized);
-        var stateData = new StateData(runeSlotAddress, runeSlotState);
-
+        var runeSlotDocument = new RuneSlotDocument(runeSlotState);
+        var stateData = new MongoDbCollectionDocument(runeSlotAddress, runeSlotDocument);
         await store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<RuneSlotState>(),
+            CollectionNames.GetCollectionName<RuneSlotDocument>(),
             [stateData],
             session
         );
@@ -60,7 +60,7 @@ public static class RuneSlotCollectionUpdater
         IClientSessionHandle? session = null
     )
     {
-        var collectionName = CollectionNames.GetCollectionName<ItemSlotState>();
+        var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
         var collection = store.GetCollection(collectionName);
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
             avatarAddress,
@@ -75,11 +75,11 @@ public static class RuneSlotCollectionUpdater
         }
 
         var runeSlotState = new RuneSlotState(serialized);
-        var stateData = new StateData(runeSlotAddress, runeSlotState);
-
+        var runeSlotDocument = new RuneSlotDocument(runeSlotState);
+        var document = new MongoDbCollectionDocument(runeSlotAddress, runeSlotDocument);
         await store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<RuneSlotState>(),
-            [stateData],
+            CollectionNames.GetCollectionName<RuneSlotDocument>(),
+            [document],
             session
         );
     }
