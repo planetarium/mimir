@@ -11,5 +11,6 @@ public record ArenaScoreDocument(
     Address AvatarAddress)
     : IMimirBsonDocument
 {
+    public Address Address => Object.Address;
     public IValue Bencoded => Object.Serialize();
 }

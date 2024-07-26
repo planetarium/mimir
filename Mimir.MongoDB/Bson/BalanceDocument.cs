@@ -1,9 +1,13 @@
 using Bencodex.Types;
+using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 
 namespace Mimir.MongoDB.Bson;
 
-public record BalanceDocument(FungibleAssetValue Object) : IMimirBsonDocument
+public record BalanceDocument(
+    Address Address,
+    FungibleAssetValue Object)
+    : IMimirBsonDocument
 {
     public IValue Bencoded => Object.Serialize();
 }

@@ -5,8 +5,9 @@ using Nekoyume.Model.State;
 namespace Mimir.MongoDB.Bson;
 
 public record WorldBossKillRewardRecordDocument(
-    Address AvatarAddress,
-    WorldBossKillRewardRecord Object)
+    Address Address,
+    WorldBossKillRewardRecord Object,
+    Address AvatarAddress)
     : IMimirBsonDocument
 {
     public IValue Bencoded => Object.Serialize();
