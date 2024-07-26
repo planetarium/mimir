@@ -21,6 +21,18 @@ type StandaloneQuery {
     # The index of the target block for comparison.
     changedIndex: Long!
   ): [Diff!]!
+
+  # This field allows you to query the diffs based accountAddress between two blocks. `baseIndex` is the reference block index, and changedIndex is the block index from which to check what changes have occurred relative to `baseIndex`. Both indices must not be higher than the current block on the chain nor lower than the genesis block index (0). The difference between the two blocks must be greater than zero for a valid comparison and less than ten for performance reasons.
+  accountDiffs(
+    # The index of the reference block from which the state is retrieved.
+    baseIndex: Long!
+
+    # The index of the target block for comparison.
+    changedIndex: Long!
+
+    # The target accountAddress.
+    accountAddress: Address!
+  ): [StateDiff!]!
   state(
     # The hash of the block used to fetch state from chain.
     hash: ByteString

@@ -2,18 +2,31 @@ using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.ActionHandler;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using Nekoyume.Action.Loader;
+using Nekoyume.Model.Arena;
 using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Poller;
 
-public class BlockPoller : BaseBlockPoller
+public class BlockPoller : IBlockPoller
 {
+    private readonly MongoDbService _dbService;
+
+    private readonly IStateService _stateService;
+
+    private readonly string _pollerType;
+
+    private readonly ILogger _logger;
+
     private static readonly NCActionLoader ActionLoader = new();
 
     private readonly BaseActionHandler[] _handlers;
+    private readonly string[] _collectionNames;
 
     private readonly IHeadlessGQLClient _headlessGqlClient;
 
@@ -22,28 +35,73 @@ public class BlockPoller : BaseBlockPoller
     public BlockPoller(
         IStateService stateService,
         IHeadlessGQLClient headlessGqlClient,
-        MongoDbService store
+        MongoDbService dbService
     )
-        : base(stateService, store, "BlockPoller", Log.ForContext<BlockPoller>())
     {
         _headlessGqlClient = headlessGqlClient;
 
         _handlers =
         [
-            new BattleArenaHandler(stateService, store),
-            new EventDungeonBattleHandler(stateService, store),
-            new HackAndSlashHandler(stateService, store),
-            new HackAndSlashSweepHandler(stateService, store),
-            new JoinArenaHandler(stateService, store),
-            new PatchTableHandler(stateService, store),
+            new BattleArenaHandler(stateService, dbService),
+            new EventDungeonBattleHandler(stateService, dbService),
+            new HackAndSlashHandler(stateService, dbService),
+            new HackAndSlashSweepHandler(stateService, dbService),
+            new JoinArenaHandler(stateService, dbService),
+            new PatchTableHandler(stateService, dbService),
             // new ProductsHandler(stateService, store),
-            new RaidHandler(stateService, store),
-            new RuneSlotStateHandler(stateService, store),
+            new RaidHandler(stateService, dbService),
+            new RuneSlotStateHandler(stateService, dbService),
             // new RaidActionHandler(stateService, stord,
         ];
+        _collectionNames = [
+            CollectionNames.GetCollectionName<ArenaScoreDocument>(),
+            CollectionNames.GetCollectionName<ArenaInformationDocument>(),
+            CollectionNames.GetCollectionName<ItemSlotDocument>(),
+            CollectionNames.GetCollectionName<RuneSlotDocument>(),
+            CollectionNames.GetCollectionName<SheetDocument>(),
+        ];
+
+        _stateService = stateService;
+        _dbService = dbService;
+        _pollerType = "BlockPoller";
+        _logger = Log.ForContext<BlockPoller>();
     }
 
-    protected override async Task ProcessBlocksAsync(
+    public async Task RunAsync(CancellationToken stoppingToken)
+    {
+        var started = DateTime.UtcNow;
+        _logger.Information("Start {PollerType} background service", GetType().Name);
+        var arenaScoreCollectionName = CollectionNames.GetCollectionName<ArenaScoreDocument>();
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            var currentBlockIndex = await _stateService.GetLatestIndex();
+            // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
+            var syncedBlockIndex = await GetSyncedBlockIndex(arenaScoreCollectionName);
+
+            _logger.Information(
+                "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
+                syncedBlockIndex,
+                currentBlockIndex
+            );
+
+            if (syncedBlockIndex >= currentBlockIndex)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
+                continue;
+            }
+
+            await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
+        }
+
+        _logger.Information(
+            "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
+            GetType().Name,
+            DateTime.UtcNow.Subtract(started).Minutes
+        );
+    }
+
+    private async Task ProcessBlocksAsync(
         long syncedBlockIndex,
         long currentBlockIndex,
         CancellationToken stoppingToken
@@ -130,7 +188,17 @@ public class BlockPoller : BaseBlockPoller
         }
         await Task.WhenAll(tasks);
 
-        await _store.UpdateLatestBlockIndex(syncedBlockIndex + limit, _pollerType);
+        foreach (var collectionName in _collectionNames)
+        {
+            await _dbService.UpdateLatestBlockIndex(
+                new MetadataDocument
+                {
+                    PollerType = _pollerType,
+                    CollectionName = collectionName,
+                    LatestBlockIndex = syncedBlockIndex + limit
+                }
+            );
+        }
     }
 
     /// <summary>
@@ -164,5 +232,34 @@ public class BlockPoller : BaseBlockPoller
             ? actionPlainValueDict["values"]
             : null;
         return (actionType, actionPlainValueInternal);
+    }
+
+    public async Task<long> GetSyncedBlockIndex(string collectionName)
+    {
+        try
+        {
+            var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
+                _pollerType,
+                collectionName
+            );
+            return syncedBlockIndex;
+        }
+        catch (InvalidOperationException)
+        {
+            var currentBlockIndex = await _stateService.GetLatestIndex();
+            _logger.Information(
+                "Metadata collection is not found, set block index to {BlockIndex} - 1",
+                currentBlockIndex
+            );
+            await _dbService.UpdateLatestBlockIndex(
+                new MetadataDocument
+                {
+                    PollerType = _pollerType,
+                    CollectionName = collectionName,
+                    LatestBlockIndex = currentBlockIndex - 1
+                }
+            );
+            return currentBlockIndex - 1;
+        }
     }
 }

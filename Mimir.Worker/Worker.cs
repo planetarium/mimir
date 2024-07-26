@@ -66,7 +66,7 @@ public class Worker : BackgroundService
         }
 
         var tasks = new List<Task>();
-        var pollerTypeMap = new Dictionary<string, BaseBlockPoller>()
+        var pollerTypeMap = new Dictionary<string, IBlockPoller>()
         {
             { "DiffBlockPoller", new DiffBlockPoller(_stateService, _headlessGqlClient, _store) },
             { "BlockPoller", new BlockPoller(_stateService, _headlessGqlClient, _store) }

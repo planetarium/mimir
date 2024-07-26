@@ -104,7 +104,7 @@ public static class RuneSlotCollectionUpdater
                 .AsBsonArray.OfType<BsonDocument>()
                 .Select(e =>
                     (
-                        slotIndex: e["SlotIndex"].AsInt32,
+                        slotIndex: e["Index"].AsInt32,
                         runeId: e.Contains("RuneSheetId") ? e["RuneSheetId"].AsNullableInt32 : null
                     )
                 )

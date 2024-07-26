@@ -1,8 +1,6 @@
-using Bencodex;
 using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
-using Mimir.Worker.Models;
 using Nekoyume;
 
 namespace Mimir.Worker.Handler;

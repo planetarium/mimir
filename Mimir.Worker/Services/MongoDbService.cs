@@ -26,8 +26,8 @@ public class MongoDbService
 
     private readonly Dictionary<string, IMongoCollection<BsonDocument>> _stateCollectionMappings;
 
-    private IMongoCollection<BsonDocument> MetadataCollection =>
-        _database.GetCollection<BsonDocument>("metadata");
+    private IMongoCollection<MetadataDocument> MetadataCollection =>
+        _database.GetCollection<MetadataDocument>("metadata");
 
     public MongoDbService(string connectionString, string databaseName, string? pathToCAFile)
     {
@@ -110,40 +110,37 @@ public class MongoDbService
         return GetCollection(collectionName);
     }
 
-    public async Task UpdateLatestBlockIndex(
-        long blockIndex,
-        string pollerType,
+    public async Task<UpdateResult> UpdateLatestBlockIndex(
+        MetadataDocument document,
         IClientSessionHandle? session = null
     )
     {
-        _logger.Debug("Update latest block index to {BlockIndex}", blockIndex);
+        var builder = Builders<MetadataDocument>.Filter;
+        var filter = builder.Eq("PollerType", document.PollerType);
+        filter &= builder.Eq("CollectionName", document.CollectionName);
 
-        var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
-        var update = Builders<BsonDocument>.Update.Set("LatestBlockIndex", blockIndex);
-        if (session is null)
-        {
-            await MetadataCollection.UpdateOneAsync(
-                filter,
-                update,
-                new UpdateOptions { IsUpsert = true }
-            );
-        }
-        else
-        {
-            await MetadataCollection.UpdateOneAsync(
-                session,
-                filter,
-                update,
-                new UpdateOptions { IsUpsert = true }
-            );
-        }
+        var update = Builders<MetadataDocument>.Update.Set(
+            "LatestBlockIndex",
+            document.LatestBlockIndex
+        );
+
+        var updateOptions = new UpdateOptions { IsUpsert = true };
+
+        var result = session is null
+            ? await MetadataCollection.UpdateOneAsync(filter, update, updateOptions)
+            : await MetadataCollection.UpdateOneAsync(session, filter, update, updateOptions);
+
+        return result;
     }
 
-    public async Task<long> GetLatestBlockIndex(string pollerType)
+    public async Task<long> GetLatestBlockIndex(string pollerType, string collectionName)
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("PollerType", pollerType);
+        var builder = Builders<MetadataDocument>.Filter;
+        var filter = builder.Eq("PollerType", pollerType);
+        filter &= builder.Eq("CollectionName", collectionName);
+
         var doc = await MetadataCollection.FindSync(filter).FirstAsync();
-        return doc.GetValue("LatestBlockIndex").AsInt64;
+        return doc.LatestBlockIndex;
     }
 
     public async Task<BsonDocument> GetProductsStateByAddress(Address address)
@@ -180,14 +177,14 @@ public class MongoDbService
 
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
-        List<MongoDbCollectionDocument> stateDatas,
+        List<MongoDbCollectionDocument> documents,
         IClientSessionHandle? session = null
     )
     {
         List<UpdateOneModel<BsonDocument>> bulkOps = new List<UpdateOneModel<BsonDocument>>();
-        foreach (var stateData in stateDatas)
+        foreach (var document in documents)
         {
-            var stateUpdateModel = GetStateDataUpdateModel(stateData);
+            var stateUpdateModel = GetStateDataUpdateModel(document);
             bulkOps.Add(stateUpdateModel);
         }
 
@@ -224,15 +221,22 @@ public class MongoDbService
         }
     }
 
-    public UpdateOneModel<BsonDocument> GetStateDataUpdateModel(MongoDbCollectionDocument mongoDbCollectionDocument)
+    public UpdateOneModel<BsonDocument> GetStateDataUpdateModel(
+        MongoDbCollectionDocument mongoDbCollectionDocument
+    )
     {
-        var collectionName = CollectionNames.GetCollectionName(mongoDbCollectionDocument.State.GetType());
+        var collectionName = CollectionNames.GetCollectionName(
+            mongoDbCollectionDocument.State.GetType()
+        );
         var stateJson = mongoDbCollectionDocument.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
         var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
         stateBsonDocument.Remove("Bencoded");
 
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", mongoDbCollectionDocument.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq(
+            "Address",
+            mongoDbCollectionDocument.Address.ToHex()
+        );
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
@@ -249,7 +253,9 @@ public class MongoDbService
         MongoDbCollectionDocument mongoDbCollectionDocument
     )
     {
-        var collectionName = CollectionNames.GetCollectionName(mongoDbCollectionDocument.State.GetType());
+        var collectionName = CollectionNames.GetCollectionName(
+            mongoDbCollectionDocument.State.GetType()
+        );
         var rawStateBytes = new Codec().Encode(mongoDbCollectionDocument.State.Bencoded);
         var rawStateId = await _gridFs.UploadFromBytesAsync(
             $"{mongoDbCollectionDocument.Address.ToHex()}-rawstate",
@@ -262,7 +268,10 @@ public class MongoDbService
         stateBsonDocument.Remove("Bencoded");
         stateBsonDocument.Add("RawStateFileId", rawStateId);
 
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", mongoDbCollectionDocument.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq(
+            "Address",
+            mongoDbCollectionDocument.Address.ToHex()
+        );
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
