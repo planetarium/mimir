@@ -1,6 +1,4 @@
-using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using Microsoft.Extensions.Options;
 using Mimir.Options;
 using MongoDB.Bson;
@@ -11,8 +9,8 @@ namespace Mimir.Services;
 
 public class MongoDbService
 {
-    private IMongoDatabase database;
-    private GridFSBucket gridFs;
+    private readonly IMongoDatabase _database;
+    private readonly GridFSBucket _gridFs;
 
     public MongoDbService(IOptions<DatabaseOption> databaseOption)
     {
@@ -42,8 +40,8 @@ public class MongoDbService
         }
 
         var client = new MongoClient(settings);
-        database = client.GetDatabase(databaseOption.Value.Database);
-        gridFs = new GridFSBucket(database);
+        _database = client.GetDatabase(databaseOption.Value.Database);
+        _gridFs = new GridFSBucket(_database);
     }
 
     public IMongoCollection<T> GetCollection<T>(string collectionName)
@@ -54,17 +52,17 @@ public class MongoDbService
 
     public IMongoDatabase GetDatabase()
     {
-        return database;
+        return _database;
     }
 
     public GridFSBucket GetGridFs()
     {
-        return gridFs;
+        return _gridFs;
     }
 
     public async Task<byte[]> RetrieveFromGridFs(ObjectId fileId)
     {
-        return await RetrieveFromGridFs(gridFs, fileId);
+        return await RetrieveFromGridFs(_gridFs, fileId);
     }
 
     public static async Task<byte[]> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)
