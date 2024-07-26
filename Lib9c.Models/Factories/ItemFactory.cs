@@ -38,6 +38,8 @@ public static class ItemFactory
                             return new Ring(serialized);
                         case ItemSubType.Aura:
                             return new Aura(serialized);
+                        case ItemSubType.Grimoire:
+                            return new Grimoire(serialized);
                     }
                     break;
                 case ItemType.Material:
