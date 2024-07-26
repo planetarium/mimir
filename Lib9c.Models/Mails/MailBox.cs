@@ -20,7 +20,7 @@ public record MailBox : IBencodable
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.List],
+                new[] { ValueKind.List },
                 bencoded.Kind);
         }
 

@@ -31,7 +31,7 @@ public record ItemEnhancement7Result : AttachmentActionResult
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.Dictionary],
+                new[] { ValueKind.Dictionary },
                 bencoded.Kind);
         }
 

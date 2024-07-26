@@ -27,7 +27,7 @@ public record Buy7SellerResult : AttachmentActionResult
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.Dictionary],
+                new[] { ValueKind.Dictionary },
                 bencoded.Kind);
         }
 

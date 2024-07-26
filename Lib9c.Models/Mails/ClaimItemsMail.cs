@@ -47,20 +47,20 @@ public record ClaimItemsMail : Mail
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.Dictionary],
+                new[] { ValueKind.Dictionary },
                 bencoded.Kind);
         }
 
         FungibleAssetValues = d.ContainsKey("f")
             ? d["f"].ToList(StateExtensions.ToFungibleAssetValue)
-            : [];
+            : new List<FungibleAssetValue>();
         Items = d.ContainsKey("i")
             ? d["i"].ToList<(int, int)>(v =>
             {
                 var list = (List)v;
                 return ((Integer)list[0], (Integer)list[1]);
             })
-            : [];
+            : new List<(int id, int count)>();
         Memo = d.ContainsKey("m")
             ? ((Text)d["m"]).Value
             : null;

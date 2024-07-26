@@ -23,7 +23,7 @@ public record Inventory : IBencodable
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.List],
+                new[] { ValueKind.List },
                 bencoded.Kind);
         }
 
