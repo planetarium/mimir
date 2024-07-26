@@ -12,7 +12,7 @@ public class SkillTest
     {
         // Prepare target state
         var row = new SkillSheet.Row();
-        row.Set(["0", "Normal", "Attack", "NormalAttack", "Enemy", "1", "1", "false"]);
+        row.Set(new[] { "0", "Normal", "Attack", "NormalAttack", "Enemy", "1", "1", "false" });
         var target = new VanillaSkill(row, 99, 99, 99, StatType.HP);
 
         // serialize target state and deserialize as paired state
