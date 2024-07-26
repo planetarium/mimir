@@ -12,7 +12,7 @@ namespace Lib9c.Models.States;
 /// <summary>
 /// <see cref="Nekoyume.Model.State.AvatarState"/>
 /// </summary>
-public record Avatar : State
+public record AvatarState : State
 {
     public int Version { get; init; }
     public string Name { get; init; }
@@ -63,7 +63,7 @@ public record Avatar : State
             .Serialize(),
         RankingMapAddress.Serialize());
 
-    public Avatar(IValue bencoded) : base(((List)bencoded)[0])
+    public AvatarState(IValue bencoded) : base(((List)bencoded)[0])
     {
         if (bencoded is List l)
         {
