@@ -107,12 +107,12 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         }
 
         sheet.Set(sheetValue.Value);
-        var stateData = new MongoDbCollectionDocument(
-            sheetAddress,
-            new SheetDocument(sheetAddress, sheet, sheetName, sheetState));
+        // var stateData = new MongoDbCollectionDocument(
+        //     sheetAddress,
+        //     new SheetDocument(sheetAddress, sheet, sheetName, sheetState));
         await Store.UpsertStateDataWithRawDataAsync(
             CollectionNames.GetCollectionName<SheetDocument>(),
-            [stateData],
+            [new SheetDocument(sheetAddress, sheet, sheetName, sheetState)],
             session
         );
     }

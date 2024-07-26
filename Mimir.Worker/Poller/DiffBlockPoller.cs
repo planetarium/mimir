@@ -83,7 +83,8 @@ public class DiffBlockPoller : BaseBlockPoller
         var accountAddress = new Address(rootDiff.Path);
         if (AddressHandlerMappings.HandlerMappings.TryGetValue(accountAddress, out var handler))
         {
-            var stateDatas = new List<MongoDbCollectionDocument>();
+            // var stateDatas = new List<MongoDbCollectionDocument>();
+            var documents = new List<IMimirBsonDocument>();
             foreach (var subDiff in rootDiff.Diffs)
             {
                 if (subDiff.ChangedState is not null)
@@ -95,7 +96,7 @@ public class DiffBlockPoller : BaseBlockPoller
                     );
                     var address = new Address(subDiff.Path);
 
-                    var state = handler.ConvertToState(
+                    var document = handler.ConvertToState(
                         new()
                         {
                             Address = address,
@@ -103,15 +104,16 @@ public class DiffBlockPoller : BaseBlockPoller
                         }
                     );
 
-                    stateDatas.Add(new MongoDbCollectionDocument(address, state));
+                    // stateDatas.Add(new MongoDbCollectionDocument(address, document));
+                    documents.Add(document);
                 }
             }
 
-            if (stateDatas.Count > 0)
+            if (documents.Count > 0)
             {
                 await _store.UpsertStateDataManyAsync(
                     CollectionNames.GetCollectionName(accountAddress),
-                    stateDatas
+                    documents
                 );
             }
         }

@@ -2,9 +2,13 @@ using System.Text.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
+using Lib9c.GraphQL.Types;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using Mimir.GraphQL;
+using Mimir.GraphQL.Queries;
+using Mimir.GraphQL.Types;
+using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using Mimir.Options;
 using Mimir.Repositories;
@@ -26,22 +30,39 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IStateService, HeadlessStateService>();
-builder.Services.AddSingleton<MongoDbService>();
-builder.Services.AddSingleton<ArenaRepository>();
-builder.Services.AddSingleton<TableSheetsRepository>();
-builder.Services.AddSingleton<MetadataRepository>();
-builder.Services.AddSingleton<AgentRepository>();
-builder.Services.AddSingleton<AvatarRepository>();
-builder.Services.AddSingleton<ActionPointRepository>();
-builder.Services.AddSingleton<DailyRewardRepository>();
-builder.Services.AddSingleton<InventoryRepository>();
-builder.Services.AddSingleton<AllRuneRepository>();
-builder.Services.AddSingleton<CollectionRepository>();
-builder.Services.AddSingleton<ItemSlotRepository>();
-builder.Services.AddSingleton<RuneSlotRepository>();
-builder.Services.AddSingleton<StakeRepository>();
-builder.Services.AddSingleton<ProductRepository>();
-builder.Services.AddSingleton<SeasonInfoRepository>();
+builder.Services
+    .AddSingleton<MongoDbService>()
+    .AddSingleton(sp => sp.GetService<MongoDbService>()!.GetCollection<AvatarDocument>("avatar"))
+    .AddGraphQLServer()
+    .AddMimirGraphQLTypes()
+    .AddType<AddressType>()
+    .AddType<BencodexIValueType>()
+    // .AddLib9cGraphQLTypes()
+    // .AddMimirGraphQLTypes()
+    // .AddMongoDbFiltering()
+    // .AddMongoDbProjections()
+    // .AddMongoDbSorting()
+    .AddMongoDbPagingProviders()
+    .AddErrorFilter<ErrorFilter>()
+    .ModifyRequestOptions(requestExecutorOptions =>
+    {
+        requestExecutorOptions.IncludeExceptionDetails = true;
+    });
+// builder.Services.AddSingleton<ArenaRepository>();
+// builder.Services.AddSingleton<TableSheetsRepository>();
+// builder.Services.AddSingleton<MetadataRepository>();
+// builder.Services.AddSingleton<AgentRepository>();
+// builder.Services.AddSingleton<AvatarRepository>();
+// builder.Services.AddSingleton<ActionPointRepository>();
+// builder.Services.AddSingleton<DailyRewardRepository>();
+// builder.Services.AddSingleton<InventoryRepository>();
+// builder.Services.AddSingleton<AllRuneRepository>();
+// builder.Services.AddSingleton<CollectionRepository>();
+// builder.Services.AddSingleton<ItemSlotRepository>();
+// builder.Services.AddSingleton<RuneSlotRepository>();
+// builder.Services.AddSingleton<StakeRepository>();
+// builder.Services.AddSingleton<ProductRepository>();
+// builder.Services.AddSingleton<SeasonInfoRepository>();
 builder.Services.AddControllers();
 builder.Services.AddHeadlessGQLClient()
     .ConfigureHttpClient((provider, client) =>
@@ -67,15 +88,6 @@ builder.Services.AddHeadlessGQLClient()
     });
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
-builder.Services
-    .AddGraphQLServer()
-    .AddLib9cGraphQLTypes()
-    .AddMimirGraphQLTypes()
-    .AddErrorFilter<ErrorFilter>()
-    .ModifyRequestOptions(requestExecutorOptions =>
-    {
-        requestExecutorOptions.IncludeExceptionDetails = true;
-    });
 
 var app = builder.Build();
 app.UseRouting();

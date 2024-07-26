@@ -15,8 +15,8 @@
     <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.9.8" />
     <PackageReference Include="HotChocolate.Language.SyntaxTree" Version="13.9.8" />
     <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.8">
-      <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Lib9c" Version="1.12.0-dev.a5dd5bdf928d819b063a0c193fb9608e9f84f6e9" />
     <PackageReference Include="Libplanet" Version="5.0.0" />

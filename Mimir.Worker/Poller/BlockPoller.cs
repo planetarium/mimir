@@ -30,16 +30,16 @@ public class BlockPoller : BaseBlockPoller
 
         _handlers =
         [
-            new BattleArenaHandler(stateService, store),
-            new EventDungeonBattleHandler(stateService, store),
-            new HackAndSlashHandler(stateService, store),
-            new HackAndSlashSweepHandler(stateService, store),
-            new JoinArenaHandler(stateService, store),
-            new PatchTableHandler(stateService, store),
-            // new ProductsHandler(stateService, store),
-            new RaidHandler(stateService, store),
-            new RuneSlotStateHandler(stateService, store),
-            // new RaidActionHandler(stateService, stord,
+            // new BattleArenaHandler(stateService, store),
+            // new EventDungeonBattleHandler(stateService, store),
+            // new HackAndSlashHandler(stateService, store),
+            // new HackAndSlashSweepHandler(stateService, store),
+            // new JoinArenaHandler(stateService, store),
+            // new PatchTableHandler(stateService, store),
+            // // new ProductsHandler(stateService, store),
+            // new RaidHandler(stateService, store),
+            // new RuneSlotStateHandler(stateService, store),
+            // // new RaidActionHandler(stateService, stord,
         ];
     }
 

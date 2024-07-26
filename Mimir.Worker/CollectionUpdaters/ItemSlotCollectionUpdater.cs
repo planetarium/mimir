@@ -39,10 +39,10 @@ public static class ItemSlotCollectionUpdater
 
         var itemSlotState = new Nekoyume.Model.State.ItemSlotState(serialized);
         var itemSlotDocument = new ItemSlotDocument(itemSlotAddress, itemSlotState);
-        var document = new MongoDbCollectionDocument(itemSlotAddress, itemSlotDocument);
+        // var document = new MongoDbCollectionDocument(itemSlotAddress, itemSlotDocument);
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ItemSlotDocument>(),
-            [document],
+            [itemSlotDocument],
             session
         );
     }

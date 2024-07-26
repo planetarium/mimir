@@ -16,30 +16,30 @@ public static class AddressHandlerMappings
 
     static AddressHandlerMappings()
     {
-        HandlerMappings.Add(Addresses.Agent, new AgentStateHandler());
+        // HandlerMappings.Add(Addresses.Agent, new AgentStateHandler());
         HandlerMappings.Add(Addresses.Avatar, new AvatarStateHandler());
-        HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
-        HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());
-        HandlerMappings.Add(Addresses.ActionPoint, new ActionPointStateHandler());
+        // HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
+        // HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());
+        // HandlerMappings.Add(Addresses.ActionPoint, new ActionPointStateHandler());
         // HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
-        HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
-        HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
-        HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
+        // HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
+        // HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
+        // HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
         // HandlerMappings.Add(Addresses.AdventureBoss, new SeasonInfoHandler());
         // HandlerMappings.Add(Addresses.BountyBoard, new BountyBoardHandler());
         // HandlerMappings.Add(Addresses.ExploreBoard, new ExploreBoardHandler());
         // HandlerMappings.Add(Addresses.ExplorerList, new ExplorerListHandler());
 
-        RegisterBalanceHandler(OdinNCGCurrency);
-        RegisterBalanceHandler(Currencies.Crystal);
-        RegisterBalanceHandler(Currencies.StakeRune);
-        RegisterBalanceHandler(Currencies.DailyRewardRune);
-        RegisterBalanceHandler(Currencies.Garage);
-        RegisterBalanceHandler(Currencies.Mead);
-        RegisterBalanceHandler(Currencies.FreyaBlessingRune);
-        RegisterBalanceHandler(Currencies.FreyaLiberationRune);
-        RegisterBalanceHandler(Currencies.OdinWeaknessRune);
-        RegisterBalanceHandler(Currencies.OdinWisdomRune);
+        // RegisterBalanceHandler(OdinNCGCurrency);
+        // RegisterBalanceHandler(Currencies.Crystal);
+        // RegisterBalanceHandler(Currencies.StakeRune);
+        // RegisterBalanceHandler(Currencies.DailyRewardRune);
+        // RegisterBalanceHandler(Currencies.Garage);
+        // RegisterBalanceHandler(Currencies.Mead);
+        // RegisterBalanceHandler(Currencies.FreyaBlessingRune);
+        // RegisterBalanceHandler(Currencies.FreyaLiberationRune);
+        // RegisterBalanceHandler(Currencies.OdinWeaknessRune);
+        // RegisterBalanceHandler(Currencies.OdinWisdomRune);
     }
 
     private static void RegisterBalanceHandler(Currency currency)

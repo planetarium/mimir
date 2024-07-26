@@ -7,7 +7,7 @@ namespace Lib9c.GraphQL.Types;
 
 public class AddressType : ScalarType<Address, StringValueNode>
 {
-    public AddressType() : base("Address")
+    public AddressType() : base("LibplanetAddress")
     {
     }
 

@@ -88,14 +88,16 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         await Store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ArenaInformationDocument>(),
             [
-                new MongoDbCollectionDocument(
-                    myArenaInfo.Address,
-                    new ArenaInformationDocument(myArenaInfo, roundData, myAvatarAddress)
-                ),
-                new MongoDbCollectionDocument(
-                    enemyArenaInfo.Address,
-                    new ArenaInformationDocument(enemyArenaInfo, roundData, enemyAvatarAddress)
-                )
+                // new MongoDbCollectionDocument(
+                //     myArenaInfo.Address,
+                //     new ArenaInformationDocument(myArenaInfo, roundData, myAvatarAddress)
+                // ),
+                new ArenaInformationDocument(myArenaInfo, roundData, myAvatarAddress),
+                // new MongoDbCollectionDocument(
+                //     enemyArenaInfo.Address,
+                //     new ArenaInformationDocument(enemyArenaInfo, roundData, enemyAvatarAddress)
+                // )
+                new ArenaInformationDocument(enemyArenaInfo, roundData, enemyAvatarAddress)
             ],
             session
         );
@@ -103,14 +105,16 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         await Store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ArenaInformationDocument>(),
             [
-                new MongoDbCollectionDocument(
-                    myArenaScore.Address,
-                    new ArenaScoreDocument(myArenaScore, roundData, myAvatarAddress)
-                ),
-                new MongoDbCollectionDocument(
-                    enemyArenaScore.Address,
-                    new ArenaScoreDocument(enemyArenaScore, roundData, enemyAvatarAddress)
-                )
+                // new MongoDbCollectionDocument(
+                //     myArenaScore.Address,
+                //     new ArenaScoreDocument(myArenaScore, roundData, myAvatarAddress)
+                // ),
+                new ArenaScoreDocument(myArenaScore, roundData, myAvatarAddress),
+                // new MongoDbCollectionDocument(
+                //     enemyArenaScore.Address,
+                //     new ArenaScoreDocument(enemyArenaScore, roundData, enemyAvatarAddress)
+                // )
+                new ArenaScoreDocument(enemyArenaScore, roundData, enemyAvatarAddress)
             ],
             session
         );
