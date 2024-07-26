@@ -32,7 +32,7 @@ public record State : IBencodable
             default:
                 throw new UnsupportedArgumentTypeException<ValueKind>(
                     nameof(bencoded),
-                    [ValueKind.List, ValueKind.Dictionary],
+                    new[] { ValueKind.List, ValueKind.Dictionary },
                     bencoded.Kind);
         }
     }

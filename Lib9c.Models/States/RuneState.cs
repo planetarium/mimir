@@ -21,7 +21,7 @@ public record RuneState : IBencodable
         {
             throw new UnsupportedArgumentValueException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.List],
+                new[] { ValueKind.List },
                 bencoded.Kind);
         }
 

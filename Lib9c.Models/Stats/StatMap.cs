@@ -26,7 +26,7 @@ public record StatMap : IBencodable
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.Dictionary],
+                new[] { ValueKind.Dictionary },
                 bencoded.Kind);
         }
 
