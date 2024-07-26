@@ -49,7 +49,6 @@ public class DiffProducer
     {
         var collectionName = CollectionNames.GetCollectionName(accountAddress);
 
-        var currentBlockIndex = await _stateService.GetLatestIndex();
         var syncedBlockIndex = await GetSyncedBlockIndex(collectionName);
         var currentTargetIndex = syncedBlockIndex;
         _logger.Information(
@@ -60,7 +59,8 @@ public class DiffProducer
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var currentBaseIndex = currentTargetIndex; (여기 문제 있음 돌아오면서 최신으로 계속 업데이트됨)
+            var currentBlockIndex = await _stateService.GetLatestIndex();
+            var currentBaseIndex = currentTargetIndex;
             long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);
             int limit =
                 collectionName == CollectionNames.GetCollectionName<InventoryDocument>()
@@ -70,7 +70,7 @@ public class DiffProducer
             currentTargetIndex =
                 currentTargetIndex + (indexDifference > limit ? limit : indexDifference);
 
-            if (currentTargetIndex >= currentBlockIndex)
+            if (currentBaseIndex >= currentBlockIndex)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
                 continue;
