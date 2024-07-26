@@ -15,6 +15,8 @@ public record BalanceHandler(Currency Currency) : IStateHandler
             );
         }
 
-        return new BalanceDocument(FungibleAssetValue.FromRawValue(Currency, value));
+        return new BalanceDocument(
+            context.Address,
+            FungibleAssetValue.FromRawValue(Currency, value));
     }
 }

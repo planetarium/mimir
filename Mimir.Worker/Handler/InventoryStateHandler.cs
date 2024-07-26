@@ -10,7 +10,7 @@ public class InventoryStateHandler : IStateHandler
     {
         if (context.RawState is List list)
         {
-            return new InventoryDocument(new Inventory(list));
+            return new InventoryDocument(context.Address, new Inventory(list));
         }
         else
         {

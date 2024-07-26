@@ -15,6 +15,6 @@ public class CollectionStateHandler : IStateHandler
         }
 
         var collectionState = new Nekoyume.Model.State.CollectionState(value);
-        return new CollectionDocument(collectionState);
+        return new CollectionDocument(context.Address, collectionState);
     }
 }

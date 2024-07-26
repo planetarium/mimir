@@ -15,6 +15,6 @@ public class AllRuneStateHandler : IStateHandler
         }
 
         var allRuneState = new Nekoyume.Model.State.AllRuneState(value);
-        return new AllRuneDocument(allRuneState);
+        return new AllRuneDocument(context.Address, allRuneState);
     }
 }

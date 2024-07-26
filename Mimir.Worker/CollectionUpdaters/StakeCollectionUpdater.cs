@@ -25,8 +25,9 @@ public static class StakeCollectionUpdater
         try
         {
             var slotState = new StakeStateV2(serialized);
-            var stateData = new MongoDbCollectionDocument(stakeAddress, new StakeDocument(slotState));
-
+            var stateData = new MongoDbCollectionDocument(
+                stakeAddress,
+                new StakeDocument(stakeAddress, slotState));
             await store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<StakeDocument>(),
                 [stateData],
