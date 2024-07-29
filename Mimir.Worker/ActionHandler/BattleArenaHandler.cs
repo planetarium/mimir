@@ -101,7 +101,7 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         );
 
         await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ArenaInformationDocument>(),
+            CollectionNames.GetCollectionName<ArenaScoreDocument>(),
             [
                 new MongoDbCollectionDocument(
                     myArenaScore.Address,
