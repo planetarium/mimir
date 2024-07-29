@@ -1,24 +1,128 @@
 {
+    "action_point": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "agent": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "all_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "arena_information": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
     "arena_score": [
         {
-            "AvatarAddress": 1
-        },
-        {
-            "Object.Score": 1
-        },
-        {
-            "RoundData.ChampionshipId": 1,
-            "RoundData.Round": 1
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
         }
     ],
-    "avatars": [
+    "avatar": [
         {
-            "Avatar.address": 1
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
         }
     ],
-    "tableSheets": [
+    "balances": [
         {
-            "Name": 1
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "collection": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "daily_reward": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "inventory": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "item_slot": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "rune_slot": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "table_sheet": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "world_information": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
         }
     ]
 }
