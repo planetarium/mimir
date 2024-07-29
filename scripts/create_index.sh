@@ -13,7 +13,6 @@ if ! command -v mongosh &>/dev/null; then
     exit 1
 fi
 
-
 INDEX_FILE="scripts/indexes.json"
 if [ ! -f "$INDEX_FILE" ]; then
     echo "Index file not found: $INDEX_FILE"
@@ -25,8 +24,16 @@ for DB_NAME in "${DB_NAMES[@]}"; do
 
     for COLLECTION in $(jq -r 'keys[]' "$INDEX_FILE"); do
         jq -c ".${COLLECTION}[]" "$INDEX_FILE" | while read INDEX; do
-            echo "Creating index for ${COLLECTION}: ${INDEX}"
-            mongosh $CONN_STRING --eval "db.getSiblingDB('${DB_NAME}').${COLLECTION}.createIndex($INDEX)"
+            INDEX_KEY=$(echo "$INDEX" | jq '.key')
+            INDEX_OPTIONS=$(echo "$INDEX" | jq 'del(.key)')
+
+            if [ "$INDEX_OPTIONS" != "{}" ]; then
+                echo "Creating index for ${COLLECTION}: Key=${INDEX_KEY}, Options=${INDEX_OPTIONS}"
+                mongosh $CONN_STRING --eval "db.getSiblingDB('${DB_NAME}').${COLLECTION}.createIndex(${INDEX_KEY}, ${INDEX_OPTIONS})"
+            else
+                echo "Creating index for ${COLLECTION}: Key=${INDEX_KEY}"
+                mongosh $CONN_STRING --eval "db.getSiblingDB('${DB_NAME}').${COLLECTION}.createIndex(${INDEX_KEY})"
+            fi
         done
     done
 
