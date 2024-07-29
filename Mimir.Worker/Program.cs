@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mimir.Worker;
 using Mimir.Worker.Services;
-using Sentry.Profiling;
 using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -80,17 +79,5 @@ builder.Services.AddHostedService(serviceProvider =>
 
 var host = builder.Build();
 var config = host.Services.GetRequiredService<IOptions<Configuration>>().Value;
-if (!string.IsNullOrEmpty(config.SentryDsn))
-{
-    SentrySdk.Init(options =>
-    {
-        options.Dsn = config.SentryDsn;
-        options.Debug = config.SentryDebug;
-        options.AutoSessionTracking = true;
-        options.TracesSampleRate = 1.0;
-        options.ProfilesSampleRate = 1.0;
-        options.AddIntegration(new ProfilingIntegration(TimeSpan.FromMilliseconds(500)));
-    });
-}
 
 host.Run();
