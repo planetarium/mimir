@@ -16,7 +16,7 @@ public class IgnoreBencodedContractResolver : DefaultContractResolver
     {
         var property = base.CreateProperty(member, memberSerialization);
 
-        if (property.PropertyName == "Bencoded")
+        if (property.PropertyName is not null && property.PropertyName.StartsWith("Bencoded"))
         {
             property.ShouldSerialize = instance => false;
         }

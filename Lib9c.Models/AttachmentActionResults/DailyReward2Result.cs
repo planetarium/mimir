@@ -12,7 +12,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// </summary>
 public record DailyReward2Result : AttachmentActionResult
 {
-    public Dictionary<Material, int> Materials { get; init; }
+    private Dictionary<Material, int> Materials { get; init; }
     public Guid Id { get; init; }
 
     public override IValue Bencoded => ((Dictionary)base.Bencoded)

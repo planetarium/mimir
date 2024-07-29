@@ -13,7 +13,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// </summary>
 public record CombinationConsumable5Result : AttachmentActionResult
 {
-    public Dictionary<Material, int> Materials { get; init; }
+    private Dictionary<Material, int> Materials { get; init; }
     public Guid Id { get; init; }
     public BigInteger Gold { get; init; }
     public int ActionPoint { get; init; }
