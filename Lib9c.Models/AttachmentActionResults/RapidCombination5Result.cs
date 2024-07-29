@@ -13,7 +13,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 public record RapidCombination5Result : AttachmentActionResult
 {
     public Guid Id { get; init; }
-    public Dictionary<Material, int> Cost { get; init; }
+    private Dictionary<Material, int> Cost { get; init; }
 
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("id", Id.Serialize())

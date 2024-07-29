@@ -12,7 +12,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// </summary>
 public record RapidCombination0Result : AttachmentActionResult
 {
-    public Dictionary<Material, int> Cost { get; init; }
+    private Dictionary<Material, int> Cost { get; init; }
 
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("cost", new List(Cost
