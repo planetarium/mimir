@@ -81,15 +81,7 @@ public class Worker : BackgroundService
 
             _logger.Information("Start Polling");
 
-            await Task.WhenAny(tasks);
-
-            foreach (var task in tasks)
-            {
-                if (task.IsFaulted)
-                {
-                    await task;
-                }
-            }
+            await Task.WhenAll(tasks);
         }
         catch (Exception ex)
         {
@@ -101,5 +93,7 @@ public class Worker : BackgroundService
             "Stopped Worker background service. Elapsed {TotalElapsedMinutes} minutes",
             DateTime.UtcNow.Subtract(started).Minutes
         );
+        // Temp Force quit
+        throw new Exception();
     }
 }
