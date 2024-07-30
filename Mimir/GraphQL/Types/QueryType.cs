@@ -58,9 +58,10 @@ public class QueryType : ObjectType<Query>
                 return repository.GetLatestBlockIndex(context.ArgumentValue<string>("pollerType"));
             });
 
-        descriptor
-            .Field("adventureBoss")
-            .Type<AdventureBossType>()
-            .Resolve(_ => new AdventureBossObject());
+        // NOTE: Use it when Mimir.Worker handle adventure boss data into MongoDB.
+        // descriptor
+        //     .Field("adventureBoss")
+        //     .Type<AdventureBossType>()
+        //     .Resolve(_ => new AdventureBossObject());
     }
 }
