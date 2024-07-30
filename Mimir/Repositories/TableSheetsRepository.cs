@@ -1,4 +1,6 @@
 using System.Text;
+using Bencodex;
+using Bencodex.Types;
 using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.GraphQL.Extensions;
@@ -16,6 +18,8 @@ namespace Mimir.Repositories;
 
 public class TableSheetsRepository(MongoDbService dbService)
 {
+    private static readonly Codec Codec = new();
+
     public ArenaSheet.RoundData GetArenaRound(long blockIndex)
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
@@ -143,38 +147,29 @@ public class TableSheetsRepository(MongoDbService dbService)
         var gridFs = new GridFSBucket(database);
         var fieldToInclude = sheetFormat switch
         {
-            SheetFormat.Csv => "SheetCsvFileId",
-            SheetFormat.Json => "SheetJson",
-            _ => "SheetJson"
+            SheetFormat.Csv => "RawStateFileId",
+            SheetFormat.Json => "Object",
+            _ => "Object",
         };
 
-        var projection = Builders<BsonDocument>.Projection.Include(fieldToInclude).Exclude("_id");
+        // var projection = Builders<BsonDocument>.Projection.Include(fieldToInclude).Exclude("_id");
         var filter = Builders<BsonDocument>.Filter.Eq("State.Name", sheetName);
-        var document = collection.Find(filter).Project(projection).FirstOrDefault();
+        var document = collection.Find(filter).FirstOrDefault();
 
-        if (
-            document == null
-            || !document.Contains(fieldToInclude)
-            || document[fieldToInclude].IsBsonNull
-        )
+        if (document == null)
         {
             throw new KeyNotFoundException(sheetName);
         }
 
         return sheetFormat switch
         {
-            SheetFormat.Csv
-                => Encoding.UTF8.GetString(
-                    await MongoDbService.RetrieveFromGridFs(
-                        gridFs,
-                        document[fieldToInclude].AsObjectId
-                    )
-                ),
-            _
-                => document[fieldToInclude]
-                    .ToJson(
-                        new JsonWriterSettings { OutputMode = JsonOutputMode.CanonicalExtendedJson }
-                    )
+            SheetFormat.Csv => ((Text)Codec.Decode(await MongoDbService.RetrieveFromGridFs(
+                gridFs,
+                document["State"][fieldToInclude].AsObjectId))).Value,
+            _ => document["State"][fieldToInclude].ToJson(new JsonWriterSettings
+            {
+                OutputMode = JsonOutputMode.CanonicalExtendedJson
+            }),
         };
     }
 }
