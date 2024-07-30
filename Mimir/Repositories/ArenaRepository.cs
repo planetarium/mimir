@@ -223,8 +223,9 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
             arenaRanking.CP = cp;
             Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");
         }
-        catch (DocumentNotFoundInMongoCollectionException)
+        catch (DocumentNotFoundInMongoCollectionException e)
         {
+            Console.WriteLine(e.Message);
         }
 
         return arenaRanking;
