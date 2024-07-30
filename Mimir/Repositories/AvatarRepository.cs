@@ -33,20 +33,26 @@ public class AvatarRepository(MongoDbService dbService)
 
         try
         {
-            var avatarDoc = document["State"]["Object"];
+            var avatarDoc = document["State"]["Object"].AsBsonDocument;
             return new Avatar(
-                avatarDoc["agentAddress"].AsString,
-                avatarDoc["address"].AsString,
-                avatarDoc["name"].AsString,
-                avatarDoc["level"].AsInt32,
-                avatarDoc["actionPoint"].AsInt32,
-                avatarDoc["dailyRewardReceivedIndex"].ToInt64(),
-                avatarDoc["characterId"].ToInt32()
+                avatarDoc["AgentAddress"].AsString,
+                avatarDoc["Address"].AsString,
+                avatarDoc["Name"].AsString,
+                avatarDoc["Level"].AsInt32,
+                avatarDoc["ActionPoint"].AsInt32,
+                avatarDoc["DailyRewardReceivedIndex"].ToInt64(),
+                avatarDoc["CharacterId"].ToInt32()
             );
         }
         catch (KeyNotFoundException e)
         {
-            throw new KeyNotFoundInBsonDocumentException("document[\"State\"]", e);
+            throw new KeyNotFoundInBsonDocumentException("document[\"State\"][\"Object\"]", e);
+        }
+        catch (InvalidCastException e)
+        {
+            throw new UnexpectedTypeOfBsonValueException(
+                "document[\"State\"][\"Object\"].AsBsonDocument or its children values",
+                e);
         }
     }
 }
