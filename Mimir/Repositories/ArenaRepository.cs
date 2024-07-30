@@ -165,19 +165,27 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
 
         var aggregation = collection.Aggregate<BsonDocument>(pipelines).ToList();
         var arenaRankings = await Task.WhenAll(
-            aggregation.OfType<BsonDocument>().Select(BuildArenaRankingFromDocument)
-        );
-        return arenaRankings.ToList();
+            aggregation.Where(e => e is not null).Select(BuildArenaRankingFromDocument));
+        return arenaRankings.Where(e => e is not null).ToList()!;
     }
 
-    private async Task<ArenaRanking> BuildArenaRankingFromDocument(BsonDocument document)
+    private async Task<ArenaRanking?> BuildArenaRankingFromDocument(BsonDocument document)
     {
         var avatarAddress = document["State"]["AvatarAddress"].AsString;
-        var arenaInformationDoc = await GetArenaInformationAsync(
-            new Address(avatarAddress),
-            document["State"]["RoundData"]["ChampionshipId"].ToInt32(),
-            document["State"]["RoundData"]["Round"].ToInt32()
-        );
+        BsonDocument arenaInformationDoc;
+        try
+        {
+            arenaInformationDoc = await GetArenaInformationAsync(
+                new Address(avatarAddress),
+                document["State"]["RoundData"]["ChampionshipId"].ToInt32(),
+                document["State"]["RoundData"]["Round"].ToInt32()
+            );
+        }
+        catch (DocumentNotFoundInMongoCollectionException e)
+        {
+            Console.WriteLine(e.Message);
+            return null;
+        }
 
         var arenaRanking = new ArenaRanking(
             document["State"]["AvatarAddress"].AsString,
@@ -215,7 +223,10 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
             arenaRanking.CP = cp;
             Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");
         }
-        catch (DocumentNotFoundInMongoCollectionException) { }
+        catch (DocumentNotFoundInMongoCollectionException e)
+        {
+            Console.WriteLine(e.Message);
+        }
 
         return arenaRanking;
     }
