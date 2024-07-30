@@ -38,9 +38,11 @@ public class AgentType : ObjectType<AgentObject>
             .Field("avatars")
             .Type<NonNullType<ListType<NonNullType<AvatarType>>>>()
             .ResolveWith<AgentResolver>(_ => AgentResolver.GetAvatars(default!));
-        descriptor
-            .Field("stake")
-            .Type<StakeStateType>()
-            .ResolveWith<AgentResolver>(_ => AgentResolver.GetStake(default!, default!));
+        
+        // NOTE: Use it when Mimir.Worker handle stake data into MongoDB.
+        // descriptor
+        //     .Field("stake")
+        //     .Type<StakeStateType>()
+        //     .ResolveWith<AgentResolver>(_ => AgentResolver.GetStake(default!, default!));
     }
 }
