@@ -1,9 +1,7 @@
-using Bencodex.Types;
-using Nekoyume.Model.AdventureBoss;
+// using Libplanet.Crypto;
+// using Nekoyume.Model.AdventureBoss;
 
-namespace Mimir.MongoDB.Bson.AdventureBoss;
+// namespace Mimir.MongoDB.Bson.AdventureBoss;
 
-public record BountyBoardDocument(BountyBoard Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Bencoded;
-}
+// public record BountyBoardDocument(Address Address, BountyBoard Object)
+//     : IMimirBsonDocument(Address) { }

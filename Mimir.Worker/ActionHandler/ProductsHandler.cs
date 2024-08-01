@@ -122,7 +122,7 @@
 //         var existingState = await Store.GetProductsStateByAddress(productsStateAddress);
 //         return existingState == null
 //             ? new List<Guid>()
-//             : existingState["State"]
+//             : existingState
 //                 ["Object"]["ProductIds"]
 //                 .AsBsonArray.Select(p => Guid.Parse(p.AsString))
 //                 .ToList();

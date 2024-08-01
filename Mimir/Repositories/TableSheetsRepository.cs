@@ -33,12 +33,12 @@ public class TableSheetsRepository(MongoDbService dbService)
     {
         var pipelines = new BsonDocument[]
         {
-            new("$match", new BsonDocument("State.Name", "ArenaSheet")),
+            new("$match", new BsonDocument("Name", "ArenaSheet")),
             new(
                 "$addFields",
                 new BsonDocument(
                     "SheetJsonArray",
-                    new BsonDocument("$objectToArray", "$State.Object")
+                    new BsonDocument("$objectToArray", "$Object")
                 )
             ),
             new("$unwind", new BsonDocument("path", "$SheetJsonArray")),
@@ -98,15 +98,15 @@ public class TableSheetsRepository(MongoDbService dbService)
     public string[] GetSheetNames()
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
-        var projection = Builders<BsonDocument>.Projection.Include("State.Name").Exclude("_id");
+        var projection = Builders<BsonDocument>.Projection.Include("Name").Exclude("_id");
         var documents = collection.Find(new BsonDocument()).Project(projection).ToList();
 
         var names = new List<string>();
         foreach (var document in documents)
         {
-            if (document.Contains("State") && document["State"].AsBsonDocument.Contains("Name"))
+            if (document.Contains("State") && document.AsBsonDocument.Contains("Name"))
             {
-                names.Add(document["State"]["Name"].AsString);
+                names.Add(document["Name"].AsString);
             }
         }
 
@@ -153,7 +153,7 @@ public class TableSheetsRepository(MongoDbService dbService)
         };
 
         // var projection = Builders<BsonDocument>.Projection.Include(fieldToInclude).Exclude("_id");
-        var filter = Builders<BsonDocument>.Filter.Eq("State.Name", sheetName);
+        var filter = Builders<BsonDocument>.Filter.Eq("Name", sheetName);
         var document = collection.Find(filter).FirstOrDefault();
 
         if (document == null)
@@ -165,8 +165,8 @@ public class TableSheetsRepository(MongoDbService dbService)
         {
             SheetFormat.Csv => ((Text)Codec.Decode(await MongoDbService.RetrieveFromGridFs(
                 gridFs,
-                document["State"][fieldToInclude].AsObjectId))).Value,
-            _ => document["State"][fieldToInclude].ToJson(new JsonWriterSettings
+                document[fieldToInclude].AsObjectId))).Value,
+            _ => document[fieldToInclude].ToJson(new JsonWriterSettings
             {
                 OutputMode = JsonOutputMode.CanonicalExtendedJson
             }),

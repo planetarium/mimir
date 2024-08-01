@@ -16,56 +16,13 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
     private readonly CpRepository _cpRepository = new(stateService);
     private StateGetter _stateGetter = new(stateService);
 
-    public async Task<BsonDocument> GetArenaInformationAsync(
-        Address avatarAddress,
-        int championshipId,
-        int round
-    ) =>
-        await GetArenaInformationAsync(
-            dbService.GetCollection<BsonDocument>(CollectionNames.ArenaInformation.Value),
-            avatarAddress,
-            championshipId,
-            round
-        );
-
-    public async Task<BsonDocument> GetArenaInformationAsync(
-        IMongoCollection<BsonDocument> collection,
-        Address avatarAddress,
-        int championshipId,
-        int round
-    )
-    {
-        var builder = Builders<BsonDocument>.Filter;
-        var filter = builder.Eq("State.AvatarAddress", avatarAddress.ToHex());
-        filter &= builder.Eq("State.RoundData.ChampionshipId", championshipId);
-        filter &= builder.Eq("State.RoundData.Round", round);
-        var document = collection.Find(filter).FirstOrDefault();
-        if (document is null)
-        {
-            throw new DocumentNotFoundInMongoCollectionException(
-                collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{avatarAddress.ToHex()}'"
-            );
-        }
-
-        try
-        {
-            var arenaInformationDoc = document["State"].AsBsonDocument;
-            return arenaInformationDoc;
-        }
-        catch (KeyNotFoundException e)
-        {
-            throw new KeyNotFoundInBsonDocumentException("document[\"State\"]", e);
-        }
-    }
-
     public async Task<long> GetRankingByAvatarAddressAsync(
         Address avatarAddress,
         int championshipId,
         int round
     )
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.ArenaScore.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
         return await GetRankingByAvatarAddressAsync(
             collection,
             avatarAddress,
@@ -89,12 +46,12 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("State.RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("State.RoundData.Round", round)
+                        new BsonDocument("RoundData.ChampionshipId", championshipId),
+                        new BsonDocument("RoundData.Round", round)
                     }
                 )
             ),
-            new("$sort", new BsonDocument("State.Object.Score", -1)),
+            new("$sort", new BsonDocument("Object.Score", -1)),
             new(
                 "$group",
                 new BsonDocument
@@ -107,7 +64,7 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
                 "$unwind",
                 new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "Rank" } }
             ),
-            new("$match", new BsonDocument("docs.State.AvatarAddress", avatarAddress.ToHex()))
+            new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress.ToHex()))
         };
 
         var aggregation = await collection.Aggregate<dynamic>(pipelines).ToListAsync();
@@ -121,7 +78,7 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
         int round
     )
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.ArenaScore.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
         return await GetRanking(collection, skip, limit, championshipId, round);
     }
 
@@ -141,8 +98,8 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("State.RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("State.RoundData.Round", round)
+                        new BsonDocument("RoundData.ChampionshipId", championshipId),
+                        new BsonDocument("RoundData.Round", round)
                     }
                 )
             ),
@@ -171,32 +128,18 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
 
     private async Task<ArenaRanking?> BuildArenaRankingFromDocument(BsonDocument document)
     {
-        var avatarAddress = document["State"]["AvatarAddress"].AsString;
-        BsonDocument arenaInformationDoc;
-        try
-        {
-            arenaInformationDoc = await GetArenaInformationAsync(
-                new Address(avatarAddress),
-                document["State"]["RoundData"]["ChampionshipId"].ToInt32(),
-                document["State"]["RoundData"]["Round"].ToInt32()
-            );
-        }
-        catch (DocumentNotFoundInMongoCollectionException e)
-        {
-            Console.WriteLine(e.Message);
-            return null;
-        }
+        var avatarAddress = document["AvatarAddress"].AsString;
 
         var arenaRanking = new ArenaRanking(
-            document["State"]["AvatarAddress"].AsString,
-            arenaInformationDoc["Object"]["Address"].AsString,
-            arenaInformationDoc["Object"]["Win"].ToInt32(),
-            arenaInformationDoc["Object"]["Lose"].ToInt32(),
+            document["AvatarAddress"].AsString,
+            document["ArenaInformationObject"]["Address"].AsString,
+            document["ArenaInformationObject"]["Win"].ToInt32(),
+            document["ArenaInformationObject"]["Lose"].ToInt32(),
             document["Rank"].ToInt64() + 1,
-            arenaInformationDoc["Object"]["Ticket"].ToInt32(),
-            arenaInformationDoc["Object"]["TicketResetCount"].ToInt32(),
-            arenaInformationDoc["Object"]["PurchasedTicketCount"].ToInt32(),
-            document["State"]["Object"]["Score"].ToInt32()
+            document["ArenaInformationObject"]["Ticket"].ToInt32(),
+            document["ArenaInformationObject"]["TicketResetCount"].ToInt32(),
+            document["ArenaInformationObject"]["PurchasedTicketCount"].ToInt32(),
+            document["ArenaScoreObject"]["Score"].ToInt32()
         );
 
         try

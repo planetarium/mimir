@@ -11,13 +11,9 @@ public class CollectionNames
 
     public string Value { get; private set; }
 
-    public static CollectionNames ArenaScore
+    public static CollectionNames Arena
     {
-        get { return new CollectionNames("arena_score"); }
-    }
-    public static CollectionNames ArenaInformation
-    {
-        get { return new CollectionNames("arena_information"); }
+        get { return new CollectionNames("arena"); }
     }
     public static CollectionNames Avatar
     {

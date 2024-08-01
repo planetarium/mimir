@@ -2,9 +2,9 @@ using Lib9c.Abstractions;
 using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Constants;
+using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 using Serilog;
@@ -86,31 +86,24 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         );
 
         await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ArenaInformationDocument>(),
+            CollectionNames.GetCollectionName<ArenaDocument>(),
             [
-                new MongoDbCollectionDocument(
-                    myArenaInfo.Address,
-                    new ArenaInformationDocument(myArenaInfo, roundData, myAvatarAddress)
-                ),
-                new MongoDbCollectionDocument(
-                    enemyArenaInfo.Address,
-                    new ArenaInformationDocument(enemyArenaInfo, roundData, enemyAvatarAddress)
-                )
-            ],
-            session
-        );
-
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ArenaScoreDocument>(),
-            [
-                new MongoDbCollectionDocument(
+                new ArenaDocument(
                     myArenaScore.Address,
-                    new ArenaScoreDocument(myArenaScore, roundData, myAvatarAddress)
+                    myArenaInfo.Address,
+                    myArenaInfo,
+                    myArenaScore,
+                    roundData,
+                    myAvatarAddress
                 ),
-                new MongoDbCollectionDocument(
+                new ArenaDocument(
                     enemyArenaScore.Address,
-                    new ArenaScoreDocument(enemyArenaScore, roundData, enemyAvatarAddress)
-                )
+                    enemyArenaInfo.Address,
+                    enemyArenaInfo,
+                    enemyArenaScore,
+                    roundData,
+                    enemyAvatarAddress
+                ),
             ],
             session
         );

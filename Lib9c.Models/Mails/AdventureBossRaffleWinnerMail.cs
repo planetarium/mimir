@@ -9,7 +9,7 @@ namespace Lib9c.Models.Mails;
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.AdventureBossRaffleWinnerMail"/>
 /// </summary>
-public record AdventureBossRaffleWinnerMail : AttachmentMail
+public record AdventureBossRaffleWinnerMail : Mail
 {
     public long Season { get; init; }
     public FungibleAssetValue Reward { get; init; }

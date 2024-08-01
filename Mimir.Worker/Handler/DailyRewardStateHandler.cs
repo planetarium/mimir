@@ -15,6 +15,6 @@ public class DailyRewardStateHandler : IStateHandler
             );
         }
 
-        return new DailyRewardDocument(value);
+        return new DailyRewardDocument(context.Address, value);
     }
 }

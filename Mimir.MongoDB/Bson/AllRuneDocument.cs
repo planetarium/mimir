@@ -1,8 +1,7 @@
-using Bencodex.Types;
+using Lib9c.Models.States;
+using Libplanet.Crypto;
 
 namespace Mimir.MongoDB.Bson;
 
-public record AllRuneDocument(Nekoyume.Model.State.AllRuneState Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+public record AllRuneDocument(Address Address, AllRuneState Object)
+    : IMimirBsonDocument(Address) { }

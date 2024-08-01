@@ -1,9 +1,8 @@
-using Bencodex.Types;
-using Nekoyume.Model.AdventureBoss;
+// using Libplanet.Crypto;
+// using Nekoyume.Model.AdventureBoss;
 
-namespace Mimir.MongoDB.Bson.AdventureBoss;
+// namespace Mimir.MongoDB.Bson.AdventureBoss;
 
-public record ExplorerDocument(Explorer Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Bencoded;
-}
+// public record ExplorerDocument(Address Address, Explorer Object) : IMimirBsonDocument(Address)
+// {
+// }

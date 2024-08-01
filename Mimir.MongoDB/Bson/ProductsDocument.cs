@@ -1,12 +1,9 @@
-using Bencodex.Types;
-using Libplanet.Crypto;
+// using Libplanet.Crypto;
 
-namespace Mimir.MongoDB.Bson;
+// namespace Mimir.MongoDB.Bson;
 
-public record ProductsDocument(
-    Nekoyume.Model.Market.ProductsState Object,
-    Address AvatarAddress)
-    : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+// public record ProductsDocument(
+//     Address Address,
+//     Nekoyume.Model.Market.ProductsState Object,
+//     Address AvatarAddress
+// ) : IMimirBsonDocument(Address) { }

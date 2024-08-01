@@ -1,11 +1,9 @@
-using Bencodex.Types;
+// using Libplanet.Crypto;
 
-namespace Mimir.MongoDB.Bson;
+// namespace Mimir.MongoDB.Bson;
 
-public record WorldBossDocument(
-    int RaidId,
-    Nekoyume.Model.State.WorldBossState Object)
-    : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+// public record WorldBossDocument(
+//     Address Address,
+//     int RaidId,
+//     Nekoyume.Model.State.WorldBossState Object
+// ) : IMimirBsonDocument(Address) { }

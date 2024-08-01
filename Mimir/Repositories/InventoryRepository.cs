@@ -33,7 +33,7 @@ public class InventoryRepository(MongoDbService dbService)
 
         try
         {
-            var doc = document["State"]["Object"].AsBsonDocument;
+            var doc = document["Object"].AsBsonDocument;
             return new Inventory(doc);
         }
         catch (KeyNotFoundException e)

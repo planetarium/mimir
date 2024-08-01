@@ -14,6 +14,6 @@ public class ActionPointStateHandler : IStateHandler
             );
         }
 
-        return new ActionPointDocument(value);
+        return new ActionPointDocument(context.Address, value);
     }
 }

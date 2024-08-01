@@ -28,7 +28,7 @@ public class ItemSlotRepository(MongoDbService dbService)
 
         try
         {
-            var obj = document["State"]["Object"].AsBsonDocument;
+            var obj = document["Object"].AsBsonDocument;
             var costumes = obj["Costumes"].AsBsonArray
                 .Select(e => Guid.Parse(e.AsString))
                 .ToList();

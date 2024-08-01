@@ -20,12 +20,12 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         {
             _logger.Information("Init sheet, table: {TableName} ", sheetType.Name);
 
-            using (var session = await _store.GetMongoClient().StartSessionAsync())
-            {
-                session.StartTransaction();
-                await handler.SyncSheetStateAsync(sheetType.Name, sheetType, session);
-                session.CommitTransaction();
-            }
+            // using (var session = await _store.GetMongoClient().StartSessionAsync())
+            // {
+                // session.StartTransaction();
+            await handler.SyncSheetStateAsync(sheetType.Name, sheetType);
+                // session.CommitTransaction();
+            // }
         }
     }
 

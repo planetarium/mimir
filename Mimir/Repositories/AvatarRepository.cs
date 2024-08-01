@@ -33,7 +33,7 @@ public class AvatarRepository(MongoDbService dbService)
 
         try
         {
-            var avatarDoc = document["State"]["Object"].AsBsonDocument;
+            var avatarDoc = document["Object"].AsBsonDocument;
             return new Avatar(
                 avatarDoc["AgentAddress"].AsString,
                 avatarDoc["Address"].AsString,

@@ -24,7 +24,7 @@ public class AgentRepository(MongoDbService dbService)
 
         try
         {
-            var doc = document["State"]["Object"].AsBsonDocument;
+            var doc = document["Object"].AsBsonDocument;
             return new Agent(doc);
         }
         catch (KeyNotFoundException e)

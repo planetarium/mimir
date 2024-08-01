@@ -10,7 +10,7 @@ public class WorldInformationStateHandler : IStateHandler
     {
         if (context.RawState is Dictionary dict)
         {
-            return new WorldInformationDocument(new WorldInformation(dict));
+            return new WorldInformationDocument(context.Address, new WorldInformation(dict));
         }
 
         throw new InvalidCastException(

@@ -1,13 +1,10 @@
-using Bencodex.Types;
-using Libplanet.Crypto;
-using Nekoyume.Model.State;
+// using Libplanet.Crypto;
+// using Nekoyume.Model.State;
 
-namespace Mimir.MongoDB.Bson;
+// namespace Mimir.MongoDB.Bson;
 
-public record WorldBossKillRewardRecordDocument(
-    Address AvatarAddress,
-    WorldBossKillRewardRecord Object)
-    : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+// public record WorldBossKillRewardRecordDocument(
+//     Address Address,
+//     Address AvatarAddress,
+//     WorldBossKillRewardRecord Object
+// ) : IMimirBsonDocument(Address) { }
