@@ -6,6 +6,6 @@ public class AvatarStateHandler : IStateHandler
 {
     public IMimirBsonDocument ConvertToState(StateDiffContext context)
     {
-        return new AvatarDocument(new Lib9c.Models.States.AvatarState(context.RawState));
+        return new AvatarDocument(context.Address, new Lib9c.Models.States.AvatarState(context.RawState));
     }
 }

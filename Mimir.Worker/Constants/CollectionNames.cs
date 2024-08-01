@@ -2,7 +2,6 @@ using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Mimir.MongoDB.Bson;
-using Mimir.MongoDB.Bson.AdventureBoss;
 using Mimir.Worker.Handler;
 
 namespace Mimir.Worker.Constants
@@ -49,10 +48,9 @@ namespace Mimir.Worker.Constants
             CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
             CollectionAndStateTypeMappings.Add(typeof(ActionPointDocument), "action_point");
             CollectionAndStateTypeMappings.Add(typeof(SheetDocument), "table_sheet");
-            CollectionAndStateTypeMappings.Add(typeof(ArenaScoreDocument), "arena_score");
-            CollectionAndStateTypeMappings.Add(typeof(ArenaInformationDocument), "arena_information");
+            CollectionAndStateTypeMappings.Add(typeof(ArenaDocument), "arena");
             CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
-            CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
+            // CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
             CollectionAndStateTypeMappings.Add(typeof(DailyRewardDocument), "daily_reward");
             // CollectionAndStateTypeMappings.Add(typeof(ProductsDocument), "products");
             // CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");

@@ -17,6 +17,6 @@ public class AgentStateHandler : IStateHandler
                 ),
         };
 
-        return new AgentDocument(agentState);
+        return new AgentDocument(context.Address, agentState);
     }
 }

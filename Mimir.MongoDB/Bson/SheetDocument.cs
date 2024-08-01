@@ -8,6 +8,5 @@ public record SheetDocument(
     Address Address,
     ISheet Object,
     string Name,
-    IValue RawState,
-    IValue Bencoded
+    IValue RawState
 ) : IMimirBsonDocument(Address);

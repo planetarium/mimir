@@ -35,10 +35,7 @@ public class DiffConsumer
             {
                 if (diffContext.Diffs.Count() == 0)
                 {
-                    _logger.Information(
-                        "{CollectionName}: No diffs",
-                        diffContext.CollectionName
-                    );
+                    _logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
                     await _dbService.UpdateLatestBlockIndex(
                         new MetadataDocument
                         {
@@ -89,14 +86,14 @@ public class DiffConsumer
         IEnumerable<IGetAccountDiffs_AccountDiffs> diffs
     )
     {
-        List<MongoDbCollectionDocument> documents = new List<MongoDbCollectionDocument>();
+        List<IMimirBsonDocument> documents = new List<IMimirBsonDocument>();
         foreach (var diff in diffs)
         {
             if (diff.ChangedState is not null)
             {
                 var address = new Address(diff.Path);
 
-                var state = handler.ConvertToState(
+                var document = handler.ConvertToState(
                     new()
                     {
                         Address = address,
@@ -104,7 +101,7 @@ public class DiffConsumer
                     }
                 );
 
-                documents.Add(new MongoDbCollectionDocument(address, state));
+                documents.Add(document);
             }
         }
 

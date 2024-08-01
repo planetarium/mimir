@@ -1,4 +1,5 @@
 using Bencodex.Types;
+using Lib9c.Models.States;
 using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
@@ -14,7 +15,7 @@ public class AllRuneStateHandler : IStateHandler
             );
         }
 
-        var allRuneState = new Nekoyume.Model.State.AllRuneState(value);
-        return new AllRuneDocument(allRuneState);
+        var allRuneState = new AllRuneState(value);
+        return new AllRuneDocument(context.Address, allRuneState);
     }
 }

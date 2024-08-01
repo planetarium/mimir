@@ -54,8 +54,7 @@ public class BlockPoller : IBlockPoller
             // new RaidActionHandler(stateService, stord,
         ];
         _collectionNames = [
-            CollectionNames.GetCollectionName<ArenaScoreDocument>(),
-            CollectionNames.GetCollectionName<ArenaInformationDocument>(),
+            CollectionNames.GetCollectionName<ArenaDocument>(),
             CollectionNames.GetCollectionName<ItemSlotDocument>(),
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
             CollectionNames.GetCollectionName<SheetDocument>(),
@@ -71,13 +70,13 @@ public class BlockPoller : IBlockPoller
     {
         var started = DateTime.UtcNow;
         _logger.Information("Start {PollerType} background service", GetType().Name);
-        var arenaScoreCollectionName = CollectionNames.GetCollectionName<ArenaScoreDocument>();
+        var arenaCollectionName = CollectionNames.GetCollectionName<ArenaDocument>();
 
         while (!stoppingToken.IsCancellationRequested)
         {
             var currentBlockIndex = await _stateService.GetLatestIndex();
             // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
-            var syncedBlockIndex = await GetSyncedBlockIndex(arenaScoreCollectionName);
+            var syncedBlockIndex = await GetSyncedBlockIndex(arenaCollectionName);
 
             _logger.Information(
                 "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",

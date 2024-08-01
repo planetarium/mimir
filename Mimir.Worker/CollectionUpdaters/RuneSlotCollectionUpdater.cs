@@ -42,11 +42,10 @@ public static class RuneSlotCollectionUpdater
         }
 
         var runeSlotState = new RuneSlotState(serialized);
-        var runeSlotDocument = new RuneSlotDocument(runeSlotState);
-        var stateData = new MongoDbCollectionDocument(runeSlotAddress, runeSlotDocument);
+        var runeSlotDocument = new RuneSlotDocument(runeSlotAddress, runeSlotState);
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
-            [stateData],
+            [runeSlotDocument],
             session
         );
     }
@@ -75,11 +74,10 @@ public static class RuneSlotCollectionUpdater
         }
 
         var runeSlotState = new RuneSlotState(serialized);
-        var runeSlotDocument = new RuneSlotDocument(runeSlotState);
-        var document = new MongoDbCollectionDocument(runeSlotAddress, runeSlotDocument);
+        var runeSlotDocument = new RuneSlotDocument(runeSlotAddress, runeSlotState);
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
-            [document],
+            [runeSlotDocument],
             session
         );
     }

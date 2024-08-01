@@ -1,20 +1,20 @@
-using Bencodex.Types;
-using Mimir.MongoDB.Bson;
+// using Bencodex.Types;
+// using Mimir.MongoDB.Bson;
 
-namespace Mimir.Worker.Handler;
+// namespace Mimir.Worker.Handler;
 
-public class CollectionStateHandler : IStateHandler
-{
-    public IMimirBsonDocument ConvertToState(StateDiffContext context)
-    {
-        if (context.RawState is not List value)
-        {
-            throw new InvalidCastException(
-                $"{nameof(context.RawState)} Invalid state type. Expected {nameof(List)}, got {context.RawState.GetType().Name}."
-            );
-        }
+// public class CollectionStateHandler : IStateHandler
+// {
+//     public IMimirBsonDocument ConvertToState(StateDiffContext context)
+//     {
+//         if (context.RawState is not List value)
+//         {
+//             throw new InvalidCastException(
+//                 $"{nameof(context.RawState)} Invalid state type. Expected {nameof(List)}, got {context.RawState.GetType().Name}."
+//             );
+//         }
 
-        var collectionState = new Nekoyume.Model.State.CollectionState(value);
-        return new CollectionDocument(collectionState);
-    }
-}
+//         var collectionState = new Nekoyume.Model.State.CollectionState(value);
+//         return new CollectionDocument(collectionState);
+//     }
+// }
