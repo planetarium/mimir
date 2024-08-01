@@ -1,8 +1,6 @@
-using Bencodex.Types;
+using Lib9c.Models.States;
+using Libplanet.Crypto;
 
 namespace Mimir.MongoDB.Bson;
 
-public record AvatarDocument(Lib9c.Models.States.AvatarState Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Bencoded;
-}
+public record AvatarDocument(Address Address, AvatarState Object) : IMimirBsonDocument(Address) { }

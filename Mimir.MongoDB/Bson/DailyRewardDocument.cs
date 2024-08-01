@@ -1,9 +1,5 @@
-using Bencodex.Types;
-using Nekoyume.Model.State;
+using Libplanet.Crypto;
 
 namespace Mimir.MongoDB.Bson;
 
-public record DailyRewardDocument(long Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+public record DailyRewardDocument(Address Address, long Object) : IMimirBsonDocument(Address) { }

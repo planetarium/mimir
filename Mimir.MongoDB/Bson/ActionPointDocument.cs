@@ -1,9 +1,5 @@
-using Bencodex.Types;
-using Nekoyume.Model.State;
+using Libplanet.Crypto;
 
 namespace Mimir.MongoDB.Bson;
 
-public record ActionPointDocument(int Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+public record ActionPointDocument(Address Address, int Object) : IMimirBsonDocument(Address) { }

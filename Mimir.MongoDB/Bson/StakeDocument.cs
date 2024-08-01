@@ -1,9 +1,6 @@
-using Bencodex.Types;
-using Nekoyume.Model.Stake;
+// using Libplanet.Crypto;
+// using Nekoyume.Model.Stake;
 
-namespace Mimir.MongoDB.Bson;
+// namespace Mimir.MongoDB.Bson;
 
-public record StakeDocument(StakeStateV2 Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+// public record StakeDocument(Address Address, StakeStateV2 Object) : IMimirBsonDocument(Address) { }

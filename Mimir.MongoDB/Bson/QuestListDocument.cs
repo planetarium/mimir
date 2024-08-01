@@ -1,9 +1,6 @@
-using Bencodex.Types;
-using Nekoyume.Model.Quest;
+// using Libplanet.Crypto;
+// using Nekoyume.Model.Quest;
 
-namespace Mimir.MongoDB.Bson;
+// namespace Mimir.MongoDB.Bson;
 
-public record QuestListDocument(QuestList Object) : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+// public record QuestListDocument(Address Address, QuestList Object) : IMimirBsonDocument(Address) { }

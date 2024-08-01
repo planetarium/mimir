@@ -1,13 +1,10 @@
-using Bencodex.Types;
-using Libplanet.Crypto;
+// using Libplanet.Crypto;
 
-namespace Mimir.MongoDB.Bson;
+// namespace Mimir.MongoDB.Bson;
 
-public record CombinationSlotDocument(
-    Address AvatarAddress,
-    int SlotIndex,
-    Nekoyume.Model.State.CombinationSlotState Object)
-    : IMimirBsonDocument
-{
-    public IValue Bencoded => Object.Serialize();
-}
+// public record CombinationSlotDocument(
+//     Address Address,
+//     Address AvatarAddress,
+//     int SlotIndex,
+//     Nekoyume.Model.State.CombinationSlotState Object
+// ) : IMimirBsonDocument(Address) { }
