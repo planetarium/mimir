@@ -32,7 +32,7 @@ public class ProductRepository(MongoDbService dbService)
         var aggregation = collection.Aggregate<BsonDocument>(pipelines).ToList();
         List<Product> products = aggregation
             .Select(async doc =>
-                await GetRawState(dbService.GetGridFs(), doc["State"]["RawStateFileId"].AsObjectId)
+                await GetRawState(dbService.GetGridFs(), doc["RawStateFileId"].AsObjectId)
             )
             .Select(doc => doc.Result)
             .Where(doc => doc != null)

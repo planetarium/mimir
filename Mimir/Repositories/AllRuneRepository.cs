@@ -24,7 +24,7 @@ public class AllRuneRepository(MongoDbService dbService)
 
         try
         {
-            var runesDoc = document["State"]["Object"]["Runes"].AsBsonDocument;
+            var runesDoc = document["Object"]["Runes"].AsBsonDocument;
             return runesDoc
                 .Select(rune => rune.Value.AsBsonDocument)
                 .Select(runeValue => new Rune(runeValue))

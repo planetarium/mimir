@@ -89,6 +89,7 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             CollectionNames.GetCollectionName<ArenaDocument>(),
             [
                 new ArenaDocument(
+                    myArenaScore.Address,
                     myArenaInfo.Address,
                     myArenaInfo,
                     myArenaScore,
@@ -97,6 +98,7 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
                 ),
                 new ArenaDocument(
                     enemyArenaScore.Address,
+                    enemyArenaInfo.Address,
                     enemyArenaInfo,
                     enemyArenaScore,
                     roundData,

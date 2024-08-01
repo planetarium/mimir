@@ -1,8 +1,8 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
 using Mimir.Worker.Constants;
+using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
@@ -62,8 +62,8 @@ public static class ItemSlotCollectionUpdater
 
         try
         {
-            var storedCostumes = document["State"]
-                ["Object"]["Costumes"]
+            var storedCostumes = document["Object"]
+                ["Costumes"]
                 .AsBsonArray.Select(e => Guid.Parse(e.AsString))
                 .OrderBy(e => e)
                 .ToArray();
@@ -72,8 +72,8 @@ public static class ItemSlotCollectionUpdater
                 return true;
             }
 
-            var storedEquipments = document["State"]
-                ["Object"]["Equipments"]
+            var storedEquipments = document["Object"]
+                ["Equipments"]
                 .AsBsonArray.Select(e => Guid.Parse(e.AsString))
                 .OrderBy(e => e)
                 .ToArray();

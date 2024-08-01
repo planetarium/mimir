@@ -50,7 +50,7 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
 
         try
         {
-            var arenaInformationDoc = document["State"].AsBsonDocument;
+            var arenaInformationDoc = document.AsBsonDocument;
             return arenaInformationDoc;
         }
         catch (KeyNotFoundException e)
@@ -171,14 +171,14 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
 
     private async Task<ArenaRanking?> BuildArenaRankingFromDocument(BsonDocument document)
     {
-        var avatarAddress = document["State"]["AvatarAddress"].AsString;
+        var avatarAddress = document["AvatarAddress"].AsString;
         BsonDocument arenaInformationDoc;
         try
         {
             arenaInformationDoc = await GetArenaInformationAsync(
                 new Address(avatarAddress),
-                document["State"]["RoundData"]["ChampionshipId"].ToInt32(),
-                document["State"]["RoundData"]["Round"].ToInt32()
+                document["RoundData"]["ChampionshipId"].ToInt32(),
+                document["RoundData"]["Round"].ToInt32()
             );
         }
         catch (DocumentNotFoundInMongoCollectionException e)
@@ -188,7 +188,7 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
         }
 
         var arenaRanking = new ArenaRanking(
-            document["State"]["AvatarAddress"].AsString,
+            document["AvatarAddress"].AsString,
             arenaInformationDoc["Object"]["Address"].AsString,
             arenaInformationDoc["Object"]["Win"].ToInt32(),
             arenaInformationDoc["Object"]["Lose"].ToInt32(),
@@ -196,7 +196,7 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
             arenaInformationDoc["Object"]["Ticket"].ToInt32(),
             arenaInformationDoc["Object"]["TicketResetCount"].ToInt32(),
             arenaInformationDoc["Object"]["PurchasedTicketCount"].ToInt32(),
-            document["State"]["Object"]["Score"].ToInt32()
+            document["Object"]["Score"].ToInt32()
         );
 
         try

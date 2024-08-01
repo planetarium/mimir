@@ -26,7 +26,7 @@ public class SeasonInfoRepository(MongoDbService dbService)
 
         try
         {
-            var doc = document["State"]["Object"].AsBsonDocument;
+            var doc = document["Object"].AsBsonDocument;
             return new SeasonInfo(
                 new Address(doc["Address"].AsString),
                 doc["Season"].ToLong(),

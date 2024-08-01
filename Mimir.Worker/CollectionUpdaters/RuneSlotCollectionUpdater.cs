@@ -97,7 +97,7 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            var storedRuneSlots = document["State"]
+            var storedRuneSlots = document
                 ["Object"]["Slots"]
                 .AsBsonArray.OfType<BsonDocument>()
                 .Select(e =>
@@ -147,7 +147,7 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            return document["State"]
+            return document
                 ["Object"]["Slots"]
                 .AsBsonArray.Select(e =>
                     (slotIndex: e["SlotIndex"].AsInt32, isLock: e["IsLock"].AsBoolean)

@@ -23,7 +23,7 @@ public class ActionPointRepository(MongoDbService dbService)
 
         try
         {
-            return document["State"]["Object"].AsInt32;
+            return document["Object"].AsInt32;
         }
         catch (KeyNotFoundException e)
         {

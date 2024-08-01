@@ -25,7 +25,7 @@ public class StakeRepository(MongoDbService dbService)
 
         try
         {
-            var doc = document["State"]["Object"].AsBsonDocument;
+            var doc = document["Object"].AsBsonDocument;
             var contractDoc = doc["Contract"].AsBsonDocument;
             var contract = new Contract(
                 contractDoc["StakeRegularFixedRewardSheetTableName"].AsString,

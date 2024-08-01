@@ -24,7 +24,7 @@ public class CollectionRepository(MongoDbService dbService)
 
         try
         {
-            var doc = document["State"]["Object"].AsBsonDocument;
+            var doc = document["Object"].AsBsonDocument;
             return new Collection(doc);
         }
         catch (KeyNotFoundException e)

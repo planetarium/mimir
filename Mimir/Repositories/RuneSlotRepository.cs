@@ -29,7 +29,7 @@ public class RuneSlotRepository(MongoDbService dbService)
 
         try
         {
-            var slots = document["State"]["Object"]["Slots"].AsBsonArray
+            var slots = document["Object"]["Slots"].AsBsonArray
                 .OfType<BsonDocument>()
                 .Select(doc =>
                 {

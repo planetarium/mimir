@@ -24,7 +24,7 @@ public class DailyRewardRepository(MongoDbService dbService)
 
         try
         {
-            return document["State"]["Object"].ToLong();
+            return document["Object"].ToLong();
         }
         catch (KeyNotFoundException e)
         {

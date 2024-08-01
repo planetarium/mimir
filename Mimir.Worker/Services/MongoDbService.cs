@@ -226,8 +226,6 @@ public class MongoDbService
         var collectionName = CollectionNames.GetCollectionName(document.GetType());
         var stateJson = document.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
-        var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
-        stateBsonDocument.Remove("Bencoded");
 
         var filter = Builders<BsonDocument>.Filter.Eq("Address", document.Address.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
@@ -253,14 +251,13 @@ public class MongoDbService
             rawStateBytes
         );
 
-        var stateJson = document.ToJson();
-        var bsonDocument = BsonDocument.Parse(stateJson);
-        var stateBsonDocument = bsonDocument["State"].AsBsonDocument;
+        var bsonDocument = BsonDocument.Parse(document.ToJson());
+        var stateBsonDocument = bsonDocument.AsBsonDocument;
         stateBsonDocument.Remove("RawState");
         stateBsonDocument.Add("RawStateFileId", rawStateId);
 
         var filter = Builders<BsonDocument>.Filter.Eq("Address", document.Address.ToHex());
-        var update = new BsonDocument("$set", bsonDocument);
+        var update = new BsonDocument("$set", stateBsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(

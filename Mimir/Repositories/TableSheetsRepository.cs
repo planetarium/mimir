@@ -104,9 +104,9 @@ public class TableSheetsRepository(MongoDbService dbService)
         var names = new List<string>();
         foreach (var document in documents)
         {
-            if (document.Contains("State") && document["State"].AsBsonDocument.Contains("Name"))
+            if (document.Contains("State") && document.AsBsonDocument.Contains("Name"))
             {
-                names.Add(document["State"]["Name"].AsString);
+                names.Add(document["Name"].AsString);
             }
         }
 
@@ -165,8 +165,8 @@ public class TableSheetsRepository(MongoDbService dbService)
         {
             SheetFormat.Csv => ((Text)Codec.Decode(await MongoDbService.RetrieveFromGridFs(
                 gridFs,
-                document["State"][fieldToInclude].AsObjectId))).Value,
-            _ => document["State"][fieldToInclude].ToJson(new JsonWriterSettings
+                document[fieldToInclude].AsObjectId))).Value,
+            _ => document[fieldToInclude].ToJson(new JsonWriterSettings
             {
                 OutputMode = JsonOutputMode.CanonicalExtendedJson
             }),
