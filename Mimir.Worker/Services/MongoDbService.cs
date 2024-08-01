@@ -169,7 +169,7 @@ public class MongoDbService
     // public async Task RemoveProduct(Guid productId)
     // {
     //     var productFilter = Builders<BsonDocument>.Filter.Eq(
-    //         "State.Object.TradableItem.TradableId",
+    //         "Object.TradableItem.TradableId",
     //         productId.ToString()
     //     );
     //     await GetCollection<ProductDocument>().DeleteOneAsync(productFilter);
