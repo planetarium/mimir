@@ -6,8 +6,8 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.ActionHandler;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
+using Mimir.Worker.Util;
 using Nekoyume.Action.Loader;
-using Nekoyume.Model.Arena;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -127,20 +127,9 @@ public class BlockPoller : IBlockPoller
         CancellationToken cancellationToken
     )
     {
-        var operationResult = await _headlessGqlClient.GetTransactions.ExecuteAsync(
-            syncedBlockIndex,
-            limit,
-            cancellationToken
-        );
-        if (operationResult.Data is null)
-        {
-            var errors = operationResult.Errors.Select(e => e.Message);
-            _logger.Error("Failed to get txs. response data is null. errors:\n{Errors}", errors);
-            return;
-        }
+        var txs = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
 
-        var txs = operationResult.Data.Transaction.NcTransactions;
-        if (txs is null || txs.Count == 0)
+        if (txs is null || txs.Count() == 0)
         {
             _logger.Information("Transactions is null or empty");
 
@@ -174,7 +163,7 @@ public class BlockPoller : IBlockPoller
                 )
             )
             .ToList();
-        _logger.Information("GetTransaction Success, tx-count: {TxCount}", txs.Count);
+        _logger.Information("GetTransaction Success, tx-count: {TxCount}", txs.Count());
         var tasks = new List<Task>();
 
         foreach (var (signer, actions) in tuples)
@@ -211,6 +200,41 @@ public class BlockPoller : IBlockPoller
                 }
             );
         }
+    }
+
+    private async Task<IEnumerable<IGetTransactions_Transaction_NcTransactions?>?> FetchTransactionsAsync(
+        long syncedBlockIndex,
+        int limit,
+        CancellationToken cancellationToken
+    )
+    {
+        return await RetryUtil.RequestWithRetryAsync(
+            async () =>
+            {
+                var result = await _headlessGqlClient.GetTransactions.ExecuteAsync(
+                    syncedBlockIndex,
+                    limit,
+                    cancellationToken
+                );
+
+                if (result.Data is null)
+                {
+                    var errors = result.Errors.Select(e => e.Message);
+                    _logger.Error(
+                        "Failed to get txs. response data is null. errors:\n{Errors}",
+                        errors
+                    );
+                    throw new HttpRequestException("Response data is null.");
+                }
+
+                return result.Data.Transaction.NcTransactions;
+            },
+            retryCount: 3,
+            delayMilliseconds: 5000,
+            cancellationToken: cancellationToken,
+            onRetry: (ex, retryAttempt) =>
+                _logger.Error(ex, "Error on retry {RetryCount}.", retryAttempt)
+        );
     }
 
     /// <summary>

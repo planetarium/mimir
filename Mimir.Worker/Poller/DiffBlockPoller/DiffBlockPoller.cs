@@ -37,8 +37,8 @@ public class DiffBlockPoller : IBlockPoller
         var producer = new DiffProducer(_queue, _stateService, _headlessGqlClient, _dbService);
         var consumer = new DiffConsumer(_queue, _dbService);
 
-        var producerTask = producer.ProduceAsync(stoppingToken);
         var consumerTask = consumer.ConsumeAsync(stoppingToken);
+        var producerTask = producer.ProduceAsync(stoppingToken);
 
         await Task.WhenAll(producerTask, consumerTask);
 

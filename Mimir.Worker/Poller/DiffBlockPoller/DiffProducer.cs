@@ -5,6 +5,7 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
+using Mimir.Worker.Util;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -59,6 +60,12 @@ public class DiffProducer
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            while (_queue.Count() > 100)
+            {
+                _logger.Information("Queue is full, wait 1000");
+                await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
+            }
+
             var currentBlockIndex = await _stateService.GetLatestIndex();
             var currentBaseIndex = currentTargetIndex;
             long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);
@@ -85,63 +92,62 @@ public class DiffProducer
                 currentTargetIndex
             );
 
-            for (int i = 0; i < 3; i++)
-            {
-                var diffResult = await FetchDiffAsync(
-                    currentBaseIndex,
-                    currentTargetIndex,
-                    accountAddress,
-                    stoppingToken
-                );
-                if (diffResult is null)
+            var diffResult = await FetchDiffAsync(
+                currentBaseIndex,
+                currentTargetIndex,
+                accountAddress,
+                stoppingToken
+            );
+
+            _queue.Enqueue(
+                new DiffContext()
                 {
-                    _logger.Error("Failed to get diffs. retry {Count}", i);
-                    await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
+                    Diffs = diffResult,
+                    AccountAddress = accountAddress,
+                    TargetBlockIndex = currentTargetIndex,
+                    CollectionName = collectionName
                 }
-                else
-                {
-                    while (_queue.Count() < 100)
-                    {
-                        _logger.Error("Queue is full, wait 1000");
-                        await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
-                    }
-                    _queue.Enqueue(
-                        new DiffContext()
-                        {
-                            Diffs = diffResult,
-                            AccountAddress = accountAddress,
-                            TargetBlockIndex = currentTargetIndex,
-                            CollectionName = collectionName
-                        }
-                    );
-                    break;
-                }
-            }
+            );
         }
     }
 
-    private async Task<IEnumerable<IGetAccountDiffs_AccountDiffs>?> FetchDiffAsync(
+    private async Task<IEnumerable<IGetAccountDiffs_AccountDiffs>> FetchDiffAsync(
         long syncedBlockIndex,
         long targetIndex,
         Address accountAddress,
         CancellationToken stoppingToken
     )
     {
-        var diffResult = await _headlessGqlClient.GetAccountDiffs.ExecuteAsync(
-            syncedBlockIndex,
-            targetIndex,
-            accountAddress.ToString(),
-            stoppingToken
+        return await RetryUtil.RequestWithRetryAsync(
+            async () =>
+            {
+                var diffResult = await _headlessGqlClient.GetAccountDiffs.ExecuteAsync(
+                    syncedBlockIndex,
+                    targetIndex,
+                    accountAddress.ToString(),
+                    stoppingToken
+                );
+
+                if (diffResult.Data is null)
+                {
+                    var errors = diffResult.Errors.Select(e => e.Message);
+                    _logger.Error(
+                        "{AccountAddress},{TargetIndex} Failed to get diffs. response data is null. errors:\n{Errors}",
+                        accountAddress,
+                        targetIndex,
+                        errors
+                    );
+                    throw new HttpRequestException("Response data is null.");
+                }
+
+                return diffResult.Data.AccountDiffs;
+            },
+            retryCount: 3,
+            delayMilliseconds: 5000,
+            cancellationToken: stoppingToken,
+            onRetry: (ex, retryAttempt) =>
+                _logger.Error(ex, "Error on retry {RetryCount}.", retryAttempt)
         );
-
-        if (diffResult.Data is null)
-        {
-            var errors = diffResult.Errors.Select(e => e.Message);
-            _logger.Error("Failed to get diffs. response data is null. errors:\n{Errors}", errors);
-            return null;
-        }
-
-        return diffResult.Data.AccountDiffs;
     }
 
     public async Task<long> GetSyncedBlockIndex(string collectionName)

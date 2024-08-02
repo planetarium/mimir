@@ -51,13 +51,19 @@ builder
                     new JwtSecurityTokenHandler().WriteToken(token)
                 );
             }
+
+            client.Timeout = TimeSpan.FromSeconds(30);
         }
     );
 
 builder.Services.AddSingleton(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    return new MongoDbService(config.MongoDbConnectionString, config.DatabaseName, config.MongoDbCAFile);
+    return new MongoDbService(
+        config.MongoDbConnectionString,
+        config.DatabaseName,
+        config.MongoDbCAFile
+    );
 });
 builder.Services.AddHostedService(serviceProvider =>
 {
