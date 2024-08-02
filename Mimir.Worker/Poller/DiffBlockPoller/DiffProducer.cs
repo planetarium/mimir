@@ -100,6 +100,11 @@ public class DiffProducer
                 }
                 else
                 {
+                    while (_queue.Count() < 100)
+                    {
+                        _logger.Error("Queue is full, wait 1000");
+                        await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
+                    }
                     _queue.Enqueue(
                         new DiffContext()
                         {
