@@ -53,7 +53,8 @@ public class BlockPoller : IBlockPoller
             new RuneSlotStateHandler(stateService, dbService),
             // new RaidActionHandler(stateService, stord,
         ];
-        _collectionNames = [
+        _collectionNames =
+        [
             CollectionNames.GetCollectionName<ArenaDocument>(),
             CollectionNames.GetCollectionName<ItemSlotDocument>(),
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
@@ -142,6 +143,18 @@ public class BlockPoller : IBlockPoller
         if (txs is null || txs.Count == 0)
         {
             _logger.Information("Transactions is null or empty");
+
+            foreach (var collectionName in _collectionNames)
+            {
+                await _dbService.UpdateLatestBlockIndex(
+                    new MetadataDocument
+                    {
+                        PollerType = _pollerType,
+                        CollectionName = collectionName,
+                        LatestBlockIndex = syncedBlockIndex + limit
+                    }
+                );
+            }
             return;
         }
 
