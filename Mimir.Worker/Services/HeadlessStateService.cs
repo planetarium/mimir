@@ -1,9 +1,10 @@
 using Bencodex;
 using Bencodex.Types;
 using HeadlessGQL;
-using Libplanet.Crypto;
 using Libplanet.Action.State;
+using Libplanet.Crypto;
 using Libplanet.Types.Blocks;
+using Mimir.Worker.Util;
 using StrawberryShake;
 
 namespace Mimir.Worker.Services;
@@ -33,15 +34,28 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 
     public async Task<IValue?> GetState(Address address, Address accountAddress)
     {
-        var result = await client.GetState.ExecuteAsync(accountAddress.ToString(), address.ToString());
-        result.EnsureNoErrors();
+        return await RetryUtil.RequestWithRetryAsync(
+            async () =>
+            {
+                var result = await client.GetState.ExecuteAsync(
+                    accountAddress.ToString(),
+                    address.ToString()
+                );
 
-        if (result.Data?.State is null)
-        {
-            return null;
-        }
+                result.EnsureNoErrors();
 
-        return Codec.Decode(Convert.FromHexString(result.Data.State));
+                if (result.Data?.State is null)
+                {
+                    return null;
+                }
+
+                return Codec.Decode(Convert.FromHexString(result.Data.State));
+            },
+            retryCount: 3,
+            delayMilliseconds: 5000,
+            cancellationToken: new CancellationToken(),
+            null
+        );
     }
 
     public async Task<int> GetLatestIndex()
