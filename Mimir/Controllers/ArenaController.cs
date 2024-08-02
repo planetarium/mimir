@@ -2,6 +2,7 @@ using Libplanet.Crypto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mimir.Arena;
+using Mimir.Enums;
 using Mimir.Models.Arena;
 using Mimir.Repositories;
 using Mimir.Services;
@@ -20,12 +21,10 @@ public class ArenaController(
 ) : ControllerBase
 {
     [HttpGet("season")]
-    public ArenaSeason GetLatestSeason(
-        MetadataRepository metadataRepository
-    )
+    public ArenaSeason GetLatestSeason(MetadataRepository metadataRepository)
     {
         var arenaRound = tableSheetsRepository.GetArenaRound(
-            metadataRepository.GetLatestBlockIndex("BlockPoller")
+            metadataRepository.GetLatestBlockIndex("BlockPoller", CollectionNames.Arena.Value)
         );
 
         return new ArenaSeason(arenaRound.ChampionshipId, arenaRound.Round);
@@ -60,12 +59,7 @@ public class ArenaController(
         [BindRequired] int round
     )
     {
-        return await arenaRankingRepository.GetRanking(
-            offset,
-            limit,
-            championshipId,
-            round
-        );
+        return await arenaRankingRepository.GetRanking(offset, limit, championshipId, round);
     }
 
     [HttpPost("simulate")]

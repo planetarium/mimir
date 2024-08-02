@@ -1,5 +1,6 @@
 using HotChocolate.Resolvers;
 using Libplanet.Crypto;
+using Mimir.Enums;
 using Mimir.Models.Arena;
 using Mimir.Repositories;
 using Nekoyume.TableData;
@@ -19,7 +20,7 @@ public class ArenaResolver
             return arenaRound;
         }
 
-        var latestBlockIndex = metadataRepo.GetLatestBlockIndex("BlockPoller");
+        var latestBlockIndex = metadataRepo.GetLatestBlockIndex("BlockPoller", CollectionNames.Arena.Value);
         arenaRound = tableSheetsRepo.GetArenaRound(latestBlockIndex);
         context.ScopedContextData = context.ScopedContextData.Add("arenaRound", arenaRound);
         return arenaRound;

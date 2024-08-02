@@ -32,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Lib9c.GraphQL\Lib9c.GraphQL.csproj" />
     <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj" />
+    <ProjectReference Include="..\Mimir.MongoDB\Mimir.MongoDB.csproj" />
   </ItemGroup>
 
 </Project>

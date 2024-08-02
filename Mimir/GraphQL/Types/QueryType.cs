@@ -50,12 +50,15 @@ public class QueryType : ObjectType<Query>
         descriptor
             .Field("metadata")
             .Argument("pollerType", a => a.Type<NonNullType<StringType>>())
+            .Argument("collectionName", a => a.Type<NonNullType<StringType>>())
             .Type<IntType>()
             .Resolve(context =>
             {
                 var repository = context.Service<MetadataRepository>();
+                var pollerType = context.ArgumentValue<string>("pollerType");
+                var collectionName = context.ArgumentValue<string>("collectionName");
 
-                return repository.GetLatestBlockIndex(context.ArgumentValue<string>("pollerType"));
+                return repository.GetLatestBlockIndex(pollerType, collectionName);
             });
 
         // NOTE: Use it when Mimir.Worker handle adventure boss data into MongoDB.
