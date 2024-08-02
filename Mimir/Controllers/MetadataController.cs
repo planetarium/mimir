@@ -11,12 +11,13 @@ public class MetadataController : ControllerBase
     [HttpGet]
     public MetadataResponse GetMetadata(
         string pollerType,
+        string collectionName,
         MetadataRepository metadataRepository
     )
     {
         return new MetadataResponse(
             pollerType,
-            metadataRepository.GetLatestBlockIndex(pollerType)
+            metadataRepository.GetLatestBlockIndex(pollerType, collectionName)
         );
     }
 }
