@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Threading.Channels;
 using HeadlessGQL;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
@@ -13,15 +14,14 @@ namespace Mimir.Worker.Poller;
 
 public class DiffProducer
 {
-    private readonly ConcurrentQueue<DiffContext> _queue;
+    private readonly Channel<DiffContext> _channel;
     protected readonly MongoDbService _dbService;
     protected readonly IStateService _stateService;
-    protected readonly string _pollerType;
     protected readonly ILogger _logger;
     private readonly HeadlessGQLClient _headlessGqlClient;
 
     public DiffProducer(
-        ConcurrentQueue<DiffContext> queue,
+        Channel<DiffContext> channel,
         IStateService stateService,
         HeadlessGQLClient headlessGqlClient,
         MongoDbService dbService
@@ -30,23 +30,12 @@ public class DiffProducer
         _headlessGqlClient = headlessGqlClient;
 
         _stateService = stateService;
-        _pollerType = "DiffBlockPoller";
         _logger = Log.ForContext<DiffProducer>();
         _dbService = dbService;
-        _queue = queue;
+        _channel = channel;
     }
 
-    public async Task ProduceAsync(CancellationToken stoppingToken)
-    {
-        var tasks = new List<Task>();
-        foreach (var accountAddress in AddressHandlerMappings.HandlerMappings.Keys)
-        {
-            tasks.Add(ProduceByAccount(stoppingToken, accountAddress));
-        }
-        await Task.WhenAll(tasks);
-    }
-
-    private async Task ProduceByAccount(CancellationToken stoppingToken, Address accountAddress)
+    public async Task ProduceByAccount(CancellationToken stoppingToken, Address accountAddress)
     {
         var collectionName = CollectionNames.GetCollectionName(accountAddress);
 
@@ -60,12 +49,6 @@ public class DiffProducer
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            while (_queue.Count() > 100)
-            {
-                _logger.Information("Queue is full, wait 1000");
-                await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
-            }
-
             var currentBlockIndex = await _stateService.GetLatestIndex();
             var currentBaseIndex = currentTargetIndex;
             long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);
@@ -99,14 +82,15 @@ public class DiffProducer
                 stoppingToken
             );
 
-            _queue.Enqueue(
+            await _channel.Writer.WriteAsync(
                 new DiffContext()
                 {
                     Diffs = diffResult,
                     AccountAddress = accountAddress,
                     TargetBlockIndex = currentTargetIndex,
                     CollectionName = collectionName
-                }
+                },
+                stoppingToken
             );
         }
     }
@@ -155,7 +139,7 @@ public class DiffProducer
         try
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
-                _pollerType,
+                "DiffBlockPoller",
                 collectionName
             );
             return syncedBlockIndex;
@@ -170,7 +154,7 @@ public class DiffProducer
             await _dbService.UpdateLatestBlockIndex(
                 new MetadataDocument
                 {
-                    PollerType = _pollerType,
+                    PollerType = "DiffBlockPoller",
                     CollectionName = collectionName,
                     LatestBlockIndex = currentBlockIndex - 1
                 }

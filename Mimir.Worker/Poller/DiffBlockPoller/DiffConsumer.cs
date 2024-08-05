@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Threading.Channels;
 using Bencodex;
 using HeadlessGQL;
 using Libplanet.Crypto;
@@ -13,69 +14,60 @@ namespace Mimir.Worker.Poller;
 
 public class DiffConsumer
 {
+    private readonly Channel<DiffContext> _channel;
     protected readonly MongoDbService _dbService;
-    protected readonly string _pollerType;
     protected readonly ILogger _logger;
     private readonly Codec Codec = new();
-    private readonly ConcurrentQueue<DiffContext> _queue;
 
-    public DiffConsumer(ConcurrentQueue<DiffContext> queue, MongoDbService dbService)
+    public DiffConsumer(Channel<DiffContext> channel, MongoDbService dbService)
     {
         _dbService = dbService;
-        _pollerType = "DiffBlockPoller";
         _logger = Log.ForContext<DiffBlockPoller>();
-        _queue = queue;
+        _channel = channel;
     }
 
     public async Task ConsumeAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        await foreach (var diffContext in _channel.Reader.ReadAllAsync(stoppingToken))
         {
-            if (_queue.TryDequeue(out var diffContext))
+            if (diffContext.Diffs.Count() == 0)
             {
-                if (diffContext.Diffs.Count() == 0)
-                {
-                    _logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
-                    await _dbService.UpdateLatestBlockIndex(
-                        new MetadataDocument
-                        {
-                            PollerType = _pollerType,
-                            CollectionName = diffContext.CollectionName,
-                            LatestBlockIndex = diffContext.TargetBlockIndex
-                        }
-                    );
-                    continue;
-                }
+                _logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
+                await _dbService.UpdateLatestBlockIndex(
+                    new MetadataDocument
+                    {
+                        PollerType = "DiffBlockPoller",
+                        CollectionName = diffContext.CollectionName,
+                        LatestBlockIndex = diffContext.TargetBlockIndex
+                    }
+                );
+                continue;
+            }
 
-                if (
-                    AddressHandlerMappings.HandlerMappings.TryGetValue(
-                        diffContext.AccountAddress,
-                        out var handler
-                    )
+            if (
+                AddressHandlerMappings.HandlerMappings.TryGetValue(
+                    diffContext.AccountAddress,
+                    out var handler
                 )
-                {
-                    await ProcessStateDiff(handler, diffContext.AccountAddress, diffContext.Diffs);
+            )
+            {
+                await ProcessStateDiff(handler, diffContext.AccountAddress, diffContext.Diffs);
 
-                    await _dbService.UpdateLatestBlockIndex(
-                        new MetadataDocument
-                        {
-                            PollerType = _pollerType,
-                            CollectionName = diffContext.CollectionName,
-                            LatestBlockIndex = diffContext.TargetBlockIndex
-                        }
-                    );
-                }
-                else
-                {
-                    _logger.Error(
-                        "No handler for {AccountAddress} address",
-                        diffContext.AccountAddress
-                    );
-                }
+                await _dbService.UpdateLatestBlockIndex(
+                    new MetadataDocument
+                    {
+                        PollerType = "DiffBlockPoller",
+                        CollectionName = diffContext.CollectionName,
+                        LatestBlockIndex = diffContext.TargetBlockIndex
+                    }
+                );
             }
             else
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
+                _logger.Error(
+                    "No handler for {AccountAddress} address",
+                    diffContext.AccountAddress
+                );
             }
         }
     }
