@@ -52,7 +52,7 @@ builder
                 );
             }
 
-            client.Timeout = TimeSpan.FromSeconds(30);
+            client.Timeout = TimeSpan.FromSeconds(60);
         }
     );
 

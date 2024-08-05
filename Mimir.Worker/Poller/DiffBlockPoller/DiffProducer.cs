@@ -1,10 +1,8 @@
-using System.Collections.Concurrent;
 using System.Threading.Channels;
 using HeadlessGQL;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
-using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using Serilog;
@@ -127,7 +125,7 @@ public class DiffProducer
                 return diffResult.Data.AccountDiffs;
             },
             retryCount: 3,
-            delayMilliseconds: 5000,
+            delayMilliseconds: 30_000,
             cancellationToken: stoppingToken,
             onRetry: (ex, retryAttempt) =>
                 _logger.Error(ex, "Error on retry {RetryCount}.", retryAttempt)

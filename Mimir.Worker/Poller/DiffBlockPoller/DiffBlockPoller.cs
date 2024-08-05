@@ -43,15 +43,19 @@ public class DiffBlockPoller : IBlockPoller
         var producerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
             Task.Run(
                 () =>
-                    new DiffProducer(
-                        _channels[address.ToHex()],
-                        _stateService,
-                        _headlessGqlClient,
-                        _dbService
-                    ).ProduceByAccount(stoppingToken, address)
+                    RunWithRestart(
+                        () =>
+                            new DiffProducer(
+                                _channels[address.ToHex()],
+                                _stateService,
+                                _headlessGqlClient,
+                                _dbService
+                            ).ProduceByAccount(stoppingToken, address),
+                        address.ToHex(),
+                        stoppingToken
+                    )
             )
         );
-
         var consumerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
             Task.Run(
                 () =>
@@ -68,5 +72,29 @@ public class DiffBlockPoller : IBlockPoller
             GetType().Name,
             DateTime.UtcNow.Subtract(started).Minutes
         );
+    }
+
+    private async Task RunWithRestart(
+        Func<Task> taskFunc,
+        string addressHex,
+        CancellationToken stoppingToken
+    )
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await taskFunc();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(
+                    ex,
+                    "Task for address {AddressHex} failed. Restarting...",
+                    addressHex
+                );
+                await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+            }
+        }
     }
 }
