@@ -1,5 +1,6 @@
-using System.Collections.Concurrent;
+using System.Threading.Channels;
 using HeadlessGQL;
+using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Serilog;
 using ILogger = Serilog.ILogger;
@@ -13,7 +14,7 @@ public class DiffBlockPoller : IBlockPoller
     protected readonly string _pollerType;
     protected readonly ILogger _logger;
     private readonly HeadlessGQLClient _headlessGqlClient;
-    private readonly ConcurrentQueue<DiffContext> _queue = new ConcurrentQueue<DiffContext>();
+    private readonly Dictionary<string, Channel<DiffContext>> _channels = new();
 
     public DiffBlockPoller(
         IStateService stateService,
@@ -27,6 +28,11 @@ public class DiffBlockPoller : IBlockPoller
         _dbService = dbService;
         _pollerType = "DiffBlockPoller";
         _logger = Log.ForContext<DiffBlockPoller>();
+
+        foreach (var address in AddressHandlerMappings.HandlerMappings.Keys)
+        {
+            _channels[address.ToHex()] = Channel.CreateBounded<DiffContext>(3);
+        }
     }
 
     public async Task RunAsync(CancellationToken stoppingToken)
@@ -34,13 +40,28 @@ public class DiffBlockPoller : IBlockPoller
         var started = DateTime.UtcNow;
         _logger.Information("Start {PollerType} background service", GetType().Name);
 
-        var producer = new DiffProducer(_queue, _stateService, _headlessGqlClient, _dbService);
-        var consumer = new DiffConsumer(_queue, _dbService);
+        var producerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
+            Task.Run(
+                () =>
+                    new DiffProducer(
+                        _channels[address.ToHex()],
+                        _stateService,
+                        _headlessGqlClient,
+                        _dbService
+                    ).ProduceByAccount(stoppingToken, address)
+            )
+        );
 
-        var consumerTask = consumer.ConsumeAsync(stoppingToken);
-        var producerTask = producer.ProduceAsync(stoppingToken);
+        var consumerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
+            Task.Run(
+                () =>
+                    new DiffConsumer(_channels[address.ToHex()], _dbService).ConsumeAsync(
+                        stoppingToken
+                    )
+            )
+        );
 
-        await Task.WhenAll(producerTask, consumerTask);
+        await Task.WhenAll(producerTasks.Concat(consumerTasks));
 
         _logger.Information(
             "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
