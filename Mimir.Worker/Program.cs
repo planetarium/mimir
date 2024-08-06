@@ -5,6 +5,7 @@ using HeadlessGQL;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mimir.Worker;
+using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Serilog;
 
@@ -74,6 +75,7 @@ builder.Services.AddHostedService(serviceProvider =>
 
     return new Worker(
         headlessGqlClient,
+        new TempGQLClient(config.HeadlessEndpoint, config.JwtIssuer, config.JwtSecretKey),
         stateService,
         store,
         config.ActivePollers,

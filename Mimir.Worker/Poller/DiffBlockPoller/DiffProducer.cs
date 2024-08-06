@@ -2,6 +2,7 @@ using System.Threading.Channels;
 using HeadlessGQL;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
@@ -12,28 +13,28 @@ namespace Mimir.Worker.Poller;
 
 public class DiffProducer
 {
-    private readonly Channel<DiffContext> _channel;
     protected readonly MongoDbService _dbService;
     protected readonly IStateService _stateService;
     protected readonly ILogger _logger;
-    private readonly HeadlessGQLClient _headlessGqlClient;
+    private readonly TempGQLClient _headlessGqlClient;
 
     public DiffProducer(
-        Channel<DiffContext> channel,
         IStateService stateService,
-        HeadlessGQLClient headlessGqlClient,
+        TempGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {
         _headlessGqlClient = headlessGqlClient;
-
         _stateService = stateService;
         _logger = Log.ForContext<DiffProducer>();
         _dbService = dbService;
-        _channel = channel;
     }
 
-    public async Task ProduceByAccount(CancellationToken stoppingToken, Address accountAddress)
+    public async Task ProduceByAccount(
+        ChannelWriter<DiffContext> writer,
+        CancellationToken stoppingToken,
+        Address accountAddress
+    )
     {
         var collectionName = CollectionNames.GetCollectionName(accountAddress);
 
@@ -80,7 +81,7 @@ public class DiffProducer
                 stoppingToken
             );
 
-            await _channel.Writer.WriteAsync(
+            await writer.WriteAsync(
                 new DiffContext()
                 {
                     Diffs = diffResult,
@@ -103,26 +104,29 @@ public class DiffProducer
         return await RetryUtil.RequestWithRetryAsync(
             async () =>
             {
-                var diffResult = await _headlessGqlClient.GetAccountDiffs.ExecuteAsync(
+                var diffResult = await _headlessGqlClient.GetAccountDiffsAsync(
                     syncedBlockIndex,
                     targetIndex,
-                    accountAddress.ToString(),
-                    stoppingToken
+                    accountAddress.ToString()
                 );
+                var result = new List<GetAccountDiffs_AccountDiffs_StateDiff>();
 
-                if (diffResult.Data is null)
+                if (diffResult is null)
                 {
-                    var errors = diffResult.Errors.Select(e => e.Message);
-                    _logger.Error(
-                        "{AccountAddress},{TargetIndex} Failed to get diffs. response data is null. errors:\n{Errors}",
-                        accountAddress,
-                        targetIndex,
-                        errors
-                    );
                     throw new HttpRequestException("Response data is null.");
                 }
 
-                return diffResult.Data.AccountDiffs;
+                foreach (var diff in diffResult.accountDiffs)
+                {
+                    var stateDiff = new GetAccountDiffs_AccountDiffs_StateDiff(
+                        diff.path,
+                        diff.baseState,
+                        diff.changedState
+                    );
+                    result.Add(stateDiff);
+                }
+
+                return result.AsReadOnly();
             },
             retryCount: 3,
             delayMilliseconds: 30_000,

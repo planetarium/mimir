@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using HeadlessGQL;
+using Mimir.Worker.Client;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Serilog;
@@ -13,12 +14,12 @@ public class DiffBlockPoller : IBlockPoller
     protected readonly IStateService _stateService;
     protected readonly string _pollerType;
     protected readonly ILogger _logger;
-    private readonly HeadlessGQLClient _headlessGqlClient;
+    private readonly TempGQLClient _headlessGqlClient;
     private readonly Dictionary<string, Channel<DiffContext>> _channels = new();
 
     public DiffBlockPoller(
         IStateService stateService,
-        HeadlessGQLClient headlessGqlClient,
+        TempGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {
@@ -43,17 +44,11 @@ public class DiffBlockPoller : IBlockPoller
         var producerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
             Task.Run(
                 () =>
-                    RunWithRestart(
-                        () =>
-                            new DiffProducer(
-                                _channels[address.ToHex()],
-                                _stateService,
-                                _headlessGqlClient,
-                                _dbService
-                            ).ProduceByAccount(stoppingToken, address),
-                        address.ToHex(),
-                        stoppingToken
-                    )
+                    new DiffProducer(
+                        _stateService,
+                        _headlessGqlClient,
+                        _dbService
+                    ).ProduceByAccount(_channels[address.ToHex()].Writer, stoppingToken, address)
             )
         );
         var consumerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
