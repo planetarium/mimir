@@ -171,7 +171,7 @@ public record AvatarState : State
 
         throw new UnsupportedArgumentTypeException<ValueKind>(
             nameof(bencoded),
-            [ValueKind.List, ValueKind.Dictionary],
+            new[] { ValueKind.List, ValueKind.Dictionary },
             bencoded.Kind);
     }
 }

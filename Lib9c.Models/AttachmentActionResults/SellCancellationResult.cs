@@ -24,7 +24,7 @@ public record SellCancellationResult : AttachmentActionResult
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.Dictionary],
+                new[] { ValueKind.Dictionary },
                 bencoded.Kind);
         }
 

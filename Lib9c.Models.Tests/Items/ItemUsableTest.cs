@@ -12,7 +12,7 @@ public class ItemUsableTest
     {
         // Prepare target state
         var row = new EquipmentItemSheet.Row();
-        row.Set(["0", "Weapon", "1", "Normal", string.Empty, "HP", "0", "0", string.Empty, string.Empty]);
+        row.Set(new[] { "0", "Weapon", "1", "Normal", string.Empty, "HP", "0", "0", string.Empty, string.Empty });
         var target = new VanillaItemUsable(
             row,
             Guid.NewGuid(),

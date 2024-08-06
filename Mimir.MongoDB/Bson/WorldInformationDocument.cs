@@ -5,7 +5,7 @@ using Nekoyume.Model.State;
 
 namespace Mimir.MongoDB.Bson;
 
-public record WorldInformationDocument(Address Address) : IMimirBsonDocument(Address)
+public record WorldInformationDocument(Address Address) : MimirBsonDocument(Address)
 {
     public IDictionary<int, WorldInformation.World> Object { get; init; }
 

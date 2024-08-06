@@ -6,7 +6,7 @@ namespace Mimir.Worker.Handler;
 
 public class WorldInformationStateHandler : IStateHandler
 {
-    public IMimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToState(StateDiffContext context)
     {
         if (context.RawState is Dictionary dict)
         {

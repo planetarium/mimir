@@ -5,7 +5,7 @@ namespace Mimir.Worker.Handler;
 
 public class AgentStateHandler : IStateHandler
 {
-    public IMimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToState(StateDiffContext context)
     {
         var agentState = context.RawState switch
         {

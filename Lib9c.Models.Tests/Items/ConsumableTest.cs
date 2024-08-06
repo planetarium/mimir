@@ -11,7 +11,7 @@ public class ConsumableTest
     {
         // Prepare target state
         var row = new ConsumableItemSheet.Row();
-        row.Set(["0", "Food", "1", "Normal", string.Empty, "HP", "0", "ATK", "0"]);
+        row.Set(new[] { "0", "Food", "1", "Normal", string.Empty, "HP", "0", "ATK", "0" });
         var target = new Nekoyume.Model.Item.Consumable(
             row,
             Guid.NewGuid(),

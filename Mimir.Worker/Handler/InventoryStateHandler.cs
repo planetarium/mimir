@@ -6,7 +6,7 @@ namespace Mimir.Worker.Handler;
 
 public class InventoryStateHandler : IStateHandler
 {
-    public IMimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToState(StateDiffContext context)
     {
         if (context.RawState is List list)
         {

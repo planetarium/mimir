@@ -11,7 +11,7 @@ public class CostumeTest
     {
         // Prepare target state
         var row = new CostumeItemSheet.Row();
-        row.Set(["0", "FullCostume", "1", "Normal", string.Empty]);
+        row.Set(new[] { "0", "FullCostume", "1", "Normal", string.Empty });
         var target = new Nekoyume.Model.Item.Costume(
             row,
             Guid.NewGuid());

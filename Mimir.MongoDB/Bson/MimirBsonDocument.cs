@@ -1,10 +1,10 @@
 using Libplanet.Crypto;
-using Mimir.Worker.Json.Converters;
+using Mimir.MongoDB.Json.Converters;
 using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson;
 
-public record IMimirBsonDocument(Address Address)
+public record MimirBsonDocument(Address Address)
 {
     public static readonly JsonSerializerSettings JsonSerializerSettings =
         new()

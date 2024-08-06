@@ -45,7 +45,7 @@ public record UnloadFromMyGaragesRecipientMail : Mail
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                [ValueKind.Dictionary],
+                new[] { ValueKind.Dictionary },
                 bencoded.Kind);
         }
 

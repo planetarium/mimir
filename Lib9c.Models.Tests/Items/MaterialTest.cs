@@ -11,7 +11,7 @@ public class MaterialTest
     {
         // Prepare target state
         var row = new MaterialItemSheet.Row();
-        row.Set(["0", "EquipmentMaterial", "1", "Normal"]);
+        row.Set(new[] { "0", "EquipmentMaterial", "1", "Normal" });
         var target = new Nekoyume.Model.Item.Material(row);
 
         // serialize target state and deserialize as paired state

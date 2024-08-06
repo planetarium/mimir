@@ -78,7 +78,7 @@ public class DiffConsumer
         IEnumerable<IGetAccountDiffs_AccountDiffs> diffs
     )
     {
-        List<IMimirBsonDocument> documents = new List<IMimirBsonDocument>();
+        List<MimirBsonDocument> documents = new List<MimirBsonDocument>();
         foreach (var diff in diffs)
         {
             if (diff.ChangedState is not null)

@@ -3,4 +3,4 @@ using Libplanet.Crypto;
 
 namespace Mimir.MongoDB.Bson;
 
-public record AvatarDocument(Address Address, AvatarState Object) : IMimirBsonDocument(Address) { }
+public record AvatarDocument(Address Address, AvatarState Object) : MimirBsonDocument(Address) { }

@@ -11,4 +11,4 @@ public record ArenaDocument(
     ArenaScore ArenaScoreObject,
     RoundData RoundData,
     Address AvatarAddress
-) : IMimirBsonDocument(ScoreAddress) { }
+) : MimirBsonDocument(ScoreAddress) { }

@@ -12,7 +12,7 @@ public class ItemBaseTest
     {
         // Prepare target state
         var row = new ItemSheet.Row();
-        row.Set(["0", "Weapon", "1", "Normal"]);
+        row.Set(new[] { "0", "Weapon", "1", "Normal" });
         var target = new VanillaItemBase(row);
 
         // serialize target state and deserialize as paired state

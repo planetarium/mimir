@@ -1,7 +1,7 @@
 using Bencodex.Types;
 using HotChocolate.Types;
 
-namespace Mimir.GraphQL.Types;
+namespace Lib9c.GraphQL.Types;
 
 public class BencodexIValueType : ObjectType<IValue>
 {

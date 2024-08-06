@@ -2,6 +2,8 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
+namespace Mimir.MongoDB.Json.Converters;
+
 public class IgnoreBencodedContractResolver : DefaultContractResolver
 {
     public IgnoreBencodedContractResolver()

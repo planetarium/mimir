@@ -10,8 +10,8 @@
 
     <ItemGroup>
         <PackageReference Include="GraphQL" Version="7.8.0" />
-        <PackageReference Include="HotChocolate.AspNetCore" Version="13.8.1" />
-        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.8.1">
+        <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.8" />
+        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.8">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
