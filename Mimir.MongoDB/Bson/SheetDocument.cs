@@ -9,4 +9,4 @@ public record SheetDocument(
     ISheet Object,
     string Name,
     IValue RawState
-) : IMimirBsonDocument(Address);
+) : MimirBsonDocument(Address);

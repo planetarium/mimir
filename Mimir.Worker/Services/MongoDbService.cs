@@ -177,7 +177,7 @@ public class MongoDbService
 
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
-        List<IMimirBsonDocument> documents,
+        List<MimirBsonDocument> documents,
         IClientSessionHandle? session = null
     )
     {
@@ -221,7 +221,7 @@ public class MongoDbService
         }
     }
 
-    public UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(IMimirBsonDocument document)
+    public UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(MimirBsonDocument document)
     {
         var collectionName = CollectionNames.GetCollectionName(document.GetType());
         var stateJson = document.ToJson();
