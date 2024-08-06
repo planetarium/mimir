@@ -1,4 +1,5 @@
 using HeadlessGQL;
+using Mimir.Worker.Client;
 using Mimir.Worker.Initializer;
 using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
@@ -13,6 +14,7 @@ public class Worker : BackgroundService
     private readonly MongoDbService _store;
     private readonly IStateService _stateService;
     private readonly HeadlessGQLClient _headlessGqlClient;
+    private readonly TempGQLClient _tempGqlClient;
     private readonly string[] _activePollers;
     private readonly string _snapshotPath;
     private readonly bool _enableSnapshotInitializing;
@@ -20,6 +22,7 @@ public class Worker : BackgroundService
 
     public Worker(
         HeadlessGQLClient headlessGqlClient,
+        TempGQLClient tempGqlClient,
         IStateService stateService,
         MongoDbService store,
         string[] activePollers,
@@ -31,6 +34,7 @@ public class Worker : BackgroundService
         _stateService = stateService;
         _store = store;
         _headlessGqlClient = headlessGqlClient;
+        _tempGqlClient = tempGqlClient;
         _snapshotPath = snapshotPath;
         _enableSnapshotInitializing = enableSnapshotInitializing;
         _enableInitializing = enableInitializing;
@@ -68,7 +72,7 @@ public class Worker : BackgroundService
         var tasks = new List<Task>();
         var pollerTypeMap = new Dictionary<string, IBlockPoller>()
         {
-            { "DiffBlockPoller", new DiffBlockPoller(_stateService, _headlessGqlClient, _store) },
+            { "DiffBlockPoller", new DiffBlockPoller(_stateService, _tempGqlClient, _store) },
             { "BlockPoller", new BlockPoller(_stateService, _headlessGqlClient, _store) }
         };
 
