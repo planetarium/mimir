@@ -4,7 +4,6 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
-using Mimir.Worker.Util;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -15,11 +14,11 @@ public class DiffProducer
     protected readonly MongoDbService _dbService;
     protected readonly IStateService _stateService;
     protected readonly ILogger _logger;
-    private readonly HeadlessGQLClient _headlessGqlClient;
+    private readonly IHeadlessGQLClient _headlessGqlClient;
 
     public DiffProducer(
         IStateService stateService,
-        HeadlessGQLClient headlessGqlClient,
+        IHeadlessGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {

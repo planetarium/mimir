@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using Mimir.Worker;
 using Mimir.Worker.Client;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using Serilog;
 
@@ -17,6 +18,11 @@ Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configurat
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(Log.Logger);
 
+builder.Services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProvider =>
+{
+    var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+    return new HeadlessGQLClient(config.HeadlessEndpoint, config.JwtIssuer, config.JwtSecretKey);
+});
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
 
 builder.Services.AddSingleton(serviceProvider =>
@@ -24,18 +30,19 @@ builder.Services.AddSingleton(serviceProvider =>
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     return new MongoDbService(
         config.MongoDbConnectionString,
-        config.PlanetType,
+        PlanetType.FromString(config.PlanetType),
         config.MongoDbCAFile
     );
 });
 builder.Services.AddHostedService(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+    var gqlClient = serviceProvider.GetRequiredService<IHeadlessGQLClient>();
     var stateService = serviceProvider.GetRequiredService<IStateService>();
     var dbService = serviceProvider.GetRequiredService<MongoDbService>();
 
     return new Worker(
-        new HeadlessGQLClient(config.HeadlessEndpoint, config.JwtIssuer, config.JwtSecretKey),
+        gqlClient,
         stateService,
         dbService,
         config.PollerType,

@@ -13,12 +13,12 @@ public class Worker : BackgroundService
     private readonly ILogger _logger;
     private readonly MongoDbService _dbService;
     private readonly IStateService _stateService;
-    private readonly HeadlessGQLClient _gqlClient;
+    private readonly IHeadlessGQLClient _gqlClient;
     private readonly IBlockPoller _poller;
     private readonly bool _enableInitializing;
 
     public Worker(
-        HeadlessGQLClient gqlClient,
+        IHeadlessGQLClient gqlClient,
         IStateService stateService,
         MongoDbService dbService,
         PollerType pollerType,

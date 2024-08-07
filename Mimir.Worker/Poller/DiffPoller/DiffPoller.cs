@@ -12,12 +12,12 @@ public class DiffPoller : IBlockPoller
     protected readonly MongoDbService _dbService;
     protected readonly IStateService _stateService;
     protected readonly ILogger _logger;
-    private readonly HeadlessGQLClient _headlessGqlClient;
+    private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly Dictionary<string, Channel<DiffContext>> _channels = new();
 
     public DiffPoller(
         IStateService stateService,
-        HeadlessGQLClient headlessGqlClient,
+        IHeadlessGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {

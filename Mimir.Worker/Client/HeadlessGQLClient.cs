@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Mimir.Worker.Client;
 
-public class HeadlessGQLClient
+public class HeadlessGQLClient : IHeadlessGQLClient
 {
     private readonly HttpClient _httpClient;
     private readonly Uri _url;
@@ -35,7 +35,11 @@ public class HeadlessGQLClient
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private async Task<T> PostGraphQLRequestAsync<T>(string query, object variables)
+    private async Task<T> PostGraphQLRequestAsync<T>(
+        string query,
+        object variables,
+        CancellationToken stoppingToken = default
+    )
     {
         if (_secret is not null && _issuer is not null)
         {
@@ -51,10 +55,10 @@ public class HeadlessGQLClient
         var jsonRequest = JsonSerializer.Serialize(request);
         var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync(_url, content);
+        var response = await _httpClient.PostAsync(_url, content, stoppingToken);
         response.EnsureSuccessStatusCode();
 
-        var jsonResponse = await response.Content.ReadAsStringAsync();
+        var jsonResponse = await response.Content.ReadAsStringAsync(stoppingToken);
         var graphQLResponse = JsonSerializer.Deserialize<GraphQLResponse<T>>(jsonResponse);
 
         if (graphQLResponse is null)
@@ -65,59 +69,71 @@ public class HeadlessGQLClient
         return graphQLResponse.data;
     }
 
-    public Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
+    public async Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
         long baseIndex,
         long changedIndex,
         string accountAddress,
         CancellationToken stoppingToken
     )
     {
-        var query =
-            @"
-                query GetAccountDiffs($baseIndex: Long!, $changedIndex: Long!, $accountAddress: Address!) {
-                    accountDiffs(baseIndex: $baseIndex, changedIndex: $changedIndex, accountAddress: $accountAddress) {
-                        path
-                        baseState
-                        changedState
-                    }
-                }";
+        return await PostGraphQLRequestAsync<GetAccountDiffsResponse>(
+            GraphQLQueries.GetAccountDiffs,
+            new
+            {
+                baseIndex,
+                changedIndex,
+                accountAddress
+            },
+            stoppingToken
+        );
+    }
 
-        var variables = new
-        {
-            baseIndex,
-            changedIndex,
-            accountAddress
-        };
+    public Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
+        long baseIndex,
+        long changedIndex,
+        string accountAddress
+    )
+    {
+        return PostGraphQLRequestAsync<GetAccountDiffsResponse>(
+            GraphQLQueries.GetAccountDiffs,
+            new
+            {
+                baseIndex,
+                changedIndex,
+                accountAddress
+            }
+        );
+    }
 
-        return PostGraphQLRequestAsync<GetAccountDiffsResponse>(query, variables);
+    public Task<GetTipResponse> GetTipAsync(CancellationToken stoppingToken)
+    {
+        return PostGraphQLRequestAsync<GetTipResponse>(GraphQLQueries.GetTip, null, stoppingToken);
     }
 
     public Task<GetTipResponse> GetTipAsync()
     {
-        var query =
-            @"
-                query GetTip {
-                    nodeStatus {
-                        tip {
-                            index
-                        }
-                    }
-                }";
+        return PostGraphQLRequestAsync<GetTipResponse>(GraphQLQueries.GetTip, null);
+    }
 
-        return PostGraphQLRequestAsync<GetTipResponse>(query, null);
+    public Task<GetStateResponse> GetStateAsync(
+        string accountAddress,
+        string address,
+        CancellationToken stoppingToken
+    )
+    {
+        return PostGraphQLRequestAsync<GetStateResponse>(
+            GraphQLQueries.GetState,
+            new { accountAddress, address },
+            stoppingToken
+        );
     }
 
     public Task<GetStateResponse> GetStateAsync(string accountAddress, string address)
     {
-        var query =
-            @"
-                query GetState($accountAddress: Address!, $address: Address!) {
-                    state(accountAddress: $accountAddress, address: $address)
-                }";
-
-        var variables = new { accountAddress, address };
-
-        return PostGraphQLRequestAsync<GetStateResponse>(query, variables);
+        return PostGraphQLRequestAsync<GetStateResponse>(
+            GraphQLQueries.GetState,
+            new { accountAddress, address }
+        );
     }
 
     public Task<GetTransactionsResponse> GetTransactionsAsync(
@@ -126,23 +142,18 @@ public class HeadlessGQLClient
         CancellationToken stoppingToken
     )
     {
-        var query =
-            @"
-                query GetTransactions($blockIndex: Long!, $limit: Long!) {
-                    transaction {
-                        ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: ""^.*$"", txStatusFilter: [SUCCESS]) {
-                            signer
-                            id
-                            serializedPayload
-                            actions {
-                                raw
-                            }
-                        }
-                    }
-                }";
+        return PostGraphQLRequestAsync<GetTransactionsResponse>(
+            GraphQLQueries.GetTransactions,
+            new { blockIndex, limit },
+            stoppingToken
+        );
+    }
 
-        var variables = new { blockIndex, limit };
-
-        return PostGraphQLRequestAsync<GetTransactionsResponse>(query, variables);
+    public Task<GetTransactionsResponse> GetTransactionsAsync(long blockIndex, long limit)
+    {
+        return PostGraphQLRequestAsync<GetTransactionsResponse>(
+            GraphQLQueries.GetTransactions,
+            new { blockIndex, limit }
+        );
     }
 }

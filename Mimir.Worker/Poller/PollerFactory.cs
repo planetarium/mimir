@@ -9,7 +9,7 @@ public static class PollerFactory
     public static IBlockPoller CreatePoller(
         PollerType pollerType,
         IStateService stateService,
-        HeadlessGQLClient headlessGQLClient,
+        IHeadlessGQLClient headlessGQLClient,
         MongoDbService dbService
     )
     {

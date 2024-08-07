@@ -8,11 +8,9 @@ public class Configuration
 
     public string MongoDbConnectionString { get; init; }
 
-    public string SnapshotPath { get; init; }
-
     public bool EnableInitializing { get; init; } = false;
 
-    public PlanetType PlanetType { get; init; }
+    public string PlanetType { get; init; }
 
     public Uri HeadlessEndpoint { get; init; }
 

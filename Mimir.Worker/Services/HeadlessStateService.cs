@@ -7,7 +7,7 @@ using Mimir.Worker.Client;
 
 namespace Mimir.Worker.Services;
 
-public class HeadlessStateService(HeadlessGQLClient client) : IStateService
+public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 {
     private static readonly Codec Codec = new();
 

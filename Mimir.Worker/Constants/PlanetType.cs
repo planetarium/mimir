@@ -18,6 +18,16 @@ public class PlanetType
         get { return new PlanetType("heimdall"); }
     }
 
+    public static PlanetType FromString(string planetType)
+    {
+        return planetType switch
+        {
+            "odin" => new PlanetType("odin"),
+            "heimdall" => new PlanetType("heimdall"),
+            _ => throw new ArgumentException("Not expected planetType")
+        };
+    }
+
     public override string ToString()
     {
         return Value;

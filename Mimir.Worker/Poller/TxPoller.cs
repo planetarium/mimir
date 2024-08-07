@@ -25,13 +25,13 @@ public class TxPoller : IBlockPoller
     private readonly BaseActionHandler[] _handlers;
     private readonly string[] _collectionNames;
 
-    private readonly HeadlessGQLClient _headlessGqlClient;
+    private readonly IHeadlessGQLClient _headlessGqlClient;
 
     private readonly Codec _codec = new();
 
     public TxPoller(
         IStateService stateService,
-        HeadlessGQLClient headlessGqlClient,
+        IHeadlessGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {
