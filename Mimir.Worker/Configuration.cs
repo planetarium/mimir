@@ -1,30 +1,24 @@
+using Mimir.Worker.Constants;
+
 namespace Mimir.Worker;
 
 public class Configuration
 {
-    public string[] ActivePollers { get; init; }
-
-    public string SentryDsn { get; init; }
-
-    public bool SentryDebug { get; init; }
+    public PollerType PollerType { get; init; }
 
     public string MongoDbConnectionString { get; init; }
 
     public string SnapshotPath { get; init; }
 
-    public bool EnableSnapshotInitializing { get; init; } = false;
-
     public bool EnableInitializing { get; init; } = false;
 
-    public string DatabaseName { get; set; }
+    public PlanetType PlanetType { get; init; }
 
-    public Uri HeadlessEndpoint { get; set; }
+    public Uri HeadlessEndpoint { get; init; }
 
-    public string Network { get; set; }
+    public string? JwtIssuer { get; init; }
 
-    public string? JwtIssuer { get; set; }
-
-    public string? JwtSecretKey { get; set; }
+    public string? JwtSecretKey { get; init; }
 
     public string? MongoDbCAFile { get; init; }
 }

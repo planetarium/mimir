@@ -29,7 +29,7 @@ public class MongoDbService
     private IMongoCollection<MetadataDocument> MetadataCollection =>
         _database.GetCollection<MetadataDocument>("metadata");
 
-    public MongoDbService(string connectionString, string databaseName, string? pathToCAFile)
+    public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
         var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 
@@ -55,7 +55,7 @@ public class MongoDbService
         }
 
         _client = new MongoClient(settings);
-        _database = _client.GetDatabase(databaseName);
+        _database = _client.GetDatabase(planetType.ToString());
         _gridFs = new GridFSBucket(_database);
         _logger = Log.ForContext<MongoDbService>();
         _stateCollectionMappings = InitStateCollections();

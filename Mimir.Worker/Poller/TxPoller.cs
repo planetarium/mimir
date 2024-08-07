@@ -1,25 +1,22 @@
 using Bencodex;
 using Bencodex.Types;
-using HeadlessGQL;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.ActionHandler;
+using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
-using Mimir.Worker.Util;
 using Nekoyume.Action.Loader;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Poller;
 
-public class BlockPoller : IBlockPoller
+public class TxPoller : IBlockPoller
 {
     private readonly MongoDbService _dbService;
 
     private readonly IStateService _stateService;
-
-    private readonly string _pollerType;
 
     private readonly ILogger _logger;
 
@@ -28,13 +25,13 @@ public class BlockPoller : IBlockPoller
     private readonly BaseActionHandler[] _handlers;
     private readonly string[] _collectionNames;
 
-    private readonly IHeadlessGQLClient _headlessGqlClient;
+    private readonly HeadlessGQLClient _headlessGqlClient;
 
     private readonly Codec _codec = new();
 
-    public BlockPoller(
+    public TxPoller(
         IStateService stateService,
-        IHeadlessGQLClient headlessGqlClient,
+        HeadlessGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {
@@ -63,8 +60,7 @@ public class BlockPoller : IBlockPoller
 
         _stateService = stateService;
         _dbService = dbService;
-        _pollerType = "BlockPoller";
-        _logger = Log.ForContext<BlockPoller>();
+        _logger = Log.ForContext<TxPoller>();
     }
 
     public async Task RunAsync(CancellationToken stoppingToken)
@@ -127,18 +123,18 @@ public class BlockPoller : IBlockPoller
         CancellationToken cancellationToken
     )
     {
-        var txs = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
+        var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
 
-        if (txs is null || txs.Count() == 0)
+        if (txsResponse.ncTransactions.Count() == 0)
         {
-            _logger.Information("Transactions is null or empty");
+            _logger.Information("Transactions is empty");
 
             foreach (var collectionName in _collectionNames)
             {
                 await _dbService.UpdateLatestBlockIndex(
                     new MetadataDocument
                     {
-                        PollerType = _pollerType,
+                        PollerType = nameof(TxPoller),
                         CollectionName = collectionName,
                         LatestBlockIndex = syncedBlockIndex + limit
                     }
@@ -148,22 +144,22 @@ public class BlockPoller : IBlockPoller
         }
 
         var blockIndex = syncedBlockIndex + limit;
-        var tuples = txs.Where(tx => tx is not null)
+        var tuples = txsResponse.ncTransactions.Where(tx => tx is not null)
             .Select(tx =>
                 (
-                    Signer: new Address(tx!.Signer),
-                    actions: tx.Actions.Where(action => action is not null)
+                    Signer: new Address(tx!.signer),
+                    actions: tx.actions.Where(action => action is not null)
                         .Select(action =>
                             ActionLoader.LoadAction(
                                 blockIndex,
-                                _codec.Decode(Convert.FromHexString(action!.Raw))
+                                _codec.Decode(Convert.FromHexString(action!.raw))
                             )
                         )
                         .ToList()
                 )
             )
             .ToList();
-        _logger.Information("GetTransaction Success, tx-count: {TxCount}", txs.Count());
+        _logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.ncTransactions.Count());
         var tasks = new List<Task>();
 
         foreach (var (signer, actions) in tuples)
@@ -194,7 +190,7 @@ public class BlockPoller : IBlockPoller
             await _dbService.UpdateLatestBlockIndex(
                 new MetadataDocument
                 {
-                    PollerType = _pollerType,
+                    PollerType = nameof(TxPoller),
                     CollectionName = collectionName,
                     LatestBlockIndex = syncedBlockIndex + limit
                 }
@@ -202,39 +198,19 @@ public class BlockPoller : IBlockPoller
         }
     }
 
-    private async Task<IEnumerable<IGetTransactions_Transaction_NcTransactions?>?> FetchTransactionsAsync(
+    private async Task<TransactionResponse> FetchTransactionsAsync(
         long syncedBlockIndex,
         int limit,
         CancellationToken cancellationToken
     )
     {
-        return await RetryUtil.RequestWithRetryAsync(
-            async () =>
-            {
-                var result = await _headlessGqlClient.GetTransactions.ExecuteAsync(
-                    syncedBlockIndex,
-                    limit,
-                    cancellationToken
-                );
-
-                if (result.Data is null)
-                {
-                    var errors = result.Errors.Select(e => e.Message);
-                    _logger.Error(
-                        "Failed to get txs. response data is null. errors:\n{Errors}",
-                        errors
-                    );
-                    throw new HttpRequestException("Response data is null.");
-                }
-
-                return result.Data.Transaction.NcTransactions;
-            },
-            retryCount: 3,
-            delayMilliseconds: 5000,
-            cancellationToken: cancellationToken,
-            onRetry: (ex, retryAttempt) =>
-                _logger.Error(ex, "Error on retry {RetryCount}.", retryAttempt)
+        var result = await _headlessGqlClient.GetTransactionsAsync(
+            syncedBlockIndex,
+            limit,
+            cancellationToken
         );
+
+        return result.transaction;
     }
 
     /// <summary>
@@ -275,7 +251,7 @@ public class BlockPoller : IBlockPoller
         try
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
-                _pollerType,
+                nameof(TxPoller),
                 collectionName
             );
             return syncedBlockIndex;
@@ -290,7 +266,7 @@ public class BlockPoller : IBlockPoller
             await _dbService.UpdateLatestBlockIndex(
                 new MetadataDocument
                 {
-                    PollerType = _pollerType,
+                    PollerType = nameof(TxPoller),
                     CollectionName = collectionName,
                     LatestBlockIndex = currentBlockIndex - 1
                 }

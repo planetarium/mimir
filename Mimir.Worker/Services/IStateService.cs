@@ -6,7 +6,7 @@ namespace Mimir.Worker.Services;
 
 public interface IStateService
 {
-    Task<int> GetLatestIndex();
+    Task<long> GetLatestIndex();
     Task<IValue?> GetState(Address address);
     Task<IValue?> GetState(Address address, Address accountAddress);
     Task<IValue?[]> GetStates(Address[] addresses);

@@ -1,5 +1,4 @@
 using System.Threading.Channels;
-using HeadlessGQL;
 using Mimir.Worker.Client;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
@@ -8,18 +7,17 @@ using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Poller;
 
-public class DiffBlockPoller : IBlockPoller
+public class DiffPoller : IBlockPoller
 {
     protected readonly MongoDbService _dbService;
     protected readonly IStateService _stateService;
-    protected readonly string _pollerType;
     protected readonly ILogger _logger;
-    private readonly TempGQLClient _headlessGqlClient;
+    private readonly HeadlessGQLClient _headlessGqlClient;
     private readonly Dictionary<string, Channel<DiffContext>> _channels = new();
 
-    public DiffBlockPoller(
+    public DiffPoller(
         IStateService stateService,
-        TempGQLClient headlessGqlClient,
+        HeadlessGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {
@@ -27,8 +25,7 @@ public class DiffBlockPoller : IBlockPoller
 
         _stateService = stateService;
         _dbService = dbService;
-        _pollerType = "DiffBlockPoller";
-        _logger = Log.ForContext<DiffBlockPoller>();
+        _logger = Log.ForContext<DiffPoller>();
 
         foreach (var address in AddressHandlerMappings.HandlerMappings.Keys)
         {
@@ -44,11 +41,20 @@ public class DiffBlockPoller : IBlockPoller
         var producerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
             Task.Run(
                 () =>
-                    new DiffProducer(
-                        _stateService,
-                        _headlessGqlClient,
-                        _dbService
-                    ).ProduceByAccount(_channels[address.ToHex()].Writer, stoppingToken, address)
+                    RunWithRestart(
+                        () =>
+                            new DiffProducer(
+                                _stateService,
+                                _headlessGqlClient,
+                                _dbService
+                            ).ProduceByAccount(
+                                _channels[address.ToHex()].Writer,
+                                stoppingToken,
+                                address
+                            ),
+                        address.ToHex(),
+                        stoppingToken
+                    )
             )
         );
         var consumerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
@@ -60,7 +66,7 @@ public class DiffBlockPoller : IBlockPoller
             )
         );
 
-        await Task.WhenAll(producerTasks.Concat(consumerTasks));
+        await Task.WhenAny(producerTasks.Concat(consumerTasks));
 
         _logger.Information(
             "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
@@ -75,7 +81,7 @@ public class DiffBlockPoller : IBlockPoller
         CancellationToken stoppingToken
     )
     {
-        while (!stoppingToken.IsCancellationRequested)
+        for (int i = 0; i < 3; i++)
         {
             try
             {
@@ -88,7 +94,9 @@ public class DiffBlockPoller : IBlockPoller
                     "Task for address {AddressHex} failed. Restarting...",
                     addressHex
                 );
-                await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                if (i == 2)
+                    throw;
             }
         }
     }

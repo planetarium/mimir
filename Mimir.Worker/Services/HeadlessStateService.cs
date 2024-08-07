@@ -1,15 +1,13 @@
 using Bencodex;
 using Bencodex.Types;
-using HeadlessGQL;
 using Libplanet.Action.State;
 using Libplanet.Crypto;
 using Libplanet.Types.Blocks;
-using Mimir.Worker.Util;
-using StrawberryShake;
+using Mimir.Worker.Client;
 
 namespace Mimir.Worker.Services;
 
-public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
+public class HeadlessStateService(HeadlessGQLClient client) : IStateService
 {
     private static readonly Codec Codec = new();
 
@@ -34,35 +32,15 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 
     public async Task<IValue?> GetState(Address address, Address accountAddress)
     {
-        return await RetryUtil.RequestWithRetryAsync(
-            async () =>
-            {
-                var result = await client.GetState.ExecuteAsync(
-                    accountAddress.ToString(),
-                    address.ToString()
-                );
+        var result = await client.GetStateAsync(accountAddress.ToString(), address.ToString());
 
-                result.EnsureNoErrors();
-
-                if (result.Data?.State is null)
-                {
-                    return null;
-                }
-
-                return Codec.Decode(Convert.FromHexString(result.Data.State));
-            },
-            retryCount: 3,
-            delayMilliseconds: 5000,
-            cancellationToken: new CancellationToken(),
-            null
-        );
+        return Codec.Decode(Convert.FromHexString(result.state));
     }
 
-    public async Task<int> GetLatestIndex()
+    public async Task<long> GetLatestIndex()
     {
-        var result = await client.GetTip.ExecuteAsync();
-        result.EnsureNoErrors();
+        var result = await client.GetTipAsync();
 
-        return result.Data.NodeStatus.Tip.Index;
+        return result.nodeStatus.tip.index;
     }
 }
