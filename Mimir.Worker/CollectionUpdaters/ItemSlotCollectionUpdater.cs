@@ -18,7 +18,8 @@ public static class ItemSlotCollectionUpdater
         Address avatarAddress,
         IEnumerable<Guid> costumes,
         IEnumerable<Guid> equipments,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         var collectionName = CollectionNames.GetCollectionName<ItemSlotDocument>();
@@ -31,7 +32,7 @@ public static class ItemSlotCollectionUpdater
         var orderedEquipments = equipments.OrderBy(e => e).ToList();
         if (
             !HasChanged(collection, itemSlotAddress, orderedCostumes, orderedEquipments)
-            || await stateService.GetState(itemSlotAddress) is not List serialized
+            || await stateService.GetState(itemSlotAddress, stoppingToken) is not List serialized
         )
         {
             return;
@@ -42,7 +43,8 @@ public static class ItemSlotCollectionUpdater
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ItemSlotDocument>(),
             [itemSlotDocument],
-            session
+            session,
+            stoppingToken
         );
     }
 

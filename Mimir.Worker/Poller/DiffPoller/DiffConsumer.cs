@@ -53,7 +53,8 @@ public class DiffConsumer
                 await ProcessStateDiff(
                     handler,
                     diffContext.AccountAddress,
-                    diffContext.DiffResponse
+                    diffContext.DiffResponse,
+                    stoppingToken
                 );
 
                 await _dbService.UpdateLatestBlockIndex(
@@ -62,7 +63,9 @@ public class DiffConsumer
                         PollerType = "DiffBlockPoller",
                         CollectionName = diffContext.CollectionName,
                         LatestBlockIndex = diffContext.TargetBlockIndex
-                    }
+                    },
+                    null,
+                    stoppingToken
                 );
             }
             else
@@ -78,7 +81,8 @@ public class DiffConsumer
     private async Task ProcessStateDiff(
         IStateHandler handler,
         Address accountAddress,
-        GetAccountDiffsResponse diffResponse
+        GetAccountDiffsResponse diffResponse,
+        CancellationToken stoppingToken
     )
     {
         List<MimirBsonDocument> documents = new List<MimirBsonDocument>();
@@ -111,7 +115,9 @@ public class DiffConsumer
         {
             await _dbService.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName(accountAddress),
-                documents
+                documents,
+                null,
+                stoppingToken
             );
         }
     }

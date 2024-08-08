@@ -38,35 +38,58 @@ public class DiffPoller : IBlockPoller
         var started = DateTime.UtcNow;
         _logger.Information("Start {PollerType} background service", GetType().Name);
 
-        var producerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
-            Task.Run(
-                () =>
-                    RunWithRestart(
-                        () =>
-                            new DiffProducer(
-                                _stateService,
-                                _headlessGqlClient,
-                                _dbService
-                            ).ProduceByAccount(
-                                _channels[address.ToHex()].Writer,
-                                stoppingToken,
-                                address
-                            ),
-                        address.ToHex(),
-                        stoppingToken
-                    )
-            )
-        );
-        var consumerTasks = AddressHandlerMappings.HandlerMappings.Keys.Select(address =>
-            Task.Run(
-                () =>
-                    new DiffConsumer(_channels[address.ToHex()], _dbService).ConsumeAsync(
-                        stoppingToken
-                    )
-            )
-        );
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 
-        await Task.WhenAny(producerTasks.Concat(consumerTasks));
+        var producerTasks = AddressHandlerMappings
+            .HandlerMappings.Keys.Select(address =>
+                Task.Run(
+                    () =>
+                        RunWithRestart(
+                            () =>
+                                new DiffProducer(
+                                    _stateService,
+                                    _headlessGqlClient,
+                                    _dbService
+                                ).ProduceByAccount(
+                                    _channels[address.ToHex()].Writer,
+                                    address,
+                                    stoppingToken
+                                ),
+                            address.ToHex(),
+                            cts.Token
+                        )
+                )
+            )
+            .ToArray();
+        var consumerTasks = AddressHandlerMappings
+            .HandlerMappings.Keys.Select(address =>
+                Task.Run(
+                    () =>
+                        new DiffConsumer(_channels[address.ToHex()], _dbService).ConsumeAsync(
+                            cts.Token
+                        )
+                )
+            )
+            .ToArray();
+
+        var allTasks = producerTasks.Concat(consumerTasks).ToArray();
+
+        try
+        {
+            var completedTask = await Task.WhenAny(allTasks);
+
+            if (completedTask.IsFaulted)
+            {
+                _logger.Error(completedTask.Exception, "A task has failed. Cancelling all tasks.");
+                cts.Cancel();
+            }
+
+            await Task.WhenAll(allTasks);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "An error occurred during polling.");
+        }
 
         _logger.Information(
             "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",

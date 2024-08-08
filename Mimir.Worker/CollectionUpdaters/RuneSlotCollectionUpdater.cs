@@ -1,8 +1,8 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
 using Mimir.Worker.Constants;
+using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
@@ -19,7 +19,8 @@ public static class RuneSlotCollectionUpdater
         BattleType battleType,
         Address avatarAddress,
         IEnumerable<IValue> runeSlotInfos,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
@@ -35,7 +36,7 @@ public static class RuneSlotCollectionUpdater
             .ToList();
         if (
             !HasChanged(collection, runeSlotAddress, orderedRuneSlotInfos)
-            || await stateService.GetState(runeSlotAddress) is not List serialized
+            || await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized
         )
         {
             return;
@@ -46,7 +47,8 @@ public static class RuneSlotCollectionUpdater
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
             [runeSlotDocument],
-            session
+            session,
+            stoppingToken
         );
     }
 
@@ -56,7 +58,8 @@ public static class RuneSlotCollectionUpdater
         BattleType battleType,
         Address avatarAddress,
         int runeSlotIndexToUnlock,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
@@ -67,7 +70,7 @@ public static class RuneSlotCollectionUpdater
         );
         if (
             !HasChanged(collection, runeSlotAddress, runeSlotIndexToUnlock)
-            || await stateService.GetState(runeSlotAddress) is not List serialized
+            || await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized
         )
         {
             return;
@@ -78,7 +81,8 @@ public static class RuneSlotCollectionUpdater
         await store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
             [runeSlotDocument],
-            session
+            session,
+            stoppingToken
         );
     }
 
@@ -97,8 +101,8 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            var storedRuneSlots = document
-                ["Object"]["Slots"]
+            var storedRuneSlots = document["Object"]
+                ["Slots"]
                 .AsBsonArray.OfType<BsonDocument>()
                 .Select(e =>
                     (
@@ -147,8 +151,8 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            return document
-                ["Object"]["Slots"]
+            return document["Object"]
+                ["Slots"]
                 .AsBsonArray.Select(e =>
                     (slotIndex: e["SlotIndex"].AsInt32, isLock: e["IsLock"].AsBoolean)
                 )

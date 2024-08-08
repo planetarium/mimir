@@ -4,6 +4,7 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
+using Nekoyume;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -30,8 +31,8 @@ public class DiffProducer
 
     public async Task ProduceByAccount(
         ChannelWriter<DiffContext> writer,
-        CancellationToken stoppingToken,
-        Address accountAddress
+        Address accountAddress,
+        CancellationToken stoppingToken
     )
     {
         var collectionName = CollectionNames.GetCollectionName(accountAddress);
@@ -46,7 +47,11 @@ public class DiffProducer
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex();
+            if (accountAddress == Addresses.ActionPoint)
+            {
+                throw new HttpRequestException("Response data is null.");
+            }
+            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             var currentBaseIndex = currentTargetIndex;
             long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);
             int limit =
@@ -101,13 +106,14 @@ public class DiffProducer
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
                 "DiffBlockPoller",
-                collectionName
+                collectionName,
+                stoppingToken
             );
             return syncedBlockIndex;
         }
         catch (InvalidOperationException)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex();
+            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             _logger.Information(
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
                 currentBlockIndex

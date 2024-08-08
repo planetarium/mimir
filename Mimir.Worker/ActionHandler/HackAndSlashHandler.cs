@@ -21,7 +21,8 @@ public class HackAndSlashHandler(IStateService stateService, MongoDbService stor
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (action is not IHackAndSlashV10 hackAndSlash)
@@ -41,7 +42,8 @@ public class HackAndSlashHandler(IStateService stateService, MongoDbService stor
             hackAndSlash.AvatarAddress,
             hackAndSlash.Costumes,
             hackAndSlash.Equipments,
-            session
+            session,
+            stoppingToken
         );
 
         return true;

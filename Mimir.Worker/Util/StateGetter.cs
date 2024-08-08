@@ -24,10 +24,13 @@ public class StateGetter
         _service = service;
     }
 
-    public async Task<T> GetSheet<T>()
+    public async Task<T> GetSheet<T>(CancellationToken stoppingToken = default)
         where T : ISheet, new()
     {
-        var sheetState = await _service.GetState(Addresses.TableSheet.Derive(typeof(T).Name));
+        var sheetState = await _service.GetState(
+            Addresses.TableSheet.Derive(typeof(T).Name),
+            stoppingToken
+        );
         if (sheetState is not Text sheetValue)
         {
             throw new InvalidCastException(nameof(T));
@@ -38,10 +41,14 @@ public class StateGetter
         return sheet;
     }
 
-    public async Task<ArenaParticipants> GetArenaParticipantsState(int championshipId, int roundId)
+    public async Task<ArenaParticipants> GetArenaParticipantsState(
+        int championshipId,
+        int roundId,
+        CancellationToken stoppingToken = default
+    )
     {
         var arenaParticipantsAddress = ArenaParticipants.DeriveAddress(championshipId, roundId);
-        var state = await _service.GetState(arenaParticipantsAddress);
+        var state = await _service.GetState(arenaParticipantsAddress, stoppingToken);
         return state switch
         {
             List list => new ArenaParticipants(list),
@@ -56,11 +63,12 @@ public class StateGetter
     public async Task<ArenaScore> GetArenaScoreState(
         Address avatarAddress,
         int championshipId,
-        int roundId
+        int roundId,
+        CancellationToken stoppingToken = default
     )
     {
         var arenaScoreAddress = ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
-        var state = await _service.GetState(arenaScoreAddress);
+        var state = await _service.GetState(arenaScoreAddress, stoppingToken);
         return state switch
         {
             List list => new ArenaScore(list),
@@ -71,7 +79,8 @@ public class StateGetter
     public async Task<ArenaInformation> GetArenaInfoState(
         Address avatarAddress,
         int championshipId,
-        int roundId
+        int roundId,
+        CancellationToken stoppingToken = default
     )
     {
         var arenaInfoAddress = ArenaInformation.DeriveAddress(
@@ -79,7 +88,7 @@ public class StateGetter
             championshipId,
             roundId
         );
-        var state = await _service.GetState(arenaInfoAddress);
+        var state = await _service.GetState(arenaInfoAddress, stoppingToken);
         return state switch
         {
             List list => new ArenaInformation(list),
@@ -87,10 +96,13 @@ public class StateGetter
         };
     }
 
-    public async Task<AvatarState> GetAvatarState(Address avatarAddress)
+    public async Task<AvatarState> GetAvatarState(
+        Address avatarAddress,
+        CancellationToken stoppingToken = default
+    )
     {
-        var state = await GetStateWithLegacyAccount(avatarAddress, Addresses.Avatar);
-        var inventory = await GetInventoryState(avatarAddress);
+        var state = await GetStateWithLegacyAccount(avatarAddress, Addresses.Avatar, stoppingToken);
+        var inventory = await GetInventoryState(avatarAddress, stoppingToken);
         var avatarState = state switch
         {
             Dictionary dictionary => new AvatarState(dictionary) { inventory = inventory },
@@ -98,13 +110,16 @@ public class StateGetter
             _ => throw new StateNotFoundException(avatarAddress, typeof(AvatarState))
         };
 
-        if (await _service.GetState(avatarAddress, Addresses.ActionPoint) is Integer actionPoint)
+        if (
+            await _service.GetState(avatarAddress, Addresses.ActionPoint, stoppingToken)
+            is Integer actionPoint
+        )
         {
             avatarState.actionPoint = actionPoint;
         }
 
         if (
-            await _service.GetState(avatarAddress, Addresses.DailyReward)
+            await _service.GetState(avatarAddress, Addresses.DailyReward, stoppingToken)
             is Integer dailyRewardReceivedIndex
         )
         {
@@ -114,13 +129,17 @@ public class StateGetter
         return avatarState;
     }
 
-    public async Task<Inventory> GetInventoryState(Address avatarAddress)
+    public async Task<Inventory> GetInventoryState(
+        Address avatarAddress,
+        CancellationToken stoppingToken = default
+    )
     {
         var legacyInventoryAddress = avatarAddress.Derive("inventory");
         var rawState = await GetAvatarStateWithLegacyAccount(
             avatarAddress,
             Addresses.Inventory,
-            legacyInventoryAddress
+            legacyInventoryAddress,
+            stoppingToken
         );
 
         if (rawState is not List list)
@@ -131,10 +150,13 @@ public class StateGetter
         return new Inventory(list);
     }
 
-    public async Task<ItemSlotState> GetItemSlotState(Address avatarAddress)
+    public async Task<ItemSlotState> GetItemSlotState(
+        Address avatarAddress,
+        CancellationToken stoppingToken = default
+    )
     {
         var state = await _service.GetState(
-            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena)
+            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena), stoppingToken
         );
         return state switch
         {
@@ -148,10 +170,14 @@ public class StateGetter
         };
     }
 
-    public async Task<List<RuneState>> GetRuneStates(Address avatarAddress)
+    public async Task<List<RuneState>> GetRuneStates(
+        Address avatarAddress,
+        CancellationToken stoppingToken = default
+    )
     {
         var state = await _service.GetState(
-            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena)
+            RuneSlotState.DeriveAddress(avatarAddress, BattleType.Arena),
+            stoppingToken
         );
         var runeSlotState = state switch
         {
@@ -171,7 +197,7 @@ public class StateGetter
                 .Select(info => RuneState.DeriveAddress(avatarAddress, info.RuneId))
         )
         {
-            if (await _service.GetState(runeStateAddress) is List list)
+            if (await _service.GetState(runeStateAddress, stoppingToken) is List list)
             {
                 runes.Add(new RuneState(list));
             }
@@ -180,9 +206,12 @@ public class StateGetter
         return runes;
     }
 
-    public async Task<ProductsState?> GetProductsState(Address avatarAddress)
+    public async Task<ProductsState?> GetProductsState(
+        Address avatarAddress,
+        CancellationToken stoppingToken = default
+    )
     {
-        var state = await _service.GetState(ProductsState.DeriveAddress(avatarAddress));
+        var state = await _service.GetState(ProductsState.DeriveAddress(avatarAddress), stoppingToken);
         return state switch
         {
             List list => new ProductsState(list),
@@ -195,10 +224,13 @@ public class StateGetter
         };
     }
 
-    public async Task<Product> GetProductState(Guid productId)
+    public async Task<Product> GetProductState(
+        Guid productId,
+        CancellationToken stoppingToken = default
+    )
     {
         var productAddress = Product.DeriveAddress(productId);
-        var state = await _service.GetState(productAddress);
+        var state = await _service.GetState(productAddress, stoppingToken);
 
         return state switch
         {
@@ -207,9 +239,9 @@ public class StateGetter
         };
     }
 
-    public async Task<MarketState> GetMarketState()
+    public async Task<MarketState> GetMarketState(CancellationToken stoppingToken = default)
     {
-        var state = await _service.GetState(Addresses.Market);
+        var state = await _service.GetState(Addresses.Market, stoppingToken);
         return state switch
         {
             List list => new MarketState(list),
@@ -217,9 +249,12 @@ public class StateGetter
         };
     }
 
-    public async Task<WorldBossState> GetWorldBossState(Address worldBossAddress)
+    public async Task<WorldBossState> GetWorldBossState(
+        Address worldBossAddress,
+        CancellationToken stoppingToken = default
+    )
     {
-        var state = await _service.GetState(worldBossAddress);
+        var state = await _service.GetState(worldBossAddress, stoppingToken);
         return state switch
         {
             List list => new WorldBossState(list),
@@ -227,9 +262,12 @@ public class StateGetter
         };
     }
 
-    public async Task<RaiderState> GetRaiderState(Address raiderAddress)
+    public async Task<RaiderState> GetRaiderState(
+        Address raiderAddress,
+        CancellationToken stoppingToken = default
+    )
     {
-        var state = await _service.GetState(raiderAddress);
+        var state = await _service.GetState(raiderAddress, stoppingToken);
         return state switch
         {
             List list => new RaiderState(list),
@@ -238,10 +276,11 @@ public class StateGetter
     }
 
     public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordState(
-        Address worldBossKillRewardRecordAddress
+        Address worldBossKillRewardRecordAddress,
+        CancellationToken stoppingToken = default
     )
     {
-        var state = await _service.GetState(worldBossKillRewardRecordAddress);
+        var state = await _service.GetState(worldBossKillRewardRecordAddress, stoppingToken);
         return state switch
         {
             List list => new WorldBossKillRewardRecord(list),
@@ -253,12 +292,18 @@ public class StateGetter
         };
     }
 
-    public async Task<IValue?> GetStateWithLegacyAccount(Address address, Address accountAddress) =>
-        await _service.GetState(address, accountAddress) ?? await _service.GetState(address);
+    public async Task<IValue?> GetStateWithLegacyAccount(
+        Address address,
+        Address accountAddress,
+        CancellationToken stoppingToken = default
+    ) => await _service.GetState(address, accountAddress, stoppingToken) ?? await _service.GetState(address, stoppingToken);
 
-    public async Task<CombinationSlotState> GetCombinationSlotState(Address slotAddress)
+    public async Task<CombinationSlotState> GetCombinationSlotState(
+        Address slotAddress,
+        CancellationToken stoppingToken = default
+    )
     {
-        var state = await _service.GetState(slotAddress);
+        var state = await _service.GetState(slotAddress, stoppingToken);
 
         return state switch
         {
@@ -267,9 +312,12 @@ public class StateGetter
         };
     }
 
-    public async Task<PetState> GetPetState(Address petStateAddress)
+    public async Task<PetState> GetPetState(
+        Address petStateAddress,
+        CancellationToken stoppingToken = default
+    )
     {
-        var state = await _service.GetState(petStateAddress);
+        var state = await _service.GetState(petStateAddress, stoppingToken);
 
         return state switch
         {
@@ -281,14 +329,18 @@ public class StateGetter
     public async Task<IValue?> GetAvatarStateWithLegacyAccount(
         Address avatarAddress,
         Address accountAddress,
-        Address legacyAddress
+        Address legacyAddress,
+        CancellationToken stoppingToken = default
     ) =>
-        await _service.GetState(avatarAddress, accountAddress)
-        ?? await _service.GetState(legacyAddress);
+        await _service.GetState(avatarAddress, accountAddress, stoppingToken)
+        ?? await _service.GetState(legacyAddress, stoppingToken);
 
-    public async Task<ArenaSheet.RoundData> GetArenaRoundData(long index)
+    public async Task<ArenaSheet.RoundData> GetArenaRoundData(
+        long index,
+        CancellationToken stoppingToken = default
+    )
     {
-        var arenaSheet = await GetSheet<ArenaSheet>();
+        var arenaSheet = await GetSheet<ArenaSheet>(stoppingToken);
         return arenaSheet.GetRoundByBlockIndex(index);
     }
 }

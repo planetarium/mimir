@@ -11,26 +11,15 @@ namespace Mimir.Worker;
 public class Worker : BackgroundService
 {
     private readonly ILogger _logger;
-    private readonly MongoDbService _dbService;
-    private readonly IStateService _stateService;
-    private readonly IHeadlessGQLClient _gqlClient;
-    private readonly IBlockPoller _poller;
+    private readonly PollerType _pollerType;
     private readonly bool _enableInitializing;
+    public IServiceProvider Services { get; }
 
-    public Worker(
-        IHeadlessGQLClient gqlClient,
-        IStateService stateService,
-        MongoDbService dbService,
-        PollerType pollerType,
-        bool enableInitializing
-    )
+    public Worker(IServiceProvider services, PollerType pollerType, bool enableInitializing)
     {
-        _stateService = stateService;
-        _dbService = dbService;
-        _gqlClient = gqlClient;
+        Services = services;
+        _pollerType = pollerType;
         _enableInitializing = enableInitializing;
-
-        _poller = PollerFactory.CreatePoller(pollerType, stateService, gqlClient, dbService);
 
         _logger = Log.ForContext<Worker>();
     }
@@ -44,29 +33,49 @@ public class Worker : BackgroundService
             _enableInitializing
         );
 
-        if (_enableInitializing)
-        {
-            _logger.Information("Initializing enabled, start initializing");
-
-            var initializerManager = new InitializerManager(_stateService, _dbService);
-            await initializerManager.RunInitializersAsync(stoppingToken);
-        }
-
-        try
-        {
-            _logger.Information("Start Polling");
-            await _poller.RunAsync(stoppingToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.Fatal(ex, "An error occurred during polling.");
-            throw;
-        }
+        await DoWork(stoppingToken);
 
         _logger.Information(
             "Stopped Worker background service. Elapsed {TotalElapsedMinutes} minutes",
             DateTime.UtcNow.Subtract(started).Minutes
         );
-        await StopAsync(stoppingToken);
+        // Temp force exits
+        throw new Exception();
+    }
+
+    private async Task DoWork(CancellationToken stoppingToken)
+    {
+        using (var scope = Services.CreateScope())
+        {
+            var gqlClient = scope.ServiceProvider.GetRequiredService<IHeadlessGQLClient>();
+            var stateService = scope.ServiceProvider.GetRequiredService<IStateService>();
+            var dbService = scope.ServiceProvider.GetRequiredService<MongoDbService>();
+
+            if (_enableInitializing)
+            {
+                _logger.Information("Initializing enabled, start initializing");
+
+                var initializerManager = new InitializerManager(stateService, dbService);
+                await initializerManager.RunInitializersAsync(stoppingToken);
+            }
+
+            try
+            {
+                _logger.Information("Start Polling");
+                var poller = PollerFactory.CreatePoller(
+                    _pollerType,
+                    stateService,
+                    gqlClient,
+                    dbService
+                );
+
+                await poller.RunAsync(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.Fatal(ex, "An error occurred during polling.");
+                throw;
+            }
+        }
     }
 }

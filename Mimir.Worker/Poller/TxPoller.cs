@@ -71,9 +71,9 @@ public class TxPoller : IBlockPoller
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex();
+            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
-            var syncedBlockIndex = await GetSyncedBlockIndex(arenaCollectionName);
+            var syncedBlockIndex = await GetSyncedBlockIndex(arenaCollectionName, stoppingToken);
 
             _logger.Information(
                 "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
@@ -137,14 +137,17 @@ public class TxPoller : IBlockPoller
                         PollerType = nameof(TxPoller),
                         CollectionName = collectionName,
                         LatestBlockIndex = syncedBlockIndex + limit
-                    }
+                    },
+                    null,
+                    cancellationToken
                 );
             }
             return;
         }
 
         var blockIndex = syncedBlockIndex + limit;
-        var tuples = txsResponse.ncTransactions.Where(tx => tx is not null)
+        var tuples = txsResponse
+            .ncTransactions.Where(tx => tx is not null)
             .Select(tx =>
                 (
                     Signer: new Address(tx!.signer),
@@ -159,7 +162,10 @@ public class TxPoller : IBlockPoller
                 )
             )
             .ToList();
-        _logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.ncTransactions.Count());
+        _logger.Information(
+            "GetTransaction Success, tx-count: {TxCount}",
+            txsResponse.ncTransactions.Count()
+        );
         var tasks = new List<Task>();
 
         foreach (var (signer, actions) in tuples)
@@ -246,19 +252,23 @@ public class TxPoller : IBlockPoller
         return (actionType, actionPlainValueInternal);
     }
 
-    public async Task<long> GetSyncedBlockIndex(string collectionName)
+    public async Task<long> GetSyncedBlockIndex(
+        string collectionName,
+        CancellationToken stoppingToken
+    )
     {
         try
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
                 nameof(TxPoller),
-                collectionName
+                collectionName,
+                stoppingToken
             );
             return syncedBlockIndex;
         }
         catch (InvalidOperationException)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex();
+            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             _logger.Information(
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
                 currentBlockIndex
@@ -269,7 +279,9 @@ public class TxPoller : IBlockPoller
                     PollerType = nameof(TxPoller),
                     CollectionName = collectionName,
                     LatestBlockIndex = currentBlockIndex - 1
-                }
+                },
+                null,
+                stoppingToken
             );
             return currentBlockIndex - 1;
         }

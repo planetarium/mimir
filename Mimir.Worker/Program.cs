@@ -37,17 +37,7 @@ builder.Services.AddSingleton(serviceProvider =>
 builder.Services.AddHostedService(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    var gqlClient = serviceProvider.GetRequiredService<IHeadlessGQLClient>();
-    var stateService = serviceProvider.GetRequiredService<IStateService>();
-    var dbService = serviceProvider.GetRequiredService<MongoDbService>();
-
-    return new Worker(
-        gqlClient,
-        stateService,
-        dbService,
-        config.PollerType,
-        config.EnableInitializing
-    );
+    return new Worker(serviceProvider, config.PollerType, config.EnableInitializing);
 });
 
 var host = builder.Build();

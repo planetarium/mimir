@@ -37,7 +37,8 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         string actionType,
         long processBlockIndex,
         IValue? actionPlainValueInternal,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
@@ -66,14 +67,15 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
 
         Logger.Information("Handle patch_table, table: {TableName} ", tableName);
 
-        await SyncSheetStateAsync(tableName, sheetType, session);
+        await SyncSheetStateAsync(tableName, sheetType, session, stoppingToken);
         return true;
     }
 
     public async Task SyncSheetStateAsync(
         string sheetName,
         Type sheetType,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
@@ -100,7 +102,7 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         }
 
         var sheetAddress = Addresses.TableSheet.Derive(sheetName);
-        var sheetState = await StateService.GetState(sheetAddress);
+        var sheetState = await StateService.GetState(sheetAddress, stoppingToken);
         if (sheetState is not Text sheetValue)
         {
             throw new InvalidCastException($"Expected sheet state to be of type 'Text'.");
@@ -113,7 +115,8 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         await Store.UpsertSheetDocumentAsync(
             CollectionNames.GetCollectionName<SheetDocument>(),
             [document],
-            session
+            session,
+            stoppingToken
         );
     }
 }
