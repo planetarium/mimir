@@ -125,7 +125,7 @@ public class TxPoller : IBlockPoller
     {
         var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
 
-        if (txsResponse.ncTransactions.Count() == 0)
+        if (txsResponse.NCTransactions.Count() == 0)
         {
             _logger.Information("Transactions is empty");
 
@@ -147,15 +147,15 @@ public class TxPoller : IBlockPoller
 
         var blockIndex = syncedBlockIndex + limit;
         var tuples = txsResponse
-            .ncTransactions.Where(tx => tx is not null)
+            .NCTransactions.Where(tx => tx is not null)
             .Select(tx =>
                 (
-                    Signer: new Address(tx!.signer),
-                    actions: tx.actions.Where(action => action is not null)
+                    Signer: new Address(tx!.Signer),
+                    actions: tx.Actions.Where(action => action is not null)
                         .Select(action =>
                             ActionLoader.LoadAction(
                                 blockIndex,
-                                _codec.Decode(Convert.FromHexString(action!.raw))
+                                _codec.Decode(Convert.FromHexString(action!.Raw))
                             )
                         )
                         .ToList()
@@ -164,7 +164,7 @@ public class TxPoller : IBlockPoller
             .ToList();
         _logger.Information(
             "GetTransaction Success, tx-count: {TxCount}",
-            txsResponse.ncTransactions.Count()
+            txsResponse.NCTransactions.Count()
         );
         var tasks = new List<Task>();
 
@@ -216,7 +216,7 @@ public class TxPoller : IBlockPoller
             cancellationToken
         );
 
-        return result.transaction;
+        return result.Transaction;
     }
 
     /// <summary>

@@ -29,7 +29,7 @@ public class DiffConsumer
     {
         await foreach (var diffContext in _channel.Reader.ReadAllAsync(stoppingToken))
         {
-            if (diffContext.DiffResponse.accountDiffs.Count() == 0)
+            if (diffContext.DiffResponse.AccountDiffs.Count() == 0)
             {
                 _logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
                 await _dbService.UpdateLatestBlockIndex(
@@ -86,17 +86,17 @@ public class DiffConsumer
     )
     {
         List<MimirBsonDocument> documents = new List<MimirBsonDocument>();
-        foreach (var diff in diffResponse.accountDiffs)
+        foreach (var diff in diffResponse.AccountDiffs)
         {
-            if (diff.changedState is not null)
+            if (diff.ChangedState is not null)
             {
-                var address = new Address(diff.path);
+                var address = new Address(diff.Path);
 
                 var document = handler.ConvertToState(
                     new()
                     {
                         Address = address,
-                        RawState = Codec.Decode(Convert.FromHexString(diff.changedState))
+                        RawState = Codec.Decode(Convert.FromHexString(diff.ChangedState))
                     }
                 );
 
@@ -106,7 +106,7 @@ public class DiffConsumer
 
         _logger.Information(
             "{DiffCOunt} Handle in {Handler} Converted {Count} States",
-            diffResponse.accountDiffs.Count(),
+            diffResponse.AccountDiffs.Count(),
             handler.GetType().Name,
             documents.Count
         );

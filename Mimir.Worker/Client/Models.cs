@@ -1,67 +1,93 @@
+using System.Text.Json.Serialization;
+
 namespace Mimir.Worker.Client;
 
 public class GraphQLRequest
 {
-    public string query { get; set; }
-    public object? variables { get; set; }
+    [JsonPropertyName("query")]
+    public required string Query { get; set; }
+
+    [JsonPropertyName("variables")]
+    public object? Variables { get; set; }
 }
 
 public class GraphQLResponse<T>
 {
-    public T data { get; set; }
+    [JsonPropertyName("data")]
+    public T Data { get; set; }
 }
 
 public class GetAccountDiffsResponse
 {
-    public List<AccountDiff> accountDiffs { get; set; }
+    [JsonPropertyName("accountDiffs")]
+    public List<AccountDiff> AccountDiffs { get; set; }
 }
 
 public class AccountDiff
 {
-    public string path { get; set; }
-    public string baseState { get; set; }
-    public string changedState { get; set; }
+    [JsonPropertyName("path")]
+    public string Path { get; set; }
+
+    [JsonPropertyName("baseState")]
+    public string BaseState { get; set; }
+
+    [JsonPropertyName("changedState")]
+    public string ChangedState { get; set; }
 }
 
 public class GetTipResponse
 {
-    public NodeStatus nodeStatus { get; set; }
+    [JsonPropertyName("nodeStatus")]
+    public NodeStatus NodeStatus { get; set; }
 }
 
 public class NodeStatus
 {
-    public Tip tip { get; set; }
+    [JsonPropertyName("tip")]
+    public Tip Tip { get; set; }
 }
 
 public class Tip
 {
-    public long index { get; set; }
+    [JsonPropertyName("index")]
+    public long Index { get; set; }
 }
 
 public class GetStateResponse
 {
-    public string? state { get; set; }
+    [JsonPropertyName("state")]
+    public string? State { get; set; }
 }
 
 public class GetTransactionsResponse
 {
-    public TransactionResponse transaction { get; set; }
+    [JsonPropertyName("transaction")]
+    public TransactionResponse Transaction { get; set; }
 }
 
 public class TransactionResponse
 {
-    public List<NcTransaction> ncTransactions { get; set; }
+    [JsonPropertyName("ncTransactions")]
+    public List<NcTransaction> NCTransactions { get; set; }
 }
 
 public class NcTransaction
 {
-    public string signer { get; set; }
-    public string id { get; set; }
-    public string serializedPayload { get; set; }
-    public List<Action> actions { get; set; }
+    [JsonPropertyName("signer")]
+    public string Signer { get; set; }
+
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("serializedPayload")]
+    public string SerializedPayload { get; set; }
+
+    [JsonPropertyName("actions")]
+    public List<Action> Actions { get; set; }
 }
 
 public class Action
 {
-    public string raw { get; set; }
+    [JsonPropertyName("raw")]
+    public string Raw { get; set; }
 }

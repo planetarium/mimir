@@ -46,13 +46,13 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
             stoppingToken
         );
 
-        return Codec.Decode(Convert.FromHexString(result.state));
+        return Codec.Decode(Convert.FromHexString(result.State));
     }
 
     public async Task<long> GetLatestIndex(CancellationToken stoppingToken = default)
     {
         var result = await client.GetTipAsync(stoppingToken);
 
-        return result.nodeStatus.tip.index;
+        return result.NodeStatus.Tip.Index;
     }
 }

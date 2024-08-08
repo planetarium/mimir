@@ -53,7 +53,7 @@ public class DiffPoller : IBlockPoller
                                 ).ProduceByAccount(
                                     _channels[address.ToHex()].Writer,
                                     address,
-                                    stoppingToken
+                                    cts.Token
                                 ),
                             address.ToHex(),
                             cts.Token
@@ -109,6 +109,10 @@ public class DiffPoller : IBlockPoller
             try
             {
                 await taskFunc();
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

@@ -4,7 +4,6 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
-using Nekoyume;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -47,10 +46,6 @@ public class DiffProducer
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (accountAddress == Addresses.ActionPoint)
-            {
-                throw new HttpRequestException("Response data is null.");
-            }
             var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             var currentBaseIndex = currentTargetIndex;
             long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);

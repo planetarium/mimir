@@ -25,10 +25,11 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var expiration = DateTime.UtcNow.AddMinutes(5);
 
         var token = new JwtSecurityToken(
             issuer: issuer,
-            expires: DateTime.UtcNow.AddMinutes(1),
+            expires: expiration,
             signingCredentials: credentials
         );
 
@@ -37,7 +38,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
 
     private async Task<T> PostGraphQLRequestAsync<T>(
         string query,
-        object variables,
+        object? variables,
         CancellationToken stoppingToken = default
     )
     {
@@ -50,7 +51,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             );
         }
 
-        var request = new GraphQLRequest { query = query, variables = variables };
+        var request = new GraphQLRequest { Query = query, Variables = variables };
 
         var jsonRequest = JsonSerializer.Serialize(request);
         var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
@@ -61,19 +62,19 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         var jsonResponse = await response.Content.ReadAsStringAsync(stoppingToken);
         var graphQLResponse = JsonSerializer.Deserialize<GraphQLResponse<T>>(jsonResponse);
 
-        if (graphQLResponse is null)
+        if (graphQLResponse is null || graphQLResponse.Data is null)
         {
             throw new HttpRequestException("Response data is null.");
         }
 
-        return graphQLResponse.data;
+        return graphQLResponse.Data;
     }
 
     public async Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
         long baseIndex,
         long changedIndex,
         string accountAddress,
-        CancellationToken stoppingToken
+        CancellationToken stoppingToken = default
     )
     {
         return await PostGraphQLRequestAsync<GetAccountDiffsResponse>(
@@ -88,37 +89,15 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
-        long baseIndex,
-        long changedIndex,
-        string accountAddress
-    )
-    {
-        return PostGraphQLRequestAsync<GetAccountDiffsResponse>(
-            GraphQLQueries.GetAccountDiffs,
-            new
-            {
-                baseIndex,
-                changedIndex,
-                accountAddress
-            }
-        );
-    }
-
-    public Task<GetTipResponse> GetTipAsync(CancellationToken stoppingToken)
+    public Task<GetTipResponse> GetTipAsync(CancellationToken stoppingToken = default)
     {
         return PostGraphQLRequestAsync<GetTipResponse>(GraphQLQueries.GetTip, null, stoppingToken);
-    }
-
-    public Task<GetTipResponse> GetTipAsync()
-    {
-        return PostGraphQLRequestAsync<GetTipResponse>(GraphQLQueries.GetTip, null);
     }
 
     public Task<GetStateResponse> GetStateAsync(
         string accountAddress,
         string address,
-        CancellationToken stoppingToken
+        CancellationToken stoppingToken = default
     )
     {
         return PostGraphQLRequestAsync<GetStateResponse>(
@@ -128,32 +107,16 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public Task<GetStateResponse> GetStateAsync(string accountAddress, string address)
-    {
-        return PostGraphQLRequestAsync<GetStateResponse>(
-            GraphQLQueries.GetState,
-            new { accountAddress, address }
-        );
-    }
-
     public Task<GetTransactionsResponse> GetTransactionsAsync(
         long blockIndex,
         long limit,
-        CancellationToken stoppingToken
+        CancellationToken stoppingToken = default
     )
     {
         return PostGraphQLRequestAsync<GetTransactionsResponse>(
             GraphQLQueries.GetTransactions,
             new { blockIndex, limit },
             stoppingToken
-        );
-    }
-
-    public Task<GetTransactionsResponse> GetTransactionsAsync(long blockIndex, long limit)
-    {
-        return PostGraphQLRequestAsync<GetTransactionsResponse>(
-            GraphQLQueries.GetTransactions,
-            new { blockIndex, limit }
         );
     }
 }
