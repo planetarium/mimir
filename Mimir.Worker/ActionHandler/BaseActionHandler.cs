@@ -30,10 +30,11 @@ public abstract class BaseActionHandler(
         IAction action,
         IValue? actionType,
         IValue? actionPlainValueInternal,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
-        if (await TryHandleAction(blockIndex, signer, action, session))
+        if (await TryHandleAction(blockIndex, signer, action, session, stoppingToken))
         {
             return true;
         }
@@ -49,14 +50,15 @@ public abstract class BaseActionHandler(
             return false;
         }
 
-        return await TryHandleAction(actionTypeStr, blockIndex, actionPlainValueInternal, session);
+        return await TryHandleAction(actionTypeStr, blockIndex, actionPlainValueInternal, session, stoppingToken);
     }
 
     protected virtual Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         return Task.FromResult(false);
@@ -66,7 +68,8 @@ public abstract class BaseActionHandler(
         string actionType,
         long processBlockIndex,
         IValue? actionPlainValueInternal,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         return Task.FromResult(false);

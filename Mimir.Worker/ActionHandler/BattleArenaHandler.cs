@@ -23,7 +23,8 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (action is not IBattleArenaV1 battleArena)
@@ -37,14 +38,17 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             BattleType.Arena,
             battleArena.MyAvatarAddress,
             battleArena.Costumes,
-            battleArena.Equipments
+            battleArena.Equipments,
+            null,
+            stoppingToken
         );
 
         await UpdateArenaCollectionAsync(
             blockIndex,
             battleArena.MyAvatarAddress,
             battleArena.EnemyAvatarAddress,
-            session
+            session,
+            stoppingToken
         );
 
         return true;
@@ -54,7 +58,8 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         long processBlockIndex,
         Address myAvatarAddress,
         Address enemyAvatarAddress,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         Logger.Information(
@@ -63,26 +68,30 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             enemyAvatarAddress
         );
 
-        var roundData = await StateGetter.GetArenaRoundData(processBlockIndex);
+        var roundData = await StateGetter.GetArenaRoundData(processBlockIndex, stoppingToken);
         var myArenaScore = await StateGetter.GetArenaScoreState(
             myAvatarAddress,
             roundData.ChampionshipId,
-            roundData.Round
+            roundData.Round,
+            stoppingToken
         );
         var myArenaInfo = await StateGetter.GetArenaInfoState(
             myAvatarAddress,
             roundData.ChampionshipId,
-            roundData.Round
+            roundData.Round,
+            stoppingToken
         );
         var enemyArenaScore = await StateGetter.GetArenaScoreState(
             enemyAvatarAddress,
             roundData.ChampionshipId,
-            roundData.Round
+            roundData.Round,
+            stoppingToken
         );
         var enemyArenaInfo = await StateGetter.GetArenaInfoState(
             enemyAvatarAddress,
             roundData.ChampionshipId,
-            roundData.Round
+            roundData.Round,
+            stoppingToken
         );
 
         await Store.UpsertStateDataManyAsync(
@@ -105,7 +114,8 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
                     enemyAvatarAddress
                 ),
             ],
-            session
+            session,
+            stoppingToken
         );
     }
 }

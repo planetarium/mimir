@@ -1,9 +1,8 @@
-using System.Collections.Concurrent;
 using System.Threading.Channels;
 using Bencodex;
-using HeadlessGQL;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
@@ -22,7 +21,7 @@ public class DiffConsumer
     public DiffConsumer(Channel<DiffContext> channel, MongoDbService dbService)
     {
         _dbService = dbService;
-        _logger = Log.ForContext<DiffBlockPoller>();
+        _logger = Log.ForContext<DiffConsumer>();
         _channel = channel;
     }
 
@@ -30,7 +29,7 @@ public class DiffConsumer
     {
         await foreach (var diffContext in _channel.Reader.ReadAllAsync(stoppingToken))
         {
-            if (diffContext.Diffs.Count() == 0)
+            if (diffContext.DiffResponse.AccountDiffs.Count() == 0)
             {
                 _logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
                 await _dbService.UpdateLatestBlockIndex(
@@ -51,7 +50,12 @@ public class DiffConsumer
                 )
             )
             {
-                await ProcessStateDiff(handler, diffContext.AccountAddress, diffContext.Diffs);
+                await ProcessStateDiff(
+                    handler,
+                    diffContext.AccountAddress,
+                    diffContext.DiffResponse,
+                    stoppingToken
+                );
 
                 await _dbService.UpdateLatestBlockIndex(
                     new MetadataDocument
@@ -59,7 +63,9 @@ public class DiffConsumer
                         PollerType = "DiffBlockPoller",
                         CollectionName = diffContext.CollectionName,
                         LatestBlockIndex = diffContext.TargetBlockIndex
-                    }
+                    },
+                    null,
+                    stoppingToken
                 );
             }
             else
@@ -75,11 +81,12 @@ public class DiffConsumer
     private async Task ProcessStateDiff(
         IStateHandler handler,
         Address accountAddress,
-        IEnumerable<IGetAccountDiffs_AccountDiffs> diffs
+        GetAccountDiffsResponse diffResponse,
+        CancellationToken stoppingToken
     )
     {
         List<MimirBsonDocument> documents = new List<MimirBsonDocument>();
-        foreach (var diff in diffs)
+        foreach (var diff in diffResponse.AccountDiffs)
         {
             if (diff.ChangedState is not null)
             {
@@ -99,7 +106,7 @@ public class DiffConsumer
 
         _logger.Information(
             "{DiffCOunt} Handle in {Handler} Converted {Count} States",
-            diffs.Count(),
+            diffResponse.AccountDiffs.Count(),
             handler.GetType().Name,
             documents.Count
         );
@@ -108,7 +115,9 @@ public class DiffConsumer
         {
             await _dbService.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName(accountAddress),
-                documents
+                documents,
+                null,
+                stoppingToken
             );
         }
     }

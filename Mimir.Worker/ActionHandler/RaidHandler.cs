@@ -16,7 +16,8 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (action is not IRaidV2 raid)
@@ -31,7 +32,8 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
             raid.AvatarAddress,
             raid.CostumeIds,
             raid.EquipmentIds,
-            session
+            session,
+            stoppingToken
         );
 
         return true;

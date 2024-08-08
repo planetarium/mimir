@@ -21,7 +21,8 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (action is not IHackAndSlashSweepV3 hackAndSlashSweep)
@@ -41,7 +42,8 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
             hackAndSlashSweep.AvatarAddress,
             hackAndSlashSweep.Costumes,
             hackAndSlashSweep.Equipments,
-            session
+            session,
+            stoppingToken
         );
 
         return true;

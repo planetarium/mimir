@@ -21,7 +21,8 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (action is not IJoinArenaV1 joinArena)
@@ -41,7 +42,8 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
             joinArena.AvatarAddress,
             joinArena.Costumes,
             joinArena.Equipments,
-            session
+            session,
+            stoppingToken
         );
 
         return true;

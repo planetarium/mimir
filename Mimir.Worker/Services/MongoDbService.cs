@@ -1,7 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
-using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
 using MongoDB.Bson;
@@ -29,7 +28,7 @@ public class MongoDbService
     private IMongoCollection<MetadataDocument> MetadataCollection =>
         _database.GetCollection<MetadataDocument>("metadata");
 
-    public MongoDbService(string connectionString, string databaseName, string? pathToCAFile)
+    public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
         var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 
@@ -55,7 +54,7 @@ public class MongoDbService
         }
 
         _client = new MongoClient(settings);
-        _database = _client.GetDatabase(databaseName);
+        _database = _client.GetDatabase(planetType.ToString());
         _gridFs = new GridFSBucket(_database);
         _logger = Log.ForContext<MongoDbService>();
         _stateCollectionMappings = InitStateCollections();
@@ -112,7 +111,8 @@ public class MongoDbService
 
     public async Task<UpdateResult> UpdateLatestBlockIndex(
         MetadataDocument document,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken cancellationToken = default
     )
     {
         var builder = Builders<MetadataDocument>.Filter;
@@ -127,19 +127,34 @@ public class MongoDbService
         var updateOptions = new UpdateOptions { IsUpsert = true };
 
         var result = session is null
-            ? await MetadataCollection.UpdateOneAsync(filter, update, updateOptions)
-            : await MetadataCollection.UpdateOneAsync(session, filter, update, updateOptions);
+            ? await MetadataCollection.UpdateOneAsync(
+                filter,
+                update,
+                updateOptions,
+                cancellationToken
+            )
+            : await MetadataCollection.UpdateOneAsync(
+                session,
+                filter,
+                update,
+                updateOptions,
+                cancellationToken
+            );
 
         return result;
     }
 
-    public async Task<long> GetLatestBlockIndex(string pollerType, string collectionName)
+    public async Task<long> GetLatestBlockIndex(
+        string pollerType,
+        string collectionName,
+        CancellationToken cancellationToken = default
+    )
     {
         var builder = Builders<MetadataDocument>.Filter;
         var filter = builder.Eq("PollerType", pollerType);
         filter &= builder.Eq("CollectionName", collectionName);
 
-        var doc = await MetadataCollection.FindSync(filter).FirstAsync();
+        var doc = await MetadataCollection.FindSync(filter).FirstAsync(cancellationToken);
         return doc.LatestBlockIndex;
     }
 
@@ -149,12 +164,14 @@ public class MongoDbService
     //     return await GetCollection<ProductsDocument>().Find(filter).FirstOrDefaultAsync();
     // }
 
-    public async Task<T?> GetSheetAsync<T>()
+    public async Task<T?> GetSheetAsync<T>(CancellationToken cancellationToken = default)
         where T : ISheet, new()
     {
         var address = Addresses.GetSheetAddress<T>();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
-        var document = await GetCollection<SheetDocument>().Find(filter).FirstOrDefaultAsync();
+        var document = await GetCollection<SheetDocument>()
+            .Find(filter)
+            .FirstOrDefaultAsync(cancellationToken);
         if (document is null)
         {
             return default;
@@ -178,7 +195,8 @@ public class MongoDbService
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<MimirBsonDocument> documents,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken cancellationToken = default
     )
     {
         List<UpdateOneModel<BsonDocument>> bulkOps = new List<UpdateOneModel<BsonDocument>>();
@@ -190,18 +208,21 @@ public class MongoDbService
 
         if (session is null)
         {
-            return await GetCollection(collectionName).BulkWriteAsync(bulkOps);
+            return await GetCollection(collectionName)
+                .BulkWriteAsync(bulkOps, null, cancellationToken);
         }
         else
         {
-            return await GetCollection(collectionName).BulkWriteAsync(session, bulkOps);
+            return await GetCollection(collectionName)
+                .BulkWriteAsync(session, bulkOps, null, cancellationToken);
         }
     }
 
     public async Task<BulkWriteResult> UpsertSheetDocumentAsync(
         string collectionName,
         List<SheetDocument> documents,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken cancellationToken = default
     )
     {
         List<UpdateOneModel<BsonDocument>> bulkOps = new List<UpdateOneModel<BsonDocument>>();
@@ -213,11 +234,13 @@ public class MongoDbService
 
         if (session is null)
         {
-            return await GetCollection(collectionName).BulkWriteAsync(bulkOps);
+            return await GetCollection(collectionName)
+                .BulkWriteAsync(bulkOps, null, cancellationToken);
         }
         else
         {
-            return await GetCollection(collectionName).BulkWriteAsync(session, bulkOps);
+            return await GetCollection(collectionName)
+                .BulkWriteAsync(session, bulkOps, null, cancellationToken);
         }
     }
 
@@ -241,14 +264,17 @@ public class MongoDbService
     }
 
     public async Task<UpdateOneModel<BsonDocument>> GetSheetDocumentUpdateModel(
-        SheetDocument document
+        SheetDocument document,
+        CancellationToken cancellationToken = default
     )
     {
         var collectionName = CollectionNames.GetCollectionName(document.GetType());
         var rawStateBytes = new Codec().Encode(document.RawState);
         var rawStateId = await _gridFs.UploadFromBytesAsync(
             $"{document.Address.ToHex()}-rawstate",
-            rawStateBytes
+            rawStateBytes,
+            null,
+            cancellationToken
         );
 
         var bsonDocument = BsonDocument.Parse(document.ToJson());

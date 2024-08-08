@@ -1,11 +1,9 @@
 using Bencodex;
 using Bencodex.Types;
-using HeadlessGQL;
 using Libplanet.Action.State;
 using Libplanet.Crypto;
 using Libplanet.Types.Blocks;
-using Mimir.Worker.Util;
-using StrawberryShake;
+using Mimir.Worker.Client;
 
 namespace Mimir.Worker.Services;
 
@@ -17,52 +15,44 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 
     public long TipIndex => TipInfo.Item1;
 
-    public Task<IValue?[]> GetStates(Address[] addresses)
+    public Task<IValue?[]> GetStates(Address[] addresses, CancellationToken stoppingToken = default)
     {
-        return Task.WhenAll(addresses.Select(GetState));
+        return Task.WhenAll(addresses.Select((a) => GetState(a, stoppingToken)));
     }
 
-    public Task<IValue?[]> GetStates(Address[] addresses, Address accountAddress)
+    public Task<IValue?[]> GetStates(
+        Address[] addresses,
+        Address accountAddress,
+        CancellationToken stoppingToken = default
+    )
     {
         return Task.WhenAll(addresses.Select(addr => GetState(addr, accountAddress)));
     }
 
-    public async Task<IValue?> GetState(Address address)
+    public async Task<IValue?> GetState(Address address, CancellationToken stoppingToken = default)
     {
-        return await GetState(address, ReservedAddresses.LegacyAccount);
+        return await GetState(address, ReservedAddresses.LegacyAccount, stoppingToken);
     }
 
-    public async Task<IValue?> GetState(Address address, Address accountAddress)
+    public async Task<IValue?> GetState(
+        Address address,
+        Address accountAddress,
+        CancellationToken stoppingToken = default
+    )
     {
-        return await RetryUtil.RequestWithRetryAsync(
-            async () =>
-            {
-                var result = await client.GetState.ExecuteAsync(
-                    accountAddress.ToString(),
-                    address.ToString()
-                );
-
-                result.EnsureNoErrors();
-
-                if (result.Data?.State is null)
-                {
-                    return null;
-                }
-
-                return Codec.Decode(Convert.FromHexString(result.Data.State));
-            },
-            retryCount: 3,
-            delayMilliseconds: 5000,
-            cancellationToken: new CancellationToken(),
-            null
+        var result = await client.GetStateAsync(
+            accountAddress.ToString(),
+            address.ToString(),
+            stoppingToken
         );
+
+        return Codec.Decode(Convert.FromHexString(result.State));
     }
 
-    public async Task<int> GetLatestIndex()
+    public async Task<long> GetLatestIndex(CancellationToken stoppingToken = default)
     {
-        var result = await client.GetTip.ExecuteAsync();
-        result.EnsureNoErrors();
+        var result = await client.GetTipAsync(stoppingToken);
 
-        return result.Data.NodeStatus.Tip.Index;
+        return result.NodeStatus.Tip.Index;
     }
 }

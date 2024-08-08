@@ -1,5 +1,5 @@
-using HeadlessGQL;
 using Mimir.Worker.Client;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Initializer;
 using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
@@ -11,34 +11,15 @@ namespace Mimir.Worker;
 public class Worker : BackgroundService
 {
     private readonly ILogger _logger;
-    private readonly MongoDbService _store;
-    private readonly IStateService _stateService;
-    private readonly HeadlessGQLClient _headlessGqlClient;
-    private readonly TempGQLClient _tempGqlClient;
-    private readonly string[] _activePollers;
-    private readonly string _snapshotPath;
-    private readonly bool _enableSnapshotInitializing;
+    private readonly PollerType _pollerType;
     private readonly bool _enableInitializing;
+    public IServiceProvider Services { get; }
 
-    public Worker(
-        HeadlessGQLClient headlessGqlClient,
-        TempGQLClient tempGqlClient,
-        IStateService stateService,
-        MongoDbService store,
-        string[] activePollers,
-        string snapshotPath,
-        bool enableSnapshotInitializing,
-        bool enableInitializing
-    )
+    public Worker(IServiceProvider services, PollerType pollerType, bool enableInitializing)
     {
-        _stateService = stateService;
-        _store = store;
-        _headlessGqlClient = headlessGqlClient;
-        _tempGqlClient = tempGqlClient;
-        _snapshotPath = snapshotPath;
-        _enableSnapshotInitializing = enableSnapshotInitializing;
+        Services = services;
+        _pollerType = pollerType;
         _enableInitializing = enableInitializing;
-        _activePollers = activePollers;
 
         _logger = Log.ForContext<Worker>();
     }
@@ -48,56 +29,53 @@ public class Worker : BackgroundService
         var started = DateTime.UtcNow;
 
         _logger.Information(
-            "Start Worker background service. snapshot-init: {EnableSnapshotInitializing}, init: {EnableInitializing}",
-            _enableSnapshotInitializing,
+            "Start Worker background service, init: {EnableInitializing}",
             _enableInitializing
         );
 
-        // if (_enableSnapshotInitializing)
-        // {
-        //     _logger.Information("Snapshot Initializing enabled, start initializing");
-
-        //     var initializer = new SnapshotInitializer(_store, _snapshotPath);
-        //     await initializer.RunAsync(stoppingToken);
-        // }
-
-        if (_enableInitializing)
-        {
-            _logger.Information("Initializing enabled, start initializing");
-
-            var initializerManager = new InitializerManager(_stateService, _store);
-            await initializerManager.RunInitializersAsync(stoppingToken);
-        }
-
-        var tasks = new List<Task>();
-        var pollerTypeMap = new Dictionary<string, IBlockPoller>()
-        {
-            { "DiffBlockPoller", new DiffBlockPoller(_stateService, _tempGqlClient, _store) },
-            { "BlockPoller", new BlockPoller(_stateService, _headlessGqlClient, _store) }
-        };
-
-        try
-        {
-            foreach (var pollerType in _activePollers)
-            {
-                tasks.Add(pollerTypeMap[pollerType].RunAsync(stoppingToken));
-            }
-
-            _logger.Information("Start Polling");
-
-            await Task.WhenAll(tasks);
-        }
-        catch (Exception ex)
-        {
-            _logger.Fatal(ex, "An error occurred during polling.");
-            throw;
-        }
+        await DoWork(stoppingToken);
 
         _logger.Information(
             "Stopped Worker background service. Elapsed {TotalElapsedMinutes} minutes",
             DateTime.UtcNow.Subtract(started).Minutes
         );
-        // Temp Force quit
+        // Temp force exits
         throw new Exception();
+    }
+
+    private async Task DoWork(CancellationToken stoppingToken)
+    {
+        using (var scope = Services.CreateScope())
+        {
+            var gqlClient = scope.ServiceProvider.GetRequiredService<IHeadlessGQLClient>();
+            var stateService = scope.ServiceProvider.GetRequiredService<IStateService>();
+            var dbService = scope.ServiceProvider.GetRequiredService<MongoDbService>();
+
+            if (_enableInitializing)
+            {
+                _logger.Information("Initializing enabled, start initializing");
+
+                var initializerManager = new InitializerManager(stateService, dbService);
+                await initializerManager.RunInitializersAsync(stoppingToken);
+            }
+
+            try
+            {
+                _logger.Information("Start Polling");
+                var poller = PollerFactory.CreatePoller(
+                    _pollerType,
+                    stateService,
+                    gqlClient,
+                    dbService
+                );
+
+                await poller.RunAsync(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.Fatal(ex, "An error occurred during polling.");
+                throw;
+            }
+        }
     }
 }

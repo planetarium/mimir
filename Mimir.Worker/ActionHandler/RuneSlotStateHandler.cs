@@ -25,7 +25,8 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         Logger.Information(
@@ -33,12 +34,12 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
             signer
         );
 
-        if (await TryProcessRuneSlotStateAsync(action, session))
+        if (await TryProcessRuneSlotStateAsync(action, session, stoppingToken))
         {
             return true;
         }
 
-        if (await TryProcessUnlockRuneSlotAsync(action, session))
+        if (await TryProcessUnlockRuneSlotAsync(action, session, stoppingToken))
         {
             return true;
         }
@@ -48,7 +49,8 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
 
     private async Task<bool> TryProcessRuneSlotStateAsync(
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         (BattleType battleType, Address avatarAddress, IEnumerable<IValue>? runeSlotInfos)? tuple =
@@ -83,14 +85,16 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
             battleType,
             avatarAddress,
             runeSlotInfos,
-            session
+            session,
+            stoppingToken
         );
         return true;
     }
 
     private async Task<bool> TryProcessUnlockRuneSlotAsync(
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (action is not IUnlockRuneSlotV1 unlockRuneSlot)
@@ -106,7 +110,8 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
                 battleType,
                 unlockRuneSlot.AvatarAddress,
                 unlockRuneSlot.SlotIndex,
-                session
+                session,
+                stoppingToken
             );
         }
 

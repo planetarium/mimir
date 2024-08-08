@@ -21,7 +21,8 @@ public class EventDungeonBattleHandler(IStateService stateService, MongoDbServic
         long blockIndex,
         Address signer,
         IAction action,
-        IClientSessionHandle? session = null
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
     )
     {
         if (action is not IEventDungeonBattleV2 eventDungeonBattle)
@@ -41,7 +42,8 @@ public class EventDungeonBattleHandler(IStateService stateService, MongoDbServic
             eventDungeonBattle.AvatarAddress,
             eventDungeonBattle.Costumes,
             eventDungeonBattle.Equipments,
-            session
+            session,
+            stoppingToken
         );
 
         return true;

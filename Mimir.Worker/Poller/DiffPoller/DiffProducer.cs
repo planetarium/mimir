@@ -1,11 +1,9 @@
 using System.Threading.Channels;
-using HeadlessGQL;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
-using Mimir.Worker.Util;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -16,11 +14,11 @@ public class DiffProducer
     protected readonly MongoDbService _dbService;
     protected readonly IStateService _stateService;
     protected readonly ILogger _logger;
-    private readonly TempGQLClient _headlessGqlClient;
+    private readonly IHeadlessGQLClient _headlessGqlClient;
 
     public DiffProducer(
         IStateService stateService,
-        TempGQLClient headlessGqlClient,
+        IHeadlessGQLClient headlessGqlClient,
         MongoDbService dbService
     )
     {
@@ -32,13 +30,13 @@ public class DiffProducer
 
     public async Task ProduceByAccount(
         ChannelWriter<DiffContext> writer,
-        CancellationToken stoppingToken,
-        Address accountAddress
+        Address accountAddress,
+        CancellationToken stoppingToken
     )
     {
         var collectionName = CollectionNames.GetCollectionName(accountAddress);
 
-        var syncedBlockIndex = await GetSyncedBlockIndex(collectionName);
+        var syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
         var currentTargetIndex = syncedBlockIndex;
         _logger.Information(
             "{CollectionName} Synced BlockIndex: {SyncedBlockIndex}",
@@ -48,7 +46,7 @@ public class DiffProducer
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex();
+            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             var currentBaseIndex = currentTargetIndex;
             long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);
             int limit =
@@ -74,17 +72,17 @@ public class DiffProducer
                 currentTargetIndex
             );
 
-            var diffResult = await FetchDiffAsync(
+            var result = await _headlessGqlClient.GetAccountDiffsAsync(
                 currentBaseIndex,
                 currentTargetIndex,
-                accountAddress,
+                accountAddress.ToString(),
                 stoppingToken
             );
 
             await writer.WriteAsync(
                 new DiffContext()
                 {
-                    Diffs = diffResult,
+                    DiffResponse = result,
                     AccountAddress = accountAddress,
                     TargetBlockIndex = currentTargetIndex,
                     CollectionName = collectionName
@@ -94,61 +92,23 @@ public class DiffProducer
         }
     }
 
-    private async Task<IEnumerable<IGetAccountDiffs_AccountDiffs>> FetchDiffAsync(
-        long syncedBlockIndex,
-        long targetIndex,
-        Address accountAddress,
+    public async Task<long> GetSyncedBlockIndex(
+        string collectionName,
         CancellationToken stoppingToken
     )
-    {
-        return await RetryUtil.RequestWithRetryAsync(
-            async () =>
-            {
-                var diffResult = await _headlessGqlClient.GetAccountDiffsAsync(
-                    syncedBlockIndex,
-                    targetIndex,
-                    accountAddress.ToString()
-                );
-                var result = new List<GetAccountDiffs_AccountDiffs_StateDiff>();
-
-                if (diffResult is null)
-                {
-                    throw new HttpRequestException("Response data is null.");
-                }
-
-                foreach (var diff in diffResult.accountDiffs)
-                {
-                    var stateDiff = new GetAccountDiffs_AccountDiffs_StateDiff(
-                        diff.path,
-                        diff.baseState,
-                        diff.changedState
-                    );
-                    result.Add(stateDiff);
-                }
-
-                return result.AsReadOnly();
-            },
-            retryCount: 3,
-            delayMilliseconds: 30_000,
-            cancellationToken: stoppingToken,
-            onRetry: (ex, retryAttempt) =>
-                _logger.Error(ex, "Error on retry {RetryCount}.", retryAttempt)
-        );
-    }
-
-    public async Task<long> GetSyncedBlockIndex(string collectionName)
     {
         try
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
                 "DiffBlockPoller",
-                collectionName
+                collectionName,
+                stoppingToken
             );
             return syncedBlockIndex;
         }
         catch (InvalidOperationException)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex();
+            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             _logger.Information(
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
                 currentBlockIndex

@@ -1,5 +1,4 @@
 using Bencodex.Types;
-using HeadlessGQL;
 using Libplanet.Crypto;
 
 namespace Mimir.Worker.Handler;
