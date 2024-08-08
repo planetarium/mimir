@@ -21,7 +21,7 @@ builder.Logging.AddSerilog(Log.Logger);
 builder.Services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-    return new HeadlessGQLClient(config.HeadlessEndpoint, config.JwtIssuer, config.JwtSecretKey);
+    return new HeadlessGQLClient(config.HeadlessEndpoints, config.JwtIssuer, config.JwtSecretKey);
 });
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
 

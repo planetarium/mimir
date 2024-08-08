@@ -12,7 +12,7 @@ public class Configuration
 
     public string PlanetType { get; init; }
 
-    public Uri HeadlessEndpoint { get; init; }
+    public Uri[] HeadlessEndpoints { get; init; }
 
     public string? JwtIssuer { get; init; }
 

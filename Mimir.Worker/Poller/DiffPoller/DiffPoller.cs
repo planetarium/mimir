@@ -44,20 +44,11 @@ public class DiffPoller : IBlockPoller
             .HandlerMappings.Keys.Select(address =>
                 Task.Run(
                     () =>
-                        RunWithRestart(
-                            () =>
-                                new DiffProducer(
-                                    _stateService,
-                                    _headlessGqlClient,
-                                    _dbService
-                                ).ProduceByAccount(
-                                    _channels[address.ToHex()].Writer,
-                                    address,
-                                    cts.Token
-                                ),
-                            address.ToHex(),
-                            cts.Token
-                        )
+                        new DiffProducer(
+                            _stateService,
+                            _headlessGqlClient,
+                            _dbService
+                        ).ProduceByAccount(_channels[address.ToHex()].Writer, address, cts.Token)
                 )
             )
             .ToArray();
@@ -96,35 +87,5 @@ public class DiffPoller : IBlockPoller
             GetType().Name,
             DateTime.UtcNow.Subtract(started).Minutes
         );
-    }
-
-    private async Task RunWithRestart(
-        Func<Task> taskFunc,
-        string addressHex,
-        CancellationToken stoppingToken
-    )
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            try
-            {
-                await taskFunc();
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(
-                    ex,
-                    "Task for address {AddressHex} failed. Restarting...",
-                    addressHex
-                );
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
-                if (i == 2)
-                    throw;
-            }
-        }
     }
 }
