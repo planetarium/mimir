@@ -68,7 +68,11 @@ public class MongoDbService
     private Dictionary<string, IMongoCollection<BsonDocument>> InitStateCollections()
     {
         var mappings = new Dictionary<string, IMongoCollection<BsonDocument>>();
-        foreach (var (_, collectionName) in CollectionNames.CollectionAndStateTypeMappings)
+        foreach (
+            var collectionName in CollectionNames.CollectionAndStateTypeMappings.Values.Concat(
+                CollectionNames.CollectionAndAddressMappings.Values
+            )
+        )
         {
             var collection = _database.GetCollection<BsonDocument>(collectionName);
             mappings[collectionName] = collection;

@@ -30,16 +30,16 @@ namespace Mimir.Worker.Constants
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.ExplorerList, "adventure_boss_explorer_list");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses. typeof(ExplorerState), "adventure_boss_explorer");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.AdventureBoss, "adventure_boss_season_info");
-            RegisterBalanceAddress(AddressHandlerMappings.OdinNCGCurrency);
-            RegisterBalanceAddress(Currencies.Crystal);
-            RegisterBalanceAddress(Currencies.StakeRune);
-            RegisterBalanceAddress(Currencies.DailyRewardRune);
-            RegisterBalanceAddress(Currencies.Garage);
-            RegisterBalanceAddress(Currencies.Mead);
-            RegisterBalanceAddress(Currencies.FreyaBlessingRune);
-            RegisterBalanceAddress(Currencies.FreyaLiberationRune);
-            RegisterBalanceAddress(Currencies.OdinWeaknessRune);
-            RegisterBalanceAddress(Currencies.OdinWisdomRune);
+            CollectionAndAddressMappings.Add(new Address(AddressHandlerMappings.OdinNCGCurrency.Hash.ToByteArray()), "balance_ncg");
+            CollectionAndAddressMappings.Add(new Address(Currencies.Crystal.Hash.ToByteArray()), "balance_crystal");
+            CollectionAndAddressMappings.Add(new Address(Currencies.StakeRune.Hash.ToByteArray()), "balance_stake_rune");
+            CollectionAndAddressMappings.Add(new Address(Currencies.DailyRewardRune.Hash.ToByteArray()), "balance_daily_reward_rune");
+            CollectionAndAddressMappings.Add(new Address(Currencies.Garage.Hash.ToByteArray()), "balance_garage");
+            CollectionAndAddressMappings.Add(new Address(Currencies.Mead.Hash.ToByteArray()), "balance_mead");
+            CollectionAndAddressMappings.Add(new Address(Currencies.FreyaBlessingRune.Hash.ToByteArray()), "balance_freya_blessing_rune");
+            CollectionAndAddressMappings.Add(new Address(Currencies.FreyaLiberationRune.Hash.ToByteArray()), "balance_freya_liberation_rune");
+            CollectionAndAddressMappings.Add(new Address(Currencies.OdinWeaknessRune.Hash.ToByteArray()), "balance_weakness_rune");
+            CollectionAndAddressMappings.Add(new Address(Currencies.OdinWisdomRune.Hash.ToByteArray()), "balance_wisdom_rune");
 
             CollectionAndStateTypeMappings.Add(typeof(AgentDocument), "agent");
             CollectionAndStateTypeMappings.Add(typeof(AvatarDocument), "avatar");
@@ -114,11 +114,6 @@ namespace Mimir.Worker.Constants
             }
 
             return collectionName;
-        }
-
-        private static void RegisterBalanceAddress(Currency currency)
-        {
-            CollectionAndAddressMappings.Add(new Address(currency.Hash.ToByteArray()), "balances");
         }
     }
 }
