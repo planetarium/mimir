@@ -23,11 +23,6 @@ public class QueryType : ObjectType<Query>
             .Resolve(context => new InventoryObject(context.ArgumentValue<Address>("address")));
 
         descriptor
-            .Field("arena")
-            .Type<ArenaType>()
-            .Resolve(_ => new ArenaObject());
-
-        descriptor
             .Field("product")
             .Argument("skip", a => a.Type<NonNullType<LongType>>())
             .Argument("limit", a => a.Type<NonNullType<IntType>>())

@@ -1,5 +1,6 @@
 using Lib9c.Models.States;
 using Libplanet.Crypto;
+using Mimir.GraphQL.Objects;
 using Mimir.Repositories;
 
 namespace Mimir.GraphQL.Queries;
@@ -13,4 +14,6 @@ public class Query
         var doc = await repo.GetAgentAsync(address);
         return doc.Object;
     }
+
+    public ArenaObject GetArena() => new();
 }
