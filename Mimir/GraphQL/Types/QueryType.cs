@@ -11,12 +11,6 @@ public class QueryType : ObjectType<Query>
     protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
     {
         descriptor
-            .Field("agent")
-            .Argument("address", a => a.Type<NonNullType<AddressType>>())
-            .Type<AgentType>()
-            .Resolve(context => new AgentObject(context.ArgumentValue<Address>("address")));
-
-        descriptor
             .Field("avatar")
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<AvatarType>()
