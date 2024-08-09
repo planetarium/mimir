@@ -2,8 +2,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Bson.Serialization.Serializers;
 using Mimir.Worker.Constants;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using Nekoyume;
@@ -30,6 +32,8 @@ public class MongoDbService
 
     public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
+        BsonSerializer.RegisterSerializer(new AddressBsonSerializer());
+
         var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 
         if (pathToCAFile is not null)

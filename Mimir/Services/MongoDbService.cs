@@ -1,7 +1,9 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Options;
+using Mimir.MongoDB.Bson.Serialization.Serializers;
 using Mimir.Options;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
@@ -14,6 +16,7 @@ public class MongoDbService
 
     public MongoDbService(IOptions<DatabaseOption> databaseOption)
     {
+        BsonSerializer.RegisterSerializer(new AddressBsonSerializer());
         var settings = MongoClientSettings.FromUrl(
             new MongoUrl(databaseOption.Value.ConnectionString)
         );
