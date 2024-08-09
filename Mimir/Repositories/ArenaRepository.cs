@@ -1,8 +1,8 @@
-using Bencodex;
 using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.Models.Arena;
+using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using Mimir.Util;
 using MongoDB.Bson;
@@ -12,31 +12,27 @@ namespace Mimir.Repositories;
 
 public class ArenaRepository(MongoDbService dbService, IStateService stateService)
 {
-    private static readonly Codec Codec = new();
     private readonly CpRepository _cpRepository = new(stateService);
-    private StateGetter _stateGetter = new(stateService);
+    private readonly StateGetter _stateGetter = new(stateService);
 
     public async Task<long> GetRankingByAvatarAddressAsync(
         Address avatarAddress,
         int championshipId,
-        int round
-    )
+        int round)
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
         return await GetRankingByAvatarAddressAsync(
             collection,
             avatarAddress,
             championshipId,
-            round
-        );
+            round);
     }
 
     private static async Task<long> GetRankingByAvatarAddressAsync(
         IMongoCollection<BsonDocument> collection,
         Address avatarAddress,
         int championshipId,
-        int round
-    )
+        int round)
     {
         var pipelines = new BsonDocument[]
         {
@@ -67,16 +63,19 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
             new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress.ToHex()))
         };
 
-        var aggregation = await collection.Aggregate<dynamic>(pipelines).ToListAsync();
-        return aggregation.Count == 0 ? 0 : (long)aggregation.First().Rank;
+        var aggregation = await collection
+            .Aggregate<dynamic>(pipelines)
+            .ToListAsync();
+        return aggregation.Count == 0
+            ? 0
+            : (long)aggregation.First().Rank;
     }
 
     public async Task<List<ArenaRanking>> GetRanking(
         long skip,
         int limit,
         int championshipId,
-        int round
-    )
+        int round)
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
         return await GetRanking(collection, skip, limit, championshipId, round);
@@ -86,9 +85,8 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
         IMongoCollection<BsonDocument> collection,
         long skip,
         int limit,
-        int? championshipId,
-        int? round
-    )
+        int championshipId,
+        int round)
     {
         var pipelines = new List<BsonDocument>
         {
@@ -113,58 +111,57 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
             ),
             new(
                 "$unwind",
-                new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "docs.Rank" } }
+                new BsonDocument
+                {
+                    { "path", "$docs" },
+                    { "includeArrayIndex", "docs.Rank" }
+                }
             ),
-            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$docs")),
+            new("$replaceRoot", new BsonDocument("newRoot", "$docs")),
             new("$skip", skip),
             new("$limit", limit)
         };
 
-        var aggregation = collection.Aggregate<BsonDocument>(pipelines).ToList();
-        var arenaRankings = await Task.WhenAll(
-            aggregation.Where(e => e is not null).Select(BuildArenaRankingFromDocument));
-        return arenaRankings.Where(e => e is not null).ToList()!;
+        var aggregation = collection
+            .Aggregate<ArenaDocument>(pipelines)
+            .ToList();
+        var arenaRankings = await Task.WhenAll(aggregation
+            .Where(e => e is not null)
+            .Select(BuildArenaRankingFromDocument));
+        return arenaRankings
+            .Where(e => e is not null)
+            .ToList()!;
     }
 
-    private async Task<ArenaRanking?> BuildArenaRankingFromDocument(BsonDocument document)
+    private async Task<ArenaRanking?> BuildArenaRankingFromDocument(ArenaDocument document)
     {
-        var avatarAddress = document["AvatarAddress"].AsString;
-
         var arenaRanking = new ArenaRanking(
-            document["AvatarAddress"].AsString,
-            document["ArenaInformationObject"]["Address"].AsString,
-            document["ArenaInformationObject"]["Win"].ToInt32(),
-            document["ArenaInformationObject"]["Lose"].ToInt32(),
-            document["Rank"].ToInt64() + 1,
-            document["ArenaInformationObject"]["Ticket"].ToInt32(),
-            document["ArenaInformationObject"]["TicketResetCount"].ToInt32(),
-            document["ArenaInformationObject"]["PurchasedTicketCount"].ToInt32(),
-            document["ArenaScoreObject"]["Score"].ToInt32()
-        );
+            document.AvatarAddress.ToHex(),
+            document.ArenaInformationObject.Address.ToHex(),
+            document.ArenaInformationObject.Win,
+            document.ArenaInformationObject.Lose,
+            document.ExtraElements?["Rank"].ToInt64() + 1 ?? 0,
+            document.ArenaInformationObject.Ticket,
+            document.ArenaInformationObject.TicketResetCount,
+            document.ArenaInformationObject.PurchasedTicketCount,
+            document.ArenaScoreObject.Score);
 
         try
         {
+            // Set Avatar
             var avatar = AvatarRepository.GetAvatar(
                 dbService.GetCollection<BsonDocument>(CollectionNames.Avatar.Value),
-                new Address(avatarAddress)
-            );
-
+                document.AvatarAddress);
             arenaRanking.Avatar = avatar;
 
-            var runeSlotState = await _stateGetter.GetArenaRuneSlotStateAsync(
-                new Address(avatarAddress)
-            );
-            if (runeSlotState is null)
-            {
-                return arenaRanking;
-            }
-
-            var cp = await _cpRepository.CalculateCp(
-                avatar,
-                runeSlotState
-            );
-            arenaRanking.CP = cp;
-            Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");
+            // NOTE: Uncomment if the CP needed.
+            // // Set CP
+            // var runeSlotState = await _stateGetter.GetArenaRuneSlotStateAsync(
+            //     document.AvatarAddress);
+            // var cp = await _cpRepository.CalculateCp(
+            //     avatar,
+            //     runeSlotState);
+            // arenaRanking.CP = cp;
         }
         catch (DocumentNotFoundInMongoCollectionException e)
         {

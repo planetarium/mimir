@@ -20,7 +20,9 @@ public class ArenaResolver
             return arenaRound;
         }
 
-        var latestBlockIndex = metadataRepo.GetLatestBlockIndex("BlockPoller", CollectionNames.Arena.Value);
+        var latestBlockIndex = metadataRepo.GetLatestBlockIndex(
+            "TxPoller",
+            CollectionNames.Arena.Value);
         arenaRound = tableSheetsRepo.GetArenaRound(latestBlockIndex);
         context.ScopedContextData = context.ScopedContextData.Add("arenaRound", arenaRound);
         return arenaRound;

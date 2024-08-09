@@ -1,7 +1,7 @@
-using Mimir.Exceptions;
+using Mimir.MongoDB.Exceptions;
 using MongoDB.Bson;
 
-namespace Mimir.GraphQL.Extensions;
+namespace Mimir.MongoDB.Bson.Extensions;
 
 public static class BsonValueExtensions
 {

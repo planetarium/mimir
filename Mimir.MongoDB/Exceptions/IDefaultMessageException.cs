@@ -1,4 +1,4 @@
-namespace Mimir.Exceptions;
+namespace Mimir.MongoDB.Exceptions;
 
 public interface IDefaultMessageException
 {

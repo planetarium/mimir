@@ -1,6 +1,6 @@
 using Bencodex.Types;
-using Mimir.GraphQL.Extensions;
 using Mimir.GraphQL.Objects;
+using Mimir.MongoDB.Bson.Extensions;
 using MongoDB.Bson;
 using Nekoyume.Model.Skill;
 using Nekoyume.Model.Stat;

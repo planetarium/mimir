@@ -5,12 +5,12 @@ using Nekoyume.Model.State;
 
 namespace Mimir.MongoDB.Bson;
 
-public record WorldInformationDocument(Address Address) : MimirBsonDocument(Address)
+public record WorldInformationDocument : MimirBsonDocument
 {
     public IDictionary<int, WorldInformation.World> Object { get; init; }
 
     public WorldInformationDocument(Address Address, WorldInformation worldInformation)
-        : this(Address)
+        : base(Address)
     {
         Object = ((Dictionary)worldInformation.Serialize()).ToDictionary(
             kv => kv.Key.ToInteger(),

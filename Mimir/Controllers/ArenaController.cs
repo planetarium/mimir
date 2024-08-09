@@ -23,10 +23,10 @@ public class ArenaController(
     [HttpGet("season")]
     public ArenaSeason GetLatestSeason(MetadataRepository metadataRepository)
     {
-        var arenaRound = tableSheetsRepository.GetArenaRound(
-            metadataRepository.GetLatestBlockIndex("BlockPoller", CollectionNames.Arena.Value)
-        );
-
+        var latestBlockIndex = metadataRepository.GetLatestBlockIndex(
+            "TxPoller",
+            CollectionNames.Arena.Value);
+        var arenaRound = tableSheetsRepository.GetArenaRound(latestBlockIndex);
         return new ArenaSeason(arenaRound.ChampionshipId, arenaRound.Round);
     }
 
