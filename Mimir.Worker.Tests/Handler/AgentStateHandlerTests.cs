@@ -31,12 +31,12 @@ public class AgentStateHandlerTests
 
         Assert.IsType<AgentDocument>(state);
         var dataState = (AgentDocument)state;
-        Assert.Equal(agentState.address, dataState.Object.address);
-        Assert.Equal(agentState.avatarAddresses.Count, dataState.Object.avatarAddresses.Count);
+        Assert.Equal(agentState.address, dataState.Object.Address);
+        Assert.Equal(agentState.avatarAddresses.Count, dataState.Object.AvatarAddresses.Count);
         foreach (var (key, value) in agentState.avatarAddresses)
         {
-            Assert.True(dataState.Object.avatarAddresses.ContainsKey(key));
-            Assert.Equal(value, dataState.Object.avatarAddresses[key]);
+            Assert.True(dataState.Object.AvatarAddresses.ContainsKey(key));
+            Assert.Equal(value, dataState.Object.AvatarAddresses[key]);
         }
 
         Assert.Equal(agentState.MonsterCollectionRound, dataState.Object.MonsterCollectionRound);
