@@ -2,13 +2,14 @@ using System.Text.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
+using Lib9c.GraphQL.Types;
+using Libplanet.Crypto;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using Mimir.GraphQL;
 using Mimir.Services;
 using Mimir.Options;
 using Mimir.Repositories;
-using Mimir.Repositories.AdventureBoss;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +72,7 @@ builder.Services
     .AddGraphQLServer()
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
+    .BindRuntimeType(typeof(Address), typeof(AddressType))
     .AddErrorFilter<ErrorFilter>()
     .ModifyRequestOptions(requestExecutorOptions =>
     {
