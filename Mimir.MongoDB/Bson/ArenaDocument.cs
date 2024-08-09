@@ -1,4 +1,6 @@
 using Libplanet.Crypto;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Arena;
 using static Nekoyume.TableData.ArenaSheet;
 
@@ -11,4 +13,8 @@ public record ArenaDocument(
     ArenaScore ArenaScoreObject,
     RoundData RoundData,
     Address AvatarAddress
-) : MimirBsonDocument(ScoreAddress) { }
+) : MimirBsonDocument(ScoreAddress)
+{
+    [BsonExtraElements]
+    public BsonDocument? ExtraElements { get; init; }
+}
