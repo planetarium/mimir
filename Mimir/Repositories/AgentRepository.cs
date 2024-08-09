@@ -9,7 +9,7 @@ namespace Mimir.Repositories;
 
 public class AgentRepository(MongoDbService dbService)
 {
-    public async Task<AgentDocument> GetAgentAsync(Address agentAddress)
+    public async Task<AgentDocument> GetByAddressAsync(Address agentAddress)
     {
         var collection = dbService.GetCollection<AgentDocument>(CollectionNames.Agent.Value);
         var filter = Builders<AgentDocument>.Filter.Eq("Address", agentAddress.ToHex());

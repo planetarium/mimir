@@ -11,7 +11,7 @@ public class Query
         Address address,
         [Service] AgentRepository repo)
     {
-        var doc = await repo.GetAgentAsync(address);
+        var doc = await repo.GetByAddressAsync(address);
         return doc.Object;
     }
 
