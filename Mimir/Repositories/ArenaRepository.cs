@@ -1,4 +1,3 @@
-using Bencodex;
 using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Exceptions;
@@ -12,9 +11,8 @@ namespace Mimir.Repositories;
 
 public class ArenaRepository(MongoDbService dbService, IStateService stateService)
 {
-    private static readonly Codec Codec = new();
     private readonly CpRepository _cpRepository = new(stateService);
-    private StateGetter _stateGetter = new(stateService);
+    private readonly StateGetter _stateGetter = new(stateService);
 
     public async Task<long> GetRankingByAvatarAddressAsync(
         Address avatarAddress,
