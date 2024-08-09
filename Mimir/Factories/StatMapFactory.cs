@@ -1,5 +1,4 @@
-using Mimir.Exceptions;
-using Mimir.GraphQL.Extensions;
+using Mimir.MongoDB.Bson.Extensions;
 using MongoDB.Bson;
 using Nekoyume.Model.Stat;
 

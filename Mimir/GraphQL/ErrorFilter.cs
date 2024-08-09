@@ -1,4 +1,4 @@
-using Mimir.Exceptions;
+using Mimir.MongoDB.Exceptions;
 
 namespace Mimir.GraphQL;
 

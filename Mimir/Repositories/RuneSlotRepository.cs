@@ -2,6 +2,7 @@ using Libplanet.Crypto;
 using Lib9c.Models.Runes;
 using Mimir.Enums;
 using Mimir.Exceptions;
+using Mimir.MongoDB.Exceptions;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;

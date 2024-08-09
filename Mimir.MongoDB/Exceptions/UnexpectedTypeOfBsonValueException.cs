@@ -1,6 +1,6 @@
 using MongoDB.Bson;
 
-namespace Mimir.Exceptions;
+namespace Mimir.MongoDB.Exceptions;
 
 public class UnexpectedTypeOfBsonValueException : Exception, IDefaultMessageException
 {
