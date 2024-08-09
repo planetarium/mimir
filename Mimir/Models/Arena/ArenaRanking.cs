@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 namespace Mimir.Models.Arena;
 
 public record ArenaRanking(
-    string AvatarAddress,
-    string ArenaAddress,
+    string AvatarAddress, // FIXME: to Address type
+    string ArenaAddress, // FIXME: to Address type
     int Win,
     int Lose,
     long Rank,

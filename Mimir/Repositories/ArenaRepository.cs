@@ -118,27 +118,26 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
             new("$limit", limit)
         };
 
-        var aggregation = collection.Aggregate<BsonDocument>(pipelines).ToList();
         var arenaRankings = await Task.WhenAll(
             aggregation.Where(e => e is not null).Select(BuildArenaRankingFromDocument));
         return arenaRankings.Where(e => e is not null).ToList()!;
+        var aggregation = collection
+            .Aggregate<ArenaDocument>(pipelines)
+            .ToList();
     }
 
-    private async Task<ArenaRanking?> BuildArenaRankingFromDocument(BsonDocument document)
+    private async Task<ArenaRanking?> BuildArenaRankingFromDocument(ArenaDocument document)
     {
-        var avatarAddress = document["AvatarAddress"].AsString;
-
         var arenaRanking = new ArenaRanking(
-            document["AvatarAddress"].AsString,
-            document["ArenaInformationObject"]["Address"].AsString,
-            document["ArenaInformationObject"]["Win"].ToInt32(),
-            document["ArenaInformationObject"]["Lose"].ToInt32(),
-            document["Rank"].ToInt64() + 1,
-            document["ArenaInformationObject"]["Ticket"].ToInt32(),
-            document["ArenaInformationObject"]["TicketResetCount"].ToInt32(),
-            document["ArenaInformationObject"]["PurchasedTicketCount"].ToInt32(),
-            document["ArenaScoreObject"]["Score"].ToInt32()
-        );
+            document.AvatarAddress.ToHex(),
+            document.ArenaInformationObject.Address.ToHex(),
+            document.ArenaInformationObject.Win,
+            document.ArenaInformationObject.Lose,
+            document.ExtraElements?["Rank"].ToInt64() + 1 ?? 0,
+            document.ArenaInformationObject.Ticket,
+            document.ArenaInformationObject.TicketResetCount,
+            document.ArenaInformationObject.PurchasedTicketCount,
+            document.ArenaScoreObject.Score);
 
         try
         {
