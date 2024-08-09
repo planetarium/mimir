@@ -9,11 +9,11 @@ namespace Mimir.Repositories;
 
 public class AgentRepository(MongoDbService dbService)
 {
-    public Task<AgentDocument> GetAgentAsync(Address agentAddress)
+    public async Task<AgentDocument> GetAgentAsync(Address agentAddress)
     {
         var collection = dbService.GetCollection<AgentDocument>(CollectionNames.Agent.Value);
         var filter = Builders<AgentDocument>.Filter.Eq("Address", agentAddress.ToHex());
-        var document = collection.Find(filter).FirstOrDefaultAsync();
+        var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
