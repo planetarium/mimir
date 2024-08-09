@@ -85,8 +85,8 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
         IMongoCollection<BsonDocument> collection,
         long skip,
         int limit,
-        int? championshipId,
-        int? round)
+        int championshipId,
+        int round)
     {
         var pipelines = new List<BsonDocument>
         {
