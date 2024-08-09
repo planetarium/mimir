@@ -1,4 +1,6 @@
 using Bencodex.Types;
+using Lib9c.Models.Exceptions;
+using Lib9c.Models.States;
 using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
@@ -7,16 +9,15 @@ public class AgentStateHandler : IStateHandler
 {
     public MimirBsonDocument ConvertToState(StateDiffContext context)
     {
-        var agentState = context.RawState switch
+        if (context.RawState is not List l)
         {
-            List list => new Nekoyume.Model.State.AgentState(list),
-            Dictionary dictionary => new Nekoyume.Model.State.AgentState(dictionary),
-            _
-                => throw new InvalidCastException(
-                    $"{nameof(context.RawState)} Invalid state type. Expected {nameof(List)} or {nameof(Dictionary)}, got {context.RawState.GetType().Name}."
-                ),
-        };
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(context.RawState),
+                new[] { ValueKind.List },
+                context.RawState.Kind);
+        }
 
+        var agentState = new AgentState(l);
         return new AgentDocument(context.Address, agentState);
     }
 }

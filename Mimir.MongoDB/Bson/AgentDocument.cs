@@ -1,6 +1,9 @@
+using Lib9c.Models.States;
 using Libplanet.Crypto;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mimir.MongoDB.Bson;
 
-public record AgentDocument(Address Address, Nekoyume.Model.State.AgentState Object)
+[BsonIgnoreExtraElements]
+public record AgentDocument(Address Address, AgentState Object)
     : MimirBsonDocument(Address);
