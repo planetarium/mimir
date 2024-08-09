@@ -5,7 +5,6 @@ using Libplanet.Crypto;
 using Nekoyume.Model;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
-using static Lib9c.SerializeKeys;
 
 namespace Lib9c.Models.States;
 
@@ -91,87 +90,9 @@ public record AvatarState : State
             return;
         }
 
-        if (bencoded is Dictionary d)
-        {
-            Version = 1;
-            var nameKey = NameKey;
-            var characterIdKey = CharacterIdKey;
-            var levelKey = LevelKey;
-            var expKey = ExpKey;
-            var inventoryKey = LegacyInventoryKey;
-            var worldInformationKey = LegacyWorldInformationKey;
-            var updatedAtKey = UpdatedAtKey;
-            var agentAddressKey = AgentAddressKey;
-            var questListKey = LegacyQuestListKey;
-            var mailBoxKey = MailBoxKey;
-            var blockIndexKey = BlockIndexKey;
-            var dailyRewardReceivedIndexKey = DailyRewardReceivedIndexKey;
-            var actionPointKey = ActionPointKey;
-            var stageMapKey = StageMapKey;
-            var monsterMapKey = MonsterMapKey;
-            var itemMapKey = ItemMapKey;
-            var eventMapKey = EventMapKey;
-            var hairKey = HairKey;
-            var lensKey = LensKey;
-            var earKey = EarKey;
-            var tailKey = TailKey;
-            var combinationSlotAddressesKey = CombinationSlotAddressesKey;
-            var rankingMapAddressKey = RankingMapAddressKey;
-            if (d.ContainsKey(LegacyNameKey))
-            {
-                nameKey = LegacyNameKey;
-                characterIdKey = LegacyCharacterIdKey;
-                levelKey = LegacyLevelKey;
-                updatedAtKey = LegacyUpdatedAtKey;
-                agentAddressKey = LegacyAgentAddressKey;
-                mailBoxKey = LegacyMailBoxKey;
-                blockIndexKey = LegacyBlockIndexKey;
-                dailyRewardReceivedIndexKey = LegacyDailyRewardReceivedIndexKey;
-                actionPointKey = LegacyActionPointKey;
-                stageMapKey = LegacyStageMapKey;
-                monsterMapKey = LegacyMonsterMapKey;
-                itemMapKey = LegacyItemMapKey;
-                eventMapKey = LegacyEventMapKey;
-                hairKey = LegacyHairKey;
-                earKey = LegacyEarKey;
-                tailKey = LegacyTailKey;
-                combinationSlotAddressesKey = LegacyCombinationSlotAddressesKey;
-                rankingMapAddressKey = LegacyRankingMapAddressKey;
-            }
-
-            Name = d[nameKey].ToDotnetString();
-            CharacterId = (int)((Integer)d[characterIdKey]).Value;
-            Level = (int)((Integer)d[levelKey]).Value;
-            Exp = (long)((Integer)d[expKey]).Value;
-            UpdatedAt = d[updatedAtKey].ToLong();
-            AgentAddress = d[agentAddressKey].ToAddress();
-            MailBox = new MailBox((List)d[mailBoxKey]);
-            BlockIndex = (long)((Integer)d[blockIndexKey]).Value;
-            DailyRewardReceivedIndex = (long)((Integer)d[dailyRewardReceivedIndexKey]).Value;
-            ActionPoint = (int)((Integer)d[actionPointKey]).Value;
-            StageMap = new CollectionMap((Dictionary)d[stageMapKey]);
-            d.TryGetValue((Text)monsterMapKey, out var value2);
-            MonsterMap = value2 is null ? new CollectionMap() : new CollectionMap((Dictionary)value2);
-            ItemMap = new CollectionMap((Dictionary)d[itemMapKey]);
-            EventMap = new CollectionMap((Dictionary)d[eventMapKey]);
-            Hair = (int)((Integer)d[hairKey]).Value;
-            Lens = (int)((Integer)d[lensKey]).Value;
-            Ear = (int)((Integer)d[earKey]).Value;
-            Tail = (int)((Integer)d[tailKey]).Value;
-            CombinationSlotAddresses = d[combinationSlotAddressesKey].ToList(StateExtensions.ToAddress);
-            RankingMapAddress = d[rankingMapAddressKey].ToAddress();
-
-            if (d.ContainsKey(inventoryKey) ||
-                d.ContainsKey(worldInformationKey) ||
-                d.ContainsKey(questListKey))
-            {
-                Version = 0;
-            }
-        }
-
         throw new UnsupportedArgumentTypeException<ValueKind>(
             nameof(bencoded),
-            new[] { ValueKind.List, ValueKind.Dictionary },
+            new[] { ValueKind.List },
             bencoded.Kind);
     }
 }
