@@ -154,14 +154,14 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
                 document.AvatarAddress);
             arenaRanking.Avatar = avatar;
 
-            // Set CP
-            var runeSlotState = await _stateGetter.GetArenaRuneSlotStateAsync(
-                document.AvatarAddress);
-            var cp = await _cpRepository.CalculateCp(
-                avatar,
-                runeSlotState);
-            arenaRanking.CP = cp;
-            Console.WriteLine($"CP Calculate {arenaRanking.ArenaAddress}");
+            // NOTE: Uncomment if the CP needed.
+            // // Set CP
+            // var runeSlotState = await _stateGetter.GetArenaRuneSlotStateAsync(
+            //     document.AvatarAddress);
+            // var cp = await _cpRepository.CalculateCp(
+            //     avatar,
+            //     runeSlotState);
+            // arenaRanking.CP = cp;
         }
         catch (DocumentNotFoundInMongoCollectionException e)
         {
