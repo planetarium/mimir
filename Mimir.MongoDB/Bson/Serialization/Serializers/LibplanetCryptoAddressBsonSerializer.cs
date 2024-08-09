@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace Mimir.MongoDB.Bson.Serialization.Serializers;
 
-public class AddressBsonSerializer : SerializerBase<Address>
+public class LibplanetCryptoAddressBsonSerializer : SerializerBase<Address>
 {
     public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Address value) =>
         context.Writer.WriteString(value.ToHex());

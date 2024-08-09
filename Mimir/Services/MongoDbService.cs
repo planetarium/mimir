@@ -16,7 +16,7 @@ public class MongoDbService
 
     public MongoDbService(IOptions<DatabaseOption> databaseOption)
     {
-        BsonSerializer.RegisterSerializer(new AddressBsonSerializer());
+        BsonSerializer.RegisterSerializer(new LibplanetCryptoAddressBsonSerializer());
         var settings = MongoClientSettings.FromUrl(
             new MongoUrl(databaseOption.Value.ConnectionString)
         );

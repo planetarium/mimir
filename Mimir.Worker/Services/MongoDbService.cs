@@ -32,7 +32,7 @@ public class MongoDbService
 
     public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
-        BsonSerializer.RegisterSerializer(new AddressBsonSerializer());
+        BsonSerializer.RegisterSerializer(new LibplanetCryptoAddressBsonSerializer());
 
         var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 
