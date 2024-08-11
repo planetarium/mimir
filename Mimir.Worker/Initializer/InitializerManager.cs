@@ -15,6 +15,7 @@ public class InitializerManager
         _initializers = new List<BaseInitializer>
         {
             new TableSheetInitializer(stateService, store),
+            new ArenaInitializer(stateService, store),
             // new MarketInitializer(stateService, store)
         };
         _logger = Log.ForContext<InitializerManager>();
