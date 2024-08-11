@@ -111,6 +111,18 @@ public class MongoDbService
         return collection;
     }
 
+    public async Task<long> GetArenaDocumentCount(int championshipId, int round)
+    {
+        var builder = Builders<BsonDocument>.Filter;
+        var filter = builder.Eq("RoundData.ChampionshipId", championshipId);
+        filter &= builder.Eq("RoundData.Round", round);
+
+        var documents = GetCollection<ArenaDocument>().Find(filter);
+        var count = await documents.CountDocumentsAsync();
+
+        return count;
+    }
+
     public IMongoCollection<BsonDocument> GetCollection<T>()
     {
         var collectionName = CollectionNames.GetCollectionName<T>();
@@ -185,7 +197,7 @@ public class MongoDbService
             return default;
         }
 
-        var csv = await RetrieveFromGridFs(_gridFs, document["SheetCsvFileId"].AsObjectId);
+        var csv = await RetrieveFromGridFs(_gridFs, document["RawStateFileId"].AsObjectId);
         var sheet = new T();
         sheet.Set(csv);
         return sheet;
