@@ -15,5 +15,13 @@ public class Query
         return doc.Object;
     }
 
+    public async Task<AvatarState> GetAvatarAsync(
+        Address address,
+        [Service] AvatarRepository repo)
+    {
+        var doc = await repo.GetByAddressAsync(address);
+        return doc.Object;
+    }
+
     public ArenaObject GetArena() => new();
 }
