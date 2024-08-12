@@ -12,11 +12,11 @@ namespace Mimir.Repositories;
 
 public class AvatarRepository(MongoDbService dbService)
 {
-    public Task<AvatarDocument> GetByAddressAsync(Address address)
+    public async Task<AvatarDocument> GetByAddressAsync(Address address)
     {
         var filter = Builders<AvatarDocument>.Filter.Eq("Address", address.ToHex());
         var collection = dbService.GetCollection<AvatarDocument>(CollectionNames.Avatar.Value);
-        var document = collection.Find(filter).FirstOrDefaultAsync();
+        var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
