@@ -2,6 +2,7 @@ using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Exceptions;
 using Mimir.Models;
+using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Exceptions;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -11,16 +12,29 @@ namespace Mimir.Repositories;
 
 public class AvatarRepository(MongoDbService dbService)
 {
-    public Avatar GetAvatar(Address avatarAddress) =>
-        GetAvatar(
-            dbService.GetCollection<BsonDocument>(CollectionNames.Avatar.Value),
-            avatarAddress
-        );
+    public Task<AvatarDocument> GetByAddressAsync(Address address)
+    {
+        var filter = Builders<AvatarDocument>.Filter.Eq("Address", address.ToHex());
+        var collection = dbService.GetCollection<AvatarDocument>(CollectionNames.Avatar.Value);
+        var document = collection.Find(filter).FirstOrDefaultAsync();
+        if (document is null)
+        {
+            throw new DocumentNotFoundInMongoCollectionException(
+                collection.CollectionNamespace.CollectionName,
+                $"'Address' equals to '{address.ToHex()}'"
+            );
+        }
+
+        return document;
+    }
+
+    public Avatar GetAvatar(Address avatarAddress) => GetAvatar(
+        dbService.GetCollection<BsonDocument>(CollectionNames.Avatar.Value),
+        avatarAddress);
 
     public static Avatar GetAvatar(
         IMongoCollection<BsonDocument> collection,
-        Address avatarAddress
-    )
+        Address avatarAddress)
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
