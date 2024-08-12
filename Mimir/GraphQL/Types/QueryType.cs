@@ -11,21 +11,10 @@ public class QueryType : ObjectType<Query>
     protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
     {
         descriptor
-            .Field("avatar")
-            .Argument("address", a => a.Type<NonNullType<AddressType>>())
-            .Type<AvatarType>()
-            .Resolve(context => new AvatarObject(context.ArgumentValue<Address>("address")));
-
-        descriptor
             .Field("inventory")
             .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<InventoryType>()
             .Resolve(context => new InventoryObject(context.ArgumentValue<Address>("address")));
-
-        descriptor
-            .Field("arena")
-            .Type<ArenaType>()
-            .Resolve(_ => new ArenaObject());
 
         descriptor
             .Field("product")

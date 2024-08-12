@@ -1,11 +1,16 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.AgentState"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record AgentState : State
 {
     public Dictionary<int, Address> AvatarAddresses { get; init; }
@@ -14,6 +19,7 @@ public record AgentState : State
 
     public int Version { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded => new List(
         base.Bencoded,
         (Integer)1,
