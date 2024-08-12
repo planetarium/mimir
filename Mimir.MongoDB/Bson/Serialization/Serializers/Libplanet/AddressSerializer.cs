@@ -8,16 +8,22 @@ namespace Mimir.MongoDB.Bson.Serialization.Serializers.Libplanet;
 
 public class AddressSerializer : StructSerializerBase<Address>
 {
-    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Address value) =>
+    public static readonly AddressSerializer Instance = new();
+
+    public override void Serialize(
+        BsonSerializationContext context,
+        BsonSerializationArgs args,
+        Address value) =>
         context.Writer.WriteString(value.ToHex());
 
-    public override Address Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    public override Address Deserialize(
+        BsonDeserializationContext context,
+        BsonDeserializationArgs args)
     {
-        var bsonType = context.Reader.GetCurrentBsonType();
+        var reader = context.Reader;
+        var bsonType = reader.GetCurrentBsonType();
         return bsonType is BsonType.String
-            ? new Address(context.Reader.ReadString())
-            : throw new UnexpectedTypeOfBsonValueException(
-                [BsonType.String],
-                bsonType);
+            ? new Address(reader.ReadString())
+            : throw new UnexpectedTypeOfBsonValueException([BsonType.String], bsonType);
     }
 }
