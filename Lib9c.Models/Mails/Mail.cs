@@ -1,11 +1,13 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Mails;
 
+[BsonIgnoreExtraElements]
 public record Mail : IBencodable
 {
     public Guid Id { get; init; }
