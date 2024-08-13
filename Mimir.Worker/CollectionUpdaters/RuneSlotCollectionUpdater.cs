@@ -20,9 +20,9 @@ public static class RuneSlotCollectionUpdater
         Address avatarAddress,
         IEnumerable<IValue> runeSlotInfos,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
+        return;
         var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
         var collection = store.GetCollection(collectionName);
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
