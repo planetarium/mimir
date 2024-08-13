@@ -1,6 +1,7 @@
 using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Exceptions;
+using Mimir.Models;
 using Mimir.Models.Arena;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
@@ -10,7 +11,10 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class ArenaRepository(MongoDbService dbService, IStateService stateService)
+public class ArenaRepository(
+    MongoDbService dbService,
+    IStateService stateService,
+    AvatarRepository avatarRepository)
 {
     private readonly CpRepository _cpRepository = new(stateService);
     private readonly StateGetter _stateGetter = new(stateService);
@@ -149,10 +153,8 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
         try
         {
             // Set Avatar
-            var avatar = AvatarRepository.GetAvatar(
-                dbService.GetCollection<BsonDocument>(CollectionNames.Avatar.Value),
-                document.AvatarAddress);
-            arenaRanking.Avatar = avatar;
+            var doc = await avatarRepository.GetByAddressAsync(document.AvatarAddress);
+            arenaRanking.Avatar = new Avatar(doc.Object);
 
             // NOTE: Uncomment if the CP needed.
             // // Set CP
