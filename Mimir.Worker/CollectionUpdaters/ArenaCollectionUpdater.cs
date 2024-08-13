@@ -2,7 +2,6 @@ using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
-using Mimir.Worker.Util;
 using MongoDB.Driver;
 using Nekoyume.Model.Arena;
 using static Nekoyume.TableData.ArenaSheet;

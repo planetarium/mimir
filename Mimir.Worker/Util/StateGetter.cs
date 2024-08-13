@@ -64,12 +64,14 @@ public class StateGetter
         Address avatarAddress,
         int championshipId,
         int roundId,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var arenaInfoAddress = ArenaInformation.DeriveAddress(
             avatarAddress,
             championshipId,
-            roundId);
+            roundId
+        );
         var state = await _service.GetState(arenaInfoAddress, stoppingToken);
         return state switch
         {
@@ -82,7 +84,8 @@ public class StateGetter
         Address avatarAddress,
         int championshipId,
         int roundId,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var arenaScoreAddress = ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
         var state = await _service.GetState(arenaScoreAddress, stoppingToken);
@@ -93,35 +96,42 @@ public class StateGetter
         };
     }
 
-    public async Task<AvatarState> GetAvatarState(
+    public async Task<ArenaInformation> GetArenaInfoState(
+        Address avatarAddress,
+        int championshipId,
+        int roundId,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var arenaInfoAddress = ArenaInformation.DeriveAddress(
+            avatarAddress,
+            championshipId,
+            roundId
+        );
+        var state = await _service.GetState(arenaInfoAddress, stoppingToken);
+        return state switch
+        {
+            List list => new ArenaInformation(list),
+            _ => throw new StateNotFoundException(arenaInfoAddress, typeof(ArenaInformation))
+        };
+    }
+
+    public async Task<Lib9c.Models.States.AvatarState> GetAvatarState(
         Address avatarAddress,
         CancellationToken stoppingToken = default
     )
     {
         var state = await GetStateWithLegacyAccount(avatarAddress, Addresses.Avatar, stoppingToken);
-        var inventory = await GetInventoryState(avatarAddress, stoppingToken);
-        var avatarState = state switch
-        {
-            Dictionary dictionary => new AvatarState(dictionary) { inventory = inventory },
-            List list => new AvatarState(list) { inventory = inventory },
-            _ => throw new StateNotFoundException(avatarAddress, typeof(AvatarState))
-        };
 
-        if (
-            await _service.GetState(avatarAddress, Addresses.ActionPoint, stoppingToken)
-            is Integer actionPoint
-        )
+        if (state is null)
         {
-            avatarState.actionPoint = actionPoint;
+            throw new StateNotFoundException(
+                avatarAddress,
+                typeof(Lib9c.Models.States.AvatarState)
+            );
         }
 
-        if (
-            await _service.GetState(avatarAddress, Addresses.DailyReward, stoppingToken)
-            is Integer dailyRewardReceivedIndex
-        )
-        {
-            avatarState.dailyRewardReceivedIndex = dailyRewardReceivedIndex;
-        }
+        var avatarState = new Lib9c.Models.States.AvatarState(state);
 
         return avatarState;
     }
@@ -153,7 +163,8 @@ public class StateGetter
     )
     {
         var state = await _service.GetState(
-            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena), stoppingToken
+            ItemSlotState.DeriveAddress(avatarAddress, BattleType.Arena),
+            stoppingToken
         );
         return state switch
         {
@@ -208,7 +219,10 @@ public class StateGetter
         CancellationToken stoppingToken = default
     )
     {
-        var state = await _service.GetState(ProductsState.DeriveAddress(avatarAddress), stoppingToken);
+        var state = await _service.GetState(
+            ProductsState.DeriveAddress(avatarAddress),
+            stoppingToken
+        );
         return state switch
         {
             List list => new ProductsState(list),
@@ -293,8 +307,9 @@ public class StateGetter
         Address address,
         Address accountAddress,
         CancellationToken stoppingToken = default
-    ) => await _service.GetState(address, accountAddress, stoppingToken) ??
-         await _service.GetState(address, stoppingToken);
+    ) =>
+        await _service.GetState(address, accountAddress, stoppingToken)
+        ?? await _service.GetState(address, stoppingToken);
 
     public async Task<CombinationSlotState> GetCombinationSlotState(
         Address slotAddress,
