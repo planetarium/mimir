@@ -1,20 +1,22 @@
+using Lib9c.Models.Arena;
 using Libplanet.Crypto;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Nekoyume.Model.Arena;
-using static Nekoyume.TableData.ArenaSheet;
 
 namespace Mimir.MongoDB.Bson;
 
+/// <param name="Address">Avatar address</param>
+[BsonIgnoreExtraElements]
 public record ArenaDocument(
-    Address ScoreAddress,
-    Address InformationAddress,
-    ArenaInformation ArenaInformationObject,
-    ArenaScore ArenaScoreObject,
-    RoundData RoundData,
-    Address AvatarAddress
-) : MimirBsonDocument(ScoreAddress)
+    Address Address,
+    Nekoyume.TableData.ArenaSheet.RoundData RoundData,
+    ArenaInformation ArenaInformation,
+    ArenaScore ArenaScore)
+    : MimirBsonDocument(Address)
 {
+    [BsonIgnore]
+    public Address AvatarAddress => Address;
+
     [BsonExtraElements]
     public BsonDocument? ExtraElements { get; init; }
 }

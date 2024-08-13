@@ -60,39 +60,36 @@ public class StateGetter
         };
     }
 
-    public async Task<ArenaScore> GetArenaScoreState(
+    public async Task<Lib9c.Models.Arena.ArenaInformation> GetArenaInformationAsync(
         Address avatarAddress,
         int championshipId,
         int roundId,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
+    {
+        var arenaInfoAddress = ArenaInformation.DeriveAddress(
+            avatarAddress,
+            championshipId,
+            roundId);
+        var state = await _service.GetState(arenaInfoAddress, stoppingToken);
+        return state switch
+        {
+            List list => new Lib9c.Models.Arena.ArenaInformation(list),
+            _ => throw new StateNotFoundException(arenaInfoAddress, typeof(ArenaInformation))
+        };
+    }
+
+    public async Task<Lib9c.Models.Arena.ArenaScore> GetArenaScoreAsync(
+        Address avatarAddress,
+        int championshipId,
+        int roundId,
+        CancellationToken stoppingToken = default)
     {
         var arenaScoreAddress = ArenaScore.DeriveAddress(avatarAddress, championshipId, roundId);
         var state = await _service.GetState(arenaScoreAddress, stoppingToken);
         return state switch
         {
-            List list => new ArenaScore(list),
+            List list => new Lib9c.Models.Arena.ArenaScore(list),
             _ => throw new StateNotFoundException(arenaScoreAddress, typeof(ArenaScore))
-        };
-    }
-
-    public async Task<ArenaInformation> GetArenaInfoState(
-        Address avatarAddress,
-        int championshipId,
-        int roundId,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var arenaInfoAddress = ArenaInformation.DeriveAddress(
-            avatarAddress,
-            championshipId,
-            roundId
-        );
-        var state = await _service.GetState(arenaInfoAddress, stoppingToken);
-        return state switch
-        {
-            List list => new ArenaInformation(list),
-            _ => throw new StateNotFoundException(arenaInfoAddress, typeof(ArenaInformation))
         };
     }
 
@@ -296,7 +293,8 @@ public class StateGetter
         Address address,
         Address accountAddress,
         CancellationToken stoppingToken = default
-    ) => await _service.GetState(address, accountAddress, stoppingToken) ?? await _service.GetState(address, stoppingToken);
+    ) => await _service.GetState(address, accountAddress, stoppingToken) ??
+         await _service.GetState(address, stoppingToken);
 
     public async Task<CombinationSlotState> GetCombinationSlotState(
         Address slotAddress,

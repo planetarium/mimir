@@ -19,7 +19,7 @@ public class ArenaRepository(
         int championshipId,
         int round)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
+        var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
         return await GetRankingByAvatarAddressAsync(
             collection,
             avatarAddress,
@@ -28,7 +28,7 @@ public class ArenaRepository(
     }
 
     private static async Task<long> GetRankingByAvatarAddressAsync(
-        IMongoCollection<BsonDocument> collection,
+        IMongoCollection<ArenaDocument> collection,
         Address avatarAddress,
         int championshipId,
         int round)
@@ -59,7 +59,7 @@ public class ArenaRepository(
                 "$unwind",
                 new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "Rank" } }
             ),
-            new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress.ToHex()))
+            new("$match", new BsonDocument("docs.Address", avatarAddress.ToHex()))
         };
 
         var aggregation = await collection
@@ -76,12 +76,12 @@ public class ArenaRepository(
         int championshipId,
         int round)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
+        var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
         return await GetLeaderboardAsync(collection, skip, limit, championshipId, round);
     }
 
     private async Task<List<ArenaRanking>> GetLeaderboardAsync(
-        IMongoCollection<BsonDocument> collection,
+        IMongoCollection<ArenaDocument> collection,
         long skip,
         int limit,
         int championshipId,
@@ -136,14 +136,14 @@ public class ArenaRepository(
     {
         var arenaRanking = new ArenaRanking(
             document.AvatarAddress.ToHex(),
-            document.ArenaInformationObject.Address.ToHex(),
-            document.ArenaInformationObject.Win,
-            document.ArenaInformationObject.Lose,
+            document.ArenaInformation.Address.ToHex(),
+            document.ArenaInformation.Win,
+            document.ArenaInformation.Lose,
             document.ExtraElements?["Rank"].ToInt64() + 1 ?? 0,
-            document.ArenaInformationObject.Ticket,
-            document.ArenaInformationObject.TicketResetCount,
-            document.ArenaInformationObject.PurchasedTicketCount,
-            document.ArenaScoreObject.Score);
+            document.ArenaInformation.Ticket,
+            document.ArenaInformation.TicketResetCount,
+            document.ArenaInformation.PurchasedTicketCount,
+            document.ArenaScore.Score);
 
         try
         {
