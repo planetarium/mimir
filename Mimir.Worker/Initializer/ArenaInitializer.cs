@@ -28,10 +28,24 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
 
         foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
         {
+            var arenaScore = await stateGetter.GetArenaScoreState(
+                avatarAddress,
+                roundData.ChampionshipId,
+                roundData.Round,
+                stoppingToken
+            );
+            var arenaInfo = await stateGetter.GetArenaInfoState(
+                avatarAddress,
+                roundData.ChampionshipId,
+                roundData.Round,
+                stoppingToken
+            );
+
             _logger.Information("Init arena, address: {AvatarAddress}", avatarAddress);
-            await ArenaCollectionUpdater.UpdateArenaCollectionAsync(
-                stateGetter,
+            await ArenaCollectionUpdater.UpsertAsync(
                 _store,
+                arenaScore,
+                arenaInfo,
                 avatarAddress,
                 roundData,
                 null,

@@ -49,18 +49,45 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
 
         var stateGetter = stateService.At();
         var roundData = await stateGetter.GetArenaRoundData(blockIndex, stoppingToken);
-        await ArenaCollectionUpdater.UpdateArenaCollectionAsync(
-            stateGetter,
+
+        var myArenaScore = await stateGetter.GetArenaScoreState(
+            battleArena.MyAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round,
+            stoppingToken
+        );
+        var myArenaInfo = await stateGetter.GetArenaInfoState(
+            battleArena.MyAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round,
+            stoppingToken
+        );
+        await ArenaCollectionUpdater.UpsertAsync(
             Store,
+            myArenaScore,
+            myArenaInfo,
             battleArena.MyAvatarAddress,
             roundData,
             session,
             stoppingToken
         );
 
-        await ArenaCollectionUpdater.UpdateArenaCollectionAsync(
-            stateGetter,
+        var enemyArenaScore = await stateGetter.GetArenaScoreState(
+            battleArena.EnemyAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round,
+            stoppingToken
+        );
+        var enemyArenaInfo = await stateGetter.GetArenaInfoState(
+            battleArena.EnemyAvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round,
+            stoppingToken
+        );
+        await ArenaCollectionUpdater.UpsertAsync(
             Store,
+            enemyArenaScore,
+            enemyArenaInfo,
             battleArena.EnemyAvatarAddress,
             roundData,
             session,

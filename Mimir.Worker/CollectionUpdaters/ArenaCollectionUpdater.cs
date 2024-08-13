@@ -4,30 +4,22 @@ using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Driver;
+using Nekoyume.Model.Arena;
 using static Nekoyume.TableData.ArenaSheet;
 
 namespace Mimir.Worker.CollectionUpdaters;
 
 public static class ArenaCollectionUpdater
 {
-    public static async Task UpdateArenaCollectionAsync(
-        StateGetter stateGetter,
+    public static async Task UpsertAsync(
         MongoDbService dbService,
+        ArenaScore arenaScore,
+        ArenaInformation arenaInfo,
         Address avatarAddress,
         RoundData roundData,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        var arenaInfo = await stateGetter.GetArenaInformationAsync(
-            avatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
-            stoppingToken);
-        var arenaScore = await stateGetter.GetArenaScoreAsync(
-            avatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
-            stoppingToken);
         await dbService.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ArenaDocument>(),
             [

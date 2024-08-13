@@ -63,9 +63,22 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
             );
         }
 
-        await ArenaCollectionUpdater.UpdateArenaCollectionAsync(
-            stateGetter,
+        var arenaScore = await stateGetter.GetArenaScoreState(
+            joinArena.AvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round,
+            stoppingToken
+        );
+        var arenaInfo = await stateGetter.GetArenaInfoState(
+            joinArena.AvatarAddress,
+            roundData.ChampionshipId,
+            roundData.Round,
+            stoppingToken
+        );
+        await ArenaCollectionUpdater.UpsertAsync(
             Store,
+            arenaScore,
+            arenaInfo,
             joinArena.AvatarAddress,
             roundData,
             session,
