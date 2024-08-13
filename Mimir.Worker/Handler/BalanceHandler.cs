@@ -6,7 +6,7 @@ namespace Mimir.Worker.Handler;
 
 public record BalanceHandler(Currency Currency) : IStateHandler
 {
-    public MimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
         if (context.RawState is not Integer value)
         {

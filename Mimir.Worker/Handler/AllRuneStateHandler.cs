@@ -6,7 +6,7 @@ namespace Mimir.Worker.Handler;
 
 public class AllRuneStateHandler : IStateHandler
 {
-    public MimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
         if (context.RawState is not List value)
         {

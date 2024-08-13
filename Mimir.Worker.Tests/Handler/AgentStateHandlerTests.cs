@@ -27,7 +27,7 @@ public class AgentStateHandlerTests
             Address = address,
             RawState = agentState.SerializeList(),
         };
-        var state = _handler.ConvertToState(context);
+        var state = _handler.ConvertToDocument(context);
 
         Assert.IsType<AgentDocument>(state);
         var dataState = (AgentDocument)state;

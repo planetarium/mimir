@@ -19,12 +19,14 @@ public class DiffProducer
     public DiffProducer(
         IStateService stateService,
         IHeadlessGQLClient headlessGqlClient,
-        MongoDbService dbService
+        MongoDbService dbService,
+        Address accountAddress
     )
     {
         _headlessGqlClient = headlessGqlClient;
         _stateService = stateService;
-        _logger = Log.ForContext<DiffProducer>();
+        _logger = Log.ForContext<DiffProducer>()
+            .ForContext("AccountAddress", accountAddress.ToHex());
         _dbService = dbService;
     }
 

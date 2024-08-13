@@ -5,7 +5,7 @@ namespace Mimir.Worker.Handler;
 
 public class AvatarStateHandler : IStateHandler
 {
-    public MimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
         return new AvatarDocument(context.Address, new AvatarState(context.RawState));
     }

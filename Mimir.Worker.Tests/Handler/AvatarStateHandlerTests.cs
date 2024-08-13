@@ -20,7 +20,7 @@ public class AvatarStateHandlerTests
             Address = address,
             RawState = Codec.Decode(Convert.FromHexString(rawState)),
         };
-        var state = _handler.ConvertToState(context);
+        var state = _handler.ConvertToDocument(context);
 
         Assert.IsType<AvatarDocument>(state);
     }

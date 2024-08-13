@@ -17,10 +17,11 @@ public class DiffConsumer
     protected readonly ILogger _logger;
     private readonly Codec Codec = new();
 
-    public DiffConsumer(MongoDbService dbService)
+    public DiffConsumer(MongoDbService dbService, Address accountAddress)
     {
         _dbService = dbService;
-        _logger = Log.ForContext<DiffConsumer>();
+        _logger = Log.ForContext<DiffConsumer>()
+            .ForContext("AccountAddress", accountAddress.ToHex());
     }
 
     public async Task ConsumeAsync(
@@ -93,7 +94,7 @@ public class DiffConsumer
             {
                 var address = new Address(diff.Path);
 
-                var document = handler.ConvertToState(
+                var document = handler.ConvertToDocument(
                     new()
                     {
                         Address = address,

@@ -5,7 +5,7 @@ namespace Mimir.Worker.Handler;
 
 public class ActionPointStateHandler : IStateHandler
 {
-    public MimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
         if (context.RawState is not Integer value)
         {

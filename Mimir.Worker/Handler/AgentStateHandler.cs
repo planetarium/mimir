@@ -7,7 +7,7 @@ namespace Mimir.Worker.Handler;
 
 public class AgentStateHandler : IStateHandler
 {
-    public MimirBsonDocument ConvertToState(StateDiffContext context)
+    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
         if (context.RawState is not List l)
         {

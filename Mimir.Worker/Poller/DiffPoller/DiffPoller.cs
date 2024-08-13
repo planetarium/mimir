@@ -47,7 +47,8 @@ public class DiffPoller : IBlockPoller
                         new DiffProducer(
                             _stateService,
                             _headlessGqlClient,
-                            _dbService
+                            _dbService,
+                            address
                         ).ProduceByAccount(_channels[address.ToHex()].Writer, address, cts.Token)
                 )
             )
@@ -56,7 +57,7 @@ public class DiffPoller : IBlockPoller
             .HandlerMappings.Keys.Select(address =>
                 Task.Run(
                     () =>
-                        new DiffConsumer(_dbService).ConsumeAsync(
+                        new DiffConsumer(_dbService, address).ConsumeAsync(
                             _channels[address.ToHex()].Reader,
                             cts.Token
                         )
