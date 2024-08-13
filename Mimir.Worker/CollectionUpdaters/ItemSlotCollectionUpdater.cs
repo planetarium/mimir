@@ -19,9 +19,9 @@ public static class ItemSlotCollectionUpdater
         IEnumerable<Guid> costumes,
         IEnumerable<Guid> equipments,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
+        return;
         var collectionName = CollectionNames.GetCollectionName<ItemSlotDocument>();
         var collection = store.GetCollection(collectionName);
         var itemSlotAddress = Nekoyume.Model.State.ItemSlotState.DeriveAddress(

@@ -39,23 +39,35 @@ public class TxPoller : IBlockPoller
 
         _handlers =
         [
-            new BattleArenaHandler(stateService, dbService),
-            new EventDungeonBattleHandler(stateService, dbService),
-            new HackAndSlashHandler(stateService, dbService),
-            new HackAndSlashSweepHandler(stateService, dbService),
-            new JoinArenaHandler(stateService, dbService),
             new PatchTableHandler(stateService, dbService),
-            // new ProductsHandler(stateService, store),
-            new RaidHandler(stateService, dbService),
-            new RuneSlotStateHandler(stateService, dbService),
+
+            // Slots
+            // new RuneSlotStateHandler(stateService, dbService),
+
+            // World
+            // new HackAndSlashHandler(stateService, dbService),
+            // new HackAndSlashSweepHandler(stateService, dbService),
+
+            // Arena
+            new JoinArenaHandler(stateService, dbService),
+            new BattleArenaHandler(stateService, dbService),
+
+            // Raid
+            // new RaidHandler(stateService, dbService),
             // new RaidActionHandler(stateService, stord,
+
+            // Event Dungeon
+            // new EventDungeonBattleHandler(stateService, dbService),
+
+            // Market
+            // new ProductsHandler(stateService, store),
         ];
         _collectionNames =
         [
-            CollectionNames.GetCollectionName<ArenaDocument>(),
-            CollectionNames.GetCollectionName<ItemSlotDocument>(),
-            CollectionNames.GetCollectionName<RuneSlotDocument>(),
             CollectionNames.GetCollectionName<SheetDocument>(),
+            // CollectionNames.GetCollectionName<ItemSlotDocument>(),
+            // CollectionNames.GetCollectionName<RuneSlotDocument>(),
+            CollectionNames.GetCollectionName<ArenaDocument>(),
         ];
 
         _stateService = stateService;
@@ -124,8 +136,7 @@ public class TxPoller : IBlockPoller
     )
     {
         var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
-
-        if (txsResponse.NCTransactions.Count() == 0)
+        if (txsResponse.NCTransactions.Count == 0)
         {
             _logger.Information("Transactions is empty");
 
@@ -142,6 +153,7 @@ public class TxPoller : IBlockPoller
                     cancellationToken
                 );
             }
+
             return;
         }
 
@@ -189,6 +201,7 @@ public class TxPoller : IBlockPoller
                 }
             }
         }
+
         await Task.WhenAll(tasks);
 
         foreach (var collectionName in _collectionNames)

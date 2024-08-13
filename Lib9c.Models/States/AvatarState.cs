@@ -24,7 +24,9 @@ public record AvatarState : State
     public Address AgentAddress { get; init; }
     public MailBox MailBox { get; init; }
     public long BlockIndex { get; init; }
+    [BsonIgnore, GraphQLIgnore]
     public long DailyRewardReceivedIndex { get; init; }
+    [BsonIgnore, GraphQLIgnore]
     public int ActionPoint { get; init; }
     public CollectionMap StageMap { get; init; }
     public CollectionMap MonsterMap { get; init; }

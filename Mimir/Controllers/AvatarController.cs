@@ -115,21 +115,23 @@ public class AvatarController(AvatarRepository avatarRepository, InventoryReposi
             return null;
         }
 
-        var avatar = avatarRepository.GetAvatar(avatarAddress);
-        if (avatar is not null)
+        try
         {
-            return avatar;
+            var doc = await avatarRepository.GetByAddressAsync(avatarAddress);
+            return new Avatar(doc.Object);
         }
-
-        var stateGetter = new StateGetter(stateService);
-        var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress);
-        if (avatarState is null)
+        catch
         {
-            Response.StatusCode = StatusCodes.Status404NotFound;
-            return null;
-        }
+            var stateGetter = new StateGetter(stateService);
+            var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress);
+            if (avatarState is null)
+            {
+                Response.StatusCode = StatusCodes.Status404NotFound;
+                return null;
+            }
 
-        return new Avatar(avatarState);
+            return new Avatar(avatarState);
+        }
     }
 
     [HttpGet("inventory")]

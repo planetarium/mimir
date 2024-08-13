@@ -59,7 +59,7 @@ public class ArenaController(
         [BindRequired] int round
     )
     {
-        return await arenaRankingRepository.GetRanking(offset, limit, championshipId, round);
+        return await arenaRankingRepository.GetLeaderboardAsync(offset, limit, championshipId, round);
     }
 
     [HttpPost("simulate")]

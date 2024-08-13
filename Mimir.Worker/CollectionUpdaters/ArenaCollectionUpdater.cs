@@ -16,33 +16,27 @@ public static class ArenaCollectionUpdater
         Address avatarAddress,
         RoundData roundData,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        var arenaScore = await stateGetter.GetArenaScoreState(
+        var arenaInfo = await stateGetter.GetArenaInformationAsync(
             avatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
-            stoppingToken
-        );
-        var arenaInfo = await stateGetter.GetArenaInfoState(
+            stoppingToken);
+        var arenaScore = await stateGetter.GetArenaScoreAsync(
             avatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
-            stoppingToken
-        );
-
+            stoppingToken);
         await dbService.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ArenaDocument>(),
             [
                 new ArenaDocument(
-                    arenaScore.Address,
-                    arenaInfo.Address,
+                    avatarAddress,
+                    roundData.ChampionshipId,
+                    roundData.Round,
                     arenaInfo,
-                    arenaScore,
-                    roundData,
-                    avatarAddress
-                ),
+                    arenaScore),
             ],
             session,
             stoppingToken

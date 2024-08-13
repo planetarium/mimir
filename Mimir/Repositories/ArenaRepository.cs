@@ -1,26 +1,25 @@
 using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Exceptions;
+using Mimir.Models;
 using Mimir.Models.Arena;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
-using Mimir.Util;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class ArenaRepository(MongoDbService dbService, IStateService stateService)
+public class ArenaRepository(
+    MongoDbService dbService,
+    AvatarRepository avatarRepository)
 {
-    private readonly CpRepository _cpRepository = new(stateService);
-    private readonly StateGetter _stateGetter = new(stateService);
-
     public async Task<long> GetRankingByAvatarAddressAsync(
         Address avatarAddress,
         int championshipId,
         int round)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
+        var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
         return await GetRankingByAvatarAddressAsync(
             collection,
             avatarAddress,
@@ -29,7 +28,7 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
     }
 
     private static async Task<long> GetRankingByAvatarAddressAsync(
-        IMongoCollection<BsonDocument> collection,
+        IMongoCollection<ArenaDocument> collection,
         Address avatarAddress,
         int championshipId,
         int round)
@@ -42,12 +41,12 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("RoundData.Round", round)
+                        new BsonDocument("ChampionshipId", championshipId),
+                        new BsonDocument("Round", round)
                     }
                 )
             ),
-            new("$sort", new BsonDocument("Object.Score", -1)),
+            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
             new(
                 "$group",
                 new BsonDocument
@@ -60,7 +59,7 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
                 "$unwind",
                 new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "Rank" } }
             ),
-            new("$match", new BsonDocument("docs.AvatarAddress", avatarAddress.ToHex()))
+            new("$match", new BsonDocument("docs.Address", avatarAddress.ToHex()))
         };
 
         var aggregation = await collection
@@ -68,21 +67,21 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
             .ToListAsync();
         return aggregation.Count == 0
             ? 0
-            : (long)aggregation.First().Rank;
+            : (long)aggregation.First().Rank + 1;
     }
 
-    public async Task<List<ArenaRanking>> GetRanking(
+    public async Task<List<ArenaRanking>> GetLeaderboardAsync(
         long skip,
         int limit,
         int championshipId,
         int round)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
-        return await GetRanking(collection, skip, limit, championshipId, round);
+        var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
+        return await GetLeaderboardAsync(collection, skip, limit, championshipId, round);
     }
 
-    private async Task<List<ArenaRanking>> GetRanking(
-        IMongoCollection<BsonDocument> collection,
+    private async Task<List<ArenaRanking>> GetLeaderboardAsync(
+        IMongoCollection<ArenaDocument> collection,
         long skip,
         int limit,
         int championshipId,
@@ -96,8 +95,8 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("RoundData.Round", round)
+                        new BsonDocument("ChampionshipId", championshipId),
+                        new BsonDocument("Round", round)
                     }
                 )
             ),
@@ -137,22 +136,20 @@ public class ArenaRepository(MongoDbService dbService, IStateService stateServic
     {
         var arenaRanking = new ArenaRanking(
             document.AvatarAddress.ToHex(),
-            document.ArenaInformationObject.Address.ToHex(),
-            document.ArenaInformationObject.Win,
-            document.ArenaInformationObject.Lose,
+            document.ArenaInformation.Address.ToHex(),
+            document.ArenaInformation.Win,
+            document.ArenaInformation.Lose,
             document.ExtraElements?["Rank"].ToInt64() + 1 ?? 0,
-            document.ArenaInformationObject.Ticket,
-            document.ArenaInformationObject.TicketResetCount,
-            document.ArenaInformationObject.PurchasedTicketCount,
-            document.ArenaScoreObject.Score);
+            document.ArenaInformation.Ticket,
+            document.ArenaInformation.TicketResetCount,
+            document.ArenaInformation.PurchasedTicketCount,
+            document.ArenaScore.Score);
 
         try
         {
             // Set Avatar
-            var avatar = AvatarRepository.GetAvatar(
-                dbService.GetCollection<BsonDocument>(CollectionNames.Avatar.Value),
-                document.AvatarAddress);
-            arenaRanking.Avatar = avatar;
+            var doc = await avatarRepository.GetByAddressAsync(document.AvatarAddress);
+            arenaRanking.Avatar = new Avatar(doc.Object);
 
             // NOTE: Uncomment if the CP needed.
             // // Set CP

@@ -70,20 +70,20 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IStateService, HeadlessStateService>();
 builder.Services.AddSingleton<MongoDbService>();
-builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<MetadataRepository>();
 builder.Services.AddSingleton<AgentRepository>();
+// AvatarState dependencies
 builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<ActionPointRepository>();
 builder.Services.AddSingleton<DailyRewardRepository>();
-builder.Services.AddSingleton<InventoryRepository>();
-builder.Services.AddSingleton<AllRuneRepository>();
 
+// builder.Services.AddSingleton<InventoryRepository>();
+// builder.Services.AddSingleton<AllRuneRepository>();
 // builder.Services.AddSingleton<CollectionRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<RuneSlotRepository>();
-
+builder.Services.AddSingleton<ArenaRepository>();
 // builder.Services.AddSingleton<StakeRepository>();
 // builder.Services.AddSingleton<ProductRepository>();
 // builder.Services.AddSingleton<SeasonInfoRepository>();

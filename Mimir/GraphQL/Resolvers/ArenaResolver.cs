@@ -75,7 +75,7 @@ public class ArenaResolver
         }
 
         arenaRound ??= GetArenaRound(context, metadataRepo, tableSheetsRepo, arenaRound);
-        return await arenaRankingRepo.GetRanking(
+        return await arenaRankingRepo.GetLeaderboardAsync(
             ranking - 1,
             length,
             arenaRound.ChampionshipId,
