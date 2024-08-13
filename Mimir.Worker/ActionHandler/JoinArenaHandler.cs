@@ -3,6 +3,7 @@ using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
+using Mimir.Worker.Util;
 using MongoDB.Driver;
 using Nekoyume.Model.Arena;
 using Nekoyume.Model.EnumType;
@@ -46,32 +47,52 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
         );
 
         var stateGetter = stateService.At();
-        var arenaSheet = await stateGetter.GetSheet<ArenaSheet>(stoppingToken);
+        await ProcessArena(stateGetter, joinArena, session, stoppingToken);
+        await ProcessAvatar(stateGetter, joinArena, session, stoppingToken);
 
-        if (!arenaSheet.TryGetValue(joinArena.ChampionshipId, out var row))
-        {
-            throw new SheetRowNotFoundException(
-                nameof(ArenaSheet),
-                $"championship Id : {joinArena.ChampionshipId}"
-            );
-        }
+        return true;
+    }
 
-        if (!row.TryGetRound(joinArena.Round, out var roundData))
-        {
-            throw new RoundNotFoundException(
-                $"[{nameof(JoinArenaHandler)}] ChampionshipId({row.ChampionshipId}) - round({joinArena.Round})"
-            );
-        }
-
-        await ArenaCollectionUpdater.UpdateArenaCollectionAsync(
-            stateGetter,
-            Store,
+    private async Task ProcessArena(
+        StateGetter stateGetter,
+        IJoinArenaV1 joinArena,
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var arenaScore = await stateGetter.GetArenaScoreAsync(
             joinArena.AvatarAddress,
-            roundData,
+            joinArena.ChampionshipId,
+            joinArena.Round,
+            stoppingToken
+        );
+        var arenaInfo = await stateGetter.GetArenaInformationAsync(
+            joinArena.AvatarAddress,
+            joinArena.ChampionshipId,
+            joinArena.Round,
+            stoppingToken
+        );
+        await ArenaCollectionUpdater.UpsertAsync(
+            Store,
+            arenaScore,
+            arenaInfo,
+            joinArena.AvatarAddress,
+            joinArena.ChampionshipId,
+            joinArena.Round,
             session,
             stoppingToken
         );
+    }
 
-        return true;
+    private async Task ProcessAvatar(
+        StateGetter stateGetter,
+        IJoinArenaV1 joinArena,
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var avatarState = await stateGetter.GetAvatarState(joinArena.AvatarAddress, stoppingToken);
+
+        await AvatarCollectionUpdater.UpsertAsync(Store, avatarState, session, stoppingToken);
     }
 }

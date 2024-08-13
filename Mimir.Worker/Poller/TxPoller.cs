@@ -84,22 +84,24 @@ public class TxPoller : IBlockPoller
         while (!stoppingToken.IsCancellationRequested)
         {
             var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
+            var targetBlockIndex = currentBlockIndex - 1;
             // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
             var syncedBlockIndex = await GetSyncedBlockIndex(arenaCollectionName, stoppingToken);
 
             _logger.Information(
-                "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
+                "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}, target: {TargetBlockIndex}",
                 syncedBlockIndex,
-                currentBlockIndex
+                currentBlockIndex,
+                targetBlockIndex
             );
 
-            if (syncedBlockIndex >= currentBlockIndex)
+            if (syncedBlockIndex >= targetBlockIndex)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
                 continue;
             }
 
-            await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
+            await ProcessBlocksAsync(syncedBlockIndex, targetBlockIndex, stoppingToken);
         }
 
         _logger.Information(
@@ -111,16 +113,16 @@ public class TxPoller : IBlockPoller
 
     private async Task ProcessBlocksAsync(
         long syncedBlockIndex,
-        long currentBlockIndex,
+        long targetBlockIndex,
         CancellationToken stoppingToken
     )
     {
-        long indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
+        long indexDifference = Math.Abs(targetBlockIndex - syncedBlockIndex);
         int limit = 1;
 
         _logger.Information(
-            "Process block, current&sync: {CurrentBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",
-            currentBlockIndex,
+            "Process block, target&sync: {TargetBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",
+            targetBlockIndex,
             syncedBlockIndex,
             indexDifference,
             limit
