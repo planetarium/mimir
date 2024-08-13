@@ -2,6 +2,7 @@ using Lib9c.Models.Arena;
 using Libplanet.Crypto;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson;
 
@@ -9,12 +10,13 @@ namespace Mimir.MongoDB.Bson;
 [BsonIgnoreExtraElements]
 public record ArenaDocument(
     Address Address,
-    Nekoyume.TableData.ArenaSheet.RoundData RoundData,
+    int ChampionshipId,
+    int Round,
     ArenaInformation ArenaInformation,
     ArenaScore ArenaScore)
     : MimirBsonDocument(Address)
 {
-    [BsonIgnore]
+    [BsonIgnore, JsonIgnore]
     public Address AvatarAddress => Address;
 
     [BsonExtraElements]

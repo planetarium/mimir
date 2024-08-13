@@ -41,12 +41,12 @@ public class ArenaRepository(
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("RoundData.Round", round)
+                        new BsonDocument("ChampionshipId", championshipId),
+                        new BsonDocument("Round", round)
                     }
                 )
             ),
-            new("$sort", new BsonDocument("Object.Score", -1)),
+            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
             new(
                 "$group",
                 new BsonDocument
@@ -67,7 +67,7 @@ public class ArenaRepository(
             .ToListAsync();
         return aggregation.Count == 0
             ? 0
-            : (long)aggregation.First().Rank;
+            : (long)aggregation.First().Rank + 1;
     }
 
     public async Task<List<ArenaRanking>> GetLeaderboardAsync(
@@ -95,8 +95,8 @@ public class ArenaRepository(
                     "$and",
                     new BsonArray
                     {
-                        new BsonDocument("RoundData.ChampionshipId", championshipId),
-                        new BsonDocument("RoundData.Round", round)
+                        new BsonDocument("ChampionshipId", championshipId),
+                        new BsonDocument("Round", round)
                     }
                 )
             ),

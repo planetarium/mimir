@@ -16,8 +16,7 @@ public static class ArenaCollectionUpdater
         Address avatarAddress,
         RoundData roundData,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var arenaInfo = await stateGetter.GetArenaInformationAsync(
             avatarAddress,
@@ -34,7 +33,8 @@ public static class ArenaCollectionUpdater
             [
                 new ArenaDocument(
                     avatarAddress,
-                    roundData,
+                    roundData.ChampionshipId,
+                    roundData.Round,
                     arenaInfo,
                     arenaScore),
             ],
