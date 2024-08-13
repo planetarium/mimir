@@ -23,5 +23,15 @@ public class Query
         return doc.Object;
     }
 
+    public async Task<int> GetActionPointAsync(
+        Address address,
+        [Service] ActionPointRepository repo) =>
+        await repo.GetByAddressAsync(address);
+
+    public async Task<long> GetDailyRewardAsync(
+        Address address,
+        [Service] DailyRewardRepository repo) =>
+        await repo.GetByAddressAsync(address);
+
     public ArenaObject GetArena() => new();
 }
