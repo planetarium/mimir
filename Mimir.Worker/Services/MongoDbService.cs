@@ -218,7 +218,7 @@ public class MongoDbService
         CancellationToken cancellationToken = default
     )
     {
-        List<UpdateOneModel<BsonDocument>> bulkOps = new List<UpdateOneModel<BsonDocument>>();
+        List<UpdateOneModel<BsonDocument>> bulkOps = [];
         foreach (var document in documents)
         {
             var stateUpdateModel = GetMimirDocumentUpdateModel(document);
@@ -266,11 +266,13 @@ public class MongoDbService
     public UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(MimirBsonDocument document)
     {
         var collectionName = CollectionNames.GetCollectionName(document.GetType());
+        var filter = Builders<BsonDocument>.Filter
+            .Eq("Address", document.Address.ToHex());
         var stateJson = document.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
-
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", document.Address.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
+        // var update = Builders<BsonDocument>.Update
+        //     .Set(doc => doc, document);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(

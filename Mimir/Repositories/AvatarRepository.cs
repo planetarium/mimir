@@ -7,10 +7,7 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class AvatarRepository(
-    MongoDbService dbService,
-    ActionPointRepository apRepo,
-    DailyRewardRepository drRepo)
+public class AvatarRepository(MongoDbService dbService)
 {
     public async Task<AvatarDocument> GetByAddressAsync(Address address)
     {
