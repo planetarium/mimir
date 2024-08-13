@@ -5,7 +5,6 @@ using Mimir.Models;
 using Mimir.Models.Arena;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
-using Mimir.Util;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -13,12 +12,8 @@ namespace Mimir.Repositories;
 
 public class ArenaRepository(
     MongoDbService dbService,
-    IStateService stateService,
     AvatarRepository avatarRepository)
 {
-    private readonly CpRepository _cpRepository = new(stateService);
-    private readonly StateGetter _stateGetter = new(stateService);
-
     public async Task<long> GetRankingByAvatarAddressAsync(
         Address avatarAddress,
         int championshipId,
@@ -75,17 +70,17 @@ public class ArenaRepository(
             : (long)aggregation.First().Rank;
     }
 
-    public async Task<List<ArenaRanking>> GetRanking(
+    public async Task<List<ArenaRanking>> GetLeaderboardAsync(
         long skip,
         int limit,
         int championshipId,
         int round)
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Arena.Value);
-        return await GetRanking(collection, skip, limit, championshipId, round);
+        return await GetLeaderboardAsync(collection, skip, limit, championshipId, round);
     }
 
-    private async Task<List<ArenaRanking>> GetRanking(
+    private async Task<List<ArenaRanking>> GetLeaderboardAsync(
         IMongoCollection<BsonDocument> collection,
         long skip,
         int limit,
