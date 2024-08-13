@@ -49,7 +49,7 @@ public class DiffPoller : IBlockPoller
                             _headlessGqlClient,
                             _dbService,
                             address
-                        ).ProduceByAccount(_channels[address.ToHex()].Writer, address, cts.Token)
+                        ).ProduceByAccount(_channels[address.ToHex()].Writer, cts.Token)
                 )
             )
             .ToArray();

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Libplanet.Crypto;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using ILogger = Serilog.ILogger;
@@ -126,7 +127,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     public async Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
         long baseIndex,
         long changedIndex,
-        string accountAddress,
+        Address accountAddress,
         CancellationToken stoppingToken = default
     )
     {
@@ -145,14 +146,28 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public Task<GetTipResponse> GetTipAsync(CancellationToken stoppingToken = default)
+    public Task<GetTipResponse> GetTipAsync(
+        CancellationToken stoppingToken = default,
+        Address? accountAddress = null
+    )
     {
-        return PostGraphQLRequestAsync<GetTipResponse>(GraphQLQueries.GetTip, null, stoppingToken);
+        ILogger? contextualLogger = null;
+        if (accountAddress is not null)
+        {
+            contextualLogger = _logger.ForContext("AccountAddress", accountAddress);
+        }
+
+        return PostGraphQLRequestAsync<GetTipResponse>(
+            GraphQLQueries.GetTip,
+            null,
+            stoppingToken,
+            contextualLogger
+        );
     }
 
     public Task<GetStateResponse> GetStateAsync(
-        string accountAddress,
-        string address,
+        Address accountAddress,
+        Address address,
         CancellationToken stoppingToken = default
     )
     {

@@ -15,6 +15,7 @@ public class DiffProducer
     protected readonly IStateService _stateService;
     protected readonly ILogger _logger;
     private readonly IHeadlessGQLClient _headlessGqlClient;
+    private Address _accountAddress;
 
     public DiffProducer(
         IStateService stateService,
@@ -26,17 +27,17 @@ public class DiffProducer
         _headlessGqlClient = headlessGqlClient;
         _stateService = stateService;
         _logger = Log.ForContext<DiffProducer>()
-            .ForContext("AccountAddress", accountAddress.ToHex());
+            .ForContext("AccountAddress", _accountAddress.ToHex());
         _dbService = dbService;
+        _accountAddress = accountAddress;
     }
 
     public async Task ProduceByAccount(
         ChannelWriter<DiffContext> writer,
-        Address accountAddress,
         CancellationToken stoppingToken
     )
     {
-        var collectionName = CollectionNames.GetCollectionName(accountAddress);
+        var collectionName = CollectionNames.GetCollectionName(_accountAddress);
 
         var syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
         var currentTargetIndex = syncedBlockIndex;
@@ -48,7 +49,10 @@ public class DiffProducer
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
+            var currentBlockIndex = await _stateService.GetLatestIndex(
+                stoppingToken,
+                _accountAddress
+            );
             var currentBaseIndex = currentTargetIndex;
             long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);
             int limit =
@@ -77,7 +81,7 @@ public class DiffProducer
             var result = await _headlessGqlClient.GetAccountDiffsAsync(
                 currentBaseIndex,
                 currentTargetIndex,
-                accountAddress.ToString(),
+                _accountAddress,
                 stoppingToken
             );
 
@@ -85,7 +89,7 @@ public class DiffProducer
                 new DiffContext()
                 {
                     DiffResponse = result,
-                    AccountAddress = accountAddress,
+                    AccountAddress = _accountAddress,
                     TargetBlockIndex = currentTargetIndex,
                     CollectionName = collectionName
                 },
@@ -110,7 +114,10 @@ public class DiffProducer
         }
         catch (InvalidOperationException)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
+            var currentBlockIndex = await _stateService.GetLatestIndex(
+                stoppingToken,
+                _accountAddress
+            );
             _logger.Information(
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
                 currentBlockIndex
