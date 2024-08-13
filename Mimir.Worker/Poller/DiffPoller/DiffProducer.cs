@@ -100,7 +100,7 @@ public class DiffProducer
         try
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
-                "DiffBlockPoller",
+                nameof(DiffPoller),
                 collectionName,
                 stoppingToken
             );
@@ -116,7 +116,7 @@ public class DiffProducer
             await _dbService.UpdateLatestBlockIndex(
                 new MetadataDocument
                 {
-                    PollerType = "DiffBlockPoller",
+                    PollerType = nameof(DiffPoller),
                     CollectionName = collectionName,
                     LatestBlockIndex = currentBlockIndex - 1
                 }
