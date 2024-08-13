@@ -11,16 +11,16 @@ namespace Mimir.Repositories;
 
 public class DailyRewardRepository(MongoDbService dbService)
 {
-    public long GetDailyReward(Address avatarAddress)
+    public async Task<long> GetByAddressAsync(Address address)
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.DailyReward.Value);
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
-        var document = collection.Find(filter).FirstOrDefault();
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
+        var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{avatarAddress.ToHex()}'");
+                $"'Address' equals to '{address.ToHex()}'");
         }
 
         try

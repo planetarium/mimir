@@ -7,14 +7,17 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class AvatarRepository(MongoDbService dbService)
+public class AvatarRepository(
+    MongoDbService dbService,
+    ActionPointRepository apRepo,
+    DailyRewardRepository drRepo)
 {
     public async Task<AvatarDocument> GetByAddressAsync(Address address)
     {
         var filter = Builders<AvatarDocument>.Filter.Eq("Address", address.ToHex());
         var collection = dbService.GetCollection<AvatarDocument>(CollectionNames.Avatar.Value);
-        var document = await collection.Find(filter).FirstOrDefaultAsync();
-        if (document is null)
+        var doc = await collection.Find(filter).FirstOrDefaultAsync();
+        if (doc is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
@@ -22,6 +25,6 @@ public class AvatarRepository(MongoDbService dbService)
             );
         }
 
-        return document;
+        return doc;
     }
 }
