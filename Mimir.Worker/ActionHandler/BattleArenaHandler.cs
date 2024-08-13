@@ -65,13 +65,13 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
     {
         var roundData = await stateGetter.GetArenaRoundData(blockIndex, stoppingToken);
 
-        var myArenaScore = await stateGetter.GetArenaScoreState(
+        var myArenaScore = await stateGetter.GetArenaScoreAsync(
             battleArena.MyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
             stoppingToken
         );
-        var myArenaInfo = await stateGetter.GetArenaInfoState(
+        var myArenaInfo = await stateGetter.GetArenaInformationAsync(
             battleArena.MyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
@@ -82,18 +82,19 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             myArenaScore,
             myArenaInfo,
             battleArena.MyAvatarAddress,
-            roundData,
+            roundData.ChampionshipId,
+            roundData.Round,
             session,
             stoppingToken
         );
 
-        var enemyArenaScore = await stateGetter.GetArenaScoreState(
+        var enemyArenaScore = await stateGetter.GetArenaScoreAsync(
             battleArena.EnemyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
             stoppingToken
         );
-        var enemyArenaInfo = await stateGetter.GetArenaInfoState(
+        var enemyArenaInfo = await stateGetter.GetArenaInformationAsync(
             battleArena.EnemyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
@@ -104,7 +105,8 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             enemyArenaScore,
             enemyArenaInfo,
             battleArena.EnemyAvatarAddress,
-            roundData,
+            roundData.ChampionshipId,
+            roundData.Round,
             session,
             stoppingToken
         );

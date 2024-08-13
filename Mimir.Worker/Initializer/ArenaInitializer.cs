@@ -28,13 +28,13 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
 
         foreach (var avatarAddress in arenaParticipants.AvatarAddresses)
         {
-            var arenaScore = await stateGetter.GetArenaScoreState(
+            var arenaScore = await stateGetter.GetArenaScoreAsync(
                 avatarAddress,
                 roundData.ChampionshipId,
                 roundData.Round,
                 stoppingToken
             );
-            var arenaInfo = await stateGetter.GetArenaInfoState(
+            var arenaInfo = await stateGetter.GetArenaInformationAsync(
                 avatarAddress,
                 roundData.ChampionshipId,
                 roundData.Round,
@@ -47,7 +47,8 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
                 arenaScore,
                 arenaInfo,
                 avatarAddress,
-                roundData,
+                roundData.ChampionshipId,
+                roundData.Round,
                 null,
                 stoppingToken
             );

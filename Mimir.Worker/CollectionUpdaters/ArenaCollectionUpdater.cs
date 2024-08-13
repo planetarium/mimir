@@ -1,10 +1,9 @@
+using Lib9c.Models.Arena;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
-using Nekoyume.Model.Arena;
-using static Nekoyume.TableData.ArenaSheet;
 
 namespace Mimir.Worker.CollectionUpdaters;
 
@@ -15,20 +14,15 @@ public static class ArenaCollectionUpdater
         ArenaScore arenaScore,
         ArenaInformation arenaInfo,
         Address avatarAddress,
-        RoundData roundData,
+        int championshipId,
+        int round,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         await dbService.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ArenaDocument>(),
-            [
-                new ArenaDocument(
-                    avatarAddress,
-                    roundData.ChampionshipId,
-                    roundData.Round,
-                    arenaInfo,
-                    arenaScore),
-            ],
+            [new ArenaDocument(avatarAddress, championshipId, round, arenaInfo, arenaScore),],
             session,
             stoppingToken
         );

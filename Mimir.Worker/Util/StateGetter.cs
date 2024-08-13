@@ -96,26 +96,6 @@ public class StateGetter
         };
     }
 
-    public async Task<ArenaInformation> GetArenaInfoState(
-        Address avatarAddress,
-        int championshipId,
-        int roundId,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var arenaInfoAddress = ArenaInformation.DeriveAddress(
-            avatarAddress,
-            championshipId,
-            roundId
-        );
-        var state = await _service.GetState(arenaInfoAddress, stoppingToken);
-        return state switch
-        {
-            List list => new ArenaInformation(list),
-            _ => throw new StateNotFoundException(arenaInfoAddress, typeof(ArenaInformation))
-        };
-    }
-
     public async Task<Lib9c.Models.States.AvatarState> GetAvatarState(
         Address avatarAddress,
         CancellationToken stoppingToken = default

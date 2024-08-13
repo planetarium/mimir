@@ -60,33 +60,16 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
         CancellationToken stoppingToken = default
     )
     {
-        var arenaSheet = await stateGetter.GetSheet<ArenaSheet>(stoppingToken);
-
-        if (!arenaSheet.TryGetValue(joinArena.ChampionshipId, out var row))
-        {
-            throw new SheetRowNotFoundException(
-                nameof(ArenaSheet),
-                $"championship Id : {joinArena.ChampionshipId}"
-            );
-        }
-
-        if (!row.TryGetRound(joinArena.Round, out var roundData))
-        {
-            throw new RoundNotFoundException(
-                $"[{nameof(JoinArenaHandler)}] ChampionshipId({row.ChampionshipId}) - round({joinArena.Round})"
-            );
-        }
-
-        var arenaScore = await stateGetter.GetArenaScoreState(
+        var arenaScore = await stateGetter.GetArenaScoreAsync(
             joinArena.AvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            joinArena.ChampionshipId,
+            joinArena.Round,
             stoppingToken
         );
-        var arenaInfo = await stateGetter.GetArenaInfoState(
+        var arenaInfo = await stateGetter.GetArenaInformationAsync(
             joinArena.AvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            joinArena.ChampionshipId,
+            joinArena.Round,
             stoppingToken
         );
         await ArenaCollectionUpdater.UpsertAsync(
@@ -94,7 +77,8 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
             arenaScore,
             arenaInfo,
             joinArena.AvatarAddress,
-            roundData,
+            joinArena.ChampionshipId,
+            joinArena.Round,
             session,
             stoppingToken
         );
