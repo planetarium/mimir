@@ -29,4 +29,15 @@ public class Avatar(
         avatarState.characterId)
     {
     }
+
+    public Avatar(Lib9c.Models.States.AvatarState avatarState) : this(
+        avatarState.AgentAddress.ToString(),
+        avatarState.Address.ToString(),
+        avatarState.Name,
+        avatarState.Level,
+        avatarState.ActionPoint,
+        avatarState.DailyRewardReceivedIndex,
+        avatarState.CharacterId)
+    {
+    }
 }
