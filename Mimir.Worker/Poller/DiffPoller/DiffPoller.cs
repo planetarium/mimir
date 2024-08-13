@@ -56,7 +56,8 @@ public class DiffPoller : IBlockPoller
             .HandlerMappings.Keys.Select(address =>
                 Task.Run(
                     () =>
-                        new DiffConsumer(_channels[address.ToHex()], _dbService).ConsumeAsync(
+                        new DiffConsumer(_dbService).ConsumeAsync(
+                            _channels[address.ToHex()].Reader,
                             cts.Token
                         )
                 )

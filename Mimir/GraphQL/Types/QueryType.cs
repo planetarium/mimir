@@ -7,20 +7,6 @@ public class QueryType : ObjectType<Query>
 {
     protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
     {
-        descriptor
-            .Field("metadata")
-            .Argument("pollerType", a => a.Type<NonNullType<StringType>>())
-            .Argument("collectionName", a => a.Type<NonNullType<StringType>>())
-            .Type<IntType>()
-            .Resolve(context =>
-            {
-                var repository = context.Service<MetadataRepository>();
-                var pollerType = context.ArgumentValue<string>("pollerType");
-                var collectionName = context.ArgumentValue<string>("collectionName");
-
-                return repository.GetLatestBlockIndex(pollerType, collectionName);
-            });
-
         // descriptor
         //     .Field("inventory")
         //     .Argument("address", a => a.Type<NonNullType<AddressType>>())
