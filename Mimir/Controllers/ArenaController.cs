@@ -21,12 +21,12 @@ public class ArenaController(
 ) : ControllerBase
 {
     [HttpGet("season")]
-    public ArenaSeason GetLatestSeason(MetadataRepository metadataRepository)
+    public async Task<ArenaSeason> GetLatestSeason(MetadataRepository metadataRepository)
     {
-        var latestBlockIndex = metadataRepository.GetLatestBlockIndex(
-            "TxPoller",
-            CollectionNames.Arena.Value);
-        var arenaRound = tableSheetsRepository.GetArenaRound(latestBlockIndex);
+        var metadataDocument = await metadataRepository.GetByCollectionAsync(
+            CollectionNames.Arena.Value
+        );
+        var arenaRound = tableSheetsRepository.GetArenaRound(metadataDocument.LatestBlockIndex);
         return new ArenaSeason(arenaRound.ChampionshipId, arenaRound.Round);
     }
 
@@ -59,7 +59,12 @@ public class ArenaController(
         [BindRequired] int round
     )
     {
-        return await arenaRankingRepository.GetLeaderboardAsync(offset, limit, championshipId, round);
+        return await arenaRankingRepository.GetLeaderboardAsync(
+            offset,
+            limit,
+            championshipId,
+            round
+        );
     }
 
     [HttpPost("simulate")]

@@ -4,5 +4,5 @@ namespace Mimir.Worker.Handler;
 
 public interface IStateHandler
 {
-    MimirBsonDocument ConvertToState(StateDiffContext context);
+    MimirBsonDocument ConvertToDocument(StateDiffContext context);
 }

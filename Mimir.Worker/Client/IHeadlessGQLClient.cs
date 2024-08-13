@@ -1,3 +1,5 @@
+using Libplanet.Crypto;
+
 namespace Mimir.Worker.Client;
 
 public interface IHeadlessGQLClient
@@ -5,13 +7,13 @@ public interface IHeadlessGQLClient
     Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
         long baseIndex,
         long changedIndex,
-        string accountAddress,
+        Address accountAddress,
         CancellationToken stoppingToken
     );
-    Task<GetTipResponse> GetTipAsync(CancellationToken stoppingToken);
+    Task<GetTipResponse> GetTipAsync(CancellationToken stoppingToken, Address? accountAddress);
     Task<GetStateResponse> GetStateAsync(
-        string accountAddress,
-        string address,
+        Address accountAddress,
+        Address address,
         CancellationToken stoppingToken
     );
     Task<GetTransactionsResponse> GetTransactionsAsync(

@@ -20,7 +20,7 @@ public class ActionPointStateHandlerTests
             Address = address,
             RawState = new Integer(actionPoint),
         };
-        var state = _handler.ConvertToState(context);
+        var state = _handler.ConvertToDocument(context);
 
         Assert.IsType<ActionPointDocument>(state);
         var dataState = (ActionPointDocument)state;

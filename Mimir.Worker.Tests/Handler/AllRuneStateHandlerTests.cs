@@ -22,7 +22,7 @@ public class AllRuneStateHandlerTests
             Address = address,
             RawState = allRuneState.Serialize(),
         };
-        var state = _handler.ConvertToState(context);
+        var state = _handler.ConvertToDocument(context);
 
         Assert.IsType<AllRuneDocument>(state);
         var dataState = (AllRuneDocument)state;

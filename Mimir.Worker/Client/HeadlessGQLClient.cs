@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Libplanet.Crypto;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using ILogger = Serilog.ILogger;
@@ -47,12 +48,14 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     private async Task<T> PostGraphQLRequestAsync<T>(
         string query,
         object? variables,
-        CancellationToken stoppingToken = default
+        CancellationToken stoppingToken = default,
+        ILogger? contextualLogger = null
     )
     {
         var request = new GraphQLRequest { Query = query, Variables = variables };
         var jsonRequest = JsonSerializer.Serialize(request);
         var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+        var logger = contextualLogger is null ? _logger : contextualLogger;
 
         for (int attempt = 0; attempt < RetryAttempts; attempt++)
         {
@@ -60,14 +63,21 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             {
                 try
                 {
+                    using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Content = content
+                    };
+
                     if (_secret is not null && _issuer is not null)
                     {
                         var token = GenerateJwtToken(_secret, _issuer);
-                        _httpClient.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token);
+                        httpRequest.Headers.Authorization = new AuthenticationHeaderValue(
+                            "Bearer",
+                            token
+                        );
                     }
 
-                    var response = await _httpClient.PostAsync(url, content, stoppingToken);
+                    var response = await _httpClient.SendAsync(httpRequest, stoppingToken);
                     response.EnsureSuccessStatusCode();
 
                     var jsonResponse = await response.Content.ReadAsStringAsync(stoppingToken);
@@ -84,7 +94,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                 }
                 catch (HttpRequestException ex)
                 {
-                    _logger.Error(
+                    logger.Error(
                         "Failed http request url: {Url}, retry:{Retry}, error:\n{Errors}",
                         url,
                         attempt + 1,
@@ -93,7 +103,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
                 {
-                    _logger.Error(
+                    logger.Error(
                         "Timeout http request url: {Url}, retry: {Retry}, error:\n{Errors}",
                         url,
                         attempt + 1,
@@ -102,7 +112,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                 }
             }
 
-            _logger.Information(
+            logger.Information(
                 "Wait {DelayInSeconds} second, retry: {Retry}",
                 DelayInSeconds,
                 attempt + 1
@@ -110,16 +120,19 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             await Task.Delay(TimeSpan.FromSeconds(DelayInSeconds), stoppingToken);
         }
 
+        logger.Error("All attempts to request the GraphQL endpoint failed.");
         throw new HttpRequestException("All attempts to request the GraphQL endpoint failed.");
     }
 
     public async Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
         long baseIndex,
         long changedIndex,
-        string accountAddress,
+        Address accountAddress,
         CancellationToken stoppingToken = default
     )
     {
+        var contextualLogger = _logger.ForContext("AccountAddress", accountAddress);
+
         return await PostGraphQLRequestAsync<GetAccountDiffsResponse>(
             GraphQLQueries.GetAccountDiffs,
             new
@@ -128,18 +141,33 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                 changedIndex,
                 accountAddress
             },
-            stoppingToken
+            stoppingToken,
+            contextualLogger
         );
     }
 
-    public Task<GetTipResponse> GetTipAsync(CancellationToken stoppingToken = default)
+    public Task<GetTipResponse> GetTipAsync(
+        CancellationToken stoppingToken = default,
+        Address? accountAddress = null
+    )
     {
-        return PostGraphQLRequestAsync<GetTipResponse>(GraphQLQueries.GetTip, null, stoppingToken);
+        ILogger? contextualLogger = null;
+        if (accountAddress is not null)
+        {
+            contextualLogger = _logger.ForContext("AccountAddress", accountAddress);
+        }
+
+        return PostGraphQLRequestAsync<GetTipResponse>(
+            GraphQLQueries.GetTip,
+            null,
+            stoppingToken,
+            contextualLogger
+        );
     }
 
     public Task<GetStateResponse> GetStateAsync(
-        string accountAddress,
-        string address,
+        Address accountAddress,
+        Address address,
         CancellationToken stoppingToken = default
     )
     {

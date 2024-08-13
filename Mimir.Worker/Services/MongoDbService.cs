@@ -113,8 +113,8 @@ public class MongoDbService
     public async Task<long> GetArenaDocumentCount(int championshipId, int round)
     {
         var builder = Builders<BsonDocument>.Filter;
-        var filter = builder.Eq("RoundData.ChampionshipId", championshipId);
-        filter &= builder.Eq("RoundData.Round", round);
+        var filter = builder.Eq("ChampionshipId", championshipId);
+        filter &= builder.Eq("Round", round);
 
         var documents = GetCollection<ArenaDocument>().Find(filter);
         var count = await documents.CountDocumentsAsync();

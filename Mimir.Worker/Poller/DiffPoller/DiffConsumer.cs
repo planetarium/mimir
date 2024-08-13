@@ -13,21 +13,23 @@ namespace Mimir.Worker.Poller;
 
 public class DiffConsumer
 {
-    private readonly Channel<DiffContext> _channel;
     protected readonly MongoDbService _dbService;
     protected readonly ILogger _logger;
     private readonly Codec Codec = new();
 
-    public DiffConsumer(Channel<DiffContext> channel, MongoDbService dbService)
+    public DiffConsumer(MongoDbService dbService, Address accountAddress)
     {
         _dbService = dbService;
-        _logger = Log.ForContext<DiffConsumer>();
-        _channel = channel;
+        _logger = Log.ForContext<DiffConsumer>()
+            .ForContext("AccountAddress", accountAddress.ToHex());
     }
 
-    public async Task ConsumeAsync(CancellationToken stoppingToken)
+    public async Task ConsumeAsync(
+        ChannelReader<DiffContext> reader,
+        CancellationToken stoppingToken
+    )
     {
-        await foreach (var diffContext in _channel.Reader.ReadAllAsync(stoppingToken))
+        await foreach (var diffContext in reader.ReadAllAsync(stoppingToken))
         {
             if (diffContext.DiffResponse.AccountDiffs.Count() == 0)
             {
@@ -35,7 +37,7 @@ public class DiffConsumer
                 await _dbService.UpdateLatestBlockIndex(
                     new MetadataDocument
                     {
-                        PollerType = "DiffBlockPoller",
+                        PollerType = nameof(DiffPoller),
                         CollectionName = diffContext.CollectionName,
                         LatestBlockIndex = diffContext.TargetBlockIndex
                     }
@@ -60,7 +62,7 @@ public class DiffConsumer
                 await _dbService.UpdateLatestBlockIndex(
                     new MetadataDocument
                     {
-                        PollerType = "DiffBlockPoller",
+                        PollerType = nameof(DiffPoller),
                         CollectionName = diffContext.CollectionName,
                         LatestBlockIndex = diffContext.TargetBlockIndex
                     },
@@ -92,7 +94,7 @@ public class DiffConsumer
             {
                 var address = new Address(diff.Path);
 
-                var document = handler.ConvertToState(
+                var document = handler.ConvertToDocument(
                     new()
                     {
                         Address = address,
