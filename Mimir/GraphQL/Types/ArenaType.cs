@@ -2,6 +2,7 @@ using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Resolvers;
 using Mimir.Models.Arena;
+using Mimir.MongoDB.Bson;
 
 namespace Mimir.GraphQL.Types;
 
@@ -33,7 +34,7 @@ public class ArenaType : ObjectType<ArenaObject>
                 .Description("The number of avatars. default is 10. This must be greater than or equal to 1 and less than or equal to 100.")
                 .Type<NonNullType<IntType>>()
                 .DefaultValue(10))
-            .Type<ListType<ObjectType<ArenaRanking>>>()
+            .Type<ListType<ObjectType<ArenaRankingDocument>>>()
             .ResolveWith<ArenaResolver>(_ =>
                 ArenaResolver.GetLeaderboard(
                     default!, default!, default!, default!, default!, default!, default!));
