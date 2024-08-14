@@ -2,6 +2,7 @@ using HotChocolate.Resolvers;
 using Libplanet.Crypto;
 using Mimir.Enums;
 using Mimir.Models.Arena;
+using Mimir.MongoDB.Bson;
 using Mimir.Repositories;
 using Nekoyume.TableData;
 
@@ -45,7 +46,7 @@ public class ArenaResolver
         return rank == 0 ? null : rank;
     }
 
-    public static async Task<List<ArenaRanking>> GetLeaderboard(
+    public static async Task<List<ArenaRankingDocument>> GetLeaderboard(
         IResolverContext context,
         long ranking,
         int length,

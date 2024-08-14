@@ -1,8 +1,5 @@
 using Libplanet.Crypto;
 using Mimir.Enums;
-using Mimir.Exceptions;
-using Mimir.Models;
-using Mimir.Models.Arena;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -10,28 +7,29 @@ using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
-public class ArenaRepository(
-    MongoDbService dbService,
-    AvatarRepository avatarRepository)
+public class ArenaRepository(MongoDbService dbService)
 {
     public async Task<long> GetRankingByAvatarAddressAsync(
         Address avatarAddress,
         int championshipId,
-        int round)
+        int round
+    )
     {
         var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
         return await GetRankingByAvatarAddressAsync(
             collection,
             avatarAddress,
             championshipId,
-            round);
+            round
+        );
     }
 
     private static async Task<long> GetRankingByAvatarAddressAsync(
         IMongoCollection<ArenaDocument> collection,
         Address avatarAddress,
         int championshipId,
-        int round)
+        int round
+    )
     {
         var pipelines = new BsonDocument[]
         {
@@ -62,30 +60,28 @@ public class ArenaRepository(
             new("$match", new BsonDocument("docs.Address", avatarAddress.ToHex()))
         };
 
-        var aggregation = await collection
-            .Aggregate<dynamic>(pipelines)
-            .ToListAsync();
-        return aggregation.Count == 0
-            ? 0
-            : (long)aggregation.First().Rank + 1;
+        var aggregation = await collection.Aggregate<dynamic>(pipelines).ToListAsync();
+        return aggregation.Count == 0 ? 0 : (long)aggregation.First().Rank + 1;
     }
 
-    public async Task<List<ArenaRanking>> GetLeaderboardAsync(
+    public async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
         long skip,
         int limit,
         int championshipId,
-        int round)
+        int round
+    )
     {
         var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
         return await GetLeaderboardAsync(collection, skip, limit, championshipId, round);
     }
 
-    private async Task<List<ArenaRanking>> GetLeaderboardAsync(
+    private async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
         IMongoCollection<ArenaDocument> collection,
         long skip,
         int limit,
         int championshipId,
-        int round)
+        int round
+    )
     {
         var pipelines = new List<BsonDocument>
         {
@@ -111,83 +107,71 @@ public class ArenaRepository(
             ),
             new(
                 "$unwind",
-                new BsonDocument
-                {
-                    { "path", "$docs" },
-                    { "includeArrayIndex", "docs.Rank" }
-                }
+                new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "docs.Rank" } }
             ),
             new("$replaceRoot", new BsonDocument("newRoot", "$docs")),
             new("$skip", skip),
-            new("$limit", limit)
+            new("$limit", limit),
+            new BsonDocument(
+                "$lookup",
+                new BsonDocument
+                {
+                    { "from", "avatar" },
+                    { "localField", "Address" },
+                    { "foreignField", "Address" },
+                    { "as", "SimpleAvatar" }
+                }
+            ),
+            new BsonDocument(
+                "$unwind",
+                new BsonDocument
+                {
+                    { "path", "$SimpleAvatar" },
+                    { "preserveNullAndEmptyArrays", true }
+                }
+            ),
+            new BsonDocument(
+                "$project",
+                new BsonDocument
+                {
+                    { "SimpleAvatar.Object.MailBox", 0 },
+                    { "SimpleAvatar.Object.StageMap", 0 },
+                    { "SimpleAvatar.Object.MonsterMap", 0 },
+                    { "SimpleAvatar.Object.ItemMap", 0 },
+                    { "SimpleAvatar.Object.EventMap", 0 }
+                }
+            ),
+            new BsonDocument("$addFields", new BsonDocument("SimpleAvatar", "$SimpleAvatar.Object"))
         };
 
-        var aggregation = collection
-            .Aggregate<ArenaDocument>(pipelines)
+        var aggregation = collection.Aggregate<ArenaRankingDocument>(pipelines).ToList();
+        return UpdateRank(aggregation.Where(e => e is not null).ToList()!);
+    }
+
+    private static List<ArenaRankingDocument> UpdateRank(List<ArenaRankingDocument> source)
+    {
+        source = source
+            .Select(s =>
+            {
+                s.Rank++;
+                return s;
+            })
             .ToList();
-        var arenaRankings = await Task.WhenAll(aggregation
-            .Where(e => e is not null)
-            .Select(BuildArenaRankingFromDocument));
-        return UpdateRank(arenaRankings
-            .Where(e => e is not null)
-            .ToList()!);
-    }
-
-    private async Task<ArenaRanking?> BuildArenaRankingFromDocument(ArenaDocument document)
-    {
-        var arenaRanking = new ArenaRanking(
-            document.AvatarAddress.ToHex(),
-            document.ArenaInformation.Address.ToHex(),
-            document.ArenaInformation.Win,
-            document.ArenaInformation.Lose,
-            document.ArenaInformation.Ticket,
-            document.ArenaInformation.TicketResetCount,
-            document.ArenaInformation.PurchasedTicketCount,
-            document.ArenaScore.Score)
-        {
-            Rank = document.ExtraElements?["Rank"].ToInt64() + 1 ?? 0,
-        };
-
-        try
-        {
-            // Set Avatar
-            var doc = await avatarRepository.GetByAddressAsync(document.AvatarAddress);
-            arenaRanking.Avatar = new Avatar(doc.Object);
-
-            // NOTE: Uncomment if the CP needed.
-            // // Set CP
-            // var runeSlotState = await _stateGetter.GetArenaRuneSlotStateAsync(
-            //     document.AvatarAddress);
-            // var cp = await _cpRepository.CalculateCp(
-            //     avatar,
-            //     runeSlotState);
-            // arenaRanking.CP = cp;
-        }
-        catch (DocumentNotFoundInMongoCollectionException e)
-        {
-            Console.WriteLine(e.Message);
-        }
-
-        return arenaRanking;
-    }
-
-    private static List<ArenaRanking> UpdateRank(List<ArenaRanking> source)
-    {
         int? currentScore = null;
         var currentRank = 1;
-        var trunk = new List<ArenaRanking>();
-        var result = new List<ArenaRanking>();
+        var trunk = new List<ArenaRankingDocument>();
+        var result = new List<ArenaRankingDocument>();
         for (var i = 0; i < source.Count; i++)
         {
             var arenaRanking = source[i];
             if (!currentScore.HasValue)
             {
-                currentScore = arenaRanking.Score;
+                currentScore = arenaRanking.ArenaScore.Score;
                 trunk.Add(arenaRanking);
                 continue;
             }
 
-            if (currentScore.Value == arenaRanking.Score)
+            if (currentScore.Value == arenaRanking.ArenaScore.Score)
             {
                 trunk.Add(arenaRanking);
                 currentRank++;
@@ -204,7 +188,7 @@ public class ArenaRepository(
             if (i < source.Count - 1)
             {
                 trunk.Add(arenaRanking);
-                currentScore = arenaRanking.Score;
+                currentScore = arenaRanking.ArenaScore.Score;
                 currentRank++;
                 continue;
             }
@@ -223,11 +207,11 @@ public class ArenaRepository(
             }
             else
             {
-                foreach (var inTrunk in trunk.OrderBy(e => new Address(e.AvatarAddress)))
+                foreach (var inTrunk in trunk.OrderBy(e => e.Address))
                 {
                     inTrunk.Rank = currentRank;
                     result.Add(inTrunk);
-                }    
+                }
             }
 
             trunk.Clear();

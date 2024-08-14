@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mimir.Arena;
 using Mimir.Enums;
 using Mimir.Models.Arena;
+using Mimir.MongoDB.Bson;
 using Mimir.Repositories;
 using Mimir.Services;
 using Mimir.Util;
@@ -52,7 +53,7 @@ public class ArenaController(
     }
 
     [HttpGet("ranking")]
-    public async Task<List<ArenaRanking>> GetRanking(
+    public async Task<List<ArenaRankingDocument>> GetRanking(
         [BindRequired] int limit,
         [BindRequired] int offset,
         [BindRequired] int championshipId,
