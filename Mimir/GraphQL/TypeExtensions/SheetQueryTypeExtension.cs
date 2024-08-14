@@ -14,8 +14,14 @@ public class SheetQueryTypeExtension : ObjectTypeExtension<Query>
     {
         descriptor
             .Field("sheet")
-            .Argument("sheetName", a => a.Type<NonNullType<SheetNameType>>())
-            .Argument("encodeAsBase64", a => a.Type<BooleanType>().DefaultValue(false))
+            .Description("Get the sheet by name.")
+            .Argument("sheetName", a => a
+                .Type<NonNullType<SheetNameType>>()
+                .Description("The name of the sheet."))
+            .Argument("encodeAsBase64", a => a
+                .Type<BooleanType>()
+                .Description("Indicates whether the sheet content should be encoded in Base64 format.")
+                .DefaultValue(false))
             .Type<NonNullType<SheetType>>()
             .ResolveWith<SheetQueryTypeExtension>(_ => GetSheet(
                 default!,
