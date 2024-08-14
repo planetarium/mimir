@@ -67,7 +67,6 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SupportNonNullableReferenceTypes();
 });
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IStateService, HeadlessStateService>();
 builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddSingleton<TableSheetsRepository>();
@@ -119,8 +118,8 @@ builder
     );
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
-builder
-    .Services.AddGraphQLServer()
+builder.Services
+    .AddGraphQLServer()
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
     .BindRuntimeType(typeof(Address), typeof(AddressType))
@@ -129,6 +128,8 @@ builder
     {
         requestExecutorOptions.IncludeExceptionDetails = true;
     });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();
 
 builder.Services.AddRateLimiter(limiterOptions =>
 {
