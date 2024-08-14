@@ -128,9 +128,9 @@ public class ArenaRepository(
         var arenaRankings = await Task.WhenAll(aggregation
             .Where(e => e is not null)
             .Select(BuildArenaRankingFromDocument));
-        return arenaRankings
+        return UpdateRank(arenaRankings
             .Where(e => e is not null)
-            .ToList()!;
+            .ToList()!);
     }
 
     private async Task<ArenaRanking?> BuildArenaRankingFromDocument(ArenaDocument document)
@@ -140,11 +140,13 @@ public class ArenaRepository(
             document.ArenaInformation.Address.ToHex(),
             document.ArenaInformation.Win,
             document.ArenaInformation.Lose,
-            document.ExtraElements?["Rank"].ToInt64() + 1 ?? 0,
             document.ArenaInformation.Ticket,
             document.ArenaInformation.TicketResetCount,
             document.ArenaInformation.PurchasedTicketCount,
-            document.ArenaScore.Score);
+            document.ArenaScore.Score)
+        {
+            Rank = document.ExtraElements?["Rank"].ToInt64() + 1 ?? 0,
+        };
 
         try
         {
@@ -167,5 +169,68 @@ public class ArenaRepository(
         }
 
         return arenaRanking;
+    }
+
+    private static List<ArenaRanking> UpdateRank(List<ArenaRanking> source)
+    {
+        int? currentScore = null;
+        var currentRank = 1;
+        var trunk = new List<ArenaRanking>();
+        var result = new List<ArenaRanking>();
+        for (var i = 0; i < source.Count; i++)
+        {
+            var arenaRanking = source[i];
+            if (!currentScore.HasValue)
+            {
+                currentScore = arenaRanking.Score;
+                trunk.Add(arenaRanking);
+                continue;
+            }
+
+            if (currentScore.Value == arenaRanking.Score)
+            {
+                trunk.Add(arenaRanking);
+                currentRank++;
+                if (i < source.Count - 1)
+                {
+                    continue;
+                }
+
+                TrunkToResult();
+                continue;
+            }
+
+            TrunkToResult();
+            if (i < source.Count - 1)
+            {
+                trunk.Add(arenaRanking);
+                currentScore = arenaRanking.Score;
+                currentRank++;
+                continue;
+            }
+
+            arenaRanking.Rank = currentRank + 1;
+            result.Add(arenaRanking);
+        }
+
+        return result;
+
+        void TrunkToResult()
+        {
+            if (trunk.Count == 0)
+            {
+                result.Add(trunk[0]);
+            }
+            else
+            {
+                foreach (var inTrunk in trunk.OrderBy(e => new Address(e.AvatarAddress)))
+                {
+                    inTrunk.Rank = currentRank;
+                    result.Add(inTrunk);
+                }    
+            }
+
+            trunk.Clear();
+        }
     }
 }
