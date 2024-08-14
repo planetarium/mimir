@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
@@ -11,7 +12,8 @@ public record ArenaScore : IBencodable
 {
     public Address Address { get; init; }
     public int Score { get; init; }
-
+    
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded => List.Empty
         .Add(Address.Serialize())
         .Add(Score);

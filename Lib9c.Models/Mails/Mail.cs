@@ -15,6 +15,7 @@ public record Mail : IBencodable
     public long BlockIndex { get; init; }
     public long RequiredBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public virtual IValue Bencoded => Dictionary.Empty
         .Add("id", Id.Serialize())
         .Add("typeId", TypeId.Serialize())
