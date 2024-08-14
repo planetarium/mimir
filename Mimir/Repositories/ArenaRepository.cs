@@ -100,6 +100,7 @@ public class ArenaRepository(
                     }
                 )
             ),
+            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
             new(
                 "$group",
                 new BsonDocument
