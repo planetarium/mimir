@@ -8,6 +8,11 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.8" />
     <PackageReference Include="HotChocolate.AspNetCore.Playground" Version="10.5.5" />

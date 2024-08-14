@@ -9,6 +9,7 @@ public class SheetNamesQueryTypeExtension : ObjectTypeExtension<Query>
     {
         descriptor
             .Field("sheetNames")
+            .Description("Get the names of all sheets.")
             .Type<NonNullType<ListType<NonNullType<StringType>>>>()
             .ResolveWith<SheetNamesQueryTypeExtension>(t => GetSheetNames(default!));
     }
