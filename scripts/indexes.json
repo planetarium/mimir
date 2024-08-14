@@ -17,25 +17,7 @@
             "unique": true
         }
     ],
-    "all_rune": [
-        {
-            "key": {
-                "Address": 1
-            },
-            "name": "address_index",
-            "unique": true
-        }
-    ],
-    "arena_information": [
-        {
-            "key": {
-                "Address": 1
-            },
-            "name": "address_index",
-            "unique": true
-        }
-    ],
-    "arena_score": [
+    "arena": [
         {
             "key": {
                 "Address": 1
@@ -53,52 +35,7 @@
             "unique": true
         }
     ],
-    "balances": [
-        {
-            "key": {
-                "Address": 1
-            },
-            "name": "address_index",
-            "unique": true
-        }
-    ],
-    "collection": [
-        {
-            "key": {
-                "Address": 1
-            },
-            "name": "address_index",
-            "unique": true
-        }
-    ],
     "daily_reward": [
-        {
-            "key": {
-                "Address": 1
-            },
-            "name": "address_index",
-            "unique": true
-        }
-    ],
-    "inventory": [
-        {
-            "key": {
-                "Address": 1
-            },
-            "name": "address_index",
-            "unique": true
-        }
-    ],
-    "item_slot": [
-        {
-            "key": {
-                "Address": 1
-            },
-            "name": "address_index",
-            "unique": true
-        }
-    ],
-    "rune_slot": [
         {
             "key": {
                 "Address": 1
@@ -116,12 +53,12 @@
             "unique": true
         }
     ],
-    "world_information": [
+    "metadata": [
         {
             "key": {
-                "Address": 1
+                "CollectionName": 1
             },
-            "name": "address_index",
+            "name": "collection_name_index",
             "unique": true
         }
     ]

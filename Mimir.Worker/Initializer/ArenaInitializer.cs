@@ -41,6 +41,8 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
                 stoppingToken
             );
 
+            var avatarState = await stateGetter.GetAvatarState(avatarAddress, stoppingToken);
+
             _logger.Information("Init arena, address: {AvatarAddress}", avatarAddress);
             await ArenaCollectionUpdater.UpsertAsync(
                 _store,
@@ -52,6 +54,7 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
                 null,
                 stoppingToken
             );
+            await AvatarCollectionUpdater.UpsertAsync(_store, avatarState, null, stoppingToken);
         }
     }
 
@@ -69,6 +72,6 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
         var roundData = arenaSheet.GetRoundByBlockIndex(blockIndex);
         var count = await _store.GetArenaDocumentCount(roundData.ChampionshipId, roundData.Round);
 
-        return count != 0;
+        return false;
     }
 }
