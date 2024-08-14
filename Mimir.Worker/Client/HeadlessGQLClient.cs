@@ -52,9 +52,6 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         ILogger? contextualLogger = null
     )
     {
-        var request = new GraphQLRequest { Query = query, Variables = variables };
-        var jsonRequest = JsonSerializer.Serialize(request);
-        var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
         var logger = contextualLogger is null ? _logger : contextualLogger;
 
         for (int attempt = 0; attempt < RetryAttempts; attempt++)
@@ -63,6 +60,10 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             {
                 try
                 {
+                    var request = new GraphQLRequest { Query = query, Variables = variables };
+                    var jsonRequest = JsonSerializer.Serialize(request);
+                    var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
                     using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
                     {
                         Content = content
