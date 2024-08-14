@@ -72,6 +72,6 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
         var roundData = arenaSheet.GetRoundByBlockIndex(blockIndex);
         var count = await _store.GetArenaDocumentCount(roundData.ChampionshipId, roundData.Round);
 
-        return false;
+        return count != 0;
     }
 }
