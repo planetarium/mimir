@@ -18,7 +18,7 @@ public abstract class BaseActionHandler(
 {
     protected readonly IStateService StateService = stateService;
 
-    protected readonly StateGetter StateGetter = new(stateService);
+    protected readonly StateGetter StateGetter = stateService.At();
 
     protected readonly MongoDbService Store = store;
 
