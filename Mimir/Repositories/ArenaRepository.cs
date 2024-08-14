@@ -151,10 +151,11 @@ public class ArenaRepository(MongoDbService dbService)
     private static List<ArenaRankingDocument> UpdateRank(List<ArenaRankingDocument> source)
     {
         source = source
-            .Select(s =>
+            .OrderBy(e => e.Rank)
+            .Select(e =>
             {
-                s.Rank++;
-                return s;
+                e.Rank++;
+                return e;
             })
             .ToList();
         int? currentScore = null;
