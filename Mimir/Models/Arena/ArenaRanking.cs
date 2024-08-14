@@ -7,12 +7,13 @@ public record ArenaRanking(
     string ArenaAddress, // FIXME: to Address type
     int Win,
     int Lose,
-    long Rank,
     int Ticket,
     int TicketResetCount,
     int PurchasedTicketCount,
     int Score)
 {
+    public long Rank { get; set; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Avatar? Avatar { get; set; }
 
