@@ -5,9 +5,7 @@ using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Driver;
-using Nekoyume.Model.Arena;
 using Nekoyume.Model.EnumType;
-using Nekoyume.TableData;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
