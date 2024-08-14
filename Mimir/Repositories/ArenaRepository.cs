@@ -150,6 +150,13 @@ public class ArenaRepository(MongoDbService dbService)
 
     private static List<ArenaRankingDocument> UpdateRank(List<ArenaRankingDocument> source)
     {
+        source = source
+            .Select(s =>
+            {
+                s.Rank++;
+                return s;
+            })
+            .ToList();
         int? currentScore = null;
         var currentRank = 1;
         var trunk = new List<ArenaRankingDocument>();
