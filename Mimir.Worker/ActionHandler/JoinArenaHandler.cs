@@ -44,27 +44,25 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
             stoppingToken
         );
 
-        var stateGetter = stateService.At();
-        await ProcessArena(stateGetter, joinArena, session, stoppingToken);
-        await ProcessAvatar(stateGetter, joinArena, session, stoppingToken);
+        await ProcessArena(joinArena, session, stoppingToken);
+        await ProcessAvatar(joinArena, session, stoppingToken);
 
         return true;
     }
 
     private async Task ProcessArena(
-        StateGetter stateGetter,
         IJoinArenaV1 joinArena,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default
     )
     {
-        var arenaScore = await stateGetter.GetArenaScoreAsync(
+        var arenaScore = await StateGetter.GetArenaScoreAsync(
             joinArena.AvatarAddress,
             joinArena.ChampionshipId,
             joinArena.Round,
             stoppingToken
         );
-        var arenaInfo = await stateGetter.GetArenaInformationAsync(
+        var arenaInfo = await StateGetter.GetArenaInformationAsync(
             joinArena.AvatarAddress,
             joinArena.ChampionshipId,
             joinArena.Round,
@@ -83,13 +81,12 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
     }
 
     private async Task ProcessAvatar(
-        StateGetter stateGetter,
         IJoinArenaV1 joinArena,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default
     )
     {
-        var avatarState = await stateGetter.GetAvatarState(joinArena.AvatarAddress, stoppingToken);
+        var avatarState = await StateGetter.GetAvatarState(joinArena.AvatarAddress, stoppingToken);
 
         await AvatarCollectionUpdater.UpsertAsync(Store, avatarState, session, stoppingToken);
     }

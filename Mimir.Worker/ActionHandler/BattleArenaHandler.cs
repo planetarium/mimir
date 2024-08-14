@@ -48,30 +48,28 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             battleArena.EnemyAvatarAddress
         );
 
-        var stateGetter = stateService.At();
-        await ProcessArena(stateGetter, blockIndex, battleArena, session, stoppingToken);
-        await ProcessAvatar(stateGetter, battleArena, session, stoppingToken);
+        await ProcessArena(blockIndex, battleArena, session, stoppingToken);
+        await ProcessAvatar(battleArena, session, stoppingToken);
 
         return true;
     }
 
     private async Task ProcessArena(
-        StateGetter stateGetter,
         long blockIndex,
         IBattleArenaV1 battleArena,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default
     )
     {
-        var roundData = await stateGetter.GetArenaRoundData(blockIndex, stoppingToken);
+        var roundData = await StateGetter.GetArenaRoundData(blockIndex, stoppingToken);
 
-        var myArenaScore = await stateGetter.GetArenaScoreAsync(
+        var myArenaScore = await StateGetter.GetArenaScoreAsync(
             battleArena.MyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
             stoppingToken
         );
-        var myArenaInfo = await stateGetter.GetArenaInformationAsync(
+        var myArenaInfo = await StateGetter.GetArenaInformationAsync(
             battleArena.MyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
@@ -88,13 +86,13 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             stoppingToken
         );
 
-        var enemyArenaScore = await stateGetter.GetArenaScoreAsync(
+        var enemyArenaScore = await StateGetter.GetArenaScoreAsync(
             battleArena.EnemyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
             stoppingToken
         );
-        var enemyArenaInfo = await stateGetter.GetArenaInformationAsync(
+        var enemyArenaInfo = await StateGetter.GetArenaInformationAsync(
             battleArena.EnemyAvatarAddress,
             roundData.ChampionshipId,
             roundData.Round,
@@ -113,17 +111,16 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
     }
 
     private async Task ProcessAvatar(
-        StateGetter stateGetter,
         IBattleArenaV1 battleArena,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default
     )
     {
-        var myAvatarState = await stateGetter.GetAvatarState(
+        var myAvatarState = await StateGetter.GetAvatarState(
             battleArena.MyAvatarAddress,
             stoppingToken
         );
-        var enemyAvatarState = await stateGetter.GetAvatarState(
+        var enemyAvatarState = await StateGetter.GetAvatarState(
             battleArena.EnemyAvatarAddress,
             stoppingToken
         );

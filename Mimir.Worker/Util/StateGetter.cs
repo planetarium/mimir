@@ -15,12 +15,10 @@ namespace Mimir.Worker.Util;
 
 public class StateGetter
 {
-    private readonly ILogger<StateGetter> _logger;
     private readonly IStateService _service;
 
     public StateGetter(IStateService service)
     {
-        _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<StateGetter>();
         _service = service;
     }
 
