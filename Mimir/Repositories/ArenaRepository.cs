@@ -217,7 +217,7 @@ public class ArenaRepository(
 
         void TrunkToResult()
         {
-            if (trunk.Count == 0)
+            if (trunk.Count == 1)
             {
                 result.Add(trunk[0]);
             }
