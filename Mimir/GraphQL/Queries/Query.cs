@@ -49,7 +49,7 @@ public class Query
     /// <param name="address">The address of the avatar.</param>
     /// <param name="repo"></param>
     /// <returns>The daily reward received block index.</returns>
-    public async Task<long> GetDailyRewardAsync(
+    public async Task<long> GetDailyRewardReceivedBlockIndexAsync(
         Address address,
         [Service] DailyRewardRepository repo
     ) => await repo.GetByAddressAsync(address);
