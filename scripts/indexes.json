@@ -24,6 +24,14 @@
             },
             "name": "address_index",
             "unique": true
+        },
+        {
+            "key": {
+                "ChampionshipId": 1,
+                "Round": 1,
+                "ArenaScore.Score": -1
+            },
+            "name": "arena_ranking"
         }
     ],
     "avatar": [
@@ -33,6 +41,18 @@
             },
             "name": "address_index",
             "unique": true
+        },
+        {
+            "key": {
+                "Object.Name": 1
+            },
+            "name": "name_index"
+        },
+        {
+            "key": {
+                "Object.AgentAddress": 1
+            },
+            "name": "agent_index"
         }
     ],
     "daily_reward": [
@@ -50,6 +70,13 @@
                 "Address": 1
             },
             "name": "address_index",
+            "unique": true
+        },
+        {
+            "key": {
+                "Name": 1
+            },
+            "name": "name_index",
             "unique": true
         }
     ],
