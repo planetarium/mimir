@@ -147,7 +147,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public Task<GetTipResponse> GetTipAsync(
+    public async Task<GetTipResponse> GetTipAsync(
         CancellationToken stoppingToken = default,
         Address? accountAddress = null
     )
@@ -158,7 +158,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             contextualLogger = _logger.ForContext("AccountAddress", accountAddress);
         }
 
-        return PostGraphQLRequestAsync<GetTipResponse>(
+        return await PostGraphQLRequestAsync<GetTipResponse>(
             GraphQLQueries.GetTip,
             null,
             stoppingToken,
@@ -166,26 +166,26 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public Task<GetStateResponse> GetStateAsync(
+    public async Task<GetStateResponse> GetStateAsync(
         Address accountAddress,
         Address address,
         CancellationToken stoppingToken = default
     )
     {
-        return PostGraphQLRequestAsync<GetStateResponse>(
+        return await PostGraphQLRequestAsync<GetStateResponse>(
             GraphQLQueries.GetState,
             new { accountAddress, address },
             stoppingToken
         );
     }
 
-    public Task<GetTransactionsResponse> GetTransactionsAsync(
+    public async Task<GetTransactionsResponse> GetTransactionsAsync(
         long blockIndex,
         long limit,
         CancellationToken stoppingToken = default
     )
     {
-        return PostGraphQLRequestAsync<GetTransactionsResponse>(
+        return await PostGraphQLRequestAsync<GetTransactionsResponse>(
             GraphQLQueries.GetTransactions,
             new { blockIndex, limit },
             stoppingToken

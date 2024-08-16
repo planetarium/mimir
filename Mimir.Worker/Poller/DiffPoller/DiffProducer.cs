@@ -26,10 +26,10 @@ public class DiffProducer
     {
         _headlessGqlClient = headlessGqlClient;
         _stateService = stateService;
+        _accountAddress = accountAddress;
         _logger = Log.ForContext<DiffProducer>()
             .ForContext("AccountAddress", _accountAddress.ToHex());
         _dbService = dbService;
-        _accountAddress = accountAddress;
     }
 
     public async Task ProduceByAccount(
