@@ -3,6 +3,7 @@ using Libplanet.Action;
 using Libplanet.Action.Loader;
 using Libplanet.Action.State;
 using Libplanet.Blockchain;
+using Libplanet.Blockchain.Policies;
 using Libplanet.Crypto;
 using Libplanet.RocksDBStore;
 using Libplanet.Store;
@@ -79,16 +80,17 @@ public static class ChainUtil
             );
         Block genesis = store.GetBlock(genesisHash);
         IBlockChainStates blockChainStates = new BlockChainStates(store, stateStore);
+        IBlockPolicy policy = new BlockPolicy();
         IActionLoader actionLoader = new SingleActionLoader(typeof(MockAction));
         IActionEvaluator actionEvaluator = new ActionEvaluator(
-            policyBlockActionGetter: _ => null,
+            policy.PolicyActionsRegistry,
             stateStore: stateStore,
             actionTypeLoader: actionLoader
         );
 
         return new BlockChain(
-            policy: new Libplanet.Blockchain.Policies.BlockPolicy(),
-            stagePolicy: new Libplanet.Blockchain.Policies.VolatileStagePolicy(),
+            policy: policy,
+            stagePolicy: new VolatileStagePolicy(),
             store: store,
             stateStore: stateStore,
             genesisBlock: genesis,
