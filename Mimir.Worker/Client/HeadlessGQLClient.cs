@@ -111,6 +111,15 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         ex
                     );
                 }
+                catch (Exception ex)
+                {
+                    logger.Fatal(
+                        "Unexpected error occurred: {Url}, retry: {Retry}, error:\n{Errors}",
+                        url,
+                        attempt + 1,
+                        ex
+                    );
+                }
             }
 
             logger.Information(
