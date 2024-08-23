@@ -325,13 +325,4 @@ public class StateGetter
     ) =>
         await _service.GetState(avatarAddress, accountAddress, stoppingToken)
         ?? await _service.GetState(legacyAddress, stoppingToken);
-
-    public async Task<ArenaSheet.RoundData> GetArenaRoundData(
-        long index,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var arenaSheet = await GetSheet<ArenaSheet>(stoppingToken);
-        return arenaSheet.GetRoundByBlockIndex(index);
-    }
 }

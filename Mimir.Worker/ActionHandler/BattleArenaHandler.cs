@@ -61,18 +61,16 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         CancellationToken stoppingToken = default
     )
     {
-        var roundData = await StateGetter.GetArenaRoundData(blockIndex, stoppingToken);
-
         var myArenaScore = await StateGetter.GetArenaScoreAsync(
             battleArena.MyAvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            battleArena.ChampionshipId,
+            battleArena.Round,
             stoppingToken
         );
         var myArenaInfo = await StateGetter.GetArenaInformationAsync(
             battleArena.MyAvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            battleArena.ChampionshipId,
+            battleArena.Round,
             stoppingToken
         );
         await ArenaCollectionUpdater.UpsertAsync(
@@ -80,22 +78,22 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             myArenaScore,
             myArenaInfo,
             battleArena.MyAvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            battleArena.ChampionshipId,
+            battleArena.Round,
             session,
             stoppingToken
         );
 
         var enemyArenaScore = await StateGetter.GetArenaScoreAsync(
             battleArena.EnemyAvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            battleArena.ChampionshipId,
+            battleArena.Round,
             stoppingToken
         );
         var enemyArenaInfo = await StateGetter.GetArenaInformationAsync(
             battleArena.EnemyAvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            battleArena.ChampionshipId,
+            battleArena.Round,
             stoppingToken
         );
         await ArenaCollectionUpdater.UpsertAsync(
@@ -103,8 +101,8 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             enemyArenaScore,
             enemyArenaInfo,
             battleArena.EnemyAvatarAddress,
-            roundData.ChampionshipId,
-            roundData.Round,
+            battleArena.ChampionshipId,
+            battleArena.Round,
             session,
             stoppingToken
         );
