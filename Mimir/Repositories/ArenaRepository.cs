@@ -68,20 +68,18 @@ public class ArenaRepository(MongoDbService dbService)
         long skip,
         int limit,
         int championshipId,
-        int round
-    )
+        int round)
     {
         var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
         return await GetLeaderboardAsync(collection, skip, limit, championshipId, round);
     }
 
-    private async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
+    private static async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
         IMongoCollection<ArenaDocument> collection,
         long skip,
         int limit,
         int championshipId,
-        int round
-    )
+        int round)
     {
         var pipelines = new List<BsonDocument>
         {
@@ -96,7 +94,7 @@ public class ArenaRepository(MongoDbService dbService)
                     }
                 )
             ),
-            new BsonDocument(
+            new(
                 "$lookup",
                 new BsonDocument
                 {
@@ -106,7 +104,7 @@ public class ArenaRepository(MongoDbService dbService)
                     { "as", "SimpleAvatar" }
                 }
             ),
-            new BsonDocument(
+            new(
                 "$unwind",
                 new BsonDocument
                 {
@@ -114,7 +112,7 @@ public class ArenaRepository(MongoDbService dbService)
                     { "preserveNullAndEmptyArrays", true }
                 }
             ),
-            new BsonDocument(
+            new(
                 "$project",
                 new BsonDocument
                 {
@@ -125,7 +123,7 @@ public class ArenaRepository(MongoDbService dbService)
                     { "SimpleAvatar.Object.EventMap", 0 }
                 }
             ),
-            new BsonDocument(
+            new(
                 "$addFields",
                 new BsonDocument("SimpleAvatar", "$SimpleAvatar.Object")
             ),
@@ -147,8 +145,8 @@ public class ArenaRepository(MongoDbService dbService)
             new("$limit", limit)
         };
 
-        var aggregation = collection.Aggregate<ArenaRankingDocument>(pipelines).ToList();
-        return UpdateRank(aggregation.Where(e => e is not null).ToList()!);
+        var aggregation = await collection.Aggregate<ArenaRankingDocument>(pipelines).ToListAsync();
+        return UpdateRank(aggregation.Where(e => e is not null).ToList());
     }
 
     private static List<ArenaRankingDocument> UpdateRank(List<ArenaRankingDocument> source)
