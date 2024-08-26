@@ -94,6 +94,26 @@ public class ArenaRepository(MongoDbService dbService)
                     }
                 )
             ),
+            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
+            new(
+                "$group",
+                new BsonDocument
+                {
+                    { "_id", BsonNull.Value },
+                    { "docs", new BsonDocument("$push", "$$ROOT") }
+                }
+            ),
+            new(
+                "$unwind",
+                new BsonDocument
+                {
+                    { "path", "$docs" },
+                    { "includeArrayIndex", "docs.Rank" }
+                }
+            ),
+            new("$replaceRoot", new BsonDocument("newRoot", "$docs")),
+            new("$skip", skip),
+            new("$limit", limit),
             new(
                 "$lookup",
                 new BsonDocument
@@ -127,22 +147,7 @@ public class ArenaRepository(MongoDbService dbService)
                 "$addFields",
                 new BsonDocument("SimpleAvatar", "$SimpleAvatar.Object")
             ),
-            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
-            new(
-                "$group",
-                new BsonDocument
-                {
-                    { "_id", BsonNull.Value },
-                    { "docs", new BsonDocument("$push", "$$ROOT") }
-                }
-            ),
-            new(
-                "$unwind",
-                new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "docs.Rank" } }
-            ),
-            new("$replaceRoot", new BsonDocument("newRoot", "$docs")),
-            new("$skip", skip),
-            new("$limit", limit)
+            new("$sort", new BsonDocument("Rank", 1))
         };
 
         var aggregation = await collection.Aggregate<ArenaRankingDocument>(pipelines).ToListAsync();
