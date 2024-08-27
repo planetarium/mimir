@@ -105,7 +105,7 @@ public class ArenaRepository(MongoDbService dbService)
     private static List<ArenaRankingDocument> UpdateRank(List<ArenaRankingDocument> source)
     {
         int? currentScore = null;
-        var currentRank = 0;
+        var currentRank = 1;
         var trunk = new List<ArenaRankingDocument>();
         var result = new List<ArenaRankingDocument>();
         var count = source.Count;
@@ -113,15 +113,14 @@ public class ArenaRepository(MongoDbService dbService)
         for (var i = 0; i < count; i++)
         {
             var doc = source[i];
-            if (!currentScore.HasValue)
+            if (currentScore is null)
             {
                 currentScore = doc.ArenaScore.Score;
-                currentRank++;
                 trunk.Add(doc);
                 continue;
             }
 
-            if (doc.ArenaScore.Score == currentScore.Value)
+            if (doc.ArenaScore.Score == currentScore)
             {
                 currentRank++;
                 trunk.Add(doc);
