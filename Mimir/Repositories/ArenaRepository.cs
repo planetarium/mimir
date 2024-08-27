@@ -12,7 +12,7 @@ public class ArenaRepository(MongoDbService dbService)
 {
     private static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions()
         .SetPriority(CacheItemPriority.High)
-        .SetSlidingExpiration(TimeSpan.FromMinutes(30));
+        .SetSlidingExpiration(TimeSpan.FromMinutes(1));
 
     private readonly MemoryCache _leaderboardCache = new(new MemoryCacheOptions());
     private readonly SemaphoreSlim _leaderboardCacheLock = new(1, 1);
@@ -104,7 +104,7 @@ public class ArenaRepository(MongoDbService dbService)
                 };
 
                 var aggregation = await collection.Aggregate<ArenaRankingDocument>(pipelines).ToListAsync();
-                leaderboard = UpdateRank(aggregation.Where(e => e is not null).ToList());
+                leaderboard = UpdateRank(aggregation);
                 _leaderboardCache.Set(cacheKey, leaderboard, CacheEntryOptions);
             }
         }
@@ -118,30 +118,23 @@ public class ArenaRepository(MongoDbService dbService)
 
     private static List<ArenaRankingDocument> UpdateRank(List<ArenaRankingDocument> source)
     {
-        source = source
-            .Select(e =>
-            {
-                e.Rank++;
-                return e;
-            })
-            .ToList();
         int? currentScore = null;
         var currentRank = 1;
         var trunk = new List<ArenaRankingDocument>();
         var result = new List<ArenaRankingDocument>();
         for (var i = 0; i < source.Count; i++)
         {
-            var arenaRanking = source[i];
+            var doc = source[i];
             if (!currentScore.HasValue)
             {
-                currentScore = arenaRanking.ArenaScore.Score;
-                trunk.Add(arenaRanking);
+                currentScore = doc.ArenaScore.Score;
+                trunk.Add(doc);
                 continue;
             }
 
-            if (currentScore.Value == arenaRanking.ArenaScore.Score)
+            if (currentScore.Value == doc.ArenaScore.Score)
             {
-                trunk.Add(arenaRanking);
+                trunk.Add(doc);
                 currentRank++;
                 if (i < source.Count - 1)
                 {
@@ -155,14 +148,14 @@ public class ArenaRepository(MongoDbService dbService)
             TrunkToResult();
             if (i < source.Count - 1)
             {
-                trunk.Add(arenaRanking);
-                currentScore = arenaRanking.ArenaScore.Score;
+                trunk.Add(doc);
+                currentScore = doc.ArenaScore.Score;
                 currentRank++;
                 continue;
             }
 
-            arenaRanking.Rank = currentRank + 1;
-            result.Add(arenaRanking);
+            doc.Rank = currentRank + 1;
+            result.Add(doc);
         }
 
         return result;
@@ -186,7 +179,7 @@ public class ArenaRepository(MongoDbService dbService)
         }
     }
 
-    public async Task<IEnumerable<ArenaRankingDocument>> GetLeaderboardAsync(
+    public async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
         long blockIndex,
         int championshipId,
         int round,
@@ -194,10 +187,10 @@ public class ArenaRepository(MongoDbService dbService)
         int limit)
     {
         var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
-        return leaderboard.Skip(skip).Take(limit);
+        return leaderboard.Skip(skip).Take(limit).ToList();
     }
 
-    public async Task<long> GetRankingByAvatarAddressAsync(
+    public async Task<int?> GetRankingByAvatarAddressAsync(
         long blockIndex,
         int championshipId,
         int round,
@@ -205,7 +198,7 @@ public class ArenaRepository(MongoDbService dbService)
     {
         var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
         var doc = leaderboard.FirstOrDefault(e => e.Address.Equals(avatarAddress));
-        return doc?.Rank ?? 0;
+        return doc?.Rank;
     }
 
 
