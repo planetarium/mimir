@@ -57,9 +57,10 @@ public class ArenaResolver
                 );
         }
 
+        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value); 
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardAsync(
-            metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value).Result.LatestBlockIndex,
+            metadata.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
             ranking - 1,
@@ -74,9 +75,10 @@ public class ArenaResolver
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
+        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetRankingByAvatarAddressAsync(
-            metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value).Result.LatestBlockIndex,
+            metadata.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
             avatarAddress);
@@ -90,9 +92,10 @@ public class ArenaResolver
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
+        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardByAvatarAddressAsync(
-            metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value).Result.LatestBlockIndex,
+            metadata.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
             arenaRound.ArenaType,
