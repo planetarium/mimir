@@ -45,9 +45,9 @@ public class ArenaResolver
             : rank;
     }
 
-    public static async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
+    public static async Task<IEnumerable<ArenaRankingDocument>> GetLeaderboardAsync(
         IResolverContext context,
-        long ranking,
+        int ranking,
         int length,
         [Service] ArenaRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
@@ -78,6 +78,7 @@ public class ArenaResolver
 
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardAsync(
+            metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value).Result.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
             ranking - 1,
