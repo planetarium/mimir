@@ -40,7 +40,7 @@ public class ArenaType : ObjectType<ArenaObject>
                     default!, default!, default!, default!, default!, default!, default!));
         descriptor
             .Field("leaderboardByAvatarAddress")
-            .Description("The leaderboard of the arena.")
+            .Description("The leaderboard of the arena filtered by the avatar's address.")
             .Argument("avatarAddress", a => a.Type<NonNullType<AddressType>>())
             .Type<ListType<ObjectType<ArenaRankingDocument>>>()
             .ResolveWith<ArenaResolver>(_ =>
