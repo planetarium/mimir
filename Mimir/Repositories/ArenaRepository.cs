@@ -5,6 +5,9 @@ using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Nekoyume.Arena;
+using Nekoyume.Model.Arena;
+using Nekoyume.Model.EnumType;
 
 namespace Mimir.Repositories;
 
@@ -201,5 +204,52 @@ public class ArenaRepository(MongoDbService dbService)
         return doc?.Rank;
     }
 
-
+    public async Task<List<ArenaRankingDocument>> GetLeaderboardByAvatarAddressAsync(
+        long blockIndex,
+        int championshipId,
+        int round,
+        ArenaType arenaType,
+        Address avatarAddress)
+    {
+        var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
+        var doc = leaderboard.FirstOrDefault(e =>
+            e.ChampionshipId == championshipId &&
+            e.Round == round &&
+            e.Address.Equals(avatarAddress));
+        if (doc is null)
+        {
+            return await GetLeaderboardByScoreAsync(
+                blockIndex,
+                championshipId,
+                round,
+                arenaType,
+                ArenaScore.ArenaScoreDefault);
+        }
+    
+        return await GetLeaderboardByScoreAsync(
+            blockIndex,
+            championshipId,
+            round,
+            arenaType,
+            doc.ArenaScore.Score);
+    }
+    
+    public async Task<List<ArenaRankingDocument>> GetLeaderboardByScoreAsync(
+        long blockIndex,
+        int championshipId,
+        int round,
+        ArenaType arenaType,
+        int score)
+    {
+        var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
+        var bounds = ArenaHelper.ScoreLimits.TryGetValue(arenaType, out var limit)
+            ? limit
+            : ArenaHelper.ScoreLimits.First().Value;
+        var upperBound = bounds.upper + score;
+        var lowerBound = bounds.lower + score;
+        return leaderboard
+            .SkipWhile(e => e.ArenaScore.Score > upperBound)
+            .TakeWhile(e => e.ArenaScore.Score >= lowerBound)
+            .ToList();
+    }
 }

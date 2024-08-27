@@ -38,5 +38,13 @@ public class ArenaType : ObjectType<ArenaObject>
             .ResolveWith<ArenaResolver>(_ =>
                 ArenaResolver.GetLeaderboardAsync(
                     default!, default!, default!, default!, default!, default!, default!));
+        descriptor
+            .Field("leaderboardByAvatarAddress")
+            .Description("The leaderboard of the arena.")
+            .Argument("avatarAddress", a => a.Type<NonNullType<AddressType>>())
+            .Type<ListType<ObjectType<ArenaRankingDocument>>>()
+            .ResolveWith<ArenaResolver>(_ =>
+                ArenaResolver.GetLeaderboardByAvatarAddressAsync(
+                    default!, default!, default!, default!, default!, default!));
     }
 }

@@ -82,19 +82,20 @@ public class ArenaResolver
             avatarAddress);
     }
 
-    // public static async Task<List<ArenaRankingDocument>> GetLeaderboardByAvatarAddressAsync(
-    //     IResolverContext context,
-    //     Address avatarAddress,
-    //     [Service] ArenaRepository arenaRankingRepo,
-    //     [Service] MetadataRepository metadataRepo,
-    //     [Service] TableSheetsRepository tableSheetsRepo,
-    //     [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
-    // {
-    //     arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
-    //     return await arenaRankingRepo.GetLeaderboardByAvatarAddressAsync(
-    //         arenaRound.ChampionshipId,
-    //         arenaRound.Round,
-    //         arenaRound.ArenaType,
-    //         avatarAddress);
-    // }
+    public static async Task<List<ArenaRankingDocument>> GetLeaderboardByAvatarAddressAsync(
+        IResolverContext context,
+        Address avatarAddress,
+        [Service] ArenaRepository arenaRankingRepo,
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
+    {
+        arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
+        return await arenaRankingRepo.GetLeaderboardByAvatarAddressAsync(
+            metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value).Result.LatestBlockIndex,
+            arenaRound.ChampionshipId,
+            arenaRound.Round,
+            arenaRound.ArenaType,
+            avatarAddress);
+    }
 }
