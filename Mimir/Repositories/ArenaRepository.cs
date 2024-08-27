@@ -1,182 +1,143 @@
 using Libplanet.Crypto;
+using Microsoft.Extensions.Caching.Memory;
 using Mimir.Enums;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Nekoyume.Arena;
+using Nekoyume.Model.Arena;
+using Nekoyume.Model.EnumType;
 
 namespace Mimir.Repositories;
 
 public class ArenaRepository(MongoDbService dbService)
 {
-    public async Task<long> GetRankingByAvatarAddressAsync(
-        Address avatarAddress,
-        int championshipId,
-        int round
-    )
-    {
-        var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
-        return await GetRankingByAvatarAddressAsync(
-            collection,
-            avatarAddress,
-            championshipId,
-            round
-        );
-    }
+    private static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions()
+        .SetPriority(CacheItemPriority.High)
+        .SetSlidingExpiration(TimeSpan.FromMinutes(1));
 
-    private static async Task<long> GetRankingByAvatarAddressAsync(
-        IMongoCollection<ArenaDocument> collection,
-        Address avatarAddress,
+    private readonly MemoryCache _leaderboardCache = new(new MemoryCacheOptions());
+    private readonly SemaphoreSlim _leaderboardCacheLock = new(1, 1);
+
+    private async Task<List<ArenaRankingDocument>> GetOrCreateLeaderboardAsync(
+        long blockIndex,
         int championshipId,
-        int round
-    )
+        int round)
     {
-        var pipelines = new BsonDocument[]
+        var cacheKey = $"Leaderboard-{blockIndex}-{championshipId}-{round}";
+        if (_leaderboardCache.TryGetValue(cacheKey, out List<ArenaRankingDocument>? leaderboard))
         {
-            new(
-                "$match",
-                new BsonDocument(
-                    "$and",
-                    new BsonArray
-                    {
-                        new BsonDocument("ChampionshipId", championshipId),
-                        new BsonDocument("Round", round)
-                    }
-                )
-            ),
-            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
-            new(
-                "$group",
-                new BsonDocument
-                {
-                    { "_id", BsonNull.Value },
-                    { "docs", new BsonDocument("$push", "$$ROOT") }
-                }
-            ),
-            new(
-                "$unwind",
-                new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "Rank" } }
-            ),
-            new("$match", new BsonDocument("docs.Address", avatarAddress.ToHex()))
-        };
+            return leaderboard!;
+        }
 
-        var aggregation = await collection.Aggregate<dynamic>(pipelines).ToListAsync();
-        return aggregation.Count == 0 ? 0 : (long)aggregation.First().Rank + 1;
-    }
-
-    public async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
-        long skip,
-        int limit,
-        int championshipId,
-        int round
-    )
-    {
-        var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
-        return await GetLeaderboardAsync(collection, skip, limit, championshipId, round);
-    }
-
-    private async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
-        IMongoCollection<ArenaDocument> collection,
-        long skip,
-        int limit,
-        int championshipId,
-        int round
-    )
-    {
-        var pipelines = new List<BsonDocument>
+        await _leaderboardCacheLock.WaitAsync();
+        try
         {
-            new(
-                "$match",
-                new BsonDocument(
-                    "$and",
-                    new BsonArray
-                    {
-                        new BsonDocument("ChampionshipId", championshipId),
-                        new BsonDocument("Round", round)
-                    }
-                )
-            ),
-            new BsonDocument(
-                "$lookup",
-                new BsonDocument
+            if (!_leaderboardCache.TryGetValue(cacheKey, out leaderboard))
+            {
+                var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
+                var pipelines = new List<BsonDocument>
                 {
-                    { "from", "avatar" },
-                    { "localField", "Address" },
-                    { "foreignField", "Address" },
-                    { "as", "SimpleAvatar" }
-                }
-            ),
-            new BsonDocument(
-                "$unwind",
-                new BsonDocument
-                {
-                    { "path", "$SimpleAvatar" },
-                    { "preserveNullAndEmptyArrays", true }
-                }
-            ),
-            new BsonDocument(
-                "$project",
-                new BsonDocument
-                {
-                    { "SimpleAvatar.Object.MailBox", 0 },
-                    { "SimpleAvatar.Object.StageMap", 0 },
-                    { "SimpleAvatar.Object.MonsterMap", 0 },
-                    { "SimpleAvatar.Object.ItemMap", 0 },
-                    { "SimpleAvatar.Object.EventMap", 0 }
-                }
-            ),
-            new BsonDocument(
-                "$addFields",
-                new BsonDocument("SimpleAvatar", "$SimpleAvatar.Object")
-            ),
-            new("$sort", new BsonDocument("ArenaScore.Score", -1)),
-            new(
-                "$group",
-                new BsonDocument
-                {
-                    { "_id", BsonNull.Value },
-                    { "docs", new BsonDocument("$push", "$$ROOT") }
-                }
-            ),
-            new(
-                "$unwind",
-                new BsonDocument { { "path", "$docs" }, { "includeArrayIndex", "docs.Rank" } }
-            ),
-            new("$replaceRoot", new BsonDocument("newRoot", "$docs")),
-            new("$skip", skip),
-            new("$limit", limit)
-        };
+                    new(
+                        "$match",
+                        new BsonDocument(
+                            "$and",
+                            new BsonArray
+                            {
+                                new BsonDocument("ChampionshipId", championshipId),
+                                new BsonDocument("Round", round)
+                            }
+                        )
+                    ),
+                    new(
+                        "$lookup",
+                        new BsonDocument
+                        {
+                            { "from", "avatar" },
+                            { "localField", "Address" },
+                            { "foreignField", "Address" },
+                            { "as", "SimpleAvatar" }
+                        }
+                    ),
+                    new(
+                        "$unwind",
+                        new BsonDocument
+                        {
+                            { "path", "$SimpleAvatar" },
+                            { "preserveNullAndEmptyArrays", true }
+                        }
+                    ),
+                    new(
+                        "$project",
+                        new BsonDocument
+                        {
+                            { "SimpleAvatar.Object.EventMap", 0 },
+                            { "SimpleAvatar.Object.ItemMap", 0 },
+                            { "SimpleAvatar.Object.MailBox", 0 },
+                            { "SimpleAvatar.Object.MonsterMap", 0 },
+                            { "SimpleAvatar.Object.StageMap", 0 },
+                        }
+                    ),
+                    new(
+                        "$addFields",
+                        new BsonDocument
+                        {
+                            { "SimpleAvatar", "$SimpleAvatar.Object" },
+                        }
+                    ),
+                    new("$sort", new BsonDocument("ArenaScore.Score", -1)),
+                    new(
+                        "$group",
+                        new BsonDocument
+                        {
+                            { "_id", BsonNull.Value },
+                            { "docs", new BsonDocument("$push", "$$ROOT") }
+                        }
+                    ),
+                    new(
+                        "$unwind",
+                        new BsonDocument
+                        {
+                            { "path", "$docs" },
+                            { "includeArrayIndex", "docs.Rank" }
+                        }
+                    ),
+                    new("$replaceRoot", new BsonDocument("newRoot", "$docs")),
+                };
 
-        var aggregation = collection.Aggregate<ArenaRankingDocument>(pipelines).ToList();
-        return UpdateRank(aggregation.Where(e => e is not null).ToList()!);
+                var aggregation = await collection.Aggregate<ArenaRankingDocument>(pipelines).ToListAsync();
+                leaderboard = UpdateRank(aggregation);
+                _leaderboardCache.Set(cacheKey, leaderboard, CacheEntryOptions);
+            }
+        }
+        finally
+        {
+            _leaderboardCacheLock.Release();
+        }
+
+        return leaderboard!;
     }
 
     private static List<ArenaRankingDocument> UpdateRank(List<ArenaRankingDocument> source)
     {
-        source = source
-            .Select(e =>
-            {
-                e.Rank++;
-                return e;
-            })
-            .ToList();
         int? currentScore = null;
         var currentRank = 1;
         var trunk = new List<ArenaRankingDocument>();
         var result = new List<ArenaRankingDocument>();
         for (var i = 0; i < source.Count; i++)
         {
-            var arenaRanking = source[i];
+            var doc = source[i];
             if (!currentScore.HasValue)
             {
-                currentScore = arenaRanking.ArenaScore.Score;
-                trunk.Add(arenaRanking);
+                currentScore = doc.ArenaScore.Score;
+                trunk.Add(doc);
                 continue;
             }
 
-            if (currentScore.Value == arenaRanking.ArenaScore.Score)
+            if (currentScore.Value == doc.ArenaScore.Score)
             {
-                trunk.Add(arenaRanking);
+                trunk.Add(doc);
                 currentRank++;
                 if (i < source.Count - 1)
                 {
@@ -190,14 +151,14 @@ public class ArenaRepository(MongoDbService dbService)
             TrunkToResult();
             if (i < source.Count - 1)
             {
-                trunk.Add(arenaRanking);
-                currentScore = arenaRanking.ArenaScore.Score;
+                trunk.Add(doc);
+                currentScore = doc.ArenaScore.Score;
                 currentRank++;
                 continue;
             }
 
-            arenaRanking.Rank = currentRank + 1;
-            result.Add(arenaRanking);
+            doc.Rank = currentRank + 1;
+            result.Add(doc);
         }
 
         return result;
@@ -219,5 +180,76 @@ public class ArenaRepository(MongoDbService dbService)
 
             trunk.Clear();
         }
+    }
+
+    public async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
+        long blockIndex,
+        int championshipId,
+        int round,
+        int skip,
+        int limit)
+    {
+        var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
+        return leaderboard.Skip(skip).Take(limit).ToList();
+    }
+
+    public async Task<int?> GetRankingByAvatarAddressAsync(
+        long blockIndex,
+        int championshipId,
+        int round,
+        Address avatarAddress)
+    {
+        var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
+        var doc = leaderboard.FirstOrDefault(e => e.Address.Equals(avatarAddress));
+        return doc?.Rank;
+    }
+
+    public async Task<List<ArenaRankingDocument>> GetLeaderboardByAvatarAddressAsync(
+        long blockIndex,
+        int championshipId,
+        int round,
+        ArenaType arenaType,
+        Address avatarAddress)
+    {
+        var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
+        var doc = leaderboard.FirstOrDefault(e =>
+            e.ChampionshipId == championshipId &&
+            e.Round == round &&
+            e.Address.Equals(avatarAddress));
+        if (doc is null)
+        {
+            return await GetLeaderboardByScoreAsync(
+                blockIndex,
+                championshipId,
+                round,
+                arenaType,
+                ArenaScore.ArenaScoreDefault);
+        }
+    
+        return await GetLeaderboardByScoreAsync(
+            blockIndex,
+            championshipId,
+            round,
+            arenaType,
+            doc.ArenaScore.Score);
+    }
+    
+    public async Task<List<ArenaRankingDocument>> GetLeaderboardByScoreAsync(
+        long blockIndex,
+        int championshipId,
+        int round,
+        ArenaType arenaType,
+        int score)
+    {
+        var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
+        var bounds = ArenaHelper.ScoreLimits.TryGetValue(arenaType, out var limit)
+            ? limit
+            : ArenaHelper.ScoreLimits.First().Value;
+        var upperBound = bounds.upper + score;
+        var lowerBound = bounds.lower + score;
+        return leaderboard
+            .SkipWhile(e => e.ArenaScore.Score > upperBound)
+            .TakeWhile(e => e.ArenaScore.Score >= lowerBound)
+            .ToList();
     }
 }
