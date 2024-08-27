@@ -84,24 +84,22 @@ public class TxPoller : IBlockPoller
         while (!stoppingToken.IsCancellationRequested)
         {
             var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
-            var targetBlockIndex = currentBlockIndex - 1;
             // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
             var syncedBlockIndex = await GetSyncedBlockIndex(arenaCollectionName, stoppingToken);
 
             _logger.Information(
-                "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}, target: {TargetBlockIndex}",
+                "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
                 syncedBlockIndex,
-                currentBlockIndex,
-                targetBlockIndex
+                currentBlockIndex
             );
 
-            if (syncedBlockIndex >= targetBlockIndex)
+            if (syncedBlockIndex >= currentBlockIndex)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
                 continue;
             }
 
-            await ProcessBlocksAsync(syncedBlockIndex, targetBlockIndex, stoppingToken);
+            await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
         }
 
         _logger.Information(
