@@ -15,14 +15,14 @@ public class ArenaType : ObjectType<ArenaObject>
             .Description("The round of the arena.")
             .Type<ArenaSheetRoundDataType>()
             .ResolveWith<ArenaResolver>(_ =>
-                ArenaResolver.GetArenaRound(default!, default!, default!, default!));
+                ArenaResolver.GetRoundAsync(default!, default!, default!, default!));
         descriptor
             .Field("ranking")
             .Description("The avatar's ranking of the arena.")
             .Argument("avatarAddress", a => a.Type<NonNullType<AddressType>>())
             .Type<LongType>()
             .ResolveWith<ArenaResolver>(_ =>
-                ArenaResolver.GetRanking(default!, default!, default!, default!, default!, default!));
+                ArenaResolver.GetRankingAsync(default!, default!, default!, default!, default!, default!));
         descriptor
             .Field("leaderboard")
             .Description("The leaderboard of the arena.")
@@ -36,7 +36,7 @@ public class ArenaType : ObjectType<ArenaObject>
                 .DefaultValue(10))
             .Type<ListType<ObjectType<ArenaRankingDocument>>>()
             .ResolveWith<ArenaResolver>(_ =>
-                ArenaResolver.GetLeaderboard(
+                ArenaResolver.GetLeaderboardAsync(
                     default!, default!, default!, default!, default!, default!, default!));
     }
 }

@@ -1,7 +1,6 @@
 using HotChocolate.Resolvers;
 using Libplanet.Crypto;
 using Mimir.Enums;
-using Mimir.Models.Arena;
 using Mimir.MongoDB.Bson;
 using Mimir.Repositories;
 using Nekoyume.TableData;
@@ -10,12 +9,11 @@ namespace Mimir.GraphQL.Resolvers;
 
 public class ArenaResolver
 {
-    public static async Task<ArenaSheet.RoundData> GetArenaRound(
+    public static async Task<ArenaSheet.RoundData> GetRoundAsync(
         IResolverContext context,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound
-    )
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
         if (arenaRound is not null)
         {
@@ -28,33 +26,33 @@ public class ArenaResolver
         return arenaRound;
     }
 
-    public static async Task<long?> GetRanking(
+    public static async Task<long?> GetRankingAsync(
         IResolverContext context,
         Address avatarAddress,
         [Service] ArenaRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound
-    )
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        arenaRound ??= await GetArenaRound(context, metadataRepo, tableSheetsRepo, arenaRound);
+        arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         var rank = await arenaRankingRepo.GetRankingByAvatarAddressAsync(
             avatarAddress,
             arenaRound.ChampionshipId,
             arenaRound.Round
         );
-        return rank == 0 ? null : rank;
+        return rank == 0
+            ? null
+            : rank;
     }
 
-    public static async Task<List<ArenaRankingDocument>> GetLeaderboard(
+    public static async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
         IResolverContext context,
         long ranking,
         int length,
         [Service] ArenaRepository arenaRankingRepo,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound
-    )
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
         if (ranking < 1)
         {
@@ -78,12 +76,11 @@ public class ArenaResolver
                 );
         }
 
-        arenaRound ??= await GetArenaRound(context, metadataRepo, tableSheetsRepo, arenaRound);
+        arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardAsync(
             arenaRound.ChampionshipId,
             arenaRound.Round,
             ranking - 1,
-            length
-        );
+            length);
     }
 }
