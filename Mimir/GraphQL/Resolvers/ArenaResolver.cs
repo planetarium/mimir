@@ -63,7 +63,7 @@ public class ArenaResolver
             metadata.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
-            ranking - 1,
+            ranking,
             length);
     }
 

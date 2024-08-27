@@ -186,11 +186,14 @@ public class ArenaRepository(MongoDbService dbService)
         long blockIndex,
         int championshipId,
         int round,
-        int skip,
-        int limit)
+        int rank,
+        int count)
     {
         var leaderboard = await GetOrCreateLeaderboardAsync(blockIndex, championshipId, round);
-        return leaderboard.Skip(skip).Take(limit).ToList();
+        return leaderboard
+            .SkipWhile(e => e.Rank < rank)
+            .Take(count)
+            .ToList();
     }
 
     public async Task<int?> GetRankingByAvatarAddressAsync(
