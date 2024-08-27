@@ -80,10 +80,10 @@ public class ArenaResolver
 
         arenaRound ??= await GetArenaRound(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardAsync(
-            ranking - 1,
-            length,
             arenaRound.ChampionshipId,
-            arenaRound.Round
+            arenaRound.Round,
+            ranking - 1,
+            length
         );
     }
 }

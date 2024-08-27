@@ -65,21 +65,21 @@ public class ArenaRepository(MongoDbService dbService)
     }
 
     public async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
-        long skip,
-        int limit,
         int championshipId,
-        int round)
+        int round,
+        long skip,
+        int limit)
     {
         var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
-        return await GetLeaderboardAsync(collection, skip, limit, championshipId, round);
+        return await GetLeaderboardAsync(collection, championshipId, round, skip, limit);
     }
 
     private static async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
         IMongoCollection<ArenaDocument> collection,
-        long skip,
-        int limit,
         int championshipId,
-        int round)
+        int round,
+        long skip,
+        int limit)
     {
         var pipelines = new List<BsonDocument>
         {
