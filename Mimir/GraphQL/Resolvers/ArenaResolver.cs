@@ -26,25 +26,6 @@ public class ArenaResolver
         return arenaRound;
     }
 
-    public static async Task<long?> GetRankingAsync(
-        IResolverContext context,
-        Address avatarAddress,
-        [Service] ArenaRepository arenaRankingRepo,
-        [Service] MetadataRepository metadataRepo,
-        [Service] TableSheetsRepository tableSheetsRepo,
-        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
-    {
-        arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
-        var rank = await arenaRankingRepo.GetRankingByAvatarAddressAsync(
-            avatarAddress,
-            arenaRound.ChampionshipId,
-            arenaRound.Round
-        );
-        return rank == 0
-            ? null
-            : rank;
-    }
-
     public static async Task<IEnumerable<ArenaRankingDocument>> GetLeaderboardAsync(
         IResolverContext context,
         int ranking,
@@ -83,5 +64,24 @@ public class ArenaResolver
             arenaRound.Round,
             ranking - 1,
             length);
+    }
+
+    public static async Task<long?> GetRankingAsync(
+        IResolverContext context,
+        Address avatarAddress,
+        [Service] ArenaRepository arenaRankingRepo,
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
+    {
+        arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
+        var rank = await arenaRankingRepo.GetRankingByAvatarAddressAsync(
+            metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value).Result.LatestBlockIndex,
+            arenaRound.ChampionshipId,
+            arenaRound.Round,
+            avatarAddress);
+        return rank == 0
+            ? null
+            : rank;
     }
 }
