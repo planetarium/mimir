@@ -93,28 +93,21 @@ public class TableSheetsRepository(MongoDbService dbService)
         }
     }
 
-    public string[] GetSheetNames()
+    public async Task<string[]> GetSheetNamesAsync()
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        var filter = Builders<BsonDocument>.Filter.Exists("Name");
         var projection = Builders<BsonDocument>.Projection.Include("Name").Exclude("_id");
-        var documents = collection.Find(new BsonDocument()).Project(projection).ToList();
-
-        var names = new List<string>();
-        foreach (var document in documents)
-        {
-            if (document.Contains("State") && document.AsBsonDocument.Contains("Name"))
-            {
-                names.Add(document["Name"].AsString);
-            }
-        }
-
-        return names.ToArray();
+        return await collection
+            .Find(filter)
+            .Project(projection)
+            .ToListAsync()
+            .ContinueWith(task => task.Result.Select(doc => doc["Name"].AsString).ToArray());
     }
 
     public async Task<string> GetSheetAsync(
         string sheetName,
-        SheetFormat sheetFormat = SheetFormat.Csv
-    )
+        SheetFormat sheetFormat = SheetFormat.Csv)
     {
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
         return await GetSheetAsync(collection, dbService.GetDatabase(), sheetName, sheetFormat);
@@ -139,8 +132,7 @@ public class TableSheetsRepository(MongoDbService dbService)
         IMongoCollection<BsonDocument> collection,
         IMongoDatabase database,
         string sheetName,
-        SheetFormat sheetFormat
-    )
+        SheetFormat sheetFormat)
     {
         var gridFs = new GridFSBucket(database);
         var fieldToInclude = sheetFormat switch

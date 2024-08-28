@@ -11,10 +11,10 @@ public class SheetNamesQueryTypeExtension : ObjectTypeExtension<Query>
             .Field("sheetNames")
             .Description("Get the names of all sheets.")
             .Type<NonNullType<ListType<NonNullType<StringType>>>>()
-            .ResolveWith<SheetNamesQueryTypeExtension>(t => GetSheetNames(default!));
+            .ResolveWith<SheetNamesQueryTypeExtension>(t => GetSheetNamesAsync(default!));
     }
 
-    private static string[] GetSheetNames(
+    private static async Task<string[]> GetSheetNamesAsync(
         [Service] TableSheetsRepository tableSheetsRepository) =>
-        tableSheetsRepository.GetSheetNames();
+        await tableSheetsRepository.GetSheetNamesAsync();
 }
