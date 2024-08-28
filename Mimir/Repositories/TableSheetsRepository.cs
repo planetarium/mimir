@@ -98,11 +98,11 @@ public class TableSheetsRepository(MongoDbService dbService)
         var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
         var filter = Builders<BsonDocument>.Filter.Exists("Name");
         var projection = Builders<BsonDocument>.Projection.Include("Name").Exclude("_id");
-        return await collection
+        var docs = await collection
             .Find(filter)
             .Project(projection)
-            .ToListAsync()
-            .ContinueWith(task => task.Result.Select(doc => doc["Name"].AsString).ToArray());
+            .ToListAsync();
+        return docs.Select(doc => doc["Name"].AsString).ToArray();
     }
 
     public async Task<string> GetSheetAsync(
