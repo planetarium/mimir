@@ -42,26 +42,47 @@ public class DiffPoller : IBlockPoller
 
         var producerTasks = AddressHandlerMappings
             .HandlerMappings.Keys.Select(address =>
-                Task.Run(
-                    () =>
-                        new DiffProducer(
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        _logger.Information("Starting Producer Task for {Address}", address);
+                        await new DiffProducer(
                             _stateService,
                             _headlessGqlClient,
                             _dbService,
                             address
-                        ).ProduceByAccount(_channels[address.ToHex()].Writer, cts.Token)
-                )
+                        ).ProduceByAccount(_channels[address.ToHex()].Writer, cts.Token);
+                        _logger.Information("Completed Producer Task for {Address}", address);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex, "Producer Task failed for {Address}", address);
+                        throw;
+                    }
+                })
             )
             .ToArray();
+
         var consumerTasks = AddressHandlerMappings
             .HandlerMappings.Keys.Select(address =>
-                Task.Run(
-                    () =>
-                        new DiffConsumer(_dbService, address).ConsumeAsync(
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        _logger.Information("Starting Consumer Task for {Address}", address);
+                        await new DiffConsumer(_dbService, address).ConsumeAsync(
                             _channels[address.ToHex()].Reader,
                             cts.Token
-                        )
-                )
+                        );
+                        _logger.Information("Completed Consumer Task for {Address}", address);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex, "Consumer Task failed for {Address}", address);
+                        throw;
+                    }
+                })
             )
             .ToArray();
 

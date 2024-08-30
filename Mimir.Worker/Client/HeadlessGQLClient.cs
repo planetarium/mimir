@@ -60,6 +60,12 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             {
                 try
                 {
+                    logger.Information(
+                        "Request data: url: {Url}, query: {Query}, retry:{Retry}",
+                        url,
+                        query,
+                        attempt + 1
+                    );
                     var request = new GraphQLRequest { Query = query, Variables = variables };
                     var jsonRequest = JsonSerializer.Serialize(request);
                     var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
@@ -90,6 +96,13 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                     {
                         throw new HttpRequestException("Response data is null.");
                     }
+
+                    logger.Information(
+                        "Successfully received the data: url: {Url}, query: {Query}, retry:{Retry}",
+                        url,
+                        query,
+                        attempt + 1
+                    );
 
                     return graphQLResponse.Data;
                 }
