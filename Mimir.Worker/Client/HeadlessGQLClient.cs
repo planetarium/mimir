@@ -60,7 +60,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             {
                 try
                 {
-                    logger.Information(
+                    logger.Debug(
                         "Request data: url: {Url}, query: {Query}, retry:{Retry}",
                         url,
                         query,
@@ -97,7 +97,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         throw new HttpRequestException("Response data is null.");
                     }
 
-                    logger.Information(
+                    logger.Debug(
                         "Successfully received the data: url: {Url}, query: {Query}, retry:{Retry}",
                         url,
                         query,
