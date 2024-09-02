@@ -39,31 +39,31 @@ public class DiffProducer
     {
         var collectionName = CollectionNames.GetCollectionName(_accountAddress);
 
-        var syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
-        var currentTargetIndex = syncedBlockIndex;
+        var syncedIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
+        var currentBaseIndex = syncedIndex;
         _logger.Information(
             "{CollectionName} Synced BlockIndex: {SyncedBlockIndex}",
             collectionName,
-            syncedBlockIndex
+            syncedIndex
         );
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var currentBlockIndex = await _stateService.GetLatestIndex(
+            var currentIndexOnChain = await _stateService.GetLatestIndex(
                 stoppingToken,
                 _accountAddress
             );
-            var currentBaseIndex = currentTargetIndex;
-            long indexDifference = Math.Abs(currentBaseIndex - currentBlockIndex);
+
+            long indexDifference = currentIndexOnChain - currentBaseIndex;
             int limit =
                 collectionName == CollectionNames.GetCollectionName<InventoryDocument>()
                 || collectionName == CollectionNames.GetCollectionName<AvatarDocument>()
                     ? 1
                     : 15;
-            currentTargetIndex =
-                currentTargetIndex + (indexDifference > limit ? limit : indexDifference);
+            var currentTargetIndex =
+                currentBaseIndex + (indexDifference > limit ? limit : indexDifference);
 
-            if (currentBaseIndex >= currentBlockIndex)
+            if (currentBaseIndex >= currentTargetIndex)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
                 continue;
@@ -72,7 +72,7 @@ public class DiffProducer
             _logger.Information(
                 "{CollectionName} Request diff data, current: {CurrentBlockIndex}, gap: {IndexDiff}, base: {CurrentBaseIndex} target: {CurrentTargetIndex}",
                 collectionName,
-                currentBlockIndex,
+                currentIndexOnChain,
                 indexDifference,
                 currentBaseIndex,
                 currentTargetIndex
@@ -95,6 +95,7 @@ public class DiffProducer
                 },
                 stoppingToken
             );
+            currentBaseIndex = currentTargetIndex;
         }
     }
 
