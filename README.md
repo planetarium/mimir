@@ -1,6 +1,6 @@
-Sure, here is the English translation of the text:
+[![Discord](https://img.shields.io/discord/928926944937013338.svg?color=7289da&logo=discord&logoColor=white)][Discord]
 
----
+[Discord]: https://planetarium.dev/discord
 
 # What is Mimir?
 
@@ -58,7 +58,3 @@ If you need more access, please contact us on the Dev Discord with your use case
 
 If you want to contribute to the Mimir project, please check the [Contributor guide](CONTRIBUTING.md).  
 If you have suggestions or topics you'd like to discuss, please use the [Discussions](https://github.com/planetarium/mimir/discussions) section.
-
---- 
-
-Let me know if you need anything else!
