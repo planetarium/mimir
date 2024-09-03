@@ -1,0 +1,9 @@
+addReviewers: true
+addAssignees: author
+
+reviewers:
+  - Atralupus
+  - moreal
+  - boscohyun
+
+numberOfReviewers: 3
