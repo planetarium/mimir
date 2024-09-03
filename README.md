@@ -1,35 +1,60 @@
-# mimir
+[![Discord](https://img.shields.io/discord/928926944937013338.svg?color=7289da&logo=discord&logoColor=white)][Discord]
 
-> [!WARNING]
-> This project's APIs (GraphQL, REST) are not stable. It means that it doesn't make sure the backward-compatibility yet. It can be always broken.
+[Discord]: https://planetarium.dev/discord
 
-A backend service that provides 9c-related utility APIs.
+# What is Mimir?
 
-## Build
+Mimir is a service that allows you to easily query real-time data from the Nine Chronicles chain via GraphQL.  
+Since all data is stored in DocumentDB (MongoDB), fast queries through indexing are possible.
 
-```sh
-dotnet tool restore
-dotnet graphql generate Mimir
-dotnet graphql generate Mimir.Worker
-dotnet build
+## How to use?
+
+Odin: https://mimir.nine-chronicles.dev/odin/graphql/  
+Heimdall: https://mimir.nine-chronicles.dev/heimdall/graphql/
+
+It can be used on both Planets, and you can use [bananacakepop](https://chillicream.com/docs/bananacakepop/v2/explore-the-ui) to create GraphQL queries in a UI.
+
+## Structure
+
+Mimir is composed of Mimir, which provides GraphQL, Mimir.Worker, which syncs data, and a database.  
+Mimir.Worker periodically fetches chain data and stores it in the database (MongoDB), while Mimir provides this data via GraphQL.
+
+```mermaid
+flowchart TD
+    Mimir[Mimir - GraphQL Service]
+    MimirWorker[Mimir.Worker - Data Sync]
+    MongoDB[(MongoDB - Database)]
+    NineChroniclesChain[Nine Chronicles Chain]
+    
+    NineChroniclesChain -->|Fetches Data| MimirWorker
+    MimirWorker -->|Stores Data| MongoDB
+    MongoDB -->|Fetches Data| Mimir
 ```
 
-## Test
+## Check Sync Index
 
-```sh
-dotnet test
+Mimir synchronizes Nine Chronicles chain data with Mimir's database using Pollers.  
+Due to this, there may be differences between the actual chain and the stored data, and you can check which index the data is stored up to through the metadata collection.
+
+```graphql
+query {
+    metadata(collectionName: "arena") {
+        latestBlockIndex
+    }
+}
 ```
 
-## API Documentation
+## Applications
 
-### GraphQL
+Check out an example of a website created using Mimir: https://nine-chronicles.dev/modding/guide/avatar-information-dapp-guide  
+Create various applications using Mimir!
 
-https://mimir.nine-chronicles.dev/graphql/
+## Limitations
 
-### REST API
+Mimir has a default rate limit.  
+If you need more access, please contact us on the Dev Discord with your use case and expected usage, and we will issue a key without restrictions.
 
-https://mimir.nine-chronicles.dev/swagger/index.html
+## Contribution
 
-## License
-
-This project is licensed under the AGPL-3.0 license.
+If you want to contribute to the Mimir project, please check the [Contributor guide](CONTRIBUTING.md).  
+If you have suggestions or topics you'd like to discuss, please use the [Discussions](https://github.com/planetarium/mimir/discussions) section.
