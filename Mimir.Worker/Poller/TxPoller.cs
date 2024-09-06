@@ -60,7 +60,7 @@ public class TxPoller : IBlockPoller
             // new EventDungeonBattleHandler(stateService, dbService),
 
             // Market
-            // new ProductsHandler(stateService, store),
+            new ProductsHandler(stateService, dbService),
         ];
         _collectionNames =
         [

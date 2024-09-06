@@ -1,271 +1,297 @@
-// using System.Text.RegularExpressions;
-// using Bencodex.Types;
-// using Libplanet.Crypto;
-// using Mimir.Worker.Constants;
-// using Mimir.Worker.Exceptions;
-// using Mimir.Worker.Models;
-// using Mimir.Worker.Services;
-// using MongoDB.Driver;
-// using Nekoyume.Battle;
-// using Nekoyume.Helper;
-// using Nekoyume.Model.Item;
-// using Nekoyume.Model.Market;
-// using Nekoyume.TableData;
-// using Nekoyume.TableData.Crystal;
-// using Serilog;
-// using NCProductsState = Nekoyume.Model.Market.ProductsState;
-// using ProductsState = Mimir.Worker.Models.ProductsState;
+using System.Text.RegularExpressions;
+using Bencodex.Types;
+using Lib9c.Models.Items;
+using Lib9c.Models.Market;
+using Lib9c.Models.States;
+using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Constants;
+using Mimir.Worker.Exceptions;
+using Mimir.Worker.Services;
+using MongoDB.Driver;
+using Nekoyume.Battle;
+using Nekoyume.Helper;
+using Nekoyume.TableData;
+using Nekoyume.TableData.Crystal;
+using Serilog;
 
-// namespace Mimir.Worker.ActionHandler;
+namespace Mimir.Worker.ActionHandler;
 
-// public class ProductsHandler(IStateService stateService, MongoDbService store)
-//     : BaseActionHandler(
-//         stateService,
-//         store,
-//         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-//         Log.ForContext<ProductsHandler>()
-//     )
-// {
-//     protected override async Task<bool> TryHandleAction(
-//         IClientSessionHandle session,
-//         string actionType,
-//         long processBlockIndex,
-//         IValue? actionPlainValueInternal
-//     )
-//     {
-//         if (actionPlainValueInternal is not Dictionary actionValues)
-//         {
-//             throw new InvalidTypeOfActionPlainValueInternalException(
-//                 [ValueKind.Dictionary],
-//                 actionPlainValueInternal?.Kind
-//             );
-//         }
+public class ProductsHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(
+        stateService,
+        store,
+        "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
+        Log.ForContext<ProductsHandler>()
+    )
+{
+    protected override async Task<bool> TryHandleAction(
+        string actionType,
+        long processBlockIndex,
+        IValue? actionPlainValueInternal,
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
+    )
+    {
+        if (actionPlainValueInternal is not Dictionary actionValues)
+        {
+            throw new InvalidTypeOfActionPlainValueInternalException(
+                [ValueKind.Dictionary],
+                actionPlainValueInternal?.Kind
+            );
+        }
 
-//         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
+        var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
 
-//         foreach (var avatarAddress in avatarAddresses)
-//         {
-//             Logger.Information(
-//                 "Handle products for avatar, avatar: {AvatarAddress} ",
-//                 avatarAddress
-//             );
+        Logger.Information(
+            "Handle products, product, addresses: {AvatarAddresses}",
+            string.Join(", ", avatarAddresses)
+        );
 
-//             var productsStateAddress = NCProductsState.DeriveAddress(avatarAddress);
-//             var productsState = await StateGetter.GetProductsState(avatarAddress);
-//             if (productsState is null)
-//             {
-//                 continue;
-//             }
+        foreach (var avatarAddress in avatarAddresses)
+        {
+            var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(
+                avatarAddress
+            );
+            var productsState = await StateGetter.GetProductsState(avatarAddress);
+            if (productsState is null)
+            {
+                continue;
+            }
 
-//             await SyncWrappedProductsStateAsync(
-//                 session,
-//                 avatarAddress,
-//                 productsStateAddress,
-//                 productsState
-//             );
-//         }
+            await SyncWrappedProductsStateAsync(
+                avatarAddress,
+                productsStateAddress,
+                productsState,
+                session,
+                stoppingToken
+            );
+        }
 
-//         return true;
-//     }
+        return true;
+    }
 
-//     private static List<Address> GetAvatarAddresses(string actionType, Dictionary actionValues)
-//     {
-//         var avatarAddresses = new List<Address>();
+    private static List<Address> GetAvatarAddresses(string actionType, Dictionary actionValues)
+    {
+        var avatarAddresses = new List<Address>();
 
-//         if (Regex.IsMatch(actionType, "^buy_product[0-9]*$"))
-//         {
-//             var serialized = (List)actionValues["p"];
-//             var productInfos = serialized
-//                 .Cast<List>()
-//                 .Select(ProductFactory.DeserializeProductInfo)
-//                 .ToList();
+        if (Regex.IsMatch(actionType, "^buy_product[0-9]*$"))
+        {
+            var serialized = (List)actionValues["p"];
+            var productInfos = serialized
+                .Cast<List>()
+                .Select(Nekoyume.Model.Market.ProductFactory.DeserializeProductInfo)
+                .ToList();
 
-//             foreach (var productInfo in productInfos)
-//             {
-//                 avatarAddresses.Add(productInfo.AvatarAddress);
-//             }
-//         }
-//         else
-//         {
-//             avatarAddresses.Add(new Address(actionValues["a"]));
-//         }
+            foreach (var productInfo in productInfos)
+            {
+                avatarAddresses.Add(productInfo.AvatarAddress);
+            }
+        }
+        else
+        {
+            avatarAddresses.Add(new Address(actionValues["a"]));
+        }
 
-//         return avatarAddresses;
-//     }
+        return avatarAddresses;
+    }
 
-//     public async Task SyncWrappedProductsStateAsync(
-//         IClientSessionHandle session,
-//         Address avatarAddress,
-//         Address productsStateAddress,
-//         NCProductsState productsState
-//     )
-//     {
-//         var productIds = productsState.ProductIds.Select(id => Guid.Parse(id.ToString())).ToList();
+    public async Task SyncWrappedProductsStateAsync(
+        Address avatarAddress,
+        Address productsStateAddress,
+        ProductsState productsState,
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var productIds = productsState.ProductIds.Select(id => Guid.Parse(id.ToString())).ToList();
 
-//         var existingProductIds = await GetExistingProductIds(productsStateAddress);
+        var existingProductIds = await GetExistingProductIds(productsStateAddress);
 
-//         var productsToAdd = productIds.Except(existingProductIds).ToList();
-//         var productsToRemove = existingProductIds.Except(productIds).ToList();
+        var productsToAdd = productIds.Except(existingProductIds).ToList();
+        var productsToRemove = existingProductIds.Except(productIds).ToList();
 
-//         await AddNewProductsAsync(session, avatarAddress, productsStateAddress, productsToAdd);
-//         await RemoveOldProductsAsync(productsToRemove);
+        await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd, session);
+        await RemoveOldProductsAsync(productsToRemove);
 
-//         await Store.UpsertStateDataManyAsync(
-//             session,
-//             CollectionNames.GetCollectionName<ProductsState>(),
-//             [new StateData(productsStateAddress, new ProductsState(avatarAddress, productsState))]
-//         );
-//     }
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<ProductsStateDocument>(),
+            [new ProductsStateDocument(productsStateAddress, productsState, avatarAddress)],
+            session,
+            stoppingToken
+        );
+    }
 
-//     private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)
-//     {
-//         var existingState = await Store.GetProductsStateByAddress(productsStateAddress);
-//         return existingState == null
-//             ? new List<Guid>()
-//             : existingState
-//                 ["Object"]["ProductIds"]
-//                 .AsBsonArray.Select(p => Guid.Parse(p.AsString))
-//                 .ToList();
-//     }
+    private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)
+    {
+        var existingState = await Store.GetProductsStateByAddress(productsStateAddress);
+        return existingState == null
+            ? new List<Guid>()
+            : existingState["Object"]
+                ["ProductIds"]
+                .AsBsonArray.Select(p => Guid.Parse(p.AsString))
+                .ToList();
+    }
 
-//     private async Task AddNewProductsAsync(
-//         IClientSessionHandle session,
-//         Address avatarAddress,
-//         Address productsStateAddress,
-//         List<Guid> productsToAdd
-//     )
-//     {
-//         foreach (var productId in productsToAdd)
-//         {
-//             var product = await StateGetter.GetProductState(productId);
-//             var stateData = await CreateStateDataAsync(
-//                 avatarAddress,
-//                 productsStateAddress,
-//                 product
-//             );
-//             await Store.UpsertStateDataManyAsync(
-//                 session,
-//                 CollectionNames.GetCollectionName<ProductsState>(),
-//                 [stateData]
-//             );
-//         }
-//     }
+    private async Task AddNewProductsAsync(
+        Address avatarAddress,
+        Address productsStateAddress,
+        List<Guid> productsToAdd,
+        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default
+    )
+    {
+        List<MimirBsonDocument> documents = new List<MimirBsonDocument>();
 
-//     private async Task<StateData> CreateStateDataAsync(
-//         Address avatarAddress,
-//         Address productsStateAddress,
-//         Product product
-//     )
-//     {
-//         var productAddress = Product.DeriveAddress(product.ProductId);
+        foreach (var productId in productsToAdd)
+        {
+            var product = await StateGetter.GetProductState(productId);
+            var document = CreateProductDocumentAsync(avatarAddress, productsStateAddress, product);
+            documents.Add(document);
+        }
 
-//         if (product is ItemProduct itemProduct)
-//         {
-//             var unitPrice = CalculateUnitPrice(itemProduct);
-//             var combatPoint = await CalculateCombatPointAsync(itemProduct);
-//             var (crystal, crystalPerPrice) = await CalculateCrystalMetricsAsync(itemProduct);
+        if (documents.Count > 0)
+        {
+            await Store.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName<ProductDocument>(),
+                documents,
+                session,
+                stoppingToken
+            );
+        }
+    }
 
-//             return new StateData(
-//                 productAddress,
-//                 new ProductState(
-//                     avatarAddress,
-//                     productsStateAddress,
-//                     product,
-//                     unitPrice,
-//                     combatPoint,
-//                     crystal,
-//                     crystalPerPrice
-//                 )
-//             );
-//         }
-//         else
-//         {
-//             return new StateData(
-//                 productAddress,
-//                 new ProductState(avatarAddress, productsStateAddress, product)
-//             );
-//         }
-//     }
+    private ProductDocument CreateProductDocumentAsync(
+        Address avatarAddress,
+        Address productsStateAddress,
+        Product product
+    )
+    {
+        var productAddress = Nekoyume.Model.Market.Product.DeriveAddress(product.ProductId);
 
-//     private decimal CalculateUnitPrice(ItemProduct itemProduct)
-//     {
-//         return decimal.Parse(itemProduct.Price.GetQuantityString()) / itemProduct.ItemCount;
-//     }
+        if (product is ItemProduct itemProduct)
+        {
+            var unitPrice = CalculateUnitPrice(itemProduct);
+            // var combatPoint = await CalculateCombatPointAsync(itemProduct);
+            // var (crystal, crystalPerPrice) = await CalculateCrystalMetricsAsync(itemProduct);
 
-//     private async Task<int?> CalculateCombatPointAsync(ItemProduct itemProduct)
-//     {
-//         try
-//         {
-//             var costumeStatSheet = await Store.GetSheetAsync<CostumeStatSheet>();
+            // return new ProductDocument(
+            //     productAddress,
+            //     avatarAddress,
+            //     productsStateAddress,
+            //     product,
+            //     unitPrice,
+            //     combatPoint,
+            //     crystal,
+            //     crystalPerPrice
+            // );
+            return new ProductDocument(
+                productAddress,
+                avatarAddress,
+                productsStateAddress,
+                product,
+                unitPrice,
+                null,
+                null,
+                null
+            );
+        }
+        else
+        {
+            return new ProductDocument(
+                productAddress,
+                avatarAddress,
+                productsStateAddress,
+                product
+            );
+        }
+    }
 
-//             if (costumeStatSheet != null)
-//             {
-//                 int? cp = itemProduct.TradableItem switch
-//                 {
-//                     ItemUsable itemUsable => CPHelper.GetCP(itemUsable),
-//                     Costume costume => CPHelper.GetCP(costume, costumeStatSheet),
-//                     _ => null
-//                 };
-//                 return cp;
-//             }
-//         }
-//         catch (Exception ex)
-//         {
-//             Logger.Error(
-//                 $"Error calculating combat point for itemProduct {itemProduct.ProductId}: {ex.Message}"
-//             );
-//         }
+    private decimal CalculateUnitPrice(ItemProduct itemProduct)
+    {
+        return decimal.Parse(itemProduct.Price.GetQuantityString()) / itemProduct.ItemCount;
+    }
 
-//         return null;
-//     }
+    // private async Task<int?> CalculateCombatPointAsync(ItemProduct itemProduct)
+    // {
+    //     try
+    //     {
+    //         var costumeStatSheet = await Store.GetSheetAsync<CostumeStatSheet>();
 
-//     private async Task<(int? crystal, int? crystalPerPrice)> CalculateCrystalMetricsAsync(
-//         ItemProduct itemProduct
-//     )
-//     {
-//         try
-//         {
-//             var crystalEquipmentGrindingSheet =
-//                 await Store.GetSheetAsync<CrystalEquipmentGrindingSheet>();
-//             var crystalMonsterCollectionMultiplierSheet =
-//                 await Store.GetSheetAsync<CrystalMonsterCollectionMultiplierSheet>();
+    //         if (costumeStatSheet != null)
+    //         {
+    //             int? cp = itemProduct.TradableItem switch
+    //             {
+    //                 ItemUsable itemUsable
+    //                     => CPHelper.GetCP(
+    //                         (Nekoyume.Model.Item.ItemUsable)
+    //                             Nekoyume.Model.Item.ItemFactory.Deserialize(
+    //                                 (Dictionary)itemUsable.Bencoded
+    //                             )
+    //                     ),
+    //                 Costume costume => CPHelper.GetCP(new Nekoyume.Model.Item.Costume((Dictionary)costume.Bencoded), costumeStatSheet),
+    //                 _ => null
+    //             };
+    //             return cp;
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Logger.Error(
+    //             $"Error calculating combat point for itemProduct {itemProduct.ProductId}: {ex.Message}"
+    //         );
+    //     }
 
-//             if (
-//                 crystalEquipmentGrindingSheet != null
-//                 && crystalMonsterCollectionMultiplierSheet != null
-//                 && itemProduct.TradableItem is Equipment equipment
-//             )
-//             {
-//                 var rawCrystal = CrystalCalculator.CalculateCrystal(
-//                     [equipment],
-//                     false,
-//                     crystalEquipmentGrindingSheet,
-//                     crystalMonsterCollectionMultiplierSheet,
-//                     0
-//                 );
+    //     return null;
+    // }
 
-//                 int crystal = (int)rawCrystal.MajorUnit;
-//                 int crystalPerPrice = (int)
-//                     rawCrystal.DivRem(itemProduct.Price.MajorUnit).Quotient.MajorUnit;
+    // private async Task<(int? crystal, int? crystalPerPrice)> CalculateCrystalMetricsAsync(
+    //     ItemProduct itemProduct
+    // )
+    // {
+    //     try
+    //     {
+    //         var crystalEquipmentGrindingSheet =
+    //             await Store.GetSheetAsync<CrystalEquipmentGrindingSheet>();
+    //         var crystalMonsterCollectionMultiplierSheet =
+    //             await Store.GetSheetAsync<CrystalMonsterCollectionMultiplierSheet>();
 
-//                 return (crystal, crystalPerPrice);
-//             }
-//         }
-//         catch (Exception ex)
-//         {
-//             Logger.Error(
-//                 $"Error calculating crystal metrics for itemProduct {itemProduct.ProductId}: {ex.Message}"
-//             );
-//         }
+    //         if (
+    //             crystalEquipmentGrindingSheet != null
+    //             && crystalMonsterCollectionMultiplierSheet != null
+    //             && itemProduct.TradableItem is Equipment equipment
+    //         )
+    //         {
+    //             var rawCrystal = CrystalCalculator.CalculateCrystal(
+    //                 [equipment],
+    //                 false,
+    //                 crystalEquipmentGrindingSheet,
+    //                 crystalMonsterCollectionMultiplierSheet,
+    //                 0
+    //             );
 
-//         return (null, null);
-//     }
+    //             int crystal = (int)rawCrystal.MajorUnit;
+    //             int crystalPerPrice = (int)
+    //                 rawCrystal.DivRem(itemProduct.Price.MajorUnit).Quotient.MajorUnit;
 
-//     private async Task RemoveOldProductsAsync(List<Guid> productsToRemove)
-//     {
-//         foreach (var productId in productsToRemove)
-//         {
-//             await Store.RemoveProduct(productId);
-//         }
-//     }
-// }
+    //             return (crystal, crystalPerPrice);
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Logger.Error(
+    //             $"Error calculating crystal metrics for itemProduct {itemProduct.ProductId}: {ex.Message}"
+    //         );
+    //     }
+
+    //     return (null, null);
+    // }
+
+    private async Task RemoveOldProductsAsync(List<Guid> productsToRemove)
+    {
+        foreach (var productId in productsToRemove)
+        {
+            await Store.RemoveProduct(productId);
+        }
+    }
+}

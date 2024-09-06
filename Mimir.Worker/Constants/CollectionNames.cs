@@ -42,13 +42,13 @@ namespace Mimir.Worker.Constants
             CollectionAndStateTypeMappings.Add(typeof(ActionPointDocument), "action_point");
             CollectionAndStateTypeMappings.Add(typeof(DailyRewardDocument), "daily_reward");
             CollectionAndStateTypeMappings.Add(typeof(InventoryDocument), "inventory");
+            CollectionAndStateTypeMappings.Add(typeof(ArenaDocument), "arena");
+            CollectionAndStateTypeMappings.Add(typeof(ProductsStateDocument), "products");
+            CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
             // CollectionAndStateTypeMappings.Add(typeof(QuestListDocument), "quest_list");
             // CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
-            CollectionAndStateTypeMappings.Add(typeof(ArenaDocument), "arena");
             // CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
             // CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
-            // CollectionAndStateTypeMappings.Add(typeof(ProductsDocument), "products");
-            // CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
             // CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
             // CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
             // CollectionAndStateTypeMappings.Add(typeof(WorldBossDocument), "world_boss");
