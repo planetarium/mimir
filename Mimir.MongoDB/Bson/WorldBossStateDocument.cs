@@ -3,8 +3,8 @@ using Libplanet.Crypto;
 
 namespace Mimir.MongoDB.Bson;
 
-public record WorldBossKillRewardRecordDocument(
+public record WorldBossStateDocument(
     Address Address,
-    Address AvatarAddress,
-    WorldBossKillRewardRecord Object
+    int RaidId,
+    WorldBossState Object
 ) : MimirBsonDocument(Address) { }

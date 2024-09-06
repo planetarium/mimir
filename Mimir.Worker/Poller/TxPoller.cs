@@ -40,7 +40,6 @@ public class TxPoller : IBlockPoller
         _handlers =
         [
             new PatchTableHandler(stateService, dbService),
-
             // Slots
             // new RuneSlotStateHandler(stateService, dbService),
 
@@ -51,11 +50,8 @@ public class TxPoller : IBlockPoller
             // Arena
             new JoinArenaHandler(stateService, dbService),
             new BattleArenaHandler(stateService, dbService),
-
             // Raid
-            // new RaidHandler(stateService, dbService),
-            // new RaidActionHandler(stateService, stord,
-
+            new RaidHandler(stateService, dbService),
             // Event Dungeon
             // new EventDungeonBattleHandler(stateService, dbService),
 
@@ -68,6 +64,11 @@ public class TxPoller : IBlockPoller
             // CollectionNames.GetCollectionName<ItemSlotDocument>(),
             // CollectionNames.GetCollectionName<RuneSlotDocument>(),
             CollectionNames.GetCollectionName<ArenaDocument>(),
+            CollectionNames.GetCollectionName<ProductsStateDocument>(),
+            CollectionNames.GetCollectionName<ProductDocument>(),
+            CollectionNames.GetCollectionName<RaiderStateDocument>(),
+            CollectionNames.GetCollectionName<WorldBossStateDocument>(),
+            CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
         ];
 
         _stateService = stateService;
