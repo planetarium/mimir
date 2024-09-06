@@ -16,7 +16,7 @@ namespace Mimir.Worker.Constants
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.Avatar, "avatar");
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.ActionPoint, "action_point");
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.DailyReward, "daily_reward");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.Inventory, "inventory");
+            CollectionAndAddressMappings.Add(Nekoyume.Addresses.Inventory, "inventory");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.WorldInformation, "world_information");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.QuestList, "quest_list");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.RuneState, "all_rune");
