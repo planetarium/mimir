@@ -18,7 +18,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.Avatar, new AvatarStateHandler());
         HandlerMappings.Add(Addresses.ActionPoint, new ActionPointStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
-        // HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
+        HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
         // HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());
         // // HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
         // HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
