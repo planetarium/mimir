@@ -1,5 +1,7 @@
+using Lib9c;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Handler;
 
 namespace Mimir.Worker.Constants
 {
@@ -25,17 +27,46 @@ namespace Mimir.Worker.Constants
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses. typeof(ExplorerState), "adventure_boss_explorer");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.AdventureBoss, "adventure_boss_season_info");
 
-            // CollectionAndAddressMappings.Add(new Address(AddressHandlerMappings.OdinNCGCurrency.Hash.ToByteArray()), "balance_ncg");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.Crystal.Hash.ToByteArray()), "balance_crystal");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.StakeRune.Hash.ToByteArray()), "balance_stake_rune");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.DailyRewardRune.Hash.ToByteArray()), "balance_daily_reward_rune");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.Garage.Hash.ToByteArray()), "balance_garage");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.Mead.Hash.ToByteArray()), "balance_mead");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.FreyaBlessingRune.Hash.ToByteArray()), "balance_freya_blessing_rune");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.FreyaLiberationRune.Hash.ToByteArray()), "balance_freya_liberation_rune");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.OdinWeaknessRune.Hash.ToByteArray()), "balance_weakness_rune");
-            // CollectionAndAddressMappings.Add(new Address(Currencies.OdinWisdomRune.Hash.ToByteArray()), "balance_wisdom_rune");
-
+            CollectionAndAddressMappings.Add(
+                new Address(AddressHandlerMappings.OdinNCGCurrency.Hash.ToByteArray()),
+                "balance_ncg"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.Crystal.Hash.ToByteArray()),
+                "balance_crystal"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.StakeRune.Hash.ToByteArray()),
+                "balance_stake_rune"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.DailyRewardRune.Hash.ToByteArray()),
+                "balance_daily_reward_rune"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.Garage.Hash.ToByteArray()),
+                "balance_garage"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.Mead.Hash.ToByteArray()),
+                "balance_mead"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.FreyaBlessingRune.Hash.ToByteArray()),
+                "balance_freya_blessing_rune"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.FreyaLiberationRune.Hash.ToByteArray()),
+                "balance_freya_liberation_rune"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.OdinWeaknessRune.Hash.ToByteArray()),
+                "balance_weakness_rune"
+            );
+            CollectionAndAddressMappings.Add(
+                new Address(Currencies.OdinWisdomRune.Hash.ToByteArray()),
+                "balance_wisdom_rune"
+            );
             CollectionAndStateTypeMappings.Add(typeof(SheetDocument), "table_sheet");
             CollectionAndStateTypeMappings.Add(typeof(AgentDocument), "agent");
             CollectionAndStateTypeMappings.Add(typeof(AvatarDocument), "avatar");
@@ -65,14 +96,6 @@ namespace Mimir.Worker.Constants
             // CollectionAndStateTypeMappings.Add(typeof(ExplorerListDocument), "adventure_boss_explorer_list");
             // CollectionAndStateTypeMappings.Add(typeof(ExplorerDocument), "adventure_boss_explorer");
             // CollectionAndStateTypeMappings.Add(typeof(SeasonInfoDocument), "adventure_boss_season_info");
-
-            // The `Raw` fields of the documents' in 'balances' collection,
-            // will not have the original state.  In Libplanet implementation,
-            // each currency has an account trie. And their states' raw value
-            // may be `Bencodex.Types.Integer`-typed. But `BalanceState` stores
-            // serialized `FungibleAssetValue` instead of `Integer` to query
-            // easily without fetching `Currency` from other source.
-            // CollectionAndStateTypeMappings.Add(typeof(BalanceDocument), "balances");
         }
 
         public static string GetCollectionName<T>()
