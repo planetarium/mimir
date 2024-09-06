@@ -82,12 +82,12 @@ namespace Mimir.Worker.Constants
             // CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
             // CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
             // CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
-            // CollectionAndStateTypeMappings.Add(typeof(WorldBossDocument), "world_boss");
-            // CollectionAndStateTypeMappings.Add(
-            //     typeof(WorldBossKillRewardRecordDocument),
-            //     "world_boss_kill_reward_record"
-            // );
-            // CollectionAndStateTypeMappings.Add(typeof(RaiderDocument), "raider");
+            CollectionAndStateTypeMappings.Add(typeof(WorldBossStateDocument), "world_boss");
+            CollectionAndStateTypeMappings.Add(
+                typeof(WorldBossKillRewardRecordDocument),
+                "world_boss_kill_reward_record"
+            );
+            CollectionAndStateTypeMappings.Add(typeof(RaiderStateDocument), "raider");
             // CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
             // CollectionAndStateTypeMappings.Add(typeof(CombinationSlotDocument), "combination_slot");
             // CollectionAndStateTypeMappings.Add(typeof(PetDocument), "pet_state");

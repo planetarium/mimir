@@ -213,7 +213,7 @@ public class StateGetter
         return new Lib9c.Models.States.ProductsState(state);
     }
 
-    public async Task<Lib9c.Models.Market.Product>  GetProductState(
+    public async Task<Lib9c.Models.Market.Product> GetProductState(
         Guid productId,
         CancellationToken stoppingToken = default
     )
@@ -242,47 +242,58 @@ public class StateGetter
         };
     }
 
-    public async Task<WorldBossState> GetWorldBossState(
+    public async Task<Lib9c.Models.States.WorldBossState> GetWorldBossState(
         Address worldBossAddress,
         CancellationToken stoppingToken = default
     )
     {
         var state = await _service.GetState(worldBossAddress, stoppingToken);
-        return state switch
+
+        if (state is null)
         {
-            List list => new WorldBossState(list),
-            _ => throw new StateNotFoundException(worldBossAddress, typeof(WorldBossState))
-        };
+            throw new StateNotFoundException(
+                ProductsState.DeriveAddress(worldBossAddress),
+                typeof(Lib9c.Models.States.WorldBossState)
+            );
+        }
+
+        return new Lib9c.Models.States.WorldBossState(state);
     }
 
-    public async Task<RaiderState> GetRaiderState(
+    public async Task<Lib9c.Models.States.RaiderState> GetRaiderState(
         Address raiderAddress,
         CancellationToken stoppingToken = default
     )
     {
         var state = await _service.GetState(raiderAddress, stoppingToken);
-        return state switch
+
+        if (state is null)
         {
-            List list => new RaiderState(list),
-            _ => throw new StateNotFoundException(raiderAddress, typeof(RaiderState))
-        };
+            throw new StateNotFoundException(
+                ProductsState.DeriveAddress(raiderAddress),
+                typeof(Lib9c.Models.States.RaiderState)
+            );
+        }
+
+        return new Lib9c.Models.States.RaiderState(state);
     }
 
-    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordState(
+    public async Task<Lib9c.Models.States.WorldBossKillRewardRecord> GetWorldBossKillRewardRecordState(
         Address worldBossKillRewardRecordAddress,
         CancellationToken stoppingToken = default
     )
     {
         var state = await _service.GetState(worldBossKillRewardRecordAddress, stoppingToken);
-        return state switch
+
+        if (state is null)
         {
-            List list => new WorldBossKillRewardRecord(list),
-            _
-                => throw new StateNotFoundException(
-                    worldBossKillRewardRecordAddress,
-                    typeof(WorldBossKillRewardRecord)
-                )
-        };
+            throw new StateNotFoundException(
+                ProductsState.DeriveAddress(worldBossKillRewardRecordAddress),
+                typeof(Lib9c.Models.States.WorldBossKillRewardRecord)
+            );
+        }
+
+        return new Lib9c.Models.States.WorldBossKillRewardRecord(state);
     }
 
     public async Task<IValue?> GetStateWithLegacyAccount(
