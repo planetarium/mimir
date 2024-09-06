@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
+using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Serialization;
 using Mimir.Worker.Constants;
@@ -177,12 +178,6 @@ public class MongoDbService
         return doc.LatestBlockIndex;
     }
 
-    // public async Task<BsonDocument> GetProductsStateByAddress(Address address)
-    // {
-    //     var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
-    //     return await GetCollection<ProductsDocument>().Find(filter).FirstOrDefaultAsync();
-    // }
-
     public async Task<T?> GetSheetAsync<T>(CancellationToken cancellationToken = default)
         where T : ISheet, new()
     {
@@ -201,15 +196,6 @@ public class MongoDbService
         sheet.Set(csv);
         return sheet;
     }
-
-    // public async Task RemoveProduct(Guid productId)
-    // {
-    //     var productFilter = Builders<BsonDocument>.Filter.Eq(
-    //         "Object.TradableItem.TradableId",
-    //         productId.ToString()
-    //     );
-    //     await GetCollection<ProductDocument>().DeleteOneAsync(productFilter);
-    // }
 
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
@@ -314,6 +300,21 @@ public class MongoDbService
         );
 
         return upsertOne;
+    }
+
+    public async Task<BsonDocument> GetProductsStateByAddress(Address address)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
+        return await GetCollection<ProductsStateDocument>().Find(filter).FirstOrDefaultAsync();
+    }
+
+    public async Task RemoveProduct(Guid productId)
+    {
+        var productFilter = Builders<BsonDocument>.Filter.Eq(
+            "Object.TradableItem.TradableId",
+            productId.ToString()
+        );
+        await GetCollection<ProductDocument>().DeleteOneAsync(productFilter);
     }
 
     private static async Task<string> RetrieveFromGridFs(GridFSBucket gridFs, ObjectId fileId)

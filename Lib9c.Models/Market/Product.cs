@@ -1,8 +1,10 @@
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Nekoyume.Model.State;
+using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Market;
 
@@ -14,6 +16,25 @@ public abstract class Product : IBencodable
     public long RegisteredBlockIndex { get; }
     public Address SellerAvatarAddress { get; }
     public Address SellerAgentAddress { get; }
+
+    public Product(IValue bencoded)
+    {
+        if (bencoded is not List l)
+        {
+            throw new UnsupportedArgumentValueException<ValueKind>(
+                nameof(bencoded),
+                new[] { ValueKind.List },
+                bencoded.Kind
+            );
+        }
+
+        ProductId = l[0].ToGuid();
+        ProductType = l[1].ToEnum<Nekoyume.Model.Market.ProductType>();
+        Price = l[2].ToFungibleAssetValue();
+        RegisteredBlockIndex = l[3].ToLong();
+        SellerAgentAddress = l[4].ToAddress();
+        SellerAvatarAddress = l[5].ToAddress();
+    }
 
     public Product(List bencoded)
     {

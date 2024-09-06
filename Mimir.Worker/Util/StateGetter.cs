@@ -192,7 +192,7 @@ public class StateGetter
         return runes;
     }
 
-    public async Task<ProductsState?> GetProductsState(
+    public async Task<Lib9c.Models.States.ProductsState> GetProductsState(
         Address avatarAddress,
         CancellationToken stoppingToken = default
     )
@@ -201,19 +201,19 @@ public class StateGetter
             ProductsState.DeriveAddress(avatarAddress),
             stoppingToken
         );
-        return state switch
+
+        if (state is null)
         {
-            List list => new ProductsState(list),
-            null => null,
-            _
-                => throw new StateNotFoundException(
-                    ProductsState.DeriveAddress(avatarAddress),
-                    typeof(ProductsState)
-                ),
-        };
+            throw new StateNotFoundException(
+                ProductsState.DeriveAddress(avatarAddress),
+                typeof(Lib9c.Models.States.ProductsState)
+            );
+        }
+
+        return new Lib9c.Models.States.ProductsState(state);
     }
 
-    public async Task<Product> GetProductState(
+    public async Task<Lib9c.Models.Market.Product>  GetProductState(
         Guid productId,
         CancellationToken stoppingToken = default
     )
@@ -221,11 +221,15 @@ public class StateGetter
         var productAddress = Product.DeriveAddress(productId);
         var state = await _service.GetState(productAddress, stoppingToken);
 
-        return state switch
+        if (state is null)
         {
-            List list => ProductFactory.DeserializeProduct(list),
-            _ => throw new StateNotFoundException(productAddress, typeof(Product))
-        };
+            throw new StateNotFoundException(
+                ProductsState.DeriveAddress(productAddress),
+                typeof(Lib9c.Models.Market.Product)
+            );
+        }
+
+        return Lib9c.Models.Factories.ProductFactory.DeserializeProduct(state);
     }
 
     public async Task<MarketState> GetMarketState(CancellationToken stoppingToken = default)
