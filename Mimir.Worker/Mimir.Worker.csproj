@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.9.8" />
-    <PackageReference Include="Lib9c" Version="1.16.1" />
-    <PackageReference Include="Lib9c.Abstractions" Version="1.17.0-dev.44aadd533bb4d44b6118b7687803d87d58008859" />
+    <PackageReference Include="Lib9c" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
+    <PackageReference Include="Lib9c.Abstractions" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
     <PackageReference Include="Libplanet.RocksDBStore" Version="5.2.2" />
     <PackageReference Include="Libplanet" Version="5.2.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />

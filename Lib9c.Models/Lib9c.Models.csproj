@@ -9,7 +9,7 @@
     
     <ItemGroup>
         <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.8" />
-        <PackageReference Include="Lib9c" Version="1.16.1" />
+        <PackageReference Include="Lib9c" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
         <PackageReference Include="Libplanet" Version="5.2.2" />
         <PackageReference Include="MongoDB.Driver" Version="2.25.0" />
     </ItemGroup>

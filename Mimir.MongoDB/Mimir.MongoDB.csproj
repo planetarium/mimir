@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Lib9c" Version="1.16.1"/>
+        <PackageReference Include="Lib9c" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     </ItemGroup>
 
