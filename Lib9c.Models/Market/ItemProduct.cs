@@ -8,13 +8,13 @@ namespace Lib9c.Models.Market;
 
 public class ItemProduct : Product, IBencodable
 {
-    public ItemUsable TradableItem { get; }
+    public ItemBase TradableItem { get; }
     public int ItemCount { get; }
 
     public ItemProduct(List bencoded)
         : base(bencoded)
     {
-        TradableItem = (ItemUsable)ItemFactory.Deserialize((Dictionary)bencoded[6]);
+        TradableItem = ItemFactory.Deserialize((Dictionary)bencoded[6]);
         ItemCount = bencoded[7].ToInteger();
     }
 

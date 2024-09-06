@@ -152,12 +152,18 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
 
         if (documents.Count > 0)
         {
-            await Store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName<ProductDocument>(),
-                documents,
-                session,
-                stoppingToken
-            );
+            int batchSize = 20;
+            for (int i = 0; i < documents.Count; i += batchSize)
+            {
+                var batch = documents.Skip(i).Take(batchSize).ToList();
+
+                await Store.UpsertStateDataManyAsync(
+                    CollectionNames.GetCollectionName<ProductDocument>(),
+                    batch,
+                    session,
+                    stoppingToken
+                );
+            }
         }
     }
 
