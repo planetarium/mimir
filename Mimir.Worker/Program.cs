@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using Mimir.Worker;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
+using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Serilog;
 
@@ -37,6 +38,9 @@ builder.Services.AddSingleton(serviceProvider =>
 builder.Services.AddHostedService(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+    
+    // AddressHandlerMappings.RegisterCurrencyHandler(PlanetType.FromString(config.PlanetType));
+
     return new Worker(serviceProvider, config.PollerType, config.EnableInitializing);
 });
 
