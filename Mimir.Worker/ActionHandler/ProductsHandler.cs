@@ -145,9 +145,25 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
 
         foreach (var productId in productsToAdd)
         {
-            var product = await StateGetter.GetProductState(productId);
-            var document = CreateProductDocumentAsync(avatarAddress, productsStateAddress, product);
-            documents.Add(document);
+            try
+            {
+                var product = await StateGetter.GetProductState(productId);
+                var document = CreateProductDocumentAsync(
+                    avatarAddress,
+                    productsStateAddress,
+                    product
+                );
+                documents.Add(document);
+            }
+            catch (StateIsNullException err)
+            {
+                Logger.Error(
+                    "{AvatarAddress} Product[{ProductID}] is exists but state is `Bencodex Null`, err: {Error}",
+                    avatarAddress,
+                    productId,
+                    err
+                );
+            }
         }
 
         if (documents.Count > 0)
