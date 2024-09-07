@@ -229,6 +229,14 @@ public class StateGetter
             );
         }
 
+        if (state is Null)
+        {
+            throw new StateIsNullException(
+                ProductsState.DeriveAddress(productAddress),
+                typeof(Lib9c.Models.Market.Product)
+            );
+        }
+
         return Lib9c.Models.Factories.ProductFactory.DeserializeProduct(state);
     }
 
