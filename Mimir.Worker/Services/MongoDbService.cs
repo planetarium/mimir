@@ -207,7 +207,7 @@ public class MongoDbService
         List<UpdateOneModel<BsonDocument>> bulkOps = [];
         foreach (var document in documents)
         {
-            var stateUpdateModel = GetMimirDocumentUpdateModel(document);
+            var stateUpdateModel = GetMimirDocumentUpdateModel(collectionName, document);
             bulkOps.Add(stateUpdateModel);
         }
 
@@ -249,11 +249,12 @@ public class MongoDbService
         }
     }
 
-    public UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(MimirBsonDocument document)
+    public UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(
+        string collectionName,
+        MimirBsonDocument document
+    )
     {
-        var collectionName = CollectionNames.GetCollectionName(document.GetType());
-        var filter = Builders<BsonDocument>.Filter
-            .Eq("Address", document.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", document.Address.ToHex());
         var stateJson = document.ToJson();
         var bsonDocument = BsonDocument.Parse(stateJson);
         var update = new BsonDocument("$set", bsonDocument);
