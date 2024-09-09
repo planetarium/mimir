@@ -41,7 +41,7 @@ public class TxPoller : IBlockPoller
         [
             new PatchTableHandler(stateService, dbService),
             // Slots
-            // new RuneSlotStateHandler(stateService, dbService),
+            new RuneSlotStateHandler(stateService, dbService),
 
             // World
             // new HackAndSlashHandler(stateService, dbService),

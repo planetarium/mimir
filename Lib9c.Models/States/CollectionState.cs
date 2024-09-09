@@ -1,22 +1,15 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
-public record ProductsState : IBencodable
+public class CollectionState : IBencodable
 {
-    public List<Guid> ProductIds = new List<Guid>();
+    public SortedSet<int> Ids { get; init; } = new();
 
-    public IValue Bencoded =>
-        ProductIds.Aggregate(
-            List.Empty,
-            (current, productId) => current.Add(productId.Serialize())
-        );
-
-    public ProductsState(IValue bencoded)
+    public CollectionState(IValue bencoded)
     {
         if (bencoded is not List l)
         {
@@ -27,6 +20,12 @@ public record ProductsState : IBencodable
             );
         }
 
-        ProductIds = l.ToList(StateExtensions.ToGuid);
+        var rawList = (List)l[0];
+        foreach (var value in rawList)
+        {
+            Ids.Add((Integer)value);
+        }
     }
+
+    public IValue Bencoded => List.Empty.Add(new List(Ids));
 }
