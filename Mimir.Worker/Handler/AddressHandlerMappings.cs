@@ -29,7 +29,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
         HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
         HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());
-        HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
+        // HandlerMappings.Add(Addresses.QuestList, new QuestListStateHandler());
         HandlerMappings.Add(Addresses.RuneState, new AllRuneStateHandler());
         HandlerMappings.Add(Addresses.Collection, new CollectionStateHandler());
         // // HandlerMappings.Add(Addresses.AdventureBoss, new SeasonInfoHandler());
