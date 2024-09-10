@@ -17,6 +17,15 @@
             "unique": true
         }
     ],
+    "all_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
     "arena": [
         {
             "key": {
@@ -55,7 +64,169 @@
             "name": "agent_index"
         }
     ],
+    "balance_crystal": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_daily_reward_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_freya_blessing_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_freya_liberation_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_garage": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_mead": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_ncg": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_stake_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_weakness_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "balance_wisdom_rune": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "collection": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "combination_slot": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
     "daily_reward": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "item_slot": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "pet_state": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "product": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "products": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "raider": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "rune_slot": [
         {
             "key": {
                 "Address": 1
@@ -77,6 +248,24 @@
                 "Name": 1
             },
             "name": "name_index",
+            "unique": true
+        }
+    ],
+    "world_boss": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
+            "unique": true
+        }
+    ],
+    "world_boss_kill_reward_record": [
+        {
+            "key": {
+                "Address": 1
+            },
+            "name": "address_index",
             "unique": true
         }
     ],
