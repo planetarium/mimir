@@ -6,14 +6,13 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
-public record RuneState : IBencodable
+public class PetState : IBencodable
 {
-    public int RuneId { get; init; }
+    public int PetId { get; init; }
     public int Level { get; init; }
+    public long UnlockedBlockIndex { get; init; }
 
-    public IValue Bencoded => List.Empty.Add(RuneId.Serialize()).Add(Level.Serialize());
-
-    public RuneState(IValue bencoded)
+    public PetState(IValue bencoded)
     {
         if (bencoded is not List l)
         {
@@ -24,7 +23,14 @@ public record RuneState : IBencodable
             );
         }
 
-        RuneId = l[0].ToInteger();
+        PetId = l[0].ToInteger();
         Level = l[1].ToInteger();
+        UnlockedBlockIndex = l[2].ToLong();
     }
+
+    public IValue Bencoded =>
+        List
+            .Empty.Add(PetId.Serialize())
+            .Add(Level.Serialize())
+            .Add(UnlockedBlockIndex.Serialize());
 }

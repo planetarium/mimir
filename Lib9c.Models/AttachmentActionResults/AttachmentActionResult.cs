@@ -1,9 +1,9 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using Lib9c.Models.Extensions;
 using Lib9c.Models.Items;
 using Nekoyume.Model.Item;
-using Nekoyume.Model.State;
 using Costume = Lib9c.Models.Items.Costume;
 using Item_Costume = Lib9c.Models.Items.Costume;
 using Item_ItemUsable = Lib9c.Models.Items.ItemUsable;

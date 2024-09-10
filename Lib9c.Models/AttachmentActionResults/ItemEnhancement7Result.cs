@@ -1,7 +1,7 @@
 using System.Numerics;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Nekoyume.Model.State;
+using Lib9c.Models.Extensions;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;

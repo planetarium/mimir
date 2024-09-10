@@ -1,7 +1,7 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using Lib9c.Models.Extensions;
 using Libplanet.Types.Assets;
-using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Mails;

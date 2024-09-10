@@ -1,19 +1,15 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Lib9c.Models.Extensions;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
-public record RuneState : IBencodable
+public class CollectionState : IBencodable
 {
-    public int RuneId { get; init; }
-    public int Level { get; init; }
+    public SortedSet<int> Ids { get; init; } = new();
 
-    public IValue Bencoded => List.Empty.Add(RuneId.Serialize()).Add(Level.Serialize());
-
-    public RuneState(IValue bencoded)
+    public CollectionState(IValue bencoded)
     {
         if (bencoded is not List l)
         {
@@ -24,7 +20,12 @@ public record RuneState : IBencodable
             );
         }
 
-        RuneId = l[0].ToInteger();
-        Level = l[1].ToInteger();
+        var rawList = (List)l[0];
+        foreach (var value in rawList)
+        {
+            Ids.Add((Integer)value);
+        }
     }
+
+    public IValue Bencoded => List.Empty.Add(new List(Ids));
 }

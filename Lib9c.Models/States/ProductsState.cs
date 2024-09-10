@@ -1,7 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Nekoyume.Model.State;
+using Lib9c.Models.Extensions;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
@@ -28,10 +28,5 @@ public record ProductsState : IBencodable
         }
 
         ProductIds = l.ToList(StateExtensions.ToGuid);
-    }
-
-    public ProductsState(List bencoded)
-    {
-        ProductIds = bencoded.ToList(StateExtensions.ToGuid);
     }
 }

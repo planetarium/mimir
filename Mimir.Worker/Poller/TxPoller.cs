@@ -40,9 +40,6 @@ public class TxPoller : IBlockPoller
         _handlers =
         [
             new PatchTableHandler(stateService, dbService),
-            // Slots
-            // new RuneSlotStateHandler(stateService, dbService),
-
             // World
             // new HackAndSlashHandler(stateService, dbService),
             // new HackAndSlashSweepHandler(stateService, dbService),
@@ -57,12 +54,19 @@ public class TxPoller : IBlockPoller
 
             // Market
             new ProductsHandler(stateService, dbService),
+
+            // Avatar Related
+            new CombinationSlotStateHandler(stateService, dbService),
+            new PetStateHandler(stateService, dbService),
+            new RuneSlotStateHandler(stateService, dbService),
         ];
         _collectionNames =
         [
+            CollectionNames.GetCollectionName<PetStateDocument>(),
+            CollectionNames.GetCollectionName<CombinationSlotStateDocument>(),
             CollectionNames.GetCollectionName<SheetDocument>(),
-            // CollectionNames.GetCollectionName<ItemSlotDocument>(),
-            // CollectionNames.GetCollectionName<RuneSlotDocument>(),
+            CollectionNames.GetCollectionName<ItemSlotDocument>(),
+            CollectionNames.GetCollectionName<RuneSlotDocument>(),
             CollectionNames.GetCollectionName<ArenaDocument>(),
             CollectionNames.GetCollectionName<ProductsStateDocument>(),
             CollectionNames.GetCollectionName<ProductDocument>(),

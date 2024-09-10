@@ -1,7 +1,6 @@
 using Bencodex.Types;
 using Lib9c.Models.States;
 using Lib9c.Models.Tests.Fixtures.States;
-using Nekoyume.Model.State;
 using AvatarState = Lib9c.Models.States.AvatarState;
 
 namespace Lib9c.Models.Tests.States;

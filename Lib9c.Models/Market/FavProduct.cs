@@ -1,7 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Extensions;
 using Libplanet.Types.Assets;
-using Nekoyume.Model.State;
 
 namespace Lib9c.Models.Market;
 

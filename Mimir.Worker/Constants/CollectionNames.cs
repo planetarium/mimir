@@ -19,8 +19,8 @@ namespace Mimir.Worker.Constants
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.Inventory, "inventory");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.WorldInformation, "world_information");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.QuestList, "quest_list");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.RuneState, "all_rune");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.Collection, "collection");
+            CollectionAndAddressMappings.Add(Nekoyume.Addresses.RuneState, "all_rune");
+            CollectionAndAddressMappings.Add(Nekoyume.Addresses.Collection, "collection");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.BountyBoard, "adventure_boss_bounty_board");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.ExploreBoard, "adventure_boss_explore_board");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.ExplorerList, "adventure_boss_explorer_list");
@@ -78,10 +78,8 @@ namespace Mimir.Worker.Constants
             CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
             // CollectionAndStateTypeMappings.Add(typeof(QuestListDocument), "quest_list");
             // CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
-            // CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
-            // CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
-            // CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
-            // CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
+            CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
+            CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
             CollectionAndStateTypeMappings.Add(typeof(WorldBossStateDocument), "world_boss");
             CollectionAndStateTypeMappings.Add(
                 typeof(WorldBossKillRewardRecordDocument),
@@ -89,8 +87,8 @@ namespace Mimir.Worker.Constants
             );
             CollectionAndStateTypeMappings.Add(typeof(RaiderStateDocument), "raider");
             // CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
-            // CollectionAndStateTypeMappings.Add(typeof(CombinationSlotDocument), "combination_slot");
-            // CollectionAndStateTypeMappings.Add(typeof(PetDocument), "pet_state");
+            CollectionAndStateTypeMappings.Add(typeof(CombinationSlotStateDocument), "combination_slot");
+            CollectionAndStateTypeMappings.Add(typeof(PetStateDocument), "pet_state");
             // CollectionAndStateTypeMappings.Add(typeof(BountyBoardDocument), "adventure_boss_bounty_board");
             // CollectionAndStateTypeMappings.Add(typeof(ExploreBoardDocument), "adventure_boss_explore_board");
             // CollectionAndStateTypeMappings.Add(typeof(ExplorerListDocument), "adventure_boss_explorer_list");

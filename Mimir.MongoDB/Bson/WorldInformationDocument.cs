@@ -1,7 +1,7 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Lib9c.Models.Extensions;
 using Nekoyume.Model;
-using Nekoyume.Model.State;
 
 namespace Mimir.MongoDB.Bson;
 

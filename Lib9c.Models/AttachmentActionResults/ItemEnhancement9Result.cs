@@ -1,10 +1,10 @@
 using System.Numerics;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
 using Nekoyume.Action;
-using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
