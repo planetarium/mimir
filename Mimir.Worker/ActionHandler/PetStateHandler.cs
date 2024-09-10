@@ -17,7 +17,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
         stateService,
         store,
         "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$|^rapid_combination[0-9]*$",
-        Log.ForContext<CombinationSlotStateHandler>()
+        Log.ForContext<PetStateHandler>()
     )
 {
     protected override async Task<bool> TryHandleAction(
