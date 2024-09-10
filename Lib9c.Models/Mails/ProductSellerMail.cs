@@ -1,8 +1,8 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
+using Lib9c.Models.Extensions;
 
 namespace Lib9c.Models.Mails;
 

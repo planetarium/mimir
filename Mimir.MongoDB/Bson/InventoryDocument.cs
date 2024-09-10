@@ -1,5 +1,5 @@
+using Lib9c.Models.Items;
 using Libplanet.Crypto;
-using Nekoyume.Model.Item;
 
 namespace Mimir.MongoDB.Bson;
 

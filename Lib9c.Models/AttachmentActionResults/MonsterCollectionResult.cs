@@ -1,10 +1,10 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
-using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
+using Lib9c.Models.Extensions;
 
 namespace Lib9c.Models.AttachmentActionResults;
 

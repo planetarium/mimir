@@ -1,9 +1,9 @@
 using Bencodex.Types;
 using Lib9c.Models.Items;
-using Nekoyume.Model.State;
 using ItemType = Nekoyume.Model.Item.ItemType;
 using ItemSubType = Nekoyume.Model.Item.ItemSubType;
 using static Lib9c.SerializeKeys;
+using Lib9c.Models.Extensions;
 
 namespace Lib9c.Models.Factories;
 

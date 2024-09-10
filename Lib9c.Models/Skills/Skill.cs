@@ -1,8 +1,8 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using Lib9c.Models.Extensions;
 using Nekoyume.Model.Stat;
-using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using ValueKind = Bencodex.Types.ValueKind;
 

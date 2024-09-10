@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Bencodex.Types;
+using Lib9c.Models.Extensions;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Exceptions;
@@ -7,7 +8,6 @@ using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Action;
-using Nekoyume.Model.State;
 using Nekoyume.TableData;
 using Serilog;
 

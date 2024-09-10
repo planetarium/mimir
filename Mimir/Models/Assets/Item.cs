@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Extensions;
 using Libplanet.Common;
 using Mimir.Factories;
 using Mimir.GraphQL.Factories;
@@ -8,9 +9,7 @@ using Mimir.GraphQL.Objects;
 using MongoDB.Bson;
 using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Item;
-using Nekoyume.Model.Skill;
 using Nekoyume.Model.Stat;
-using Nekoyume.Model.State;
 
 namespace Mimir.Models.Assets;
 
@@ -40,19 +39,15 @@ public class Item
     /// Why use <see cref="GraphQL.Objects.SkillObject" /> instead of <see cref="Nekoyume.Model.Skill.Skill"/>?
     /// Because the <see cref="Nekoyume.Model.Skill.Skill"/> class is abstract and cannot be instantiated.
     /// This problem will be resolved when the Mimir.Bson project is completed.
-    /// </summary> 
+    /// </summary>
     public SkillObject[] Skills { get; set; }
 
     public SkillObject[] BuffSkills { get; set; }
 
     public Item(ItemBase itemBase, int count, bool locked) => Reset(itemBase, count, locked);
 
-    public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem) : this(
-        inventoryItem.item,
-        inventoryItem.count,
-        inventoryItem.Locked)
-    {
-    }
+    public Item(Nekoyume.Model.Item.Inventory.Item inventoryItem)
+        : this(inventoryItem.item, inventoryItem.count, inventoryItem.Locked) { }
 
     public Item(BsonDocument inventoryItem)
     {
@@ -69,9 +64,11 @@ public class Item
                 ItemType.Costume => new Costume(serializedDictionary),
                 ItemType.Equipment => new Equipment(serializedDictionary),
                 ItemType.Material => new Material(serializedDictionary),
-                _ => throw new ArgumentOutOfRangeException(
-                    nameof(itemType),
-                    $"Invalid ItemType: {itemType}")
+                _
+                    => throw new ArgumentOutOfRangeException(
+                        nameof(itemType),
+                        $"Invalid ItemType: {itemType}"
+                    )
             };
             Reset(itemBase, inventoryItem["count"].AsInt32, inventoryItem["Locked"].AsBoolean);
             return;
@@ -85,12 +82,8 @@ public class Item
         Count = inventoryItem["count"].AsInt32;
         Locked = inventoryItem["Locked"].AsBoolean;
 
-        Level = item.Contains("level")
-            ? item["level"].AsInt32
-            : null;
-        Exp = item.Contains("Exp")
-            ? item["Exp"].ToInt64()
-            : null;
+        Level = item.Contains("level") ? item["level"].AsInt32 : null;
+        Exp = item.Contains("Exp") ? item["Exp"].ToInt64() : null;
         RequiredBlockIndex = item.Contains("RequiredBlockIndex")
             ? item["RequiredBlockIndex"].ToInt64()
             : null;
@@ -116,30 +109,28 @@ public class Item
                 ? ti
                 : null
             : null;
-        Equipped = item.Contains("Equipped")
-            ? item["Equipped"].AsBoolean
-            : null;
+        Equipped = item.Contains("Equipped") ? item["Equipped"].AsBoolean : null;
         MainStatType = ItemType switch
         {
-            ItemType.Consumable => item.Contains("MainStat")
-                ? (StatType)item["MainStat"].AsInt32
-                : null,
-            ItemType.Equipment => item.Contains("UniqueStatType")
-                ? (StatType)item["UniqueStatType"].AsInt32
-                : null,
+            ItemType.Consumable
+                => item.Contains("MainStat") ? (StatType)item["MainStat"].AsInt32 : null,
+            ItemType.Equipment
+                => item.Contains("UniqueStatType")
+                    ? (StatType)item["UniqueStatType"].AsInt32
+                    : null,
             _ => null,
         };
         StatsMap = item.Contains("StatsMap")
             ? StatMapFactory.Create(item["StatsMap"].AsBsonDocument)
             : null;
         Skills = item.Contains("Skills")
-            ? item["Skills"].AsBsonArray
-                .Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
+            ? item["Skills"]
+                .AsBsonArray.Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
                 .ToArray()
             : [];
         BuffSkills = item.Contains("BuffSkills")
-            ? item["BuffSkills"].AsBsonArray
-                .Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
+            ? item["BuffSkills"]
+                .AsBsonArray.Select(s => SkillObjectFactory.Create(s.AsBsonDocument))
                 .ToArray()
             : [];
     }
@@ -170,18 +161,12 @@ public class Item
             ITradableItem ti => ti.RequiredBlockIndex,
             _ => null
         };
-        FungibleId = itemBase is IFungibleItem fungibleItem
-            ? fungibleItem.FungibleId
-            : null;
+        FungibleId = itemBase is IFungibleItem fungibleItem ? fungibleItem.FungibleId : null;
         NonFungibleId = itemBase is INonFungibleItem nonFungibleItem
             ? nonFungibleItem.NonFungibleId
             : null;
-        TradableId = itemBase is ITradableItem tradableItem
-            ? tradableItem.TradableId
-            : null;
-        Equipped = itemBase is IEquippableItem equippableItem
-            ? equippableItem.Equipped
-            : null;
+        TradableId = itemBase is ITradableItem tradableItem ? tradableItem.TradableId : null;
+        Equipped = itemBase is IEquippableItem equippableItem ? equippableItem.Equipped : null;
         MainStatType = itemBase switch
         {
             Consumable c => c.MainStat,

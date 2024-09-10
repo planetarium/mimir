@@ -1,10 +1,10 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using Lib9c.Models.Extensions;
 using Lib9c.Models.Mails;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model;
-using Nekoyume.Model.State;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;

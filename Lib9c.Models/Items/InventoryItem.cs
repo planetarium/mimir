@@ -1,8 +1,8 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using Lib9c.Models.Extensions;
 using Nekoyume.Model.Item;
-using Nekoyume.Model.State;
 using ItemFactory = Lib9c.Models.Factories.ItemFactory;
 using ValueKind = Bencodex.Types.ValueKind;
 
