@@ -12,8 +12,7 @@ public record ArenaRankingDocument(
     int Round,
     ArenaInformation ArenaInformation,
     ArenaScore ArenaScore,
-    SimplifiedAvatarState SimpleAvatar
-)
+    SimplifiedAvatarState SimpleAvatar)
 {
     public int Rank { get; set; }
 }

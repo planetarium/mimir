@@ -3,6 +3,8 @@ using Bencodex.Types;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Market;
 using Mimir.Enums;
+using Mimir.MongoDB;
+using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -14,26 +16,26 @@ public class ProductRepository(MongoDbService dbService)
 {
     private static readonly Codec Codec = new();
 
-    public List<Product> GetProducts(long skip, int limit) =>
-        GetProducts(
-            dbService.GetCollection<BsonDocument>(CollectionNames.Product),
+    public List<Product> GetProducts(long skip, int limit)
+    {
+        var collectionName = CollectionNames.GetCollectionName<ProductDocument>();
+        return GetProducts(
+            dbService.GetCollection<ProductDocument>(collectionName),
             skip,
             limit
         );
+    }
 
     private List<Product> GetProducts(
-        IMongoCollection<BsonDocument> collection,
+        IMongoCollection<ProductDocument> collection,
         long skip,
-        int limit
-    )
+        int limit)
     {
         var pipelines = new List<BsonDocument> { new("$skip", skip), new("$limit", limit) };
-
         var aggregation = collection.Aggregate<BsonDocument>(pipelines).ToList();
-        List<Product> products = aggregation
+        var products = aggregation
             .Select(async doc =>
-                await GetRawState(dbService.GetGridFs(), doc["RawStateFileId"].AsObjectId)
-            )
+                await GetRawState(dbService.GetGridFs(), doc["RawStateFileId"].AsObjectId))
             .Select(doc => doc.Result)
             .Where(doc => doc != null)
             .Select(DeserializeProduct)

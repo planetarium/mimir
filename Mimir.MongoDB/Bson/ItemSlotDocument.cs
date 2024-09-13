@@ -1,7 +1,8 @@
 using Lib9c.Models.States;
 using Libplanet.Crypto;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mimir.MongoDB.Bson;
 
-public record ItemSlotDocument(Address Address, ItemSlotState Object)
-    : MimirBsonDocument(Address) { }
+[BsonIgnoreExtraElements]
+public record ItemSlotDocument(Address Address, ItemSlotState Object) : MimirBsonDocument(Address);

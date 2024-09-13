@@ -1,6 +1,6 @@
 using Libplanet.Crypto;
 using Microsoft.Extensions.Caching.Memory;
-using Mimir.Enums;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using MongoDB.Bson;
@@ -34,65 +34,68 @@ public class ArenaRepository(MongoDbService dbService)
         await _leaderboardCacheLock.WaitAsync();
         try
         {
-            if (!_leaderboardCache.TryGetValue(cacheKey, out leaderboard))
+            if (_leaderboardCache.TryGetValue(cacheKey, out leaderboard))
             {
-                var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena);
-                var pipelines = new List<BsonDocument>
-                {
-                    new(
-                        "$match",
-                        new BsonDocument(
-                            "$and",
-                            new BsonArray
-                            {
-                                new BsonDocument("ChampionshipId", championshipId),
-                                new BsonDocument("Round", round)
-                            }
-                        )
-                    ),
-                    new(
-                        "$lookup",
-                        new BsonDocument
-                        {
-                            { "from", "avatar" },
-                            { "localField", "Address" },
-                            { "foreignField", "Address" },
-                            { "as", "SimpleAvatar" }
-                        }
-                    ),
-                    new(
-                        "$unwind",
-                        new BsonDocument
-                        {
-                            { "path", "$SimpleAvatar" },
-                            { "preserveNullAndEmptyArrays", true }
-                        }
-                    ),
-                    new(
-                        "$project",
-                        new BsonDocument
-                        {
-                            { "SimpleAvatar.Object.EventMap", 0 },
-                            { "SimpleAvatar.Object.ItemMap", 0 },
-                            { "SimpleAvatar.Object.MailBox", 0 },
-                            { "SimpleAvatar.Object.MonsterMap", 0 },
-                            { "SimpleAvatar.Object.StageMap", 0 },
-                        }
-                    ),
-                    new(
-                        "$addFields",
-                        new BsonDocument
-                        {
-                            { "SimpleAvatar", "$SimpleAvatar.Object" },
-                        }
-                    ),
-                    new("$sort", new BsonDocument("ArenaScore.Score", -1)),
-                };
-
-                var aggregation = await collection.Aggregate<ArenaRankingDocument>(pipelines).ToListAsync();
-                leaderboard = UpdateRank(aggregation);
-                _leaderboardCache.Set(cacheKey, leaderboard, CacheEntryOptions);
+                return leaderboard!;
             }
+
+            var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+            var collection = dbService.GetCollection<ArenaDocument>(collectionName);
+            var pipelines = new List<BsonDocument>
+            {
+                new(
+                    "$match",
+                    new BsonDocument(
+                        "$and",
+                        new BsonArray
+                        {
+                            new BsonDocument("ChampionshipId", championshipId),
+                            new BsonDocument("Round", round)
+                        }
+                    )
+                ),
+                new(
+                    "$lookup",
+                    new BsonDocument
+                    {
+                        { "from", "avatar" },
+                        { "localField", "Address" },
+                        { "foreignField", "Address" },
+                        { "as", "SimpleAvatar" }
+                    }
+                ),
+                new(
+                    "$unwind",
+                    new BsonDocument
+                    {
+                        { "path", "$SimpleAvatar" },
+                        { "preserveNullAndEmptyArrays", true }
+                    }
+                ),
+                new(
+                    "$project",
+                    new BsonDocument
+                    {
+                        { "SimpleAvatar.Object.EventMap", 0 },
+                        { "SimpleAvatar.Object.ItemMap", 0 },
+                        { "SimpleAvatar.Object.MailBox", 0 },
+                        { "SimpleAvatar.Object.MonsterMap", 0 },
+                        { "SimpleAvatar.Object.StageMap", 0 },
+                    }
+                ),
+                new(
+                    "$addFields",
+                    new BsonDocument
+                    {
+                        { "SimpleAvatar", "$SimpleAvatar.Object" },
+                    }
+                ),
+                new("$sort", new BsonDocument("ArenaScore.Score", -1)),
+            };
+
+            var aggregation = await collection.Aggregate<ArenaRankingDocument>(pipelines).ToListAsync();
+            leaderboard = UpdateRank(aggregation);
+            _leaderboardCache.Set(cacheKey, leaderboard, CacheEntryOptions);
         }
         finally
         {
@@ -207,7 +210,7 @@ public class ArenaRepository(MongoDbService dbService)
                 arenaType,
                 ArenaScore.ArenaScoreDefault);
         }
-    
+
         return await GetLeaderboardByScoreAsync(
             blockIndex,
             championshipId,
@@ -215,7 +218,7 @@ public class ArenaRepository(MongoDbService dbService)
             arenaType,
             doc.ArenaScore.Score);
     }
-    
+
     public async Task<List<ArenaRankingDocument>> GetLeaderboardByScoreAsync(
         long blockIndex,
         int championshipId,

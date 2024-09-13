@@ -1,6 +1,6 @@
 using HotChocolate.Resolvers;
 using Libplanet.Crypto;
-using Mimir.Enums;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Repositories;
 using Nekoyume.TableData;
@@ -20,7 +20,8 @@ public class ArenaResolver
             return arenaRound;
         }
 
-        var metadataDocument = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena);
+        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound = tableSheetsRepo.GetArenaRound(metadataDocument.LatestBlockIndex);
         context.ScopedContextData = context.ScopedContextData.Add("arenaRound", arenaRound);
         return arenaRound;
@@ -57,7 +58,8 @@ public class ArenaResolver
                 );
         }
 
-        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena); 
+        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var metadata = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardAsync(
             metadata.LatestBlockIndex,
@@ -75,7 +77,8 @@ public class ArenaResolver
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena);
+        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var metadata = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetRankingByAvatarAddressAsync(
             metadata.LatestBlockIndex,
@@ -92,7 +95,8 @@ public class ArenaResolver
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena);
+        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var metadata = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardByAvatarAddressAsync(
             metadata.LatestBlockIndex,
