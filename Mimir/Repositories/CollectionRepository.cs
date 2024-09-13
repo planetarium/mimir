@@ -13,7 +13,7 @@ public class CollectionRepository(MongoDbService dbService)
 {
     public Collection GetCollection(Address avatarAddress)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Collection.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Collection);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

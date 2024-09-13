@@ -13,7 +13,7 @@ public class AllRuneRepository(MongoDbService dbService)
 {
     public List<Rune> GetRunes(Address avatarAddress)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.AllRune.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.AllRune);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

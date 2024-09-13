@@ -1,75 +1,19 @@
-using System.Net.Mime;
-
 namespace Mimir.Enums;
 
-public class CollectionNames
+public static class CollectionNames
 {
-    private CollectionNames(string value)
-    {
-        Value = value;
-    }
-
-    public string Value { get; private set; }
-
-    public static CollectionNames Arena
-    {
-        get { return new CollectionNames("arena"); }
-    }
-    public static CollectionNames Avatar
-    {
-        get { return new CollectionNames("avatar"); }
-    }
-    public static CollectionNames Product
-    {
-        get { return new CollectionNames("product"); }
-    }
-    public static CollectionNames ActionPoint
-    {
-        get { return new CollectionNames("action_point"); }
-    }
-    public static CollectionNames Agent
-    {
-        get { return new CollectionNames("agent"); }
-    }
-    public static CollectionNames AllRune
-    {
-        get { return new CollectionNames("all_rune"); }
-    }
-    public static CollectionNames Collection
-    {
-        get { return new CollectionNames("collection"); }
-    }
-    public static CollectionNames DailyReward
-    {
-        get { return new CollectionNames("daily_reward"); }
-    }
-    public static CollectionNames Inventory
-    {
-        get { return new CollectionNames("inventory"); }
-    }
-    public static CollectionNames ItemSlot
-    {
-        get { return new CollectionNames("item_slot"); }
-    }
-    public static CollectionNames Metadata
-    {
-        get { return new CollectionNames("metadata"); }
-    }
-    public static CollectionNames RuneSlot
-    {
-        get { return new CollectionNames("rune_slot"); }
-    }
-    public static CollectionNames Stake
-    {
-        get { return new CollectionNames("stake"); }
-    }
-    public static CollectionNames TableSheet
-    {
-        get { return new CollectionNames("table_sheet"); }
-    }
-
-    public override string ToString()
-    {
-        return Value;
-    }
+    public const string Arena = "arena";
+    public const string Avatar = "avatar";
+    public const string Product = "product";
+    public const string ActionPoint = "action_point";
+    public const string Agent = "agent";
+    public const string AllRune = "all_rune";
+    public const string Collection = "collection";
+    public const string DailyReward = "daily_reward";
+    public const string Inventory = "inventory";
+    public const string ItemSlot = "item_slot";
+    public const string Metadata = "metadata";
+    public const string RuneSlot = "rune_slot";
+    public const string Stake = "stake";
+    public const string TableSheet = "table_sheet";
 }

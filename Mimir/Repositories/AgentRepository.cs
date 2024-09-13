@@ -11,7 +11,7 @@ public class AgentRepository(MongoDbService dbService)
 {
     public async Task<AgentDocument> GetByAddressAsync(Address agentAddress)
     {
-        var collection = dbService.GetCollection<AgentDocument>(CollectionNames.Agent.Value);
+        var collection = dbService.GetCollection<AgentDocument>(CollectionNames.Agent);
         var filter = Builders<AgentDocument>.Filter.Eq("Address", agentAddress.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)

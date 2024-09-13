@@ -14,7 +14,7 @@ public class StakeRepository(MongoDbService dbService)
 {
     public StakeStateV2 GetStakeState(Address agentAddress)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Stake.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Stake);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", agentAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

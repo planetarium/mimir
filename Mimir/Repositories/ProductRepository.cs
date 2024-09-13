@@ -16,7 +16,7 @@ public class ProductRepository(MongoDbService dbService)
 
     public List<Product> GetProducts(long skip, int limit) =>
         GetProducts(
-            dbService.GetCollection<BsonDocument>(CollectionNames.Product.Value),
+            dbService.GetCollection<BsonDocument>(CollectionNames.Product),
             skip,
             limit
         );

@@ -20,7 +20,7 @@ public class TableSheetsRepository(MongoDbService dbService)
 
     public ArenaSheet.RoundData GetArenaRound(long blockIndex)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet);
         return GetArenaRound(collection, blockIndex);
     }
 
@@ -95,7 +95,7 @@ public class TableSheetsRepository(MongoDbService dbService)
 
     public async Task<string[]> GetSheetNamesAsync()
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet);
         var filter = Builders<BsonDocument>.Filter.Exists("Name");
         var projection = Builders<BsonDocument>.Projection.Include("Name").Exclude("_id");
         var docs = await collection
@@ -109,7 +109,7 @@ public class TableSheetsRepository(MongoDbService dbService)
         string sheetName,
         SheetFormat sheetFormat = SheetFormat.Csv)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet);
         return await GetSheetAsync(collection, dbService.GetDatabase(), sheetName, sheetFormat);
     }
 

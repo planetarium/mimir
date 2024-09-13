@@ -13,7 +13,7 @@ public class DailyRewardRepository(MongoDbService dbService)
 {
     public async Task<long> GetByAddressAsync(Address address)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.DailyReward.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.DailyReward);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)

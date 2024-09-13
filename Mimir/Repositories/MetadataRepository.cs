@@ -10,7 +10,7 @@ public class MetadataRepository(MongoDbService dbService)
 {
     public async Task<MetadataDocument> GetByCollectionAsync(string collectionName)
     {
-        var collection = dbService.GetCollection<MetadataDocument>(CollectionNames.Metadata.Value);
+        var collection = dbService.GetCollection<MetadataDocument>(CollectionNames.Metadata);
         return await GetLatestBlockIndexAsync(collection, collectionName, null);
     }
 
@@ -19,7 +19,7 @@ public class MetadataRepository(MongoDbService dbService)
         string collectionName
     )
     {
-        var collection = dbService.GetCollection<MetadataDocument>(CollectionNames.Metadata.Value);
+        var collection = dbService.GetCollection<MetadataDocument>(CollectionNames.Metadata);
         return await GetLatestBlockIndexAsync(collection, collectionName, pollerType);
     }
 

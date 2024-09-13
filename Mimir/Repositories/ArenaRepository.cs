@@ -36,7 +36,7 @@ public class ArenaRepository(MongoDbService dbService)
         {
             if (!_leaderboardCache.TryGetValue(cacheKey, out leaderboard))
             {
-                var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena.Value);
+                var collection = dbService.GetCollection<ArenaDocument>(CollectionNames.Arena);
                 var pipelines = new List<BsonDocument>
                 {
                     new(

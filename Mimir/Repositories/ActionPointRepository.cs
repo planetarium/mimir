@@ -12,7 +12,7 @@ public class ActionPointRepository(MongoDbService dbService)
 {
     public async Task<int> GetByAddressAsync(Address address)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.ActionPoint.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.ActionPoint);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)

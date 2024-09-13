@@ -18,7 +18,7 @@ public class RuneSlotRepository(MongoDbService dbService)
         BattleType battleType)
     {
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(avatarAddress, battleType);
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.RuneSlot.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.RuneSlot);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)

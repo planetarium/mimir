@@ -20,7 +20,7 @@ public class ArenaResolver
             return arenaRound;
         }
 
-        var metadataDocument = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value);
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena);
         arenaRound = tableSheetsRepo.GetArenaRound(metadataDocument.LatestBlockIndex);
         context.ScopedContextData = context.ScopedContextData.Add("arenaRound", arenaRound);
         return arenaRound;
@@ -57,7 +57,7 @@ public class ArenaResolver
                 );
         }
 
-        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value); 
+        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena); 
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardAsync(
             metadata.LatestBlockIndex,
@@ -75,7 +75,7 @@ public class ArenaResolver
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value);
+        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetRankingByAvatarAddressAsync(
             metadata.LatestBlockIndex,
@@ -92,7 +92,7 @@ public class ArenaResolver
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena.Value);
+        var metadata = await metadataRepo.GetByCollectionAsync(CollectionNames.Arena);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
         return await arenaRankingRepo.GetLeaderboardByAvatarAddressAsync(
             metadata.LatestBlockIndex,

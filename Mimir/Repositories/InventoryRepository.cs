@@ -13,7 +13,7 @@ public class InventoryRepository(MongoDbService dbService)
 {
     public Inventory GetInventory(Address avatarAddress) =>
         GetInventory(
-            dbService.GetCollection<BsonDocument>(CollectionNames.Inventory.Value),
+            dbService.GetCollection<BsonDocument>(CollectionNames.Inventory),
             avatarAddress
         );
 

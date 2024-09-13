@@ -17,7 +17,7 @@ public class ItemSlotRepository(MongoDbService dbService)
         BattleType battleType)
     {
         var itemSlotAddress = ItemSlotState.DeriveAddress(avatarAddress, battleType);
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.ItemSlot.Value);
+        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.ItemSlot);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", itemSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
         if (document is null)
