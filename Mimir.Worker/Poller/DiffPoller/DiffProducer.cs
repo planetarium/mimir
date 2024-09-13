@@ -1,8 +1,8 @@
 using System.Threading.Channels;
 using Libplanet.Crypto;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
-using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using Serilog;
 using ILogger = Serilog.ILogger;

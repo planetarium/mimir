@@ -1,14 +1,13 @@
 using HotChocolate.Resolvers;
-using Mimir.GraphQL.Factories;
+using Lib9c.Models.Items;
 using Mimir.GraphQL.Objects;
-using Mimir.Models;
 using Mimir.Repositories;
 
 namespace Mimir.GraphQL.Resolvers;
 
 public class InventoryResolver
 {
-    public static Inventory GetInventory(
+    public static async Task<Inventory> GetInventoryAsync(
         IResolverContext context,
         [Service] InventoryRepository inventoryRepo,
         [Parent] InventoryObject inventoryObject,
@@ -20,48 +19,48 @@ public class InventoryResolver
         }
 
         var avatarAddress = inventoryObject.Address;
-        inventory = inventoryRepo.GetInventory(avatarAddress);
+        inventory = (await inventoryRepo.GetByAddressAsync(avatarAddress)).Object;
         context.ScopedContextData = context.ScopedContextData.Add("inventory", inventory);
         return inventory;
     }
 
-    public static ItemObject[] GetConsumables(
-        IResolverContext context,
-        [Service] InventoryRepository inventoryRepo,
-        [Parent] InventoryObject inventoryObject,
-        [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, inventory)
-            .Consumables
-            .Select(ItemObjectFactory.Create)
-            .ToArray();
-
-    public static ItemObject[] GetCostumes(
-        IResolverContext context,
-        [Service] InventoryRepository inventoryRepo,
-        [Parent] InventoryObject inventoryObject,
-        [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, inventory)
-            .Costumes
-            .Select(ItemObjectFactory.Create)
-            .ToArray();
-
-    public static ItemObject[] GetEquipments(
-        IResolverContext context,
-        [Service] InventoryRepository inventoryRepo,
-        [Parent] InventoryObject inventoryObject,
-        [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, inventory)
-            .Equipments
-            .Select(ItemObjectFactory.Create)
-            .ToArray();
-
-    public static ItemObject[] GetMaterials(
-        IResolverContext context,
-        [Service] InventoryRepository inventoryRepo,
-        [Parent] InventoryObject inventoryObject,
-        [ScopedState("inventory")] Inventory? inventory) =>
-        GetInventory(context, inventoryRepo, inventoryObject, inventory)
-            .Materials
-            .Select(ItemObjectFactory.Create)
-            .ToArray();
+    // public static ItemObject[] GetConsumables(
+    //     IResolverContext context,
+    //     [Service] InventoryRepository inventoryRepo,
+    //     [Parent] InventoryObject inventoryObject,
+    //     [ScopedState("inventory")] Inventory? inventory) =>
+    //     GetInventoryAsync(context, inventoryRepo, inventoryObject, inventory)
+    //         .Consumables
+    //         .Select(ItemObjectFactory.Create)
+    //         .ToArray();
+    //
+    // public static ItemObject[] GetCostumes(
+    //     IResolverContext context,
+    //     [Service] InventoryRepository inventoryRepo,
+    //     [Parent] InventoryObject inventoryObject,
+    //     [ScopedState("inventory")] Inventory? inventory) =>
+    //     GetInventoryAsync(context, inventoryRepo, inventoryObject, inventory)
+    //         .Costumes
+    //         .Select(ItemObjectFactory.Create)
+    //         .ToArray();
+    //
+    // public static ItemObject[] GetEquipments(
+    //     IResolverContext context,
+    //     [Service] InventoryRepository inventoryRepo,
+    //     [Parent] InventoryObject inventoryObject,
+    //     [ScopedState("inventory")] Inventory? inventory) =>
+    //     GetInventoryAsync(context, inventoryRepo, inventoryObject, inventory)
+    //         .Equipments
+    //         .Select(ItemObjectFactory.Create)
+    //         .ToArray();
+    //
+    // public static ItemObject[] GetMaterials(
+    //     IResolverContext context,
+    //     [Service] InventoryRepository inventoryRepo,
+    //     [Parent] InventoryObject inventoryObject,
+    //     [ScopedState("inventory")] Inventory? inventory) =>
+    //     GetInventoryAsync(context, inventoryRepo, inventoryObject, inventory)
+    //         .Materials
+    //         .Select(ItemObjectFactory.Create)
+    //         .ToArray();
 }

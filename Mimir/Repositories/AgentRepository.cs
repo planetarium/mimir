@@ -1,6 +1,6 @@
 using Libplanet.Crypto;
-using Mimir.Enums;
 using Mimir.Exceptions;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using MongoDB.Driver;
@@ -11,7 +11,8 @@ public class AgentRepository(MongoDbService dbService)
 {
     public async Task<AgentDocument> GetByAddressAsync(Address agentAddress)
     {
-        var collection = dbService.GetCollection<AgentDocument>(CollectionNames.Agent.Value);
+        var collectionName = CollectionNames.GetCollectionName<AgentDocument>();
+        var collection = dbService.GetCollection<AgentDocument>(collectionName);
         var filter = Builders<AgentDocument>.Filter.Eq("Address", agentAddress.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)

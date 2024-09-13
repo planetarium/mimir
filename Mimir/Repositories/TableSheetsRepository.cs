@@ -1,6 +1,8 @@
 using Bencodex;
 using Bencodex.Types;
 using Mimir.Enums;
+using Mimir.MongoDB;
+using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Extensions;
 using Mimir.MongoDB.Exceptions;
 using Mimir.Services;
@@ -20,7 +22,8 @@ public class TableSheetsRepository(MongoDbService dbService)
 
     public ArenaSheet.RoundData GetArenaRound(long blockIndex)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        var collectionName = CollectionNames.GetCollectionName<SheetDocument>();
+        var collection = dbService.GetCollection<BsonDocument>(collectionName);
         return GetArenaRound(collection, blockIndex);
     }
 
@@ -95,7 +98,8 @@ public class TableSheetsRepository(MongoDbService dbService)
 
     public async Task<string[]> GetSheetNamesAsync()
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        var collectionName = CollectionNames.GetCollectionName<SheetDocument>();
+        var collection = dbService.GetCollection<BsonDocument>(collectionName);
         var filter = Builders<BsonDocument>.Filter.Exists("Name");
         var projection = Builders<BsonDocument>.Projection.Include("Name").Exclude("_id");
         var docs = await collection
@@ -109,7 +113,8 @@ public class TableSheetsRepository(MongoDbService dbService)
         string sheetName,
         SheetFormat sheetFormat = SheetFormat.Csv)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.TableSheet.Value);
+        var collectionName = CollectionNames.GetCollectionName<SheetDocument>();
+        var collection = dbService.GetCollection<BsonDocument>(collectionName);
         return await GetSheetAsync(collection, dbService.GetDatabase(), sheetName, sheetFormat);
     }
 

@@ -1,21 +1,20 @@
 using Libplanet.Crypto;
-using Mimir.Enums;
 using Mimir.Exceptions;
-using Mimir.Models.Assets;
-using Mimir.MongoDB.Exceptions;
+using Mimir.MongoDB;
+using Mimir.MongoDB.Bson;
 using Mimir.Services;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mimir.Repositories;
 
 public class CollectionRepository(MongoDbService dbService)
 {
-    public Collection GetCollection(Address avatarAddress)
+    public Task<CollectionDocument> GetByAddressAsync(Address avatarAddress)
     {
-        var collection = dbService.GetCollection<BsonDocument>(CollectionNames.Collection.Value);
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", avatarAddress.ToHex());
-        var document = collection.Find(filter).FirstOrDefault();
+        var collectionName = CollectionNames.GetCollectionName<CollectionDocument>();
+        var collection = dbService.GetCollection<CollectionDocument>(collectionName);
+        var filter = Builders<CollectionDocument>.Filter.Eq("Address", avatarAddress.ToHex());
+        var document = collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
@@ -23,16 +22,6 @@ public class CollectionRepository(MongoDbService dbService)
                 $"'Address' equals to '{avatarAddress.ToHex()}'");
         }
 
-        try
-        {
-            var doc = document["Object"].AsBsonDocument;
-            return new Collection(doc);
-        }
-        catch (KeyNotFoundException e)
-        {
-            throw new KeyNotFoundInBsonDocumentException(
-                "document[\"State\"][\"Object\"].AsBsonDocument",
-                e);
-        }
+        return document;
     }
 }

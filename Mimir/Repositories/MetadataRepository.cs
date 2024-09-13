@@ -1,5 +1,5 @@
-using Mimir.Enums;
 using Mimir.Exceptions;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
 using MongoDB.Driver;
@@ -10,24 +10,24 @@ public class MetadataRepository(MongoDbService dbService)
 {
     public async Task<MetadataDocument> GetByCollectionAsync(string collectionName)
     {
-        var collection = dbService.GetCollection<MetadataDocument>(CollectionNames.Metadata.Value);
+        var collection = dbService.GetCollection<MetadataDocument>(
+            CollectionNames.GetCollectionName<MetadataDocument>());
         return await GetLatestBlockIndexAsync(collection, collectionName, null);
     }
 
     public async Task<MetadataDocument> GetByCollectionAndTypeAsync(
         string pollerType,
-        string collectionName
-    )
+        string collectionName)
     {
-        var collection = dbService.GetCollection<MetadataDocument>(CollectionNames.Metadata.Value);
+        var collection = dbService.GetCollection<MetadataDocument>(
+            CollectionNames.GetCollectionName<MetadataDocument>());
         return await GetLatestBlockIndexAsync(collection, collectionName, pollerType);
     }
 
     private static async Task<MetadataDocument> GetLatestBlockIndexAsync(
         IMongoCollection<MetadataDocument> collection,
         string collectionName,
-        string? pollerType
-    )
+        string? pollerType)
     {
         var builder = Builders<MetadataDocument>.Filter;
         var filter = builder.Eq("CollectionName", collectionName);

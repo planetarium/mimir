@@ -1,8 +1,10 @@
 using Lib9c.Models.Market;
 using Libplanet.Crypto;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mimir.MongoDB.Bson;
 
+[BsonIgnoreExtraElements]
 public record ProductDocument : MimirBsonDocument
 {
     public Address AvatarAddress { get; init; }

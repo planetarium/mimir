@@ -1,5 +1,6 @@
 using Lib9c.Models.States;
 using Libplanet.Crypto;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mimir.MongoDB.Bson;
 
@@ -7,5 +8,5 @@ namespace Mimir.MongoDB.Bson;
 /// Not MongoDB collection, it is a NineChronicles' collection state.
 /// </summary>
 /// <param name="Object"></param>
-public record CollectionDocument(Address Address, CollectionState Object)
-    : MimirBsonDocument(Address) { }
+[BsonIgnoreExtraElements]
+public record CollectionDocument(Address Address, CollectionState Object) : MimirBsonDocument(Address);

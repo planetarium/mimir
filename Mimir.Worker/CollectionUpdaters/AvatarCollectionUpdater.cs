@@ -1,6 +1,6 @@
 using Lib9c.Models.States;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 
