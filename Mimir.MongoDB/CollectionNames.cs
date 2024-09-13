@@ -1,12 +1,22 @@
 using Lib9c;
 using Libplanet.Crypto;
+using Libplanet.Types.Assets;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Handler;
 
-namespace Mimir.Worker.Constants
+namespace Mimir.MongoDB
 {
     public static class CollectionNames
     {
+        public static readonly Currency OdinNCGCurrency = Currency.Legacy(
+            "NCG",
+            2,
+            new Address("0x47d082a115c63e7b58b1532d20e631538eafadde"));
+
+        public static readonly Currency HeimdallNCGCurrency = Currency.Legacy(
+            "NCG",
+            2,
+            null);
+
         public static readonly Dictionary<Type, string> CollectionAndStateTypeMappings = new();
         public static readonly Dictionary<Address, string> CollectionAndAddressMappings = new();
 
@@ -28,45 +38,36 @@ namespace Mimir.Worker.Constants
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.AdventureBoss, "adventure_boss_season_info");
 
             CollectionAndAddressMappings.Add(
-                new Address(AddressHandlerMappings.OdinNCGCurrency.Hash.ToByteArray()),
-                "balance_ncg"
-            );
+                new Address(OdinNCGCurrency.Hash.ToByteArray()),
+                "balance_ncg");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.Crystal.Hash.ToByteArray()),
-                "balance_crystal"
-            );
+                "balance_crystal");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.StakeRune.Hash.ToByteArray()),
-                "balance_stake_rune"
-            );
+                "balance_stake_rune");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.DailyRewardRune.Hash.ToByteArray()),
-                "balance_daily_reward_rune"
-            );
+                "balance_daily_reward_rune");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.Garage.Hash.ToByteArray()),
-                "balance_garage"
-            );
+                "balance_garage");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.Mead.Hash.ToByteArray()),
-                "balance_mead"
-            );
+                "balance_mead");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.FreyaBlessingRune.Hash.ToByteArray()),
-                "balance_freya_blessing_rune"
-            );
+                "balance_freya_blessing_rune");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.FreyaLiberationRune.Hash.ToByteArray()),
-                "balance_freya_liberation_rune"
-            );
+                "balance_freya_liberation_rune");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.OdinWeaknessRune.Hash.ToByteArray()),
-                "balance_weakness_rune"
-            );
+                "balance_weakness_rune");
             CollectionAndAddressMappings.Add(
                 new Address(Currencies.OdinWisdomRune.Hash.ToByteArray()),
-                "balance_wisdom_rune"
-            );
+                "balance_wisdom_rune");
+            CollectionAndStateTypeMappings.Add(typeof(MetadataDocument), "metadata");
             CollectionAndStateTypeMappings.Add(typeof(SheetDocument), "table_sheet");
             CollectionAndStateTypeMappings.Add(typeof(AgentDocument), "agent");
             CollectionAndStateTypeMappings.Add(typeof(AvatarDocument), "avatar");
@@ -83,8 +84,7 @@ namespace Mimir.Worker.Constants
             CollectionAndStateTypeMappings.Add(typeof(WorldBossStateDocument), "world_boss");
             CollectionAndStateTypeMappings.Add(
                 typeof(WorldBossKillRewardRecordDocument),
-                "world_boss_kill_reward_record"
-            );
+                "world_boss_kill_reward_record");
             CollectionAndStateTypeMappings.Add(typeof(RaiderStateDocument), "raider");
             // CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
             CollectionAndStateTypeMappings.Add(typeof(CombinationSlotStateDocument), "combination_slot");

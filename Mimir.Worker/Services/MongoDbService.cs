@@ -2,6 +2,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
 using Libplanet.Crypto;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Serialization;
 using Mimir.Worker.Constants;
