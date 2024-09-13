@@ -12,18 +12,18 @@ public class RuneSlotRepository(MongoDbService dbService)
 {
     public async Task<RuneSlotDocument> GetByAddressAsync(Address avatarAddress, BattleType battleType)
     {
-        var itemSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
+        var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
             avatarAddress,
             battleType);
         var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
         var collection = dbService.GetCollection<RuneSlotDocument>(collectionName);
-        var filter = Builders<RuneSlotDocument>.Filter.Eq("Address", itemSlotAddress.ToHex());
+        var filter = Builders<RuneSlotDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{itemSlotAddress.ToHex()}'");
+                $"'Address' equals to '{runeSlotAddress.ToHex()}'");
         }
 
         return document;
