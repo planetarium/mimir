@@ -11,10 +11,12 @@ public record BalanceHandler(Currency Currency) : IStateHandler
         if (context.RawState is not Integer value)
         {
             throw new InvalidCastException(
-                $"{nameof(context.RawState)} Invalid state type. Expected {nameof(Integer)}, got {context.RawState.GetType().Name}."
-            );
+                $"{nameof(context.RawState)} Invalid state type. " +
+                $"Expected {nameof(Integer)}, got {context.RawState.GetType().Name}.");
         }
 
-        return new BalanceDocument(context.Address, FungibleAssetValue.FromRawValue(Currency, value));
+        return new BalanceDocument(
+            context.Address,
+            FungibleAssetValue.FromRawValue(Currency, value).GetQuantityString());
     }
 }

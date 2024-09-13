@@ -1,13 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Lib9c.GraphQL.Types;
 using Libplanet.Crypto;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Mimir.GraphQL;
 using Mimir.Options;
 using Mimir.Repositories;
@@ -34,8 +29,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<MongoDbService>();
-builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<MetadataRepository>();
+builder.Services.AddSingleton<TableSheetsRepository>();
+builder.Services.AddSingleton<BalanceRepository>();
 builder.Services.AddSingleton<AgentRepository>();
 // AvatarState dependencies
 builder.Services.AddSingleton<AvatarRepository>();
