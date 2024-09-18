@@ -26,7 +26,7 @@ public static class StakeCollectionUpdater
         try
         {
             var stakeState = new StakeState(bencoded);
-            var document = new StakeDocument(stakeAddress, stakeState);
+            var document = new StakeDocument(stakeAddress, agentAddress, stakeState);
 
             await store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<StakeDocument>(),
