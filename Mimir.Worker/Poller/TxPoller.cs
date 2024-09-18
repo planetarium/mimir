@@ -74,7 +74,6 @@ public class TxPoller : IBlockPoller
             CollectionNames.GetCollectionName<RaiderStateDocument>(),
             CollectionNames.GetCollectionName<WorldBossStateDocument>(),
             CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
-            CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
         ];
 
         _stateService = stateService;
