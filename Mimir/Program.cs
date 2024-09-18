@@ -44,7 +44,7 @@ builder.Services.AddSingleton<DailyRewardRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<RuneSlotRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
-// builder.Services.AddSingleton<StakeRepository>();
+builder.Services.AddSingleton<StakeRepository>();
 // builder.Services.AddSingleton<ProductRepository>();
 // builder.Services.AddSingleton<SeasonInfoRepository>();
 builder.Services.AddCors();
