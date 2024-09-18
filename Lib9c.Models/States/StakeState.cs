@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Stake;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
@@ -45,6 +46,7 @@ public record StakeState : IBencodable
         ReceivedBlockIndex = (Integer)l[reservedCount + 2];
     }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded =>
         new List(
             (Text)StateTypeName,

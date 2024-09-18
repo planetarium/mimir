@@ -75,6 +75,15 @@ public class Query
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
+    /// Get a atake state by agent address.
+    /// </summary>
+    /// <param name="address">The address of the agent.</param>
+    /// <param name="repo"></param>
+    /// <returns>The stake state.</returns>
+    public async Task<StakeState> GetStakeAsync(Address address, [Service] StakeRepository repo) =>
+        (await repo.GetByAgentAddressAsync(address)).Object;
+
+    /// <summary>
     /// Get the daily reward received block index by address.
     /// </summary>
     /// <param name="address">The address of the avatar.</param>

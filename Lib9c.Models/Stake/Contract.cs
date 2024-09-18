@@ -1,6 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Stake;
@@ -53,6 +54,7 @@ public record Contract : IBencodable
         LockupInterval = (Integer)l[reservedCount + 3];
     }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded =>
         new List(
             (Text)StateTypeName,
