@@ -18,7 +18,7 @@ public static class AddressHandlerMappings
     public static readonly Currency HeimdallNCGCurrency = Currency.Legacy(
         "NCG",
         2,
-        new Address("0x47d082a115c63e7b58b1532d20e631538eafadde")
+        null
     );
 
     static AddressHandlerMappings()
@@ -50,12 +50,12 @@ public static class AddressHandlerMappings
     {
         switch (planet.Value)
         {
-            case var _ when planet == PlanetType.ODIN:
+            case var _ when planet.Value == PlanetType.ODIN.Value:
                 RegisterBalanceHandler(OdinNCGCurrency);
                 RegisterBalanceHandler(Currencies.OdinWeaknessRune);
                 RegisterBalanceHandler(Currencies.OdinWisdomRune);
                 break;
-            case var _ when planet == PlanetType.HEIMDALL:
+            case var _ when planet.Value == PlanetType.HEIMDALL.Value:
                 RegisterBalanceHandler(HeimdallNCGCurrency);
                 break;
             default:

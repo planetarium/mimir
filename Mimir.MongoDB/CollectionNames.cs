@@ -41,6 +41,9 @@ namespace Mimir.MongoDB
                 new Address(OdinNCGCurrency.Hash.ToByteArray()),
                 "balance_ncg");
             CollectionAndAddressMappings.Add(
+                new Address(HeimdallNCGCurrency.Hash.ToByteArray()),
+                "balance_ncg");
+            CollectionAndAddressMappings.Add(
                 new Address(Currencies.Crystal.Hash.ToByteArray()),
                 "balance_crystal");
             CollectionAndAddressMappings.Add(
