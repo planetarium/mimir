@@ -20,7 +20,7 @@ public class StakeRepository(MongoDbService dbService)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{agentAddress.ToHex()}'"
+                $"'AgentAddress' equals to '{agentAddress.ToHex()}'"
             );
         }
 
