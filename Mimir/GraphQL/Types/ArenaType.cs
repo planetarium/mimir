@@ -1,7 +1,6 @@
 using Lib9c.GraphQL.Types;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Resolvers;
-using Mimir.Models.Arena;
 using Mimir.MongoDB.Bson;
 
 namespace Mimir.GraphQL.Types;
