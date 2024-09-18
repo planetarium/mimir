@@ -89,7 +89,7 @@ namespace Mimir.MongoDB
                 typeof(WorldBossKillRewardRecordDocument),
                 "world_boss_kill_reward_record");
             CollectionAndStateTypeMappings.Add(typeof(RaiderStateDocument), "raider");
-            // CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
+            CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
             CollectionAndStateTypeMappings.Add(typeof(CombinationSlotStateDocument), "combination_slot");
             CollectionAndStateTypeMappings.Add(typeof(PetStateDocument), "pet_state");
             // CollectionAndStateTypeMappings.Add(typeof(BountyBoardDocument), "adventure_boss_bounty_board");
