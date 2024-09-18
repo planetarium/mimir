@@ -8,14 +8,7 @@ public class AllRuneStateHandler : IStateHandler
 {
     public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
-        if (context.RawState is not List value)
-        {
-            throw new InvalidCastException(
-                $"{nameof(context.RawState)} Invalid state type. Expected {nameof(List)}, got {context.RawState.GetType().Name}."
-            );
-        }
-
-        var allRuneState = new AllRuneState(value);
+        var allRuneState = new AllRuneState(context.RawState);
         return new AllRuneDocument(context.Address, allRuneState);
     }
 }

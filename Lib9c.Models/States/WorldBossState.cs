@@ -7,7 +7,7 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
-public class WorldBossState : IBencodable
+public record WorldBossState : IBencodable
 {
     public int Id { get; init; }
     public int Level { get; init; }

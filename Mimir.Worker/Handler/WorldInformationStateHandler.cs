@@ -1,6 +1,5 @@
-using Bencodex.Types;
+using Lib9c.Models.States;
 using Mimir.MongoDB.Bson;
-using Nekoyume.Model;
 
 namespace Mimir.Worker.Handler;
 
@@ -8,13 +7,9 @@ public class WorldInformationStateHandler : IStateHandler
 {
     public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
-        if (context.RawState is Dictionary dict)
-        {
-            return new WorldInformationDocument(context.Address, new WorldInformation(dict));
-        }
-
-        throw new InvalidCastException(
-            $"{nameof(context.RawState)} Invalid state type. Expected Dictionary."
+        return new WorldInformationDocument(
+            context.Address,
+            new WorldInformationState(context.RawState)
         );
     }
 }
