@@ -54,14 +54,15 @@ public class TxPoller : IBlockPoller
 
             // Market
             new ProductsHandler(stateService, dbService),
-
             // Avatar Related
             new CombinationSlotStateHandler(stateService, dbService),
             new PetStateHandler(stateService, dbService),
             new RuneSlotStateHandler(stateService, dbService),
+            new StakeHandler(stateService, dbService),
         ];
         _collectionNames =
         [
+            CollectionNames.GetCollectionName<StakeDocument>(),
             CollectionNames.GetCollectionName<PetStateDocument>(),
             CollectionNames.GetCollectionName<CombinationSlotStateDocument>(),
             CollectionNames.GetCollectionName<SheetDocument>(),
@@ -72,6 +73,7 @@ public class TxPoller : IBlockPoller
             CollectionNames.GetCollectionName<ProductDocument>(),
             CollectionNames.GetCollectionName<RaiderStateDocument>(),
             CollectionNames.GetCollectionName<WorldBossStateDocument>(),
+            CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
             CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
         ];
 
