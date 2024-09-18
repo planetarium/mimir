@@ -27,7 +27,7 @@ namespace Mimir.MongoDB
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.ActionPoint, "action_point");
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.DailyReward, "daily_reward");
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.Inventory, "inventory");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.WorldInformation, "world_information");
+            CollectionAndAddressMappings.Add(Nekoyume.Addresses.WorldInformation, "world_information");
             // CollectionAndAddressMappings.Add(Nekoyume.Addresses.QuestList, "quest_list");
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.RuneState, "all_rune");
             CollectionAndAddressMappings.Add(Nekoyume.Addresses.Collection, "collection");
@@ -81,7 +81,7 @@ namespace Mimir.MongoDB
             CollectionAndStateTypeMappings.Add(typeof(ProductsStateDocument), "products");
             CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
             // CollectionAndStateTypeMappings.Add(typeof(QuestListDocument), "quest_list");
-            // CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
+            CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
             CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
             CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
             CollectionAndStateTypeMappings.Add(typeof(WorldBossStateDocument), "world_boss");

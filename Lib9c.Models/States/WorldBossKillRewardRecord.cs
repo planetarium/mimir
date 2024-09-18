@@ -6,7 +6,7 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
-public class WorldBossKillRewardRecord : IBencodable
+public record WorldBossKillRewardRecord : IBencodable
 {
     public Dictionary<int, bool> RewardRecordDictionary { get; init; }
 

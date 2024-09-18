@@ -41,8 +41,8 @@ public class TxPoller : IBlockPoller
         [
             new PatchTableHandler(stateService, dbService),
             // World
-            // new HackAndSlashHandler(stateService, dbService),
-            // new HackAndSlashSweepHandler(stateService, dbService),
+            new HackAndSlashHandler(stateService, dbService),
+            new HackAndSlashSweepHandler(stateService, dbService),
 
             // Arena
             new JoinArenaHandler(stateService, dbService),
@@ -50,7 +50,7 @@ public class TxPoller : IBlockPoller
             // Raid
             new RaidHandler(stateService, dbService),
             // Event Dungeon
-            // new EventDungeonBattleHandler(stateService, dbService),
+            new EventDungeonBattleHandler(stateService, dbService),
 
             // Market
             new ProductsHandler(stateService, dbService),
