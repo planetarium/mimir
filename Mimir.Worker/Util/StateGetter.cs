@@ -300,13 +300,11 @@ public class StateGetter
         return new WorldBossKillRewardRecord(state);
     }
 
-    public async Task<CombinationSlotState> GetCombinationSlotState(
+    public async Task<CombinationSlotState> GetCombinationSlotStateAsync(
         Address slotAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var state = await _service.GetState(slotAddress, stoppingToken);
-
         if (state is null)
         {
             throw new StateNotFoundException(slotAddress, typeof(CombinationSlotState));
