@@ -87,13 +87,13 @@ public record ShopItem : IBencodable
         ProductId = d[LegacyProductIdKey].ToGuid();
         Price = d[LegacyPriceKey].ToFungibleAssetValue();
         ItemUsable = d.ContainsKey(LegacyItemUsableKey)
-            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d[LegacyItemUsableKey])
+            ? (ItemUsable)ItemFactory.Deserialize(d[LegacyItemUsableKey])
             : null;
         Costume = d.ContainsKey(LegacyCostumeKey)
-            ? (Costume)ItemFactory.Deserialize((Dictionary)d[LegacyCostumeKey])
+            ? (Costume)ItemFactory.Deserialize(d[LegacyCostumeKey])
             : null;
         TradableFungibleItem = d.ContainsKey(TradableFungibleItemKey)
-            ? (TradableMaterial)ItemFactory.Deserialize((Dictionary)d[TradableFungibleItemKey])
+            ? (TradableMaterial)ItemFactory.Deserialize(d[TradableFungibleItemKey])
             : null;
         TradableFungibleItemCount = d.ContainsKey(TradableFungibleItemCountKey)
             ? d[TradableFungibleItemCountKey].ToInteger()

@@ -37,7 +37,7 @@ public record RapidCombination5Result : AttachmentActionResult
         Cost = ((List)d["cost"])
             .Cast<Dictionary>()
             .ToDictionary(
-                value => (Material)ItemFactory.Deserialize((Dictionary)value["material"]),
+                value => (Material)ItemFactory.Deserialize(value["material"]),
                 value => value["count"].ToInteger());
     }
 }

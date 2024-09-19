@@ -61,7 +61,7 @@ public record ItemEnhancement12Result : AttachmentActionResult
         ActionPoint = d["actionPoint"].ToInteger();
         EnhancementResult = d["enhancementResult"].ToEnum<ItemEnhancement9.EnhancementResult>();
         PreItemUsable = d.ContainsKey("preItemUsable")
-            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d["preItemUsable"])
+            ? (ItemUsable)ItemFactory.Deserialize(d["preItemUsable"])
             : null;
         Crystal = new FungibleAssetValue(d["c"]);
     }

@@ -40,7 +40,7 @@ public record InventoryItem : IBencodable
                 bencoded.Kind);
         }
 
-        Item = ItemFactory.Deserialize((Dictionary)d["item"]);
+        Item = ItemFactory.Deserialize(d["item"]);
         Count = (Integer)d["count"];
         if (d.ContainsKey("l"))
         {

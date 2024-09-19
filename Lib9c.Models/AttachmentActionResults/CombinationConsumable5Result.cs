@@ -45,7 +45,7 @@ public record CombinationConsumable5Result : AttachmentActionResult
         Materials = ((List)d["materials"])
             .Cast<Dictionary>()
             .ToDictionary(
-                value => (Material)ItemFactory.Deserialize((Dictionary)value["material"]),
+                value => (Material)ItemFactory.Deserialize(value["material"]),
                 value => value["count"].ToInteger());
         Id = d["id"].ToGuid();
         Gold = d["gold"].ToBigInteger();
