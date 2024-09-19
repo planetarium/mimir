@@ -2,6 +2,11 @@
 
 [Discord]: https://planetarium.dev/discord
 
+> [!TIP]
+> If you're new to Nine Chronicles, try to visit our **Developer Portal**!
+>
+> https://nine-chronicles.dev/
+
 # What is Mimir?
 
 Mimir is a service that allows you to easily query real-time data from the Nine Chronicles chain via GraphQL.  
