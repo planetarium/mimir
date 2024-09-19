@@ -4,6 +4,7 @@ using Bencodex;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Serialization;
+using Mimir.MongoDB.Json.Extensions;
 using Mimir.Worker.Constants;
 using MongoDB.Bson;
 using MongoDB.Driver;
