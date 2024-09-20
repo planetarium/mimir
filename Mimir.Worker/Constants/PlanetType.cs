@@ -9,14 +9,9 @@ public class PlanetType
 
     public string Value { get; private set; }
 
-    public static PlanetType ODIN
-    {
-        get { return new PlanetType("odin"); }
-    }
-    public static PlanetType HEIMDALL
-    {
-        get { return new PlanetType("heimdall"); }
-    }
+    public static PlanetType ODIN => new("odin");
+
+    public static PlanetType HEIMDALL => new("heimdall");
 
     public static PlanetType FromString(string planetType)
     {
@@ -24,7 +19,7 @@ public class PlanetType
         {
             "odin" => new PlanetType("odin"),
             "heimdall" => new PlanetType("heimdall"),
-            _ => throw new ArgumentException("Not expected planetType")
+            _ => throw new ArgumentException($"Not expected planetType. {planetType}")
         };
     }
 
