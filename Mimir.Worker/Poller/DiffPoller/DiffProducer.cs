@@ -106,7 +106,7 @@ public class DiffProducer
     {
         try
         {
-            var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
+            var syncedBlockIndex = await _dbService.GetLatestBlockIndexAsync(
                 nameof(DiffPoller),
                 collectionName,
                 stoppingToken
@@ -123,7 +123,7 @@ public class DiffProducer
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
                 currentBlockIndex
             );
-            await _dbService.UpdateLatestBlockIndex(
+            await _dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
                     PollerType = nameof(DiffPoller),
