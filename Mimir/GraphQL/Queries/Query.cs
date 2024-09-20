@@ -80,7 +80,7 @@ public class Query
     /// <param name="address">The address of the agent.</param>
     /// <param name="repo"></param>
     /// <returns>The stake state.</returns>
-    public async Task<StakeState> GetStakeAsync(Address address, [Service] StakeRepository repo) =>
+    public async Task<StakeState?> GetStakeAsync(Address address, [Service] StakeRepository repo) =>
         (await repo.GetByAgentAddressAsync(address)).Object;
 
     /// <summary>
