@@ -55,26 +55,6 @@ public class CurrencySerializer : StructSerializerBase<Currency>
                 BigIntegerSerializer.Instance)),
         typeof((BigInteger, BigInteger)?));
 
-    public override void Serialize(
-        BsonSerializationContext context,
-        BsonSerializationArgs args,
-        Currency value)
-    {
-        var writer = context.Writer;
-        writer.WriteStartDocument();
-        writer.WriteName(ElementNames.Ticker);
-        writer.WriteString(value.Ticker);
-        writer.WriteName(ElementNames.DecimalPlaces);
-        _decimalPlacesInfo.Serializer.Serialize(context, value.DecimalPlaces);
-        writer.WriteName(ElementNames.Minters);
-        _mintersInfo.Serializer.Serialize(context, value.Minters);
-        writer.WriteName(ElementNames.TotalSupplyTrackable);
-        writer.WriteBoolean(value.TotalSupplyTrackable);
-        writer.WriteName(ElementNames.MaximumSupply);
-        _maximumSupplyInfo.Serializer.Serialize(context, value.MaximumSupply);
-        writer.WriteEndDocument();
-    }
-
     public override Currency Deserialize(
         BsonDeserializationContext context,
         BsonDeserializationArgs args)
@@ -119,6 +99,28 @@ public class CurrencySerializer : StructSerializerBase<Currency>
                 : Currency.Uncapped(ticker, decimalPlaces, minters?.ToImmutableHashSet());
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         return Currency.Legacy(ticker, decimalPlaces, minters?.ToImmutableHashSet());
+#pragma warning restore CS0618 // Type or member is obsolete
+    }
+
+    public override void Serialize(
+        BsonSerializationContext context,
+        BsonSerializationArgs args,
+        Currency value)
+    {
+        var writer = context.Writer;
+        writer.WriteStartDocument();
+        writer.WriteName(ElementNames.Ticker);
+        writer.WriteString(value.Ticker);
+        writer.WriteName(ElementNames.DecimalPlaces);
+        _decimalPlacesInfo.Serializer.Serialize(context, value.DecimalPlaces);
+        writer.WriteName(ElementNames.Minters);
+        _mintersInfo.Serializer.Serialize(context, value.Minters);
+        writer.WriteName(ElementNames.TotalSupplyTrackable);
+        writer.WriteBoolean(value.TotalSupplyTrackable);
+        writer.WriteName(ElementNames.MaximumSupply);
+        _maximumSupplyInfo.Serializer.Serialize(context, value.MaximumSupply);
+        writer.WriteEndDocument();
     }
 }

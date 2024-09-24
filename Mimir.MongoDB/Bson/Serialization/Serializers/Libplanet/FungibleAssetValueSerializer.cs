@@ -36,20 +36,6 @@ public class FungibleAssetValueSerializer : StructSerializerBase<FungibleAssetVa
         BigIntegerSerializer.Instance,
         typeof(BigInteger));
 
-    public override void Serialize(
-        BsonSerializationContext context,
-        BsonSerializationArgs args,
-        FungibleAssetValue value)
-    {
-        var writer = context.Writer;
-        writer.WriteStartDocument();
-        writer.WriteName(ElementNames.Currency);
-        _currencyInfo.Serializer.Serialize(context, value.Currency);
-        writer.WriteName(ElementNames.RawValue);
-        _rawValueInfo.Serializer.Serialize(context, value.RawValue);
-        writer.WriteEndDocument();
-    }
-
     public override FungibleAssetValue Deserialize(
         BsonDeserializationContext context,
         BsonDeserializationArgs args)
@@ -69,5 +55,19 @@ public class FungibleAssetValueSerializer : StructSerializerBase<FungibleAssetVa
             }
         });
         return FungibleAssetValue.FromRawValue(currency, rawValue);
+    }
+
+    public override void Serialize(
+        BsonSerializationContext context,
+        BsonSerializationArgs args,
+        FungibleAssetValue value)
+    {
+        var writer = context.Writer;
+        writer.WriteStartDocument();
+        writer.WriteName(ElementNames.Currency);
+        _currencyInfo.Serializer.Serialize(context, value.Currency);
+        writer.WriteName(ElementNames.RawValue);
+        _rawValueInfo.Serializer.Serialize(context, value.RawValue);
+        writer.WriteEndDocument();
     }
 }
