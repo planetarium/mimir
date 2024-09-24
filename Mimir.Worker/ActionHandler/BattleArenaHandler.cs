@@ -1,4 +1,5 @@
 using Lib9c.Abstractions;
+using Lib9c.Models.States;
 using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
@@ -49,7 +50,6 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         );
 
         await ProcessArena(blockIndex, battleArena, session, stoppingToken);
-        await ProcessAvatar(battleArena, session, stoppingToken);
 
         return true;
     }
@@ -73,8 +73,14 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             battleArena.Round,
             stoppingToken
         );
+        var myAvatarState = await StateGetter.GetAvatarState(
+            battleArena.MyAvatarAddress,
+            stoppingToken
+        );
+        var mySimpleAvatarState = SimplifiedAvatarState.FromAvatarState(myAvatarState);
         await ArenaCollectionUpdater.UpsertAsync(
             Store,
+            mySimpleAvatarState,
             myArenaScore,
             myArenaInfo,
             battleArena.MyAvatarAddress,
@@ -96,8 +102,14 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             battleArena.Round,
             stoppingToken
         );
+        var enemyAvatarState = await StateGetter.GetAvatarState(
+            battleArena.EnemyAvatarAddress,
+            stoppingToken
+        );
+        var enemySimpleAvatarState = SimplifiedAvatarState.FromAvatarState(enemyAvatarState);
         await ArenaCollectionUpdater.UpsertAsync(
             Store,
+            enemySimpleAvatarState,
             enemyArenaScore,
             enemyArenaInfo,
             battleArena.EnemyAvatarAddress,
@@ -106,23 +118,5 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             session,
             stoppingToken
         );
-    }
-
-    private async Task ProcessAvatar(
-        IBattleArenaV1 battleArena,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var myAvatarState = await StateGetter.GetAvatarState(
-            battleArena.MyAvatarAddress,
-            stoppingToken
-        );
-        var enemyAvatarState = await StateGetter.GetAvatarState(
-            battleArena.EnemyAvatarAddress,
-            stoppingToken
-        );
-        await AvatarCollectionUpdater.UpsertAsync(Store, myAvatarState, session, stoppingToken);
-        await AvatarCollectionUpdater.UpsertAsync(Store, enemyAvatarState, session, stoppingToken);
     }
 }

@@ -1,4 +1,5 @@
 using Lib9c.Models.Arena;
+using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
@@ -11,6 +12,7 @@ public static class ArenaCollectionUpdater
 {
     public static async Task UpsertAsync(
         MongoDbService dbService,
+        SimplifiedAvatarState simpleAvatar,
         ArenaScore arenaScore,
         ArenaInformation arenaInfo,
         Address avatarAddress,
@@ -22,7 +24,7 @@ public static class ArenaCollectionUpdater
     {
         await dbService.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ArenaDocument>(),
-            [new ArenaDocument(avatarAddress, championshipId, round, arenaInfo, arenaScore),],
+            [new ArenaDocument(avatarAddress, championshipId, round, arenaInfo, arenaScore, simpleAvatar),],
             session,
             stoppingToken
         );

@@ -114,4 +114,80 @@ public record SimplifiedAvatarState : State
             bencoded.Kind
         );
     }
+
+    public SimplifiedAvatarState(
+        Address address,
+        int version,
+        string name,
+        int characterId,
+        int level,
+        long exp,
+        long updatedAt,
+        Address agentAddress,
+        MailBox mailBox,
+        long blockIndex,
+        long dailyRewardReceivedIndex,
+        int actionPoint,
+        CollectionMap stageMap,
+        CollectionMap monsterMap,
+        CollectionMap itemMap,
+        CollectionMap eventMap,
+        int hair,
+        int lens,
+        int ear,
+        int tail,
+        List<Address> combinationSlotAddresses,
+        Address rankingMapAddress)
+        : base(new List(address.Bencoded))
+    {
+        Version = version;
+        Name = name;
+        CharacterId = characterId;
+        Level = level;
+        Exp = exp;
+        UpdatedAt = updatedAt;
+        AgentAddress = agentAddress;
+        MailBox = mailBox;
+        BlockIndex = blockIndex;
+        DailyRewardReceivedIndex = dailyRewardReceivedIndex;
+        ActionPoint = actionPoint;
+        StageMap = stageMap;
+        MonsterMap = monsterMap;
+        ItemMap = itemMap;
+        EventMap = eventMap;
+        Hair = hair;
+        Lens = lens;
+        Ear = ear;
+        Tail = tail;
+        CombinationSlotAddresses = combinationSlotAddresses;
+        RankingMapAddress = rankingMapAddress;        
+    }
+
+    public static SimplifiedAvatarState FromAvatarState(AvatarState avatarState)
+    {
+        return new SimplifiedAvatarState(
+            avatarState.Address,
+            avatarState.Version,
+            avatarState.Name,
+            avatarState.CharacterId,
+            avatarState.Level,
+            avatarState.Exp,
+            avatarState.UpdatedAt,
+            avatarState.AgentAddress,
+            avatarState.MailBox,
+            avatarState.BlockIndex,
+            avatarState.DailyRewardReceivedIndex,
+            avatarState.ActionPoint,
+            avatarState.StageMap,
+            avatarState.MonsterMap,
+            avatarState.ItemMap,
+            avatarState.EventMap,
+            avatarState.Hair,
+            avatarState.Lens,
+            avatarState.Ear,
+            avatarState.Tail,
+            avatarState.CombinationSlotAddresses,
+            avatarState.RankingMapAddress
+        );
+    }
 }
