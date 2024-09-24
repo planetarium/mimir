@@ -54,42 +54,6 @@ public class ArenaRepository(MongoDbService dbService)
                         }
                     )
                 ),
-                new(
-                    "$lookup",
-                    new BsonDocument
-                    {
-                        { "from", "avatar" },
-                        { "localField", "Address" },
-                        { "foreignField", "Address" },
-                        { "as", "SimpleAvatar" }
-                    }
-                ),
-                new(
-                    "$unwind",
-                    new BsonDocument
-                    {
-                        { "path", "$SimpleAvatar" },
-                        { "preserveNullAndEmptyArrays", true }
-                    }
-                ),
-                new(
-                    "$project",
-                    new BsonDocument
-                    {
-                        { "SimpleAvatar.Object.EventMap", 0 },
-                        { "SimpleAvatar.Object.ItemMap", 0 },
-                        { "SimpleAvatar.Object.MailBox", 0 },
-                        { "SimpleAvatar.Object.MonsterMap", 0 },
-                        { "SimpleAvatar.Object.StageMap", 0 },
-                    }
-                ),
-                new(
-                    "$addFields",
-                    new BsonDocument
-                    {
-                        { "SimpleAvatar", "$SimpleAvatar.Object" },
-                    }
-                ),
                 new("$sort", new BsonDocument("ArenaScore.Score", -1)),
             };
 
