@@ -7,6 +7,7 @@ using Libplanet.Types.Assets;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Lib9c.Models.Items;
 
@@ -33,6 +34,7 @@ public record ShopItem : IBencodable
     public int TradableFungibleItemCount { get; init; }
     public long ExpiredBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded
     {
         get

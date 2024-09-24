@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Items;
@@ -17,12 +18,17 @@ public record ItemBase : IBencodable
     public Nekoyume.Model.Item.ItemSubType ItemSubType { get; init; }
     public Nekoyume.Model.Elemental.ElementalType ElementalType { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public virtual IValue Bencoded => Dictionary.Empty
         .Add("id", Id.Serialize())
         .Add("item_type", ItemType.Serialize())
         .Add("item_sub_type", ItemSubType.Serialize())
         .Add("grade", Grade.Serialize())
         .Add("elemental_type", ElementalType.Serialize());
+
+    public ItemBase()
+    {
+    }
 
     public ItemBase(IValue bencoded)
     {

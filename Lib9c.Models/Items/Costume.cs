@@ -1,22 +1,23 @@
-using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Lib9c.Models.Items;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Costume"/>
 /// </summary>
-public record Costume : ItemBase, IBencodable
+public record Costume : ItemBase
 {
     public bool Equipped { get; }
     public string SpineResourcePath { get; }
     public Guid ItemId { get; }
     public long RequiredBlockIndex { get; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded
     {
         get
@@ -30,6 +31,10 @@ public record Costume : ItemBase, IBencodable
                 ? d.Add(RequiredBlockIndexKey, RequiredBlockIndex.Serialize())
                 : d;
         }
+    }
+
+    public Costume()
+    {
     }
 
     public Costume(IValue bencoded) : base(bencoded)

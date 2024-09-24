@@ -52,6 +52,10 @@ public record Skill : IBencodable
         }
     }
 
+    public Skill()
+    {
+    }
+
     public Skill(IValue bencoded)
     {
         if (bencoded is not Dictionary d)

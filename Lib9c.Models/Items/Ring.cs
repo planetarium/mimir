@@ -7,6 +7,10 @@ namespace Lib9c.Models.Items;
 /// </summary>
 public record Ring : Equipment
 {
+    public Ring()
+    {
+    }
+
     public Ring(IValue bencoded) : base(bencoded)
     {
     }

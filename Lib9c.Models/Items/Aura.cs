@@ -7,6 +7,10 @@ namespace Lib9c.Models.Items;
 /// </summary>
 public record Aura : Equipment
 {
+    public Aura()
+    {
+    }
+
     public Aura(IValue bencoded) : base(bencoded)
     {
     }

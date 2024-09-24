@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Item;
 using ItemFactory = Lib9c.Models.Factories.ItemFactory;
 using ValueKind = Bencodex.Types.ValueKind;
@@ -17,6 +18,7 @@ public record InventoryItem : IBencodable
     public int Count { get; init; }
     public ILock? Lock { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded
     {
         get
