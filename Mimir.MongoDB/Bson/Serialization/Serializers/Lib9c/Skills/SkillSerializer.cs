@@ -17,7 +17,7 @@ public class SkillSerializer : ClassSerializerBase<Skill>
         Power = doc["Power"].ToLong(),
         Chance = doc["Chance"].AsInt32,
         StatPowerRatio = doc["StatPowerRatio"].AsInt32,
-        ReferencedStatType = (Nekoyume.Model.Stat.StatType)doc["ReferencedStatType"].AsInt32,
+        ReferencedStatType = Enum.Parse<Nekoyume.Model.Stat.StatType>(doc["ReferencedStatType"].AsString),
     };
 
     public override Skill Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

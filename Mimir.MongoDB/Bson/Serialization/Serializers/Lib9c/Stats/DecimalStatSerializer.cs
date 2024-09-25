@@ -11,7 +11,7 @@ public class DecimalStatSerializer : ClassSerializerBase<DecimalStat>
 
     public static DecimalStat Deserialize(BsonDocument doc) => new()
     {
-        StatType = (Nekoyume.Model.Stat.StatType)doc["StatType"].AsInt32,
+        StatType = Enum.Parse<Nekoyume.Model.Stat.StatType>(doc["StatType"].AsString),
         BaseValue = doc["BaseValue"].AsDecimal,
         AdditionalValue = doc["AdditionalValue"].AsDecimal,
     };
