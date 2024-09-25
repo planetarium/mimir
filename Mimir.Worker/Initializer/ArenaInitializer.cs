@@ -1,4 +1,5 @@
 using Mimir.MongoDB.Bson;
+using Lib9c.Models.States;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -45,10 +46,12 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
             );
 
             var avatarState = await stateGetter.GetAvatarState(avatarAddress, stoppingToken);
+            var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
 
             _logger.Information("Init arena, address: {AvatarAddress}", avatarAddress);
             await ArenaCollectionUpdater.UpsertAsync(
                 _store,
+                simpleAvatarState,
                 arenaScore,
                 arenaInfo,
                 avatarAddress,

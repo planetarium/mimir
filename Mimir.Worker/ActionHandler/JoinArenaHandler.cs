@@ -1,4 +1,5 @@
 using Lib9c.Abstractions;
+using Lib9c.Models.States;
 using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
@@ -45,7 +46,6 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
         );
 
         await ProcessArena(joinArena, session, stoppingToken);
-        await ProcessAvatar(joinArena, session, stoppingToken);
 
         return true;
     }
@@ -68,8 +68,14 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
             joinArena.Round,
             stoppingToken
         );
+        var avatarState = await StateGetter.GetAvatarState(
+            joinArena.AvatarAddress,
+            stoppingToken
+        );
+        var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
         await ArenaCollectionUpdater.UpsertAsync(
             Store,
+            simpleAvatarState,
             arenaScore,
             arenaInfo,
             joinArena.AvatarAddress,
@@ -78,16 +84,5 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store)
             session,
             stoppingToken
         );
-    }
-
-    private async Task ProcessAvatar(
-        IJoinArenaV1 joinArena,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var avatarState = await StateGetter.GetAvatarState(joinArena.AvatarAddress, stoppingToken);
-
-        await AvatarCollectionUpdater.UpsertAsync(Store, avatarState, session, stoppingToken);
     }
 }
