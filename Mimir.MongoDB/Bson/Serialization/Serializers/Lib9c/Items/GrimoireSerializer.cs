@@ -21,7 +21,7 @@ public class GrimoireSerializer : ClassSerializerBase<Grimoire>
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
-    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Consumable value)
+    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Grimoire value)
     // {
     //     base.Serialize(context, args, value);
     // }

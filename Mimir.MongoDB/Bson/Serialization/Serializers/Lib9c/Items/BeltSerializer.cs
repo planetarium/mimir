@@ -21,7 +21,7 @@ public class BeltSerializer : ClassSerializerBase<Belt>
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
-    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Consumable value)
+    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Belt value)
     // {
     //     base.Serialize(context, args, value);
     // }

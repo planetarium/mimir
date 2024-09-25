@@ -21,7 +21,7 @@ public class RingSerializer : ClassSerializerBase<Ring>
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
-    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Consumable value)
+    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Ring value)
     // {
     //     base.Serialize(context, args, value);
     // }

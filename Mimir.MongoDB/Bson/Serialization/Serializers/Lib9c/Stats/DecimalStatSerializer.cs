@@ -23,7 +23,7 @@ public class DecimalStatSerializer : ClassSerializerBase<DecimalStat>
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
-    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, StatMap value)
+    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, DecimalStat value)
     // {
     //     base.Serialize(context, args, value);
     // }

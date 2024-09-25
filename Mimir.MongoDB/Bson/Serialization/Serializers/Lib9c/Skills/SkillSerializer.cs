@@ -27,7 +27,7 @@ public class SkillSerializer : ClassSerializerBase<Skill>
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
-    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, StatMap value)
+    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Skill value)
     // {
     //     base.Serialize(context, args, value);
     // }

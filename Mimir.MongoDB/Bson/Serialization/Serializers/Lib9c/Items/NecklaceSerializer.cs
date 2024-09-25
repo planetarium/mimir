@@ -21,7 +21,7 @@ public class NecklaceSerializer : ClassSerializerBase<Necklace>
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
-    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Consumable value)
+    // public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Necklace value)
     // {
     //     base.Serialize(context, args, value);
     // }
