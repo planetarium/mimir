@@ -4,7 +4,6 @@ using Lib9c.Models.Skills;
 using Lib9c.Models.Stats;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
-using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.AttachmentActionResults;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Items;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Sheets;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Skills;
