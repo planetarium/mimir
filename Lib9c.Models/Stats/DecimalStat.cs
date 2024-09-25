@@ -12,11 +12,9 @@ namespace Lib9c.Models.Stats;
 /// </summary>
 public record DecimalStat : IBencodable
 {
+    public StatType StatType { get; init; }
     public decimal BaseValue { get; init; }
-
     public decimal AdditionalValue { get; init; }
-
-    public StatType StatType { get; }
 
     public IValue Bencoded => Dictionary.Empty
         .Add("statType", StatType.Serialize())
@@ -30,6 +28,10 @@ public record DecimalStat : IBencodable
     public IValue BencodedAsLegacy => Dictionary.Empty
         .Add("type", StatType.Serialize())
         .Add("value", BaseValue.Serialize());
+
+    public DecimalStat()
+    {
+    }
 
     public DecimalStat(IValue bencoded)
     {

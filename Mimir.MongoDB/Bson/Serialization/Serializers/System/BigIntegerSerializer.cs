@@ -10,12 +10,6 @@ public class BigIntegerSerializer : StructSerializerBase<BigInteger>
 {
     public static readonly BigIntegerSerializer Instance = new();
 
-    public override void Serialize(
-        BsonSerializationContext context,
-        BsonSerializationArgs args,
-        BigInteger value) =>
-        context.Writer.WriteString(value.ToString());
-
     public override BigInteger Deserialize(
         BsonDeserializationContext context,
         BsonDeserializationArgs args)
@@ -26,4 +20,10 @@ public class BigIntegerSerializer : StructSerializerBase<BigInteger>
             ? BigInteger.Parse(reader.ReadString())
             : throw new UnexpectedTypeOfBsonValueException([BsonType.String], bsonType);
     }
+
+    public override void Serialize(
+        BsonSerializationContext context,
+        BsonSerializationArgs args,
+        BigInteger value) =>
+        context.Writer.WriteString(value.ToString());
 }

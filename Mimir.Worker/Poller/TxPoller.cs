@@ -148,7 +148,7 @@ public class TxPoller : IBlockPoller
 
             foreach (var collectionName in _collectionNames)
             {
-                await _dbService.UpdateLatestBlockIndex(
+                await _dbService.UpdateLatestBlockIndexAsync(
                     new MetadataDocument
                     {
                         PollerType = nameof(TxPoller),
@@ -212,7 +212,7 @@ public class TxPoller : IBlockPoller
 
         foreach (var collectionName in _collectionNames)
         {
-            await _dbService.UpdateLatestBlockIndex(
+            await _dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
                     PollerType = nameof(TxPoller),
@@ -278,7 +278,7 @@ public class TxPoller : IBlockPoller
     {
         try
         {
-            var syncedBlockIndex = await _dbService.GetLatestBlockIndex(
+            var syncedBlockIndex = await _dbService.GetLatestBlockIndexAsync(
                 nameof(TxPoller),
                 collectionName,
                 stoppingToken
@@ -292,7 +292,7 @@ public class TxPoller : IBlockPoller
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
                 currentBlockIndex
             );
-            await _dbService.UpdateLatestBlockIndex(
+            await _dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
                     PollerType = nameof(TxPoller),

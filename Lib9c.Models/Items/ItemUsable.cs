@@ -1,10 +1,10 @@
-using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Skills;
 using Lib9c.Models.Stats;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Items;
@@ -12,7 +12,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.ItemUsable"/>
 /// </summary>
-public record ItemUsable : ItemBase, IBencodable
+public record ItemUsable : ItemBase
 {
     public Guid ItemId { get; init; }
 
@@ -23,6 +23,7 @@ public record ItemUsable : ItemBase, IBencodable
     public List<Skill> BuffSkills { get; init; }
     public long RequiredBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("itemId", ItemId.Serialize())
         .Add("statsMap", StatsMap.Bencoded)
@@ -35,6 +36,10 @@ public record ItemUsable : ItemBase, IBencodable
             .ThenByDescending(i => i.Power)
             .Select(s => s.Bencoded)))
         .Add("requiredBlockIndex", RequiredBlockIndex.Serialize());
+
+    public ItemUsable()
+    {
+    }
 
     public ItemUsable(IValue bencoded) : base(bencoded)
     {

@@ -1,5 +1,8 @@
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Nekoyume.TableData;
 using Serilog;
 
@@ -70,8 +73,15 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
         }
 
         var roundData = arenaSheet.GetRoundByBlockIndex(blockIndex);
-        var count = await _store.GetArenaDocumentCount(roundData.ChampionshipId, roundData.Round);
-
+        var count = await GetArenaDocumentCount(roundData.ChampionshipId, roundData.Round);
         return count != 0;
+    }
+
+    private async Task<long> GetArenaDocumentCount(int championshipId, int round)
+    {
+        var builder = Builders<BsonDocument>.Filter;
+        var filter = builder.Eq("ChampionshipId", championshipId);
+        filter &= builder.Eq("Round", round);
+        return await _store.GetCollection<ArenaDocument>().Find(filter).CountDocumentsAsync();
     }
 }

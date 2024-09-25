@@ -78,7 +78,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
                     )
                 );
 
-                var combinationSlotState = await StateGetter.GetCombinationSlotState(slotAddress);
+                var combinationSlotState = await StateGetter.GetCombinationSlotStateAsync(slotAddress);
 
                 if (combinationSlotState is null)
                 {

@@ -7,6 +7,7 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
 
@@ -100,9 +101,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
     )
     {
         var productIds = productsState.ProductIds.Select(id => Guid.Parse(id.ToString())).ToList();
-
         var existingProductIds = await GetExistingProductIds(productsStateAddress);
-
         var productsToAdd = productIds.Except(existingProductIds).ToList();
         var productsToRemove = existingProductIds.Except(productIds).ToList();
 
@@ -119,12 +118,12 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
 
     private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)
     {
-        var existingState = await Store.GetProductsStateByAddress(productsStateAddress);
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", productsStateAddress.ToHex());
+        var existingState = await Store.GetCollection<ProductsStateDocument>().Find(filter).FirstOrDefaultAsync();
         return existingState == null
-            ? new List<Guid>()
-            : existingState["Object"]
-                ["ProductIds"]
-                .AsBsonArray.Select(p => Guid.Parse(p.AsString))
+            ? []
+            : existingState["Object"]["ProductIds"].AsBsonArray
+                .Select(p => Guid.Parse(p.AsString))
                 .ToList();
     }
 
@@ -306,9 +305,13 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
 
     private async Task RemoveOldProductsAsync(List<Guid> productsToRemove)
     {
+        var collection = Store.GetCollection<ProductDocument>();
         foreach (var productId in productsToRemove)
         {
-            await Store.RemoveProduct(productId);
+            var productFilter = Builders<BsonDocument>.Filter.Eq(
+                "Object.TradableItem.TradableId",
+                productId.ToString());
+            await collection.DeleteOneAsync(productFilter);
         }
     }
 }

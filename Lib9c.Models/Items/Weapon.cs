@@ -7,6 +7,10 @@ namespace Lib9c.Models.Items;
 /// </summary>
 public record Weapon : Equipment
 {
+    public Weapon()
+    {
+    }
+
     public Weapon(IValue bencoded) : base(bencoded)
     {
     }

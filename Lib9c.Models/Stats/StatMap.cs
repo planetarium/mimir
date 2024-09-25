@@ -20,6 +20,10 @@ public record StatMap : IBencodable
             kv.Key.Serialize(),
             kv.Value.Bencoded)));
 
+    public StatMap()
+    {
+    }
+
     public StatMap(IValue bencoded)
     {
         if (bencoded is not Dictionary d)

@@ -7,6 +7,7 @@ using Libplanet.Types.Assets;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Lib9c.Models.Items;
 
@@ -33,6 +34,7 @@ public record ShopItem : IBencodable
     public int TradableFungibleItemCount { get; init; }
     public long ExpiredBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded
     {
         get
@@ -87,13 +89,13 @@ public record ShopItem : IBencodable
         ProductId = d[LegacyProductIdKey].ToGuid();
         Price = d[LegacyPriceKey].ToFungibleAssetValue();
         ItemUsable = d.ContainsKey(LegacyItemUsableKey)
-            ? (ItemUsable)ItemFactory.Deserialize((Dictionary)d[LegacyItemUsableKey])
+            ? (ItemUsable)ItemFactory.Deserialize(d[LegacyItemUsableKey])
             : null;
         Costume = d.ContainsKey(LegacyCostumeKey)
-            ? (Costume)ItemFactory.Deserialize((Dictionary)d[LegacyCostumeKey])
+            ? (Costume)ItemFactory.Deserialize(d[LegacyCostumeKey])
             : null;
         TradableFungibleItem = d.ContainsKey(TradableFungibleItemKey)
-            ? (TradableMaterial)ItemFactory.Deserialize((Dictionary)d[TradableFungibleItemKey])
+            ? (TradableMaterial)ItemFactory.Deserialize(d[TradableFungibleItemKey])
             : null;
         TradableFungibleItemCount = d.ContainsKey(TradableFungibleItemCountKey)
             ? d[TradableFungibleItemCountKey].ToInteger()

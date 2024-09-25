@@ -14,7 +14,7 @@ public class ItemProduct : Product, IBencodable
     public ItemProduct(List bencoded)
         : base(bencoded)
     {
-        TradableItem = ItemFactory.Deserialize((Dictionary)bencoded[6]);
+        TradableItem = ItemFactory.Deserialize(bencoded[6]);
         ItemCount = bencoded[7].ToInteger();
     }
 

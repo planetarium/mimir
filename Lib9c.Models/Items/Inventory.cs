@@ -1,6 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Items;
@@ -12,6 +13,7 @@ public record Inventory : IBencodable
 {
     public List<InventoryItem> Items { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded => new List(Items
         .OrderBy(i => i.Item.Id)
         .ThenByDescending(i => i.Count)

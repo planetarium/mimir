@@ -10,12 +10,6 @@ public class AddressSerializer : StructSerializerBase<Address>
 {
     public static readonly AddressSerializer Instance = new();
 
-    public override void Serialize(
-        BsonSerializationContext context,
-        BsonSerializationArgs args,
-        Address value) =>
-        context.Writer.WriteString(value.ToHex());
-
     public override Address Deserialize(
         BsonDeserializationContext context,
         BsonDeserializationArgs args)
@@ -26,4 +20,10 @@ public class AddressSerializer : StructSerializerBase<Address>
             ? new Address(reader.ReadString())
             : throw new UnexpectedTypeOfBsonValueException([BsonType.String], bsonType);
     }
+
+    public override void Serialize(
+        BsonSerializationContext context,
+        BsonSerializationArgs args,
+        Address value) =>
+        context.Writer.WriteString(value.ToHex());
 }

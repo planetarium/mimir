@@ -9,14 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.9.8" />
+    <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.9.12" />
     <PackageReference Include="Lib9c" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
     <PackageReference Include="Lib9c.Abstractions" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
     <PackageReference Include="Libplanet.RocksDBStore" Version="5.2.2" />
     <PackageReference Include="Libplanet" Version="5.2.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
-    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.27.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.29.0" />
+    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.29.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />

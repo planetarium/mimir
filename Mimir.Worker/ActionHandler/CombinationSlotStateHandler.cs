@@ -1,13 +1,13 @@
-using System.Globalization;
+using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
+using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
-using Nekoyume.Action;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
@@ -17,120 +17,96 @@ public class CombinationSlotStateHandler(IStateService stateService, MongoDbServ
         stateService,
         store,
         "^combination_consumable[0-9]*$|^combination_equipment[0-9]*$|^event_consumable_item_crafts[0-9]*$|^item_enhancement[0-9]*$|^rapid_combination[0-9]*$",
-        Log.ForContext<CombinationSlotStateHandler>()
-    )
+        Log.ForContext<CombinationSlotStateHandler>())
 {
     protected override async Task<bool> TryHandleAction(
         string actionType,
         long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
+        if (actionPlainValueInternal is not Dictionary actionValues)
         {
-            if (actionPlainValueInternal is not Dictionary actionValues)
-            {
-                throw new InvalidTypeOfActionPlainValueInternalException(
-                    [ValueKind.Dictionary],
-                    actionPlainValueInternal?.Kind
-                );
-            }
-
-            Address avatarAddress;
-            int slotIndex;
-
-            if (
-                System.Text.RegularExpressions.Regex.IsMatch(
-                    actionType,
-                    "^combination_consumable[0-9]*$"
-                )
-                || System.Text.RegularExpressions.Regex.IsMatch(
-                    actionType,
-                    "^combination_equipment[0-9]*$"
-                )
-            )
-            {
-                avatarAddress = new Address(actionValues["a"]);
-                slotIndex = actionValues["s"].ToInteger();
-            }
-            else if (
-                System.Text.RegularExpressions.Regex.IsMatch(actionType, "^item_enhancement[0-9]*$")
-            )
-            {
-                avatarAddress = new Address(actionValues["avatarAddress"]);
-                slotIndex = actionValues["slotIndex"].ToInteger();
-            }
-            else if (
-                System.Text.RegularExpressions.Regex.IsMatch(
-                    actionType,
-                    "^event_consumable_item_crafts[0-9]*$"
-                )
-            )
-            {
-                if (!(actionValues["l"] is List list))
-                {
-                    throw new ArgumentException("'l' must be a bencodex list");
-                }
-                avatarAddress = new Address(list[0]);
-                slotIndex = list[3].ToInteger();
-            }
-            else if (
-                System.Text.RegularExpressions.Regex.IsMatch(
-                    actionType,
-                    "^rapid_combination[0-9]*$"
-                )
-            )
-            {
-                avatarAddress = new Address(actionValues["avatarAddress"]);
-                slotIndex = actionValues["slotIndex"].ToInteger();
-            }
-            else
-            {
-                throw new ArgumentException($"Unknown actionType: {actionType}");
-            }
-
-            Logger.Information(
-                "CombinationSlotStateHandler, avatar: {avatarAddress}",
-                avatarAddress
+            var e = new InvalidTypeOfActionPlainValueInternalException(
+                [ValueKind.Dictionary],
+                actionPlainValueInternal?.Kind
             );
+            Logger.Fatal(
+                e,
+                "Unexpected actionPlainValueInternal type: {ActionPlainValueInternalType}",
+                actionPlainValueInternal?.Kind);
+            return false;
+        }
 
-            var slotAddress = avatarAddress.Derive(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    Nekoyume.Model.State.CombinationSlotState.DeriveFormat,
-                    slotIndex
-                )
-            );
+        Address avatarAddress;
+        int slotIndex;
 
-            var combinationSlotState = await StateGetter.GetCombinationSlotState(slotAddress);
-
-            if (combinationSlotState is null)
+        if (Regex.IsMatch(actionType, "^combination_consumable[0-9]*$") ||
+            Regex.IsMatch(actionType, "^combination_equipment[0-9]*$"))
+        {
+            avatarAddress = new Address(actionValues["a"]);
+            slotIndex = actionValues["s"].ToInteger();
+        }
+        else if (Regex.IsMatch(actionType, "^item_enhancement[0-9]*$"))
+        {
+            avatarAddress = new Address(actionValues["avatarAddress"]);
+            slotIndex = actionValues["slotIndex"].ToInteger();
+        }
+        else if (Regex.IsMatch(actionType, "^event_consumable_item_crafts[0-9]*$"))
+        {
+            if (actionValues["l"] is not List list)
             {
-                Logger.Error(
-                    "CombinationSlotState is null\navatar: {avatarAddress}, slotIndex: {slotIndex}",
-                    avatarAddress,
-                    slotIndex
-                );
-
+                var e = new ArgumentException("'l' must be a bencodex list");
+                Logger.Fatal(e, "actionValues[\"l\"] is not a List");
                 return false;
             }
 
-            await Store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName<CombinationSlotStateDocument>(),
-                [
-                    new CombinationSlotStateDocument(
-                        slotAddress,
-                        avatarAddress,
-                        slotIndex,
-                        combinationSlotState
-                    )
-                ],
-                session,
-                stoppingToken
-            );
-
-            return true;
+            avatarAddress = new Address(list[0]);
+            slotIndex = list[3].ToInteger();
         }
+        else if (Regex.IsMatch(actionType, "^rapid_combination[0-9]*$"))
+        {
+            avatarAddress = new Address(actionValues["avatarAddress"]);
+            slotIndex = actionValues["slotIndex"].ToInteger();
+        }
+        else
+        {
+            var e = new ArgumentException($"Unknown actionType: {actionType}");
+            Logger.Fatal(e, "Unknown actionType: {ActionType}", actionType);
+            return false;
+        }
+
+        Logger.Information("CombinationSlotStateHandler, avatar: {AvatarAddress}", avatarAddress);
+
+        var slotAddress = Nekoyume.Model.State.CombinationSlotState.DeriveAddress(avatarAddress, slotIndex);
+        CombinationSlotState combinationSlotState;
+        try
+        {
+            combinationSlotState = await StateGetter.GetCombinationSlotStateAsync(slotAddress, stoppingToken);
+        }
+        catch (StateNotFoundException e)
+        {
+            Logger.Fatal(
+                e,
+                "CombinationSlotState is null\navatar: {AvatarAddress}, slotIndex: {SlotIndex}",
+                avatarAddress,
+                slotIndex);
+            return false;
+        }
+
+        var doc = new CombinationSlotStateDocument(
+            slotAddress,
+            avatarAddress,
+            slotIndex,
+            combinationSlotState);
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<CombinationSlotStateDocument>(),
+            [doc],
+            session,
+            stoppingToken
+        );
+
+        return true;
     }
 }

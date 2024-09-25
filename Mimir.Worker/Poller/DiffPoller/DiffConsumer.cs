@@ -34,7 +34,7 @@ public class DiffConsumer
             if (diffContext.DiffResponse.AccountDiffs.Count() == 0)
             {
                 _logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
-                await _dbService.UpdateLatestBlockIndex(
+                await _dbService.UpdateLatestBlockIndexAsync(
                     new MetadataDocument
                     {
                         PollerType = nameof(DiffPoller),
@@ -59,7 +59,7 @@ public class DiffConsumer
                     stoppingToken
                 );
 
-                await _dbService.UpdateLatestBlockIndex(
+                await _dbService.UpdateLatestBlockIndexAsync(
                     new MetadataDocument
                     {
                         PollerType = nameof(DiffPoller),

@@ -1,17 +1,17 @@
-using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Stats;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Lib9c.Models.Items;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Equipment"/>
 /// </summary>
-public record Equipment : ItemUsable, IBencodable
+public record Equipment : ItemUsable
 {
     public bool Equipped { get; init; }
     public int Level { get; init; }
@@ -22,6 +22,7 @@ public record Equipment : ItemUsable, IBencodable
     public int OptionCountFromCombination { get; init; }
     public bool MadeWithMimisbrunnrRecipe { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded
     {
         get
@@ -50,6 +51,10 @@ public record Equipment : ItemUsable, IBencodable
 
             return d;
         }
+    }
+
+    public Equipment()
+    {
     }
 
     public Equipment(IValue bencoded) : base(bencoded)

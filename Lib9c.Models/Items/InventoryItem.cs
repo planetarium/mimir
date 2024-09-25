@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Item;
 using ItemFactory = Lib9c.Models.Factories.ItemFactory;
 using ValueKind = Bencodex.Types.ValueKind;
@@ -17,6 +18,7 @@ public record InventoryItem : IBencodable
     public int Count { get; init; }
     public ILock? Lock { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded
     {
         get
@@ -40,7 +42,7 @@ public record InventoryItem : IBencodable
                 bencoded.Kind);
         }
 
-        Item = ItemFactory.Deserialize((Dictionary)d["item"]);
+        Item = ItemFactory.Deserialize(d["item"]);
         Count = (Integer)d["count"];
         if (d.ContainsKey("l"))
         {
