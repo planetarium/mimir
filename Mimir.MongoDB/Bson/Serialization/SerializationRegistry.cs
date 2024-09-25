@@ -1,5 +1,4 @@
 using System.Numerics;
-using Lib9c.Models.AttachmentActionResults;
 using Lib9c.Models.Items;
 using Lib9c.Models.Skills;
 using Lib9c.Models.Stats;
