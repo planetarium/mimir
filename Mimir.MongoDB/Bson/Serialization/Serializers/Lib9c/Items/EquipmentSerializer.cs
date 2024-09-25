@@ -26,31 +26,23 @@ public class EquipmentSerializer : ClassSerializerBase<Equipment>
 
         var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeValue.AsString);
         var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeValue.AsString);
-        switch (itemType)
+        return itemType switch
         {
-            case Nekoyume.Model.Item.ItemType.Equipment:
-                switch (itemSubType)
-                {
-                    case Nekoyume.Model.Item.ItemSubType.Armor:
-                        return ArmorSerializer.Deserialize(doc);
-                    case Nekoyume.Model.Item.ItemSubType.Aura:
-                        return AuraSerializer.Deserialize(doc);
-                    case Nekoyume.Model.Item.ItemSubType.Belt:
-                        return BeltSerializer.Deserialize(doc);
-                    case Nekoyume.Model.Item.ItemSubType.Grimoire:
-                        return GrimoireSerializer.Deserialize(doc);
-                    case Nekoyume.Model.Item.ItemSubType.Necklace:
-                        return NecklaceSerializer.Deserialize(doc);
-                    case Nekoyume.Model.Item.ItemSubType.Ring:
-                        return RingSerializer.Deserialize(doc);
-                    case Nekoyume.Model.Item.ItemSubType.Weapon:
-                        return WeaponSerializer.Deserialize(doc);
-                }
-
-                break;
-        }
-
-        throw new BsonSerializationException($"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}");
+            Nekoyume.Model.Item.ItemType.Equipment => itemSubType switch
+            {
+                Nekoyume.Model.Item.ItemSubType.Armor => ArmorSerializer.Deserialize(doc),
+                Nekoyume.Model.Item.ItemSubType.Aura => AuraSerializer.Deserialize(doc),
+                Nekoyume.Model.Item.ItemSubType.Belt => BeltSerializer.Deserialize(doc),
+                Nekoyume.Model.Item.ItemSubType.Grimoire => GrimoireSerializer.Deserialize(doc),
+                Nekoyume.Model.Item.ItemSubType.Necklace => NecklaceSerializer.Deserialize(doc),
+                Nekoyume.Model.Item.ItemSubType.Ring => RingSerializer.Deserialize(doc),
+                Nekoyume.Model.Item.ItemSubType.Weapon => WeaponSerializer.Deserialize(doc),
+                _ => throw new BsonSerializationException(
+                    $"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}"),
+            },
+            _ => throw new BsonSerializationException(
+                $"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}"),
+        };
     }
 
     public static T Deserialize<T>(BsonDocument doc) where T : Equipment, new() => new T

@@ -23,15 +23,13 @@ public class ItemUsableSerializer : ClassSerializerBase<ItemUsable>
 
         var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeValue.AsString);
         var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeValue.AsString);
-        switch (itemType)
+        return itemType switch
         {
-            case Nekoyume.Model.Item.ItemType.Consumable:
-                return ConsumableSerializer.Deserialize(doc);
-            case Nekoyume.Model.Item.ItemType.Equipment:
-                return EquipmentSerializer.Deserialize(doc);
-        }
-
-        throw new BsonSerializationException($"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}");
+            Nekoyume.Model.Item.ItemType.Consumable => ConsumableSerializer.Deserialize(doc),
+            Nekoyume.Model.Item.ItemType.Equipment => EquipmentSerializer.Deserialize(doc),
+            _ => throw new BsonSerializationException(
+                $"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}"),
+        };
     }
 
     public override ItemUsable Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

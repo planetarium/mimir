@@ -23,19 +23,15 @@ public class ItemBaseSerializer : ClassSerializerBase<ItemBase>
 
         var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeValue.AsString);
         var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeValue.AsString);
-        switch (itemType)
+        return itemType switch
         {
-            case Nekoyume.Model.Item.ItemType.Consumable:
-                return ItemUsableSerializer.Deserialize(doc);
-            case Nekoyume.Model.Item.ItemType.Costume:
-                return CostumeSerializer.Deserialize(doc);
-            case Nekoyume.Model.Item.ItemType.Equipment:
-                return ItemUsableSerializer.Deserialize(doc);
-            case Nekoyume.Model.Item.ItemType.Material:
-                return MaterialSerializer.Deserialize(doc);
-        }
-
-        throw new BsonSerializationException($"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}");
+            Nekoyume.Model.Item.ItemType.Consumable or
+                Nekoyume.Model.Item.ItemType.Equipment => ItemUsableSerializer.Deserialize(doc),
+            Nekoyume.Model.Item.ItemType.Costume => CostumeSerializer.Deserialize(doc),
+            Nekoyume.Model.Item.ItemType.Material => MaterialSerializer.Deserialize(doc),
+            _ => throw new BsonSerializationException(
+                $"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}"),
+        };
     }
 
     public override ItemBase Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
