@@ -12,10 +12,10 @@ namespace Lib9c.Models.Items;
 /// </summary>
 public record Costume : ItemBase
 {
-    public bool Equipped { get; }
-    public string SpineResourcePath { get; }
-    public Guid ItemId { get; }
-    public long RequiredBlockIndex { get; }
+    public bool Equipped { get; init; }
+    public string SpineResourcePath { get; init; }
+    public Guid ItemId { get; init; }
+    public long RequiredBlockIndex { get; init; }
 
     [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded
