@@ -21,8 +21,8 @@ public class ItemBaseSerializer : ClassSerializerBase<ItemBase>
             throw new BsonSerializationException("Missing itemSubTypeValue in document.");
         }
 
-        var itemType = (Nekoyume.Model.Item.ItemType)itemTypeValue.AsInt32;
-        var itemSubType = (Nekoyume.Model.Item.ItemSubType)itemSubTypeValue.AsInt32;
+        var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeValue.AsString);
+        var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeValue.AsString);
         switch (itemType)
         {
             case Nekoyume.Model.Item.ItemType.Consumable:

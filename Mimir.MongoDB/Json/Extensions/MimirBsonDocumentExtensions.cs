@@ -1,6 +1,7 @@
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Json.Converters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Mimir.MongoDB.Json.Extensions;
 
@@ -15,6 +16,7 @@ public static class MimirBsonDocumentExtensions
         [
             new BigIntegerJsonConverter(),
             new MaterialAndIntDictionaryJsonConverter(),
+            new StringEnumConverter(),
         ],
         ContractResolver = new IgnoreBencodedContractResolver(),
     };
