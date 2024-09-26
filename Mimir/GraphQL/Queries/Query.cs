@@ -97,4 +97,24 @@ public class Query
     /// Get arena sub-fields.
     /// </summary>
     public ArenaObject GetArena() => new();
+
+    /// <summary>
+    /// Get the 
+    /// </summary>
+    /// <param name="avatarAddress"></param>
+    /// <param name="slotIndex"></param>
+    /// <param name="repo"></param>
+    /// <returns></returns>
+    public async Task<CombinationSlotState> GetCombinationSlotAsync(
+        Address avatarAddress,
+        int slotIndex,
+        [Service] CombinationSlotStateRepository repo) =>
+        (await repo.GetByAvatarAddressAsync(avatarAddress, slotIndex)).Object;
+
+    public async Task<CombinationSlotState[]> GetCombinationSlotsAsync(
+        Address avatarAddress,
+        [Service] CombinationSlotStateRepository repo) =>
+        (await repo.GetByAvatarAddressAsync(avatarAddress))
+        .Select(e => e.Object)
+        .ToArray();
 }
