@@ -217,10 +217,10 @@ public class MongoDbService
         string collectionName,
         MimirBsonDocument document)
     {
-        var stateJson = document.ToJson();
-        var bsonDocument = BsonDocument.Parse(stateJson);
+        var json = document.ToJson();
+        var bsonDocument = BsonDocument.Parse(json);
         var filter = Builders<BsonDocument>.Filter.Eq("Address", document.Address.ToHex());
-        var update = Builders<BsonDocument>.Update.Set(doc => doc, bsonDocument);
+        var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(
@@ -243,7 +243,8 @@ public class MongoDbService
             null,
             cancellationToken);
 
-        var bsonDocument = BsonDocument.Parse(document.ToJson());
+        var json = document.ToJson();
+        var bsonDocument = BsonDocument.Parse(json);
         var stateBsonDocument = bsonDocument.AsBsonDocument;
         stateBsonDocument.Remove("RawState");
         stateBsonDocument.Add("RawStateFileId", rawStateId);
