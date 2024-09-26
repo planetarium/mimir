@@ -40,7 +40,6 @@ builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<ActionPointRepository>();
 builder.Services.AddSingleton<DailyRewardRepository>();
 builder.Services.AddSingleton<CombinationSlotStateRepository>();
-
 // builder.Services.AddSingleton<InventoryRepository>();
 // builder.Services.AddSingleton<AllRuneRepository>();
 // builder.Services.AddSingleton<CollectionRepository>();
@@ -48,6 +47,7 @@ builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<RuneSlotRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<StakeRepository>();
+builder.Services.AddSingleton<ProductsRepository>();
 // builder.Services.AddSingleton<ProductRepository>();
 // builder.Services.AddSingleton<SeasonInfoRepository>();
 builder.Services.AddCors();
