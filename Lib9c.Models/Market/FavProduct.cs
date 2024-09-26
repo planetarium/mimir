@@ -1,26 +1,32 @@
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Libplanet.Types.Assets;
+using MongoDB.Bson.Serialization.Attributes;
+using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Market;
 
-public class FavProduct : Product, IBencodable
+[BsonIgnoreExtraElements]
+public record FavProduct : Product, IBencodable
 {
     public FungibleAssetValue Asset { get; }
 
-    public FavProduct(List bencoded)
-        : base(bencoded)
-    {
-        Asset = bencoded[6].ToFungibleAssetValue();
-    }
+    [BsonIgnore, GraphQLIgnore]
+    public new IValue Bencoded => ((List)base.Bencoded)
+        .Add(Asset.Serialize());
 
-    [GraphQLIgnore]
-    public new IValue Bencoded => Serialize();
-
-    public IValue Serialize()
+    public FavProduct(IValue bencoded) : base(bencoded)
     {
-        List serialized = (List)base.Bencoded;
-        return serialized.Add(Asset.Serialize());
+        if (bencoded is not List l)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                new[] { ValueKind.List },
+                bencoded.Kind);
+        }
+
+        Asset = l[6].ToFungibleAssetValue();
     }
 }
