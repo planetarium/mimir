@@ -19,9 +19,7 @@ public record ProductDocument : MimirBsonDocument
         Address address,
         Address avatarAddress,
         Address productsStateAddress,
-        Product product
-    )
-        : base(address)
+        Product product) : base(address)
     {
         Object = product;
         AvatarAddress = avatarAddress;
@@ -36,9 +34,7 @@ public record ProductDocument : MimirBsonDocument
         decimal unitPrice,
         int? combatPoint,
         int? crystal,
-        int? crystalPerPrice
-    )
-        : base(address)
+        int? crystalPerPrice) : base(address)
     {
         Object = product;
         AvatarAddress = avatarAddress;
