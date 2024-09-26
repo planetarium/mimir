@@ -12,11 +12,20 @@ public class SkillSheetRowSerializer : ClassSerializerBase<SkillSheet.Row>
 
     public static SkillSheet.Row Deserialize(BsonDocument doc)
     {
-        var jsonString = doc.ToJson();
-        return JsonConvert.DeserializeObject<SkillSheet.Row>(jsonString) ??
-               throw new JsonSerializationException(
-                   "Failed to deserialize SkillSheet.Row from BSON document." +
-                   $" jsonString: {jsonString}");
+        var fields = new[]
+        {
+            doc["Id"].AsInt32.ToString(),
+            doc["ElementalType"].AsString,
+            doc["SkillType"].AsString,
+            doc["SkillCategory"].AsString,
+            doc["SkillTargetType"].AsString,
+            doc["HitCount"].AsInt32.ToString(),
+            doc["Cooldown"].AsInt32.ToString(),
+            doc["Combo"].AsBoolean.ToString(),
+        };
+        var row = new SkillSheet.Row();
+        row.Set(fields);
+        return row;
     }
 
     public override SkillSheet.Row Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

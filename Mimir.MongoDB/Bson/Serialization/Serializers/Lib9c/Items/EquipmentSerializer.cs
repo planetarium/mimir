@@ -14,18 +14,18 @@ public class EquipmentSerializer : ClassSerializerBase<Equipment>
 
     public static Equipment Deserialize(BsonDocument doc)
     {
-        if (!doc.TryGetValue("ItemType", out var itemTypeValue))
+        if (!doc.TryGetValue("ItemType", out var itemTypeBsonValue))
         {
             throw new BsonSerializationException("Missing ItemType in document.");
         }
 
-        if (!doc.TryGetValue("ItemSubType", out var itemSubTypeValue))
+        if (!doc.TryGetValue("ItemSubType", out var itemSubTypeBsonValue))
         {
             throw new BsonSerializationException("Missing itemSubTypeValue in document.");
         }
 
-        var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeValue.AsString);
-        var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeValue.AsString);
+        var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeBsonValue.AsString);
+        var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeBsonValue.AsString);
         return itemType switch
         {
             Nekoyume.Model.Item.ItemType.Equipment => itemSubType switch
@@ -52,8 +52,8 @@ public class EquipmentSerializer : ClassSerializerBase<Equipment>
         ItemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(doc["ItemType"].AsString),
         ItemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(doc["ItemSubType"].AsString),
         ElementalType = Enum.Parse<Nekoyume.Model.Elemental.ElementalType>(doc["ElementalType"].AsString),
-        ItemId = doc["ItemId"].AsGuid,
-        StatsMap = StatMapSerializer.Deserialize(doc["StatMap"].AsBsonDocument),
+        ItemId = Guid.Parse(doc["ItemId"].AsString),
+        StatsMap = StatMapSerializer.Deserialize(doc["StatsMap"].AsBsonDocument),
         Skills = doc["Skills"].AsBsonArray
             .Select(skill => SkillSerializer.Deserialize(skill.AsBsonDocument))
             .ToList(),

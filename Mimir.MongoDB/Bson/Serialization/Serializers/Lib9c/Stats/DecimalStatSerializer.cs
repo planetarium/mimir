@@ -12,8 +12,8 @@ public class DecimalStatSerializer : ClassSerializerBase<DecimalStat>
     public static DecimalStat Deserialize(BsonDocument doc) => new()
     {
         StatType = Enum.Parse<Nekoyume.Model.Stat.StatType>(doc["StatType"].AsString),
-        BaseValue = doc["BaseValue"].AsDecimal,
-        AdditionalValue = doc["AdditionalValue"].AsDecimal,
+        BaseValue = (decimal)doc["BaseValue"].AsDouble,
+        AdditionalValue = (decimal)doc["AdditionalValue"].AsDouble,
     };
 
     public override DecimalStat Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

@@ -19,8 +19,8 @@ public class ConsumableSerializer : ClassSerializerBase<Consumable>
         ItemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(doc["ItemType"].AsString),
         ItemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(doc["ItemSubType"].AsString),
         ElementalType = Enum.Parse<Nekoyume.Model.Elemental.ElementalType>(doc["ElementalType"].AsString),
-        ItemId = doc["ItemId"].AsGuid,
-        StatsMap = StatMapSerializer.Deserialize(doc["StatMap"].AsBsonDocument),
+        ItemId = Guid.Parse(doc["ItemId"].AsString),
+        StatsMap = StatMapSerializer.Deserialize(doc["StatsMap"].AsBsonDocument),
         Skills = doc["Skills"].AsBsonArray
             .Select(skill => SkillSerializer.Deserialize(skill.AsBsonDocument))
             .ToList(),
