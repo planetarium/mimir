@@ -3,7 +3,7 @@ using Nekoyume.Model.Elemental;
 using Nekoyume.Model.Skill;
 using Nekoyume.TableData;
 
-namespace Lib9c.GraphQL.Types;
+namespace Lib9c.GraphQL.Types.Sheets;
 
 public class SkillSheetRowType : ObjectType<SkillSheet.Row>
 {

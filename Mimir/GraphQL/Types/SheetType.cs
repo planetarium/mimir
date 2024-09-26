@@ -1,4 +1,4 @@
-using Lib9c.GraphQL.Types;
+using Lib9c.GraphQL.Types.Sheets;
 using Mimir.GraphQL.Objects;
 
 namespace Mimir.GraphQL.Types

@@ -1,6 +1,7 @@
 using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
+using Lib9c.Models.Items;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
