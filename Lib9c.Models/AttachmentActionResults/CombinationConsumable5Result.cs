@@ -4,6 +4,7 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
@@ -13,13 +14,14 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// </summary>
 public record CombinationConsumable5Result : AttachmentActionResult
 {
-    private Dictionary<Material, int> Materials { get; init; }
+    public Dictionary<Material, int> Materials { get; init; }
     public Guid Id { get; init; }
     public BigInteger Gold { get; init; }
     public int ActionPoint { get; init; }
     public int RecipeId { get; init; }
     public int? SubRecipeId { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("materials", new List(Materials
             .OrderBy(kv => kv.Key.Id)
@@ -31,6 +33,10 @@ public record CombinationConsumable5Result : AttachmentActionResult
         .Add("actionPoint", ActionPoint.Serialize())
         .Add("recipeId", RecipeId.Serialize())
         .Add("subRecipeId", SubRecipeId.Serialize());
+
+    public CombinationConsumable5Result()
+    {
+    }
 
     public CombinationConsumable5Result(IValue bencoded) : base(bencoded)
     {

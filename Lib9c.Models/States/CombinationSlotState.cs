@@ -47,6 +47,10 @@ public record CombinationSlotState : IBencodable
         }
     }
 
+    public CombinationSlotState()
+    {
+    }
+
     public CombinationSlotState(IValue bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -61,10 +65,10 @@ public record CombinationSlotState : IBencodable
         UnlockBlockIndex = d["unlockBlockIndex"].ToLong();
         UnlockStage = d["unlockStage"].ToInteger();
 
-        // if (d.TryGetValue((Text)"result", out var result))
-        // {
-        //     Result = AttachmentActionResultFactory.Create(result);
-        // }
+        if (d.TryGetValue((Text)"result", out var result))
+        {
+            Result = AttachmentActionResultFactory.Create(result);
+        }
 
         if (d.TryGetValue((Text)"startBlockIndex", out var startIndex))
         {

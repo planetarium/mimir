@@ -25,7 +25,7 @@ public record ShopItem : IBencodable
 
     /// <summary>
     /// The type of the <see cref="Nekoyume.Action.AttachmentActionResult.tradableFungibleItem"/> field in Lib9c
-    /// that this property corresponds to is <see cref="ITradableFungibleItem"/>. However,
+    /// that this property corresponds to is <see cref="Nekoyume.Model.Item.ITradableFungibleItem"/>. However,
     /// only <see cref="Nekoyume.Model.Item.TradableMaterial"/> implements this type's interface in Lib9c,
     /// so we define it here as <see cref="TradableMaterial"/> type that corresponding it.
     /// </summary>
@@ -72,6 +72,10 @@ public record ShopItem : IBencodable
 
             return d;
         }
+    }
+
+    public ShopItem()
+    {
     }
 
     public ShopItem(IValue bencoded)

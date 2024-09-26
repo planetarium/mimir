@@ -4,6 +4,7 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Action;
 using ValueKind = Bencodex.Types.ValueKind;
 
@@ -21,6 +22,7 @@ public record ItemEnhancement9Result : AttachmentActionResult
     public ItemEnhancement9.EnhancementResult EnhancementResult { get; init; }
     public ItemUsable? PreItemUsable { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded
     {
         get
@@ -41,6 +43,10 @@ public record ItemEnhancement9Result : AttachmentActionResult
 
             return d;
         }
+    }
+
+    public ItemEnhancement9Result()
+    {
     }
 
     public ItemEnhancement9Result(IValue bencoded) : base(bencoded)

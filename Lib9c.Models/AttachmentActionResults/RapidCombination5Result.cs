@@ -3,6 +3,7 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
@@ -13,8 +14,9 @@ namespace Lib9c.Models.AttachmentActionResults;
 public record RapidCombination5Result : AttachmentActionResult
 {
     public Guid Id { get; init; }
-    private Dictionary<Material, int> Cost { get; init; }
+    public Dictionary<Material, int> Cost { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("id", Id.Serialize())
         .Add("cost", new List(Cost
@@ -22,6 +24,10 @@ public record RapidCombination5Result : AttachmentActionResult
             .Select(pair => (IValue)Dictionary.Empty
                 .Add("material", pair.Key.Bencoded)
                 .Add("count", pair.Value.Serialize()))));
+
+    public RapidCombination5Result()
+    {
+    }
 
     public RapidCombination5Result(IValue bencoded) : base(bencoded)
     {
