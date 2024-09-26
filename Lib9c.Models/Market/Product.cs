@@ -4,18 +4,29 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Market;
 
-public abstract class Product : IBencodable
+[BsonIgnoreExtraElements]
+public abstract record Product : IBencodable
 {
-    public Guid ProductId { get; }
-    public Nekoyume.Model.Market.ProductType ProductType { get; }
-    public FungibleAssetValue Price { get; }
-    public long RegisteredBlockIndex { get; }
-    public Address SellerAvatarAddress { get; }
-    public Address SellerAgentAddress { get; }
+    public Guid ProductId { get; init; }
+    public Nekoyume.Model.Market.ProductType ProductType { get; init; }
+    public FungibleAssetValue Price { get; init; }
+    public long RegisteredBlockIndex { get; init; }
+    public Address SellerAvatarAddress { get; init; }
+    public Address SellerAgentAddress { get; init; }
+
+    [BsonIgnore, GraphQLIgnore]
+    public IValue Bencoded => List.Empty
+        .Add(ProductId.Serialize())
+        .Add(ProductType.Serialize())
+        .Add(Price.Serialize())
+        .Add(RegisteredBlockIndex.Serialize())
+        .Add(SellerAgentAddress.Serialize())
+        .Add(SellerAvatarAddress.Serialize());
 
     public Product(IValue bencoded)
     {
@@ -24,8 +35,7 @@ public abstract class Product : IBencodable
             throw new UnsupportedArgumentValueException<ValueKind>(
                 nameof(bencoded),
                 new[] { ValueKind.List },
-                bencoded.Kind
-            );
+                bencoded.Kind);
         }
 
         ProductId = l[0].ToGuid();
@@ -35,23 +45,4 @@ public abstract class Product : IBencodable
         SellerAgentAddress = l[4].ToAddress();
         SellerAvatarAddress = l[5].ToAddress();
     }
-
-    public Product(List bencoded)
-    {
-        ProductId = bencoded[0].ToGuid();
-        ProductType = bencoded[1].ToEnum<Nekoyume.Model.Market.ProductType>();
-        Price = bencoded[2].ToFungibleAssetValue();
-        RegisteredBlockIndex = bencoded[3].ToLong();
-        SellerAgentAddress = bencoded[4].ToAddress();
-        SellerAvatarAddress = bencoded[5].ToAddress();
-    }
-
-    public IValue Bencoded =>
-        List
-            .Empty.Add(ProductId.Serialize())
-            .Add(ProductType.Serialize())
-            .Add(Price.Serialize())
-            .Add(RegisteredBlockIndex.Serialize())
-            .Add(SellerAgentAddress.Serialize())
-            .Add(SellerAvatarAddress.Serialize());
 }
