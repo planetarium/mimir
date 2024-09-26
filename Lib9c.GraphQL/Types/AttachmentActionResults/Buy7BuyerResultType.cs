@@ -3,9 +3,9 @@ using Lib9c.Models.AttachmentActionResults;
 
 namespace Lib9c.GraphQL.Types.AttachmentActionResults;
 
-public class CombinationConsumable5ResultType : ObjectType<CombinationConsumable5Result>
+public class Buy7BuyerResultType : ObjectType<Buy7BuyerResult>
 {
-    protected override void Configure(IObjectTypeDescriptor<CombinationConsumable5Result> descriptor)
+    protected override void Configure(IObjectTypeDescriptor<Buy7BuyerResult> descriptor)
     {
         descriptor.Implements<AttachmentActionResultInterfaceType>();
     }

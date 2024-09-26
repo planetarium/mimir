@@ -3,9 +3,9 @@ using Lib9c.Models.AttachmentActionResults;
 
 namespace Lib9c.GraphQL.Types.AttachmentActionResults;
 
-public class CombinationConsumable5ResultType : ObjectType<CombinationConsumable5Result>
+public class DailyReward2ResultType : ObjectType<DailyReward2Result>
 {
-    protected override void Configure(IObjectTypeDescriptor<CombinationConsumable5Result> descriptor)
+    protected override void Configure(IObjectTypeDescriptor<DailyReward2Result> descriptor)
     {
         descriptor.Implements<AttachmentActionResultInterfaceType>();
     }
