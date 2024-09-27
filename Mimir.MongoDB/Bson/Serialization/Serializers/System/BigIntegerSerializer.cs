@@ -21,9 +21,10 @@ public class BigIntegerSerializer : StructSerializerBase<BigInteger>
             : throw new UnexpectedTypeOfBsonValueException([BsonType.String], bsonType);
     }
 
-    public override void Serialize(
-        BsonSerializationContext context,
-        BsonSerializationArgs args,
-        BigInteger value) =>
-        context.Writer.WriteString(value.ToString());
+    // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
+    // public override void Serialize(
+    //     BsonSerializationContext context,
+    //     BsonSerializationArgs args,
+    //     BigInteger value) =>
+    //     context.Writer.WriteString(value.ToString());
 }
