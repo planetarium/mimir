@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Stat;
 using ValueKind = Bencodex.Types.ValueKind;
 
@@ -16,15 +17,18 @@ public record DecimalStat : IBencodable
     public decimal BaseValue { get; init; }
     public decimal AdditionalValue { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded => Dictionary.Empty
         .Add("statType", StatType.Serialize())
         .Add("value", BaseValue.Serialize())
         .Add("additionalValue", AdditionalValue.Serialize());
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue BencodedWithoutAdditionalValue => Dictionary.Empty
         .Add("statType", StatType.Serialize())
         .Add("value", BaseValue.Serialize());
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue BencodedAsLegacy => Dictionary.Empty
         .Add("type", StatType.Serialize())
         .Add("value", BaseValue.Serialize());

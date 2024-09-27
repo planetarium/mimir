@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Stat;
 using Nekoyume.TableData;
 using ValueKind = Bencodex.Types.ValueKind;
@@ -21,6 +22,7 @@ public record Skill : IBencodable
 
     private readonly bool _skillRowHasCombo = false;
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded
     {
         get

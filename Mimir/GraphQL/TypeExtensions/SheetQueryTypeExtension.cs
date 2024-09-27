@@ -1,5 +1,5 @@
 using System.Text;
-using Lib9c.GraphQL.Types;
+using Lib9c.GraphQL.Types.Sheets;
 using Mimir.Enums;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Queries;

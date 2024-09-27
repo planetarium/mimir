@@ -5,6 +5,7 @@ using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
 using Libplanet.Types.Assets;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Action;
 using ValueKind = Bencodex.Types.ValueKind;
 
@@ -23,6 +24,7 @@ public record ItemEnhancement11Result : AttachmentActionResult
     public ItemUsable? PreItemUsable { get; init; }
     public FungibleAssetValue Crystal { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded
     {
         get
@@ -43,6 +45,10 @@ public record ItemEnhancement11Result : AttachmentActionResult
 
             return d.Add("c", Crystal.Serialize());
         }
+    }
+
+    public ItemEnhancement11Result()
+    {
     }
 
     public ItemEnhancement11Result(IValue bencoded) : base(bencoded)

@@ -3,6 +3,7 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Items;
 using Libplanet.Types.Assets;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
@@ -16,10 +17,15 @@ public record Buy7SellerResult : AttachmentActionResult
     public Guid Id { get; init; }
     public FungibleAssetValue Gold { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("shopItem", ShopItem.Bencoded)
         .Add("id", Id.Serialize())
         .Add("gold", Gold.Serialize());
+
+    public Buy7SellerResult()
+    {
+    }
 
     public Buy7SellerResult(IValue bencoded) : base(bencoded)
     {

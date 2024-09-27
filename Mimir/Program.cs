@@ -1,6 +1,8 @@
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Lib9c.GraphQL.Types;
+using Libplanet.Common;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.GraphQL;
@@ -37,6 +39,7 @@ builder.Services.AddSingleton<AgentRepository>();
 builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<ActionPointRepository>();
 builder.Services.AddSingleton<DailyRewardRepository>();
+builder.Services.AddSingleton<CombinationSlotStateRepository>();
 
 // builder.Services.AddSingleton<InventoryRepository>();
 // builder.Services.AddSingleton<AllRuneRepository>();
@@ -54,11 +57,9 @@ builder.Services
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
     .BindRuntimeType(typeof(Address), typeof(AddressType))
+    .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
     .AddErrorFilter<ErrorFilter>()
-    .ModifyRequestOptions(requestExecutorOptions =>
-    {
-        requestExecutorOptions.IncludeExceptionDetails = true;
-    });
+    .ModifyRequestOptions(requestExecutorOptions => { requestExecutorOptions.IncludeExceptionDetails = true; });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();
 

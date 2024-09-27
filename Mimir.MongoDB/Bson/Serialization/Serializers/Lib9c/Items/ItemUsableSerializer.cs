@@ -11,18 +11,18 @@ public class ItemUsableSerializer : ClassSerializerBase<ItemUsable>
 
     public static ItemUsable Deserialize(BsonDocument doc)
     {
-        if (!doc.TryGetValue("ItemType", out var itemTypeValue))
+        if (!doc.TryGetValue("ItemType", out var itemTypeBsonValue))
         {
             throw new BsonSerializationException("Missing ItemType in document.");
         }
 
-        if (!doc.TryGetValue("ItemSubType", out var itemSubTypeValue))
+        if (!doc.TryGetValue("ItemSubType", out var itemSubTypeBsonValue))
         {
             throw new BsonSerializationException("Missing itemSubTypeValue in document.");
         }
 
-        var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeValue.AsString);
-        var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeValue.AsString);
+        var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeBsonValue.AsString);
+        var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeBsonValue.AsString);
         return itemType switch
         {
             Nekoyume.Model.Item.ItemType.Consumable => ConsumableSerializer.Deserialize(doc),

@@ -19,7 +19,7 @@ public class CostumeSerializer : ClassSerializerBase<Costume>
         ElementalType = Enum.Parse<Nekoyume.Model.Elemental.ElementalType>(doc["ElementalType"].AsString),
         Equipped = doc["Equipped"].AsBoolean,
         SpineResourcePath = doc["SpineResourcePath"].AsString,
-        ItemId = doc["ItemId"].AsGuid,
+        ItemId = Guid.Parse(doc["ItemId"].AsString),
         RequiredBlockIndex = doc["RequiredBlockIndex"].ToLong(),
     };
 

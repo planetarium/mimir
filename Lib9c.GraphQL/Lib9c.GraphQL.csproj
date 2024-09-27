@@ -9,7 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GraphQL" Version="7.8.0" />
         <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.12" />
         <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.12">
             <PrivateAssets>all</PrivateAssets>
@@ -17,6 +16,10 @@
         </PackageReference>
         <PackageReference Include="Lib9c" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
         <PackageReference Include="Libplanet" Version="5.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj" />
     </ItemGroup>
     
 </Project>

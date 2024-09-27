@@ -2,15 +2,9 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
-using Nekoyume.Model.Item;
-using Costume = Lib9c.Models.Items.Costume;
-using Item_Costume = Lib9c.Models.Items.Costume;
-using Item_ItemUsable = Lib9c.Models.Items.ItemUsable;
-using Item_TradableMaterial = Lib9c.Models.Items.TradableMaterial;
-using ItemFactory = Lib9c.Models.Factories.ItemFactory;
-using ItemUsable = Lib9c.Models.Items.ItemUsable;
-using TradableMaterial = Lib9c.Models.Items.TradableMaterial;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
@@ -21,19 +15,20 @@ namespace Lib9c.Models.AttachmentActionResults;
 public record AttachmentActionResult : IBencodable
 {
     public string TypeId { get; init; }
-    public Item_ItemUsable? ItemUsable { get; init; }
-    public Item_Costume? Costume { get; init; }
+    public ItemUsable? ItemUsable { get; init; }
+    public Costume? Costume { get; init; }
 
     /// <summary>
     /// The type of the <see cref="Nekoyume.Action.AttachmentActionResult.tradableFungibleItem"/> field in Lib9c
-    /// that this property corresponds to is <see cref="ITradableFungibleItem"/>. However,
+    /// that this property corresponds to is <see cref="Nekoyume.Model.Item.ITradableFungibleItem"/>. However,
     /// only <see cref="Nekoyume.Model.Item.TradableMaterial"/> implements this type's interface in Lib9c,
     /// so we define it here as <see cref="Items.TradableMaterial"/> type that corresponding it.
     /// </summary>
-    public Item_TradableMaterial? TradableFungibleItem { get; init; }
+    public TradableMaterial? TradableFungibleItem { get; init; }
 
     public int TradableFungibleItemCount { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public virtual IValue Bencoded
     {
         get
@@ -60,6 +55,10 @@ public record AttachmentActionResult : IBencodable
         }
     }
 
+    public AttachmentActionResult()
+    {
+    }
+
     public AttachmentActionResult(IValue bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -72,14 +71,14 @@ public record AttachmentActionResult : IBencodable
 
         TypeId = d["typeId"].ToDotnetString();
         ItemUsable = d.ContainsKey("itemUsable")
-            ? (Item_ItemUsable)Factories.ItemFactory.Deserialize((Dictionary)d["itemUsable"])
+            ? (ItemUsable)ItemFactory.Deserialize(d["itemUsable"])
             : null;
         Costume = d.ContainsKey("costume")
-            ? (Item_Costume)Factories.ItemFactory.Deserialize((Dictionary)d["costume"])
+            ? (Costume)ItemFactory.Deserialize(d["costume"])
             : null;
         TradableFungibleItem = d.ContainsKey("tradableFungibleItem")
-            ? (Item_TradableMaterial)Factories.ItemFactory.Deserialize(
-                (Dictionary)d["tradableFungibleItem"])
+            ? (TradableMaterial)ItemFactory.Deserialize(
+                d["tradableFungibleItem"])
             : null;
         TradableFungibleItemCount = d.ContainsKey("tradableFungibleItemCount")
             ? d["tradableFungibleItemCount"].ToInteger()

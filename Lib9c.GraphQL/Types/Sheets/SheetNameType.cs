@@ -1,6 +1,6 @@
 using HotChocolate.Types;
 
-namespace Lib9c.GraphQL.Types;
+namespace Lib9c.GraphQL.Types.Sheets;
 
 public class SheetNameType : StringType
 {

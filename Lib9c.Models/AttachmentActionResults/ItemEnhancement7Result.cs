@@ -2,6 +2,7 @@ using System.Numerics;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
@@ -16,6 +17,7 @@ public record ItemEnhancement7Result : AttachmentActionResult
     public BigInteger Gold { get; init; }
     public int ActionPoint { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("id", Id.Serialize())
         .Add("materialItemIdList", MaterialItemIdList
@@ -24,6 +26,10 @@ public record ItemEnhancement7Result : AttachmentActionResult
             .Serialize())
         .Add("gold", Gold.Serialize())
         .Add("actionPoint", ActionPoint.Serialize());
+
+    public ItemEnhancement7Result()
+    {
+    }
 
     public ItemEnhancement7Result(IValue bencoded) : base(bencoded)
     {

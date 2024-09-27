@@ -1,6 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Stat;
 using ValueKind = Bencodex.Types.ValueKind;
 
@@ -14,6 +15,7 @@ public record StatMap : IBencodable
 {
     public Dictionary<StatType, DecimalStat> Value { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded => new Dictionary(Value
         .Where(x => x.Value.BaseValue > 0 || x.Value.AdditionalValue > 0)
         .Select(kv => new KeyValuePair<IKey, IValue>(

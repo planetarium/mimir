@@ -11,6 +11,7 @@ public class StatMapSerializer : ClassSerializerBase<StatMap>
 
     public static StatMap Deserialize(BsonDocument doc)
     {
+        var valueDoc = doc["Value"].AsBsonDocument;
         var statMap = new StatMap
         {
             Value = new Dictionary<Nekoyume.Model.Stat.StatType, DecimalStat>(),
@@ -18,12 +19,12 @@ public class StatMapSerializer : ClassSerializerBase<StatMap>
         var allStatTypes = Enum.GetValues<Nekoyume.Model.Stat.StatType>();
         foreach (var targetStatType in allStatTypes)
         {
-            if (!doc.TryGetValue(targetStatType.ToString(), out var targetStat))
+            if (!valueDoc.TryGetValue(targetStatType.ToString(), out var targetStatBsonValue))
             {
                 continue;
             }
 
-            var statDoc = targetStat.AsBsonDocument;
+            var statDoc = targetStatBsonValue.AsBsonDocument;
             statMap.Value[targetStatType] = DecimalStatSerializer.Deserialize(statDoc);
         }
 

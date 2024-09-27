@@ -3,6 +3,7 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.AttachmentActionResults;
@@ -12,9 +13,10 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// </summary>
 public record DailyReward2Result : AttachmentActionResult
 {
-    private Dictionary<Material, int> Materials { get; init; }
+    public Dictionary<Material, int> Materials { get; init; }
     public Guid Id { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("materials", new List(Materials
             .OrderBy(kv => kv.Key.Id)
@@ -22,6 +24,10 @@ public record DailyReward2Result : AttachmentActionResult
                 .Add("material", pair.Key.Bencoded)
                 .Add("count", pair.Value.Serialize()))))
         .Add("id", Id.Serialize());
+
+    public DailyReward2Result()
+    {
+    }
 
     public DailyReward2Result(IValue bencoded) : base(bencoded)
     {

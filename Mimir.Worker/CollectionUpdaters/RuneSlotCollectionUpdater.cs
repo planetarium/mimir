@@ -107,7 +107,9 @@ public static class RuneSlotCollectionUpdater
                 .Select(e =>
                     (
                         slotIndex: e["Index"].AsInt32,
-                        runeId: e.Contains("RuneSheetId") ? e["RuneSheetId"].AsNullableInt32 : null
+                        runeId: e.TryGetValue("RuneSheetId", out var runeSheetIdBsonValue)
+                            ? runeSheetIdBsonValue.AsNullableInt32
+                            : null
                     )
                 )
                 .OrderBy(tuple => tuple.slotIndex)
