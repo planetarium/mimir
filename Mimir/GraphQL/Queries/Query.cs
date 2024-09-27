@@ -2,6 +2,7 @@ using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
 using Lib9c.Models.Items;
+using Lib9c.Models.Market;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
@@ -115,4 +116,15 @@ public class Query
         (await repo.GetByAvatarAddressAsync(avatarAddress))
         .Select(e => e.Object)
         .ToArray();
+
+    /// <summary>
+    /// Get the product ids that are contained in the products state for a specific avatar address.
+    /// </summary>
+    /// <param name="avatarAddress">The address of the avatar.</param>
+    /// <returns>The product ids that contained in the products state for the specified avatar address.</returns>
+    public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] ProductsRepository repo) =>
+        (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
+
+    public async Task<Product> GetProductAsync(Guid productId, [Service] ProductRepository repo) =>
+        (await repo.GetByProductIdAsync(productId)).Object;
 }
