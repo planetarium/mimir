@@ -2,7 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Market;
-using Mimir.Enums;
+using Mimir.Exceptions;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Services;
@@ -15,6 +15,22 @@ namespace Mimir.Repositories;
 public class ProductRepository(MongoDbService dbService)
 {
     private static readonly Codec Codec = new();
+
+    public async Task<ProductDocument> GetByProductIdAsync(Guid productId)
+    {
+        var collectionName = CollectionNames.GetCollectionName<ProductDocument>();
+        var collection = dbService.GetCollection<ProductDocument>(collectionName);
+        var filter = Builders<ProductDocument>.Filter.Eq(doc => doc.Object.ProductId, productId);
+        var productDocument = await collection.Find(filter).FirstOrDefaultAsync();
+        if (productDocument is null)
+        {
+            throw new DocumentNotFoundInMongoCollectionException(
+                collection.CollectionNamespace.CollectionName,
+                $"'ProductId' equals to '{productId}'");
+        }
+
+        return productDocument;
+    }
 
     public List<Product> GetProducts(long skip, int limit)
     {
