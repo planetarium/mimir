@@ -56,9 +56,10 @@ builder.Services
     .AddGraphQLServer()
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
+    .AddErrorFilter<ErrorFilter>()
+    .AddMongoDbPagingProviders(providerName: "MongoDB", defaultProvider: true)
     .BindRuntimeType(typeof(Address), typeof(AddressType))
     .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
-    .AddErrorFilter<ErrorFilter>()
     .ModifyRequestOptions(requestExecutorOptions => { requestExecutorOptions.IncludeExceptionDetails = true; });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();
