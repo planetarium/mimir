@@ -10,7 +10,7 @@ using ValueKind = Bencodex.Types.ValueKind;
 namespace Lib9c.Models.Market;
 
 [BsonIgnoreExtraElements]
-public abstract record Product : IBencodable
+public record Product : IBencodable
 {
     public Guid ProductId { get; init; }
     public Nekoyume.Model.Market.ProductType ProductType { get; init; }
