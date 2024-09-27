@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.9.12" />
     <PackageReference Include="Lib9c" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
     <PackageReference Include="Lib9c.Abstractions" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39" />
     <PackageReference Include="Libplanet.RocksDBStore" Version="5.2.2" />
