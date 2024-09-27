@@ -1,7 +1,6 @@
 using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
-using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
@@ -125,6 +124,11 @@ public class Query
     public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] ProductsRepository repo) =>
         (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
 
+    /// <summary>
+    /// Get the product by product ID.
+    /// </summary>
+    /// <param name="productId">The product ID</param>
+    /// <returns>The product.</returns>
     public async Task<Product> GetProductAsync(Guid productId, [Service] ProductRepository repo) =>
         (await repo.GetByProductIdAsync(productId)).Object;
 }
