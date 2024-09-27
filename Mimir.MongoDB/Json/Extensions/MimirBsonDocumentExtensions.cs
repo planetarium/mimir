@@ -1,26 +1,24 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Json.Converters;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Mimir.MongoDB.Json.Extensions;
 
 public static class MimirBsonDocumentExtensions
 {
-    public static readonly JsonSerializerSettings JsonSerializerSettings = new()
+    public static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        Formatting = Formatting.None,
-        NullValueHandling = NullValueHandling.Ignore,
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        WriteIndented = false,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Converters =
-        [
+        {
             new BigIntegerJsonConverter(),
             new MaterialAndIntDictionaryJsonConverter(),
-            new StringEnumConverter(),
-        ],
-        ContractResolver = new IgnoreBencodedContractResolver(),
+            new JsonStringEnumConverter(),
+        },
     };
 
     public static string ToJson(this MimirBsonDocument document) =>
-        JsonConvert.SerializeObject(document, JsonSerializerSettings);
+        JsonSerializer.Serialize(document, JsonSerializerOptions);
 }
