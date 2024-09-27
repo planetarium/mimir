@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="Lib9c" Version="1.17.2-dev.95968dfc2482cdaf21ad5fc71cf40b5f191b6d39"/>
-        <PackageReference Include="MongoDB.Bson" Version="2.29.0" />
+        <PackageReference Include="MongoDB.Bson" Version="2.27.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     </ItemGroup>
 
