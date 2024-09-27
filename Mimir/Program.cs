@@ -48,7 +48,7 @@ builder.Services.AddSingleton<RuneSlotRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<StakeRepository>();
 builder.Services.AddSingleton<ProductsRepository>();
-// builder.Services.AddSingleton<ProductRepository>();
+builder.Services.AddSingleton<ProductRepository>();
 // builder.Services.AddSingleton<SeasonInfoRepository>();
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
