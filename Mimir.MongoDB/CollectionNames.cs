@@ -97,6 +97,7 @@ namespace Mimir.MongoDB
             // CollectionAndStateTypeMappings.Add(typeof(ExplorerListDocument), "adventure_boss_explorer_list");
             // CollectionAndStateTypeMappings.Add(typeof(ExplorerDocument), "adventure_boss_explorer");
             // CollectionAndStateTypeMappings.Add(typeof(SeasonInfoDocument), "adventure_boss_season_info");
+            CollectionAndStateTypeMappings.Add(typeof(PledgeDocument), "pledge");
         }
 
         public static string GetCollectionName<T>()
