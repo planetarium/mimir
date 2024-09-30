@@ -16,7 +16,7 @@ public class CombinationSlotStateHandler(IStateService stateService, MongoDbServ
     : BaseActionHandler(
         stateService,
         store,
-        "^combination_consumable[0-9]*$|^combination_equipment[0-9]*$|^event_consumable_item_crafts[0-9]*$|^item_enhancement[0-9]*$|^rapid_combination[0-9]*$",
+        "^combination_consumable[0-9]*$|^combination_equipment[0-9]*$|^event_consumable_item_crafts[0-9]*$|^item_enhancement[0-9]*$",
         Log.ForContext<CombinationSlotStateHandler>())
 {
     protected override async Task<bool> TryHandleAction(
@@ -30,8 +30,7 @@ public class CombinationSlotStateHandler(IStateService stateService, MongoDbServ
         {
             var e = new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind
-            );
+                actionPlainValueInternal?.Kind);
             Logger.Fatal(
                 e,
                 "Unexpected actionPlainValueInternal type: {ActionPlainValueInternalType}",
@@ -64,11 +63,6 @@ public class CombinationSlotStateHandler(IStateService stateService, MongoDbServ
 
             avatarAddress = new Address(list[0]);
             slotIndex = list[3].ToInteger();
-        }
-        else if (Regex.IsMatch(actionType, "^rapid_combination[0-9]*$"))
-        {
-            avatarAddress = new Address(actionValues["avatarAddress"]);
-            slotIndex = actionValues["slotIndex"].ToInteger();
         }
         else
         {
@@ -104,8 +98,7 @@ public class CombinationSlotStateHandler(IStateService stateService, MongoDbServ
             CollectionNames.GetCollectionName<CombinationSlotStateDocument>(),
             [doc],
             session,
-            stoppingToken
-        );
+            stoppingToken);
 
         return true;
     }
