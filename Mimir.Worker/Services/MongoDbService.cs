@@ -243,7 +243,7 @@ public class MongoDbService
             null,
             cancellationToken);
 
-        var json = document.ToJson();
+        var json = MimirBsonDocumentExtensions.ToJson(document);
         var bsonDocument = BsonDocument.Parse(json);
         var stateBsonDocument = bsonDocument.AsBsonDocument;
         stateBsonDocument.Remove("RawState");
