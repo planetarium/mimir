@@ -1,4 +1,3 @@
-using System.Globalization;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
@@ -7,7 +6,6 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
-using Nekoyume.Action;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
@@ -16,7 +14,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
     : BaseActionHandler(
         stateService,
         store,
-        "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$|^rapid_combination[0-9]*$",
+        "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$",
         Log.ForContext<PetStateHandler>()
     )
 {
@@ -59,44 +57,6 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
                     return false;
                 }
                 petId = pid.Value;
-            }
-            else if (
-                System.Text.RegularExpressions.Regex.IsMatch(
-                    actionType,
-                    "^rapid_combination[0-9]*$"
-                )
-            )
-            {
-                avatarAddress = actionValues["avatarAddress"].ToAddress();
-                int slotIndex = actionValues["slotIndex"].ToInteger();
-
-                var slotAddress = avatarAddress.Derive(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        Nekoyume.Model.State.CombinationSlotState.DeriveFormat,
-                        slotIndex
-                    )
-                );
-
-                var combinationSlotState = await StateGetter.GetCombinationSlotStateAsync(slotAddress);
-
-                if (combinationSlotState is null)
-                {
-                    Logger.Error(
-                        "CombinationSlotState is null\navatar: {avatarAddress}, slotIndex: {slotIndex}",
-                        avatarAddress,
-                        slotIndex
-                    );
-
-                    return false;
-                }
-
-                if (combinationSlotState.PetId is null)
-                {
-                    return false;
-                }
-
-                petId = combinationSlotState.PetId.Value;
             }
             else
             {
