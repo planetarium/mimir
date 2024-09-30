@@ -76,6 +76,7 @@ public class RapidCombinationHandler(IStateService stateService, MongoDbService 
                 return false;
             }
 
+            // handle 
             var doc = new CombinationSlotStateDocument(
                 slotAddress,
                 avatarAddress.Value,
@@ -86,6 +87,21 @@ public class RapidCombinationHandler(IStateService stateService, MongoDbService 
                 [doc],
                 session,
                 stoppingToken);
+
+            // handle pet id
+            if (combinationSlotState.PetId.HasValue)
+            {
+                var petStateAddress = Nekoyume.Model.State.PetState.DeriveAddress(
+                    avatarAddress.Value,
+                    combinationSlotState.PetId.Value);
+                var petState = await StateGetter.GetPetState(petStateAddress, stoppingToken);
+                var petStateDoc = new PetStateDocument(petStateAddress, petState);
+                await Store.UpsertStateDataManyAsync(
+                    CollectionNames.GetCollectionName<PetStateDocument>(),
+                    [petStateDoc],
+                    session,
+                    stoppingToken);
+            }
         }
 
         return true;
