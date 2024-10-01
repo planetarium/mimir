@@ -107,7 +107,7 @@ public class DiffConsumer
         }
 
         _logger.Information(
-            "{DiffCOunt} Handle in {Handler} Converted {Count} States",
+            "{DiffCount} Handle in {Handler} Converted {Count} States",
             diffResponse.AccountDiffs.Count(),
             handler.GetType().Name,
             documents.Count
