@@ -51,13 +51,13 @@ public abstract class BaseActionHandler(
         return await TryHandleAction(blockIndex, actionTypeStr, actionPlainValueInternal, session, stoppingToken);
     }
 
+    [Obsolete("Use the overload with actionType instead.")]
     protected virtual Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
         IAction action,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         return Task.FromResult(false);
     }
