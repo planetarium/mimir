@@ -18,8 +18,8 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
     : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaidHandler>())
 {
     protected override async Task<bool> TryHandleAction(
+        long blockIndex,
         string actionType,
-        long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
@@ -66,7 +66,7 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
         int raidId;
         try
         {
-            var row = worldBossListSheet.FindRowByBlockIndex(processBlockIndex);
+            var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
             raidId = row.Id;
         }
         catch (InvalidOperationException)

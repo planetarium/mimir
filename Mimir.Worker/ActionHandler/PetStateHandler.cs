@@ -19,12 +19,11 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
     )
 {
     protected override async Task<bool> TryHandleAction(
+        long blockIndex,
         string actionType,
-        long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         {
             if (actionPlainValueInternal is not Dictionary actionValues)
