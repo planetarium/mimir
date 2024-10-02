@@ -57,7 +57,7 @@ builder.Services
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
     .BindRuntimeType(typeof(Address), typeof(AddressType))
-    .BindRuntimeType(typeof(BigIntegerType), typeof(BigIntegerType))
+    .BindRuntimeType(typeof(BigInteger), typeof(BigIntegerType))
     .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
     .AddErrorFilter<ErrorFilter>()
     .ModifyRequestOptions(requestExecutorOptions => { requestExecutorOptions.IncludeExceptionDetails = true; });
