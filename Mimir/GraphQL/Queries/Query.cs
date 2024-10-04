@@ -179,7 +179,7 @@ public class Query
         WorldBossListSheet.Row row;
         try
         {
-            row = worldBossListSheet.FindRowByBlockIndex(11736101);
+            row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
         }
         catch (InvalidOperationException)
         {
@@ -207,7 +207,7 @@ public class Query
         WorldBossListSheet.Row row;
         try
         {
-            row = worldBossListSheet.FindRowByBlockIndex(11736101);
+            row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
         }
         catch (InvalidOperationException)
         {
