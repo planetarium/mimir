@@ -52,6 +52,7 @@ builder.Services.AddSingleton<ProductsRepository>();
 builder.Services.AddSingleton<ProductRepository>();
 builder.Services.AddSingleton<WorldBossRepository>();
 builder.Services.AddSingleton<WorldBossRaiderRepository>();
+builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services
