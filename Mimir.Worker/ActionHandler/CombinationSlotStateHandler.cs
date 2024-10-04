@@ -20,8 +20,8 @@ public class CombinationSlotStateHandler(IStateService stateService, MongoDbServ
         Log.ForContext<CombinationSlotStateHandler>())
 {
     protected override async Task<bool> TryHandleAction(
+        long blockIndex,
         string actionType,
-        long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)

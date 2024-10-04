@@ -243,13 +243,11 @@ public class StateGetter
         };
     }
 
-    public async Task<WorldBossState> GetWorldBossState(
+    public async Task<WorldBossState> GetWorldBossStateAsync(
         Address worldBossAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var state = await _service.GetState(worldBossAddress, stoppingToken);
-
         if (state is null)
         {
             throw new StateNotFoundException(worldBossAddress, typeof(WorldBossState));
@@ -258,13 +256,11 @@ public class StateGetter
         return new WorldBossState(state);
     }
 
-    public async Task<RaiderState> GetRaiderState(
+    public async Task<RaiderState> GetRaiderStateAsync(
         Address raiderAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var state = await _service.GetState(raiderAddress, stoppingToken);
-
         if (state is null)
         {
             throw new StateNotFoundException(raiderAddress, typeof(RaiderState));
@@ -273,19 +269,14 @@ public class StateGetter
         return new RaiderState(state);
     }
 
-    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordState(
+    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordStateAsync(
         Address worldBossKillRewardRecordAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var state = await _service.GetState(worldBossKillRewardRecordAddress, stoppingToken);
-
         if (state is null)
         {
-            throw new StateNotFoundException(
-                worldBossKillRewardRecordAddress,
-                typeof(WorldBossKillRewardRecord)
-            );
+            throw new StateNotFoundException(worldBossKillRewardRecordAddress, typeof(WorldBossKillRewardRecord));
         }
 
         return new WorldBossKillRewardRecord(state);

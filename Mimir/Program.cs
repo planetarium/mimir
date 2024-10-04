@@ -45,11 +45,14 @@ builder.Services.AddSingleton<CombinationSlotStateRepository>();
 // builder.Services.AddSingleton<CollectionRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<RuneSlotRepository>();
+// Others
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<StakeRepository>();
 builder.Services.AddSingleton<ProductsRepository>();
 builder.Services.AddSingleton<ProductRepository>();
-// builder.Services.AddSingleton<SeasonInfoRepository>();
+builder.Services.AddSingleton<WorldBossRepository>();
+builder.Services.AddSingleton<WorldBossRaiderRepository>();
+builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services

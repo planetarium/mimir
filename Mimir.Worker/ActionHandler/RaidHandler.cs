@@ -1,6 +1,6 @@
-using Lib9c.Abstractions;
-using Libplanet.Action;
-using Libplanet.Crypto;
+using Bencodex.Types;
+using Lib9c.Models.Exceptions;
+using Lib9c.Models.Extensions;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.CollectionUpdaters;
@@ -19,91 +19,94 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
 {
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
-        Address signer,
-        IAction action,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not IRaidV2 raid)
+        if (actionPlainValueInternal is null)
         {
+            var e = new ArgumentNullException(nameof(actionPlainValueInternal));
+            Logger.Fatal(e, "Failed to handle action: {ActionType}", actionType);
             return false;
         }
+
+        if (actionPlainValueInternal is not Dictionary d)
+        {
+            var e = new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(actionPlainValueInternal),
+                [ValueKind.Dictionary],
+                actionPlainValueInternal.Kind);
+            Logger.Fatal(e, "Failed to handle action: {ActionType}", actionType);
+            return false;
+        }
+
+        var avatarAddress = d["a"].ToAddress();
+        var equipmentIds = d["e"].ToList(StateExtensions.ToGuid);
+        var costumeIds = d["c"].ToList(StateExtensions.ToGuid);
+        Logger.Information("Handle raid, avatar: {AvatarAddress}", avatarAddress);
 
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Raid,
-            raid.AvatarAddress,
-            raid.CostumeIds,
-            raid.EquipmentIds,
+            avatarAddress,
+            costumeIds,
+            equipmentIds,
             session,
-            stoppingToken
-        );
+            stoppingToken);
 
-        var avatarAddress = raid.AvatarAddress;
-
-        Logger.Information("Handle raid, avatar: {avatarAddress}", avatarAddress);
-
-        var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>();
-
-        if (worldBossListSheet != null)
+        var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>(stoppingToken);
+        if (worldBossListSheet is null)
         {
-            int raidId;
-            try
-            {
-                var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
-                raidId = row.Id;
-            }
-            catch (InvalidOperationException)
-            {
-                Logger.Error("Failed to get this raidId.");
-                return false;
-            }
-
-            var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
-            var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
-            var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(
-                avatarAddress,
-                raidId
-            );
-
-            var worldBossState = await StateGetter.GetWorldBossState(worldBossAddress);
-            var raiderState = await StateGetter.GetRaiderState(raiderAddress);
-            var worldBossKillRewardRecordState =
-                await StateGetter.GetWorldBossKillRewardRecordState(
-                    worldBossKillRewardRecordAddress
-                );
-
-            await Store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName<WorldBossStateDocument>(),
-                [new WorldBossStateDocument(worldBossAddress, raidId, worldBossState)],
-                session,
-                stoppingToken
-            );
-            await Store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName<RaiderStateDocument>(),
-                [new RaiderStateDocument(raiderAddress, raiderState)],
-                session,
-                stoppingToken
-            );
-            await Store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
-                [
-                    new WorldBossKillRewardRecordDocument(
-                        worldBossKillRewardRecordAddress,
-                        avatarAddress,
-                        worldBossKillRewardRecordState
-                    )
-                ],
-                session,
-                stoppingToken
-            );
+            Logger.Fatal("RaidActionHandler requires worldBossListSheet");
+            return false;
         }
-        else
+
+        int raidId;
+        try
         {
-            Logger.Error("RaidActionHandler requires worldBossListSheet.");
+            var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
+            raidId = row.Id;
         }
+        catch (InvalidOperationException)
+        {
+            Logger.Fatal("Failed to get this raidId");
+            return false;
+        }
+
+        var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
+        var worldBossState = await StateGetter.GetWorldBossStateAsync(worldBossAddress, stoppingToken);
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<WorldBossStateDocument>(),
+            [new WorldBossStateDocument(worldBossAddress, raidId, worldBossState)],
+            session,
+            stoppingToken);
+
+        var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
+        var raiderState = await StateGetter.GetRaiderStateAsync(raiderAddress, stoppingToken);
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<RaiderStateDocument>(),
+            [new RaiderStateDocument(raiderAddress, raiderState)],
+            session,
+            stoppingToken);
+
+        var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(
+            avatarAddress,
+            raidId);
+        var worldBossKillRewardRecordState = await StateGetter.GetWorldBossKillRewardRecordStateAsync(
+            worldBossKillRewardRecordAddress,
+            stoppingToken);
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
+            [
+                new WorldBossKillRewardRecordDocument(
+                    worldBossKillRewardRecordAddress,
+                    avatarAddress,
+                    worldBossKillRewardRecordState)
+            ],
+            session,
+            stoppingToken);
 
         return true;
     }

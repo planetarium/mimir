@@ -21,8 +21,8 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
         Log.ForContext<ProductsHandler>())
 {
     protected override async Task<bool> TryHandleAction(
+        long blockIndex,
         string actionType,
-        long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)

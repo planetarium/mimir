@@ -18,8 +18,8 @@ public class RapidCombinationHandler(IStateService stateService, MongoDbService 
         Log.ForContext<RapidCombinationHandler>())
 {
     protected override async Task<bool> TryHandleAction(
+        long blockIndex,
         string actionType,
-        long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
