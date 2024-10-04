@@ -14,6 +14,7 @@ using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.States;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Stats;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Libplanet;
 using Mimir.MongoDB.Bson.Serialization.Serializers.System;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Nekoyume.TableData;
@@ -36,6 +37,9 @@ public static class SerializationRegistry
     {
         // System
         BsonSerializer.RegisterSerializer(typeof(BigInteger), BigIntegerSerializer.Instance);
+        BsonSerializer.RegisterSerializer(
+            typeof(Guid),
+            GuidSerializer.StandardInstance.WithRepresentation(BsonType.String));
 
         // Libplanet
         BsonSerializer.RegisterSerializer(typeof(Address), AddressSerializer.Instance);
