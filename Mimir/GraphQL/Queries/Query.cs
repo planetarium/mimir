@@ -9,6 +9,7 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Repositories;
 using Nekoyume;
+using Nekoyume.Action;
 using Nekoyume.Extensions;
 using Nekoyume.TableData;
 
@@ -50,6 +51,12 @@ public class Query
 
         throw new GraphQLRequestException("Either currency or currencyTicker must be provided.");
     }
+
+    /// <summary>
+    /// Get the pledge state for a given agent address.
+    /// </summary>
+    public async Task<PledgeDocument> GetPledgeAsync(Address agentAddress, [Service] PledgeRepository repo) =>
+        await repo.GetByAddressAsync(agentAddress.GetPledgeAddress());
 
     /// <summary>
     /// Get an agent state by address.
