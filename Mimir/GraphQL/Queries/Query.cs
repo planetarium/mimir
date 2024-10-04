@@ -5,8 +5,12 @@ using Lib9c.Models.Market;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Repositories;
+using Nekoyume;
+using Nekoyume.Extensions;
+using Nekoyume.TableData;
 
 namespace Mimir.GraphQL.Queries;
 
@@ -131,4 +135,31 @@ public class Query
     /// <returns>The product.</returns>
     public async Task<Product> GetProductAsync(Guid productId, [Service] ProductRepository repo) =>
         (await repo.GetByProductIdAsync(productId)).Object;
+
+    /// <summary>
+    /// Get the world boss.
+    /// </summary>
+    public async Task<WorldBossState> GetWorldBossAsync(
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [Service] WorldBossRepository worldBossRepo)
+    {
+        var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
+        var blockIndex = metadataDocument.LatestBlockIndex;
+        var worldBossListSheet = await tableSheetsRepo.GetSheetAsync<WorldBossListSheet>();
+        WorldBossListSheet.Row row;
+        try
+        {
+            row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+        }
+
+        var raidId = row.Id;
+        var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
+        return (await worldBossRepo.GetByAddressAsync(worldBossAddress)).Object;
+    }
 }
