@@ -1,42 +1,39 @@
 using System.Numerics;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Mimir.MongoDB.Json.Converters;
 
 public class BigIntegerJsonConverter : JsonConverter<BigInteger>
 {
-    public override BigInteger ReadJson(
-        JsonReader reader,
-        Type objectType,
-        BigInteger existingValue,
-        bool hasExistingValue,
-        JsonSerializer serializer)
+    public override BigInteger Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonToken.Null)
+        if (reader.TokenType == JsonTokenType.Null)
         {
-            throw new JsonSerializationException("Cannot convert null value to BigInteger.");
+            throw new JsonException("Cannot convert null value to BigInteger.");
         }
 
-        if (reader.TokenType == JsonToken.String)
+        if (reader.TokenType == JsonTokenType.String)
         {
-            var value = (string)reader.Value!;
-            return BigInteger.Parse(value);
+            var value = reader.GetString();
+            return BigInteger.Parse(value!);
         }
 
-        if (reader.TokenType == JsonToken.Integer)
+        if (reader.TokenType == JsonTokenType.Number)
         {
-            var value = (long)reader.Value!;
-            return new BigInteger(value);
+            if (reader.TryGetInt64(out long value))
+            {
+                return new BigInteger(value);
+            }
+            
+            throw new JsonException("Invalid number format for BigInteger.");
         }
 
-        throw new JsonSerializationException($"Unexpected token type: {reader.TokenType}.");
+        throw new JsonException($"Unexpected token type: {reader.TokenType}.");
     }
 
-    public override void WriteJson(
-        JsonWriter writer,
-        BigInteger value,
-        JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, BigInteger value, JsonSerializerOptions options)
     {
-        writer.WriteValue(value.ToString());
+        writer.WriteStringValue(value.ToString());
     }
 }

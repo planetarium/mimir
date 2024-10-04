@@ -1,60 +1,65 @@
 using Lib9c.Models.Items;
-using Mimir.MongoDB.Json.Extensions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Mimir.MongoDB.Json.Converters;
 
 public class MaterialAndIntDictionaryJsonConverter : JsonConverter<Dictionary<Material, int>>
 {
-    public override Dictionary<Material, int>? ReadJson(
-        JsonReader reader,
-        Type objectType,
-        Dictionary<Material, int>? existingValue,
-        bool hasExistingValue,
-        JsonSerializer serializer)
+    // Deserialize (ReadJson equivalent)
+    public override Dictionary<Material, int>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonToken.Null)
+        if (reader.TokenType == JsonTokenType.Null)
         {
             return null;
         }
+        
+        var jsonNode = JsonNode.Parse(ref reader);
+        if (jsonNode == null || jsonNode is not JsonObject jsonObject)
+        {
+            throw new JsonException("Invalid JSON format.");
+        }
 
         var dictionary = new Dictionary<Material, int>();
-        var jObject = JObject.Load(reader);
-        foreach (var property in jObject.Properties())
+        
+        foreach (var property in jsonObject)
         {
-            var material = JsonConvert.DeserializeObject<Material>(property.Name);
+            var material = JsonSerializer.Deserialize<Material>(property.Key);
             if (material is null)
             {
-                throw new JsonException($"Failed to deserialize {nameof(Material)}. {property.Name}");
+                throw new JsonException($"Failed to deserialize {nameof(Material)}. {property.Key}");
             }
 
-            var value = property.Value.ToObject<int>();
-            dictionary.Add(material, value);
+            if (property.Value is JsonValue jsonValue && jsonValue.TryGetValue<int>(out var value))
+            {
+                dictionary.Add(material, value);
+            }
+            else
+            {
+                throw new JsonException($"Failed to convert value for {nameof(Material)} {property.Key}.");
+            }
         }
 
         return dictionary;
     }
 
-    public override void WriteJson(
-        JsonWriter writer,
-        Dictionary<Material, int>? value,
-        JsonSerializer serializer)
+    // Serialize (WriteJson equivalent)
+    public override void Write(Utf8JsonWriter writer, Dictionary<Material, int>? value, JsonSerializerOptions options)
     {
         if (value == null)
         {
-            writer.WriteNull();
+            writer.WriteNullValue();
             return;
         }
 
         writer.WriteStartObject();
         foreach (var kvp in value)
         {
-            var key = JsonConvert.SerializeObject(kvp.Key, MimirBsonDocumentExtensions.JsonSerializerSettings);
+            var key = JsonSerializer.Serialize(kvp.Key, options);
             writer.WritePropertyName(key);
-            writer.WriteValue(kvp.Value);
+            writer.WriteNumberValue(kvp.Value);
         }
-
         writer.WriteEndObject();
     }
 }
