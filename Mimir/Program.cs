@@ -34,6 +34,7 @@ builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddSingleton<MetadataRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<BalanceRepository>();
+builder.Services.AddSingleton<PledgeRepository>();
 builder.Services.AddSingleton<AgentRepository>();
 // AvatarState dependencies
 builder.Services.AddSingleton<AvatarRepository>();
