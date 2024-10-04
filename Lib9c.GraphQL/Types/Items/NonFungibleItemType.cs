@@ -10,6 +10,6 @@ public class NonFungibleItemType : InterfaceType<INonFungibleItem>
         descriptor
             .Field(f => f.NonFungibleId)
             .Description("The non-fungible ID of the item.")
-            .Type<NonNullType<GuidType>>();
+            .Type<NonNullType<UuidType>>();
     }
 }

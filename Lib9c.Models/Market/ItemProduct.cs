@@ -1,29 +1,36 @@
 using Bencodex;
 using Bencodex.Types;
+using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Factories;
 using Lib9c.Models.Items;
+using MongoDB.Bson.Serialization.Attributes;
+using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Market;
 
-public class ItemProduct : Product, IBencodable
+[BsonIgnoreExtraElements]
+public record ItemProduct : Product, IBencodable
 {
-    public ItemBase TradableItem { get; }
-    public int ItemCount { get; }
+    public ItemBase TradableItem { get; init; }
+    public int ItemCount { get; init; }
 
-    public ItemProduct(List bencoded)
-        : base(bencoded)
+    [BsonIgnore, GraphQLIgnore]
+    public new IValue Bencoded => ((List)base.Bencoded)
+        .Add(TradableItem.Bencoded)
+        .Add(ItemCount.Serialize());
+
+    public ItemProduct(IValue bencoded) : base(bencoded)
     {
-        TradableItem = ItemFactory.Deserialize(bencoded[6]);
-        ItemCount = bencoded[7].ToInteger();
-    }
+        if (bencoded is not List l)
+        {
+            throw new UnsupportedArgumentTypeException<ValueKind>(
+                nameof(bencoded),
+                new[] { ValueKind.List },
+                bencoded.Kind);
+        }
 
-    [GraphQLIgnore]
-    public new IValue Bencoded => Serialize();
-
-    public IValue Serialize()
-    {
-        List serialized = (List)base.Bencoded;
-        return serialized.Add(TradableItem.Bencoded).Add(ItemCount.Serialize());
+        TradableItem = ItemFactory.Deserialize(l[6]);
+        ItemCount = l[7].ToInteger();
     }
 }
