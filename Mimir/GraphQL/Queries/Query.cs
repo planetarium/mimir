@@ -1,12 +1,16 @@
 using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
-using Lib9c.Models.Items;
+using Lib9c.Models.Market;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Repositories;
+using Nekoyume;
+using Nekoyume.Extensions;
+using Nekoyume.TableData;
 
 namespace Mimir.GraphQL.Queries;
 
@@ -115,4 +119,103 @@ public class Query
         (await repo.GetByAvatarAddressAsync(avatarAddress))
         .Select(e => e.Object)
         .ToArray();
+
+    /// <summary>
+    /// Get the product ids that are contained in the products state for a specific avatar address.
+    /// </summary>
+    /// <param name="avatarAddress">The address of the avatar.</param>
+    /// <returns>The product ids that contained in the products state for the specified avatar address.</returns>
+    public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] ProductsRepository repo) =>
+        (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
+
+    /// <summary>
+    /// Get the product by product ID.
+    /// </summary>
+    /// <param name="productId">The product ID</param>
+    /// <returns>The product.</returns>
+    public async Task<Product> GetProductAsync(Guid productId, [Service] ProductRepository repo) =>
+        (await repo.GetByProductIdAsync(productId)).Object;
+
+    /// <summary>
+    /// Get the world boss.
+    /// </summary>
+    public async Task<WorldBossState> GetWorldBossAsync(
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [Service] WorldBossRepository worldBossRepo)
+    {
+        var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
+        var blockIndex = metadataDocument.LatestBlockIndex;
+        var worldBossListSheet = await tableSheetsRepo.GetSheetAsync<WorldBossListSheet>();
+        WorldBossListSheet.Row row;
+        try
+        {
+            row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+        }
+
+        var raidId = row.Id;
+        var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
+        return (await worldBossRepo.GetByAddressAsync(worldBossAddress)).Object;
+    }
+
+    /// <summary>
+    /// Get the raider of world boss.
+    /// </summary>
+    public async Task<RaiderState> GetWorldBossRaiderAsync(
+        Address avatarAddress,
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [Service] WorldBossRaiderRepository worldBossRaiderRepo)
+    {
+        var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
+        var blockIndex = metadataDocument.LatestBlockIndex;
+        var worldBossListSheet = await tableSheetsRepo.GetSheetAsync<WorldBossListSheet>();
+        WorldBossListSheet.Row row;
+        try
+        {
+            row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+        }
+
+        var raidId = row.Id;
+        var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
+        return (await worldBossRaiderRepo.GetByAddressAsync(raiderAddress)).Object;
+    }
+
+    /// <summary>
+    /// Get the kill reward record of world boss.
+    /// </summary>
+    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordAsync(
+        Address avatarAddress,
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [Service] WorldBossKillRewardRecordRepository worldBossKillRewardRecordRepo)
+    {
+        var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
+        var blockIndex = metadataDocument.LatestBlockIndex;
+        var worldBossListSheet = await tableSheetsRepo.GetSheetAsync<WorldBossListSheet>();
+        WorldBossListSheet.Row row;
+        try
+        {
+            row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+        }
+
+        var raidId = row.Id;
+        var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(avatarAddress, raidId);
+        return (await worldBossKillRewardRecordRepo.GetByAddressAsync(worldBossKillRewardRecordAddress)).Object;
+    }
 }

@@ -13,8 +13,7 @@ public abstract class BaseActionHandler(
     IStateService stateService,
     MongoDbService store,
     string actionTypeRegex,
-    ILogger logger
-)
+    ILogger logger)
 {
     protected readonly IStateService StateService = stateService;
 
@@ -31,8 +30,7 @@ public abstract class BaseActionHandler(
         IValue? actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         if (await TryHandleAction(blockIndex, signer, action, session, stoppingToken))
         {
@@ -50,27 +48,26 @@ public abstract class BaseActionHandler(
             return false;
         }
 
-        return await TryHandleAction(actionTypeStr, blockIndex, actionPlainValueInternal, session, stoppingToken);
+        return await TryHandleAction(blockIndex, actionTypeStr, actionPlainValueInternal, session, stoppingToken);
     }
 
+    [Obsolete("Use the overload with actionType instead.")]
     protected virtual Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
         IAction action,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         return Task.FromResult(false);
     }
 
     protected virtual Task<bool> TryHandleAction(
+        long blockIndex,
         string actionType,
-        long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         return Task.FromResult(false);
     }

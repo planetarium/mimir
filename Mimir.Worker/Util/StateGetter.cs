@@ -201,12 +201,10 @@ public class StateGetter
 
     public async Task<ProductsState> GetProductsState(
         Address avatarAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var productAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
         var state = await _service.GetState(productAddress, stoppingToken);
-
         if (state is null)
         {
             throw new StateNotFoundException(productAddress, typeof(ProductsState));
@@ -217,23 +215,16 @@ public class StateGetter
 
     public async Task<Product> GetProductState(
         Guid productId,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var productAddress = Nekoyume.Model.Market.Product.DeriveAddress(productId);
         var state = await _service.GetState(productAddress, stoppingToken);
-
-        if (state is null)
+        return state switch
         {
-            throw new StateNotFoundException(productAddress, typeof(Product));
-        }
-
-        if (state is Null)
-        {
-            throw new StateIsNullException(productAddress, typeof(Product));
-        }
-
-        return Lib9c.Models.Factories.ProductFactory.DeserializeProduct(state);
+            null => throw new StateNotFoundException(productAddress, typeof(Product)),
+            Null => throw new StateIsNullException(productAddress, typeof(Product)),
+            _ => Lib9c.Models.Factories.ProductFactory.DeserializeProduct(state)
+        };
     }
 
     public async Task<Nekoyume.Model.State.MarketState> GetMarketState(
@@ -252,13 +243,11 @@ public class StateGetter
         };
     }
 
-    public async Task<WorldBossState> GetWorldBossState(
+    public async Task<WorldBossState> GetWorldBossStateAsync(
         Address worldBossAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var state = await _service.GetState(worldBossAddress, stoppingToken);
-
         if (state is null)
         {
             throw new StateNotFoundException(worldBossAddress, typeof(WorldBossState));
@@ -267,13 +256,11 @@ public class StateGetter
         return new WorldBossState(state);
     }
 
-    public async Task<RaiderState> GetRaiderState(
+    public async Task<RaiderState> GetRaiderStateAsync(
         Address raiderAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var state = await _service.GetState(raiderAddress, stoppingToken);
-
         if (state is null)
         {
             throw new StateNotFoundException(raiderAddress, typeof(RaiderState));
@@ -282,19 +269,14 @@ public class StateGetter
         return new RaiderState(state);
     }
 
-    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordState(
+    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordStateAsync(
         Address worldBossKillRewardRecordAddress,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var state = await _service.GetState(worldBossKillRewardRecordAddress, stoppingToken);
-
         if (state is null)
         {
-            throw new StateNotFoundException(
-                worldBossKillRewardRecordAddress,
-                typeof(WorldBossKillRewardRecord)
-            );
+            throw new StateNotFoundException(worldBossKillRewardRecordAddress, typeof(WorldBossKillRewardRecord));
         }
 
         return new WorldBossKillRewardRecord(state);

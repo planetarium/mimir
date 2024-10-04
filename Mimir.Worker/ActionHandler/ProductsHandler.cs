@@ -13,46 +13,44 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductsHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+public class ProductsHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(
         stateService,
         store,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductsHandler>()
-    )
+        Log.ForContext<ProductsHandler>())
 {
     protected override async Task<bool> TryHandleAction(
+        long blockIndex,
         string actionType,
-        long processBlockIndex,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind
-            );
+                actionPlainValueInternal?.Kind);
         }
 
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
-
         Logger.Information(
             "Handle products, product, addresses: {AvatarAddresses}",
-            string.Join(", ", avatarAddresses)
-        );
+            string.Join(", ", avatarAddresses));
 
         foreach (var avatarAddress in avatarAddresses)
         {
-            var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(
-                avatarAddress
-            );
-            var productsState = await StateGetter.GetProductsState(avatarAddress);
-            if (productsState is null)
+            var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
+            ProductsState productsState;
+            try
             {
-                continue;
+                productsState = await StateGetter.GetProductsState(avatarAddress, stoppingToken);
+            }
+            catch (Exception e)
+            {
+                Logger.Fatal(e, "Failed to get ProductsState for avatar address: {AvatarAddress}", avatarAddress);
+                return false;
             }
 
             await SyncWrappedProductsStateAsync(
@@ -60,8 +58,7 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
                 productsStateAddress,
                 productsState,
                 session,
-                stoppingToken
-            );
+                stoppingToken);
         }
 
         return true;
@@ -78,7 +75,6 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
                 .Cast<List>()
                 .Select(Nekoyume.Model.Market.ProductFactory.DeserializeProductInfo)
                 .ToList();
-
             foreach (var productInfo in productInfos)
             {
                 avatarAddresses.Add(productInfo.AvatarAddress);
@@ -97,23 +93,21 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
         Address productsStateAddress,
         ProductsState productsState,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var productIds = productsState.ProductIds.Select(id => Guid.Parse(id.ToString())).ToList();
         var existingProductIds = await GetExistingProductIds(productsStateAddress);
         var productsToAdd = productIds.Except(existingProductIds).ToList();
         var productsToRemove = existingProductIds.Except(productIds).ToList();
 
-        await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd, session);
+        await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd, session, stoppingToken);
         await RemoveOldProductsAsync(productsToRemove);
 
         await Store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<ProductsStateDocument>(),
             [new ProductsStateDocument(productsStateAddress, productsState, avatarAddress)],
             session,
-            stoppingToken
-        );
+            stoppingToken);
     }
 
     private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)
@@ -132,47 +126,41 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
         Address productsStateAddress,
         List<Guid> productsToAdd,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        List<MimirBsonDocument> documents = new List<MimirBsonDocument>();
-
+        var documents = new List<MimirBsonDocument>();
         foreach (var productId in productsToAdd)
         {
             try
             {
-                var product = await StateGetter.GetProductState(productId);
+                var product = await StateGetter.GetProductState(productId, stoppingToken);
                 var document = CreateProductDocumentAsync(
                     avatarAddress,
                     productsStateAddress,
-                    product
-                );
+                    product);
                 documents.Add(document);
             }
-            catch (StateIsNullException err)
+            catch (StateIsNullException e)
             {
-                Logger.Error(
-                    "{AvatarAddress} Product[{ProductID}] is exists but state is `Bencodex Null`, err: {Error}",
+                Logger.Fatal(
+                    e,
+                    "{AvatarAddress} Product[{ProductID}] is exists but state is `Bencodex Null`",
                     avatarAddress,
-                    productId,
-                    err
-                );
+                    productId);
             }
         }
 
         if (documents.Count > 0)
         {
-            int batchSize = 20;
-            for (int i = 0; i < documents.Count; i += batchSize)
+            const int batchSize = 20;
+            for (var i = 0; i < documents.Count; i += batchSize)
             {
                 var batch = documents.Skip(i).Take(batchSize).ToList();
-
                 await Store.UpsertStateDataManyAsync(
                     CollectionNames.GetCollectionName<ProductDocument>(),
                     batch,
                     session,
-                    stoppingToken
-                );
+                    stoppingToken);
             }
         }
     }
@@ -180,11 +168,9 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
     private ProductDocument CreateProductDocumentAsync(
         Address avatarAddress,
         Address productsStateAddress,
-        Product product
-    )
+        Product product)
     {
         var productAddress = Nekoyume.Model.Market.Product.DeriveAddress(product.ProductId);
-
         if (product is ItemProduct itemProduct)
         {
             var unitPrice = CalculateUnitPrice(itemProduct);
@@ -209,21 +195,17 @@ public class ProductsHandler(IStateService stateService, MongoDbService store)
                 unitPrice,
                 null,
                 null,
-                null
-            );
+                null);
         }
-        else
-        {
-            return new ProductDocument(
-                productAddress,
-                avatarAddress,
-                productsStateAddress,
-                product
-            );
-        }
+
+        return new ProductDocument(
+            productAddress,
+            avatarAddress,
+            productsStateAddress,
+            product);
     }
 
-    private decimal CalculateUnitPrice(ItemProduct itemProduct)
+    private static decimal CalculateUnitPrice(ItemProduct itemProduct)
     {
         return decimal.Parse(itemProduct.Price.GetQuantityString()) / itemProduct.ItemCount;
     }
