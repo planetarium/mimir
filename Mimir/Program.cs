@@ -51,6 +51,7 @@ builder.Services.AddSingleton<StakeRepository>();
 builder.Services.AddSingleton<ProductsRepository>();
 builder.Services.AddSingleton<ProductRepository>();
 builder.Services.AddSingleton<WorldBossRepository>();
+builder.Services.AddSingleton<WorldBossRaiderRepository>();
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services
