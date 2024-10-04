@@ -190,4 +190,32 @@ public class Query
         var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
         return (await worldBossRaiderRepo.GetByAddressAsync(raiderAddress)).Object;
     }
+
+    /// <summary>
+    /// Get the kill reward record of world boss.
+    /// </summary>
+    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardAsync(
+        Address avatarAddress,
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [Service] WorldBossKillRewardRecordRepository worldBossKillRewardRecordRepo)
+    {
+        var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
+        var blockIndex = metadataDocument.LatestBlockIndex;
+        var worldBossListSheet = await tableSheetsRepo.GetSheetAsync<WorldBossListSheet>();
+        WorldBossListSheet.Row row;
+        try
+        {
+            row = worldBossListSheet.FindRowByBlockIndex(11736101);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+        }
+
+        var raidId = row.Id;
+        var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(avatarAddress, raidId);
+        return (await worldBossKillRewardRecordRepo.GetByAddressAsync(worldBossKillRewardRecordAddress)).Object;
+    }
 }
