@@ -162,4 +162,32 @@ public class Query
         var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
         return (await worldBossRepo.GetByAddressAsync(worldBossAddress)).Object;
     }
+
+    /// <summary>
+    /// Get the raider of world boss.
+    /// </summary>
+    public async Task<RaiderState> GetWorldBossRaiderAsync(
+        Address avatarAddress,
+        [Service] MetadataRepository metadataRepo,
+        [Service] TableSheetsRepository tableSheetsRepo,
+        [Service] WorldBossRaiderRepository worldBossRaiderRepo)
+    {
+        var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
+        var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
+        var blockIndex = metadataDocument.LatestBlockIndex;
+        var worldBossListSheet = await tableSheetsRepo.GetSheetAsync<WorldBossListSheet>();
+        WorldBossListSheet.Row row;
+        try
+        {
+            row = worldBossListSheet.FindRowByBlockIndex(11736101);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+        }
+
+        var raidId = row.Id;
+        var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
+        return (await worldBossRaiderRepo.GetByAddressAsync(raiderAddress)).Object;
+    }
 }
