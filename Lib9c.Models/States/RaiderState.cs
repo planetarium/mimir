@@ -3,6 +3,7 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
@@ -25,6 +26,7 @@ public class RaiderState : IBencodable
     public int LatestBossLevel { get; init; }
     public long UpdatedBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded =>
         List
             .Empty.Add(TotalScore.Serialize())

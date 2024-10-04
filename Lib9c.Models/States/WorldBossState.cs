@@ -3,10 +3,12 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+[BsonIgnoreExtraElements]
 public record WorldBossState : IBencodable
 {
     public int Id { get; init; }
@@ -15,6 +17,7 @@ public record WorldBossState : IBencodable
     public long StartedBlockIndex { get; init; }
     public long EndedBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded =>
         List
             .Empty.Add(Id.Serialize())

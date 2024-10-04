@@ -2,6 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
@@ -9,6 +10,15 @@ namespace Lib9c.Models.States;
 public record WorldBossKillRewardRecord : IBencodable
 {
     public Dictionary<int, bool> RewardRecordDictionary { get; init; }
+
+    [BsonIgnore, GraphQLIgnore]
+    public IValue Bencoded => RewardRecordDictionary
+        .OrderBy(kv => kv.Key)
+        .Aggregate(
+            List.Empty,
+            (current, kv) => current.Add(List.Empty
+                .Add(kv.Key.Serialize())
+                .Add(kv.Value.Serialize())));
 
     public WorldBossKillRewardRecord(IValue bencoded)
     {
@@ -31,13 +41,4 @@ public record WorldBossKillRewardRecord : IBencodable
             RewardRecordDictionary[key] = value;
         }
     }
-
-    public IValue Bencoded =>
-        RewardRecordDictionary
-            .OrderBy(kv => kv.Key)
-            .Aggregate(
-                List.Empty,
-                (current, kv) =>
-                    current.Add(List.Empty.Add(kv.Key.Serialize()).Add(kv.Value.Serialize()))
-            );
 }
