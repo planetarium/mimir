@@ -194,7 +194,7 @@ public class Query
     /// <summary>
     /// Get the kill reward record of world boss.
     /// </summary>
-    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardAsync(
+    public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordAsync(
         Address avatarAddress,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
