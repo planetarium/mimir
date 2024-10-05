@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -62,6 +63,7 @@ builder.Services
     .AddErrorFilter<ErrorFilter>()
     .AddMongoDbPagingProviders(providerName: "MongoDB", defaultProvider: true)
     .BindRuntimeType(typeof(Address), typeof(AddressType))
+    .BindRuntimeType(typeof(BigInteger), typeof(BigIntegerType))
     .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
     .ModifyRequestOptions(requestExecutorOptions => { requestExecutorOptions.IncludeExceptionDetails = true; });
 builder.Services.AddHttpContextAccessor();
