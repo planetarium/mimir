@@ -38,7 +38,9 @@ public class RequestPledgeHandler(IStateService stateService, MongoDbService sto
             requestPledge.AgentAddress.GetPledgeAddress(),
             signer,
             false,
-            requestPledge.RefillMead);
+            requestPledge.RefillMead,
+            session,
+            stoppingToken);
 
         return true;
     }
