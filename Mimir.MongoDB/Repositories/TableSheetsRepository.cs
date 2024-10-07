@@ -1,11 +1,10 @@
 using Bencodex;
 using Bencodex.Types;
-using Mimir.Enums;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Enums;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Extensions;
 using Mimir.MongoDB.Exceptions;
-using Mimir.Services;
+using Mimir.MongoDB.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
@@ -14,7 +13,7 @@ using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Nekoyume.TableData;
 
-namespace Mimir.Repositories;
+namespace Mimir.MongoDB.Repositories;
 
 public class TableSheetsRepository(MongoDbService dbService)
 {

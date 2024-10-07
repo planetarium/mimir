@@ -1,10 +1,9 @@
-using Mimir.Exceptions;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
-using Mimir.Services;
+using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 
-namespace Mimir.Repositories;
+namespace Mimir.MongoDB.Repositories;
 
 public class MetadataRepository(MongoDbService dbService)
 {

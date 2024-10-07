@@ -1,7 +1,4 @@
 using Lib9c.Models.Items;
-using Mimir.MongoDB.Bson.Extensions;
-using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Skills;
-using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Stats;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;

@@ -3,12 +3,12 @@
 // using Mimir.Exceptions;
 // using Mimir.MongoDB.Bson.Extensions;
 // using Mimir.MongoDB.Exceptions;
-// using Mimir.Services;
+// using Mimir.MongoDB.Services;
 // using MongoDB.Bson;
 // using MongoDB.Driver;
 // using Nekoyume.Helper;
 
-// namespace Mimir.Repositories.AdventureBoss;
+// namespace Mimir.MongoDB.Repositories.AdventureBoss;
 
 // public class SeasonInfoRepository(MongoDbService dbService)
 // {

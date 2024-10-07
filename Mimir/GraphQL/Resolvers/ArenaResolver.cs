@@ -2,7 +2,7 @@ using HotChocolate.Resolvers;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Repositories;
+using Mimir.MongoDB.Repositories;
 using Nekoyume.TableData;
 
 namespace Mimir.GraphQL.Resolvers;

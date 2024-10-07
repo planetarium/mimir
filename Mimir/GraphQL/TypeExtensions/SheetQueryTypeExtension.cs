@@ -1,10 +1,10 @@
 using System.Text;
 using Lib9c.GraphQL.Types.Sheets;
-using Mimir.Enums;
+using Mimir.MongoDB.Enums;
 using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Queries;
 using Mimir.GraphQL.Types;
-using Mimir.Repositories;
+using Mimir.MongoDB.Repositories;
 
 namespace Mimir.GraphQL.TypeExtensions;
 

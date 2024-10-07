@@ -1,5 +1,5 @@
 using Mimir.GraphQL.Queries;
-using Mimir.Repositories;
+using Mimir.MongoDB.Repositories;
 
 namespace Mimir.GraphQL.TypeExtensions;
 

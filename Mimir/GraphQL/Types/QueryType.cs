@@ -1,6 +1,6 @@
 using Mimir.GraphQL.Queries;
 using Mimir.GraphQL.Types.MimirBsonDocuments;
-using Mimir.Repositories;
+using Mimir.MongoDB.Repositories;
 
 namespace Mimir.GraphQL.Types;
 
