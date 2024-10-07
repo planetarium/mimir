@@ -1,12 +1,11 @@
 using Libplanet.Crypto;
-using Mimir.Exceptions;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
-using Mimir.Services;
+using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 
-namespace Mimir.Repositories;
+namespace Mimir.MongoDB.Repositories;
 
 public class RuneSlotRepository(MongoDbService dbService)
 {

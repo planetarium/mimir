@@ -1,6 +1,4 @@
-using Mimir.MongoDB.Exceptions;
-
-namespace Mimir.Exceptions;
+namespace Mimir.MongoDB.Exceptions;
 
 public class DocumentNotFoundInMongoCollectionException : Exception, IDefaultMessageException
 {

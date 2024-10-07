@@ -1,5 +1,4 @@
 using Bencodex.Types;
-using Lib9c.Models.States;
 using Lib9c.Models.Tests.Fixtures.States;
 using AvatarState = Lib9c.Models.States.AvatarState;
 

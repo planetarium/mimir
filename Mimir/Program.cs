@@ -7,9 +7,9 @@ using Libplanet.Common;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.GraphQL;
+using Mimir.MongoDB.Repositories;
 using Mimir.Options;
-using Mimir.Repositories;
-using Mimir.Services;
+using Mimir.MongoDB.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

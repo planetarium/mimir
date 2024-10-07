@@ -4,7 +4,6 @@ using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
-using Mimir.Worker.Util;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 using Serilog;

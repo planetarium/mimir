@@ -6,7 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
-namespace Mimir.Services;
+namespace Mimir.MongoDB.Services;
 
 public class MongoDbService
 {

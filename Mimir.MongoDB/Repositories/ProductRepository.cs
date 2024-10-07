@@ -1,12 +1,13 @@
 using Bencodex;
-using Mimir.Exceptions;
-using Mimir.MongoDB;
+using HotChocolate;
+using HotChocolate.Data;
+using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
-using Mimir.Services;
+using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
-namespace Mimir.Repositories;
+namespace Mimir.MongoDB.Repositories;
 
 public class ProductRepository
 {

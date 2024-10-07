@@ -1,15 +1,14 @@
 using Libplanet.Crypto;
 using Microsoft.Extensions.Caching.Memory;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Services;
+using Mimir.MongoDB.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Arena;
 using Nekoyume.Model.Arena;
 using Nekoyume.Model.EnumType;
 
-namespace Mimir.Repositories;
+namespace Mimir.MongoDB.Repositories;
 
 public class ArenaRepository(MongoDbService dbService)
 {

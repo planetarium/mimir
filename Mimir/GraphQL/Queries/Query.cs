@@ -7,7 +7,7 @@ using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Repositories;
+using Mimir.MongoDB.Repositories;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.Extensions;

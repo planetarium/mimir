@@ -2,7 +2,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Nekoyume.TableData;
-using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Sheets;
 

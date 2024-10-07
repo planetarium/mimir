@@ -1,6 +1,6 @@
 using System.Net.Mime;
 
-namespace Mimir.Enums
+namespace Mimir.MongoDB.Enums
 {
     public enum SheetFormat
     {
