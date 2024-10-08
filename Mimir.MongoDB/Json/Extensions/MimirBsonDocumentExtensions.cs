@@ -21,5 +21,5 @@ public static class MimirBsonDocumentExtensions
     };
 
     public static string ToJson(this MimirBsonDocument document) =>
-        JsonSerializer.Serialize(document, JsonSerializerOptions);
+        JsonSerializer.Serialize(document, document.GetType(), JsonSerializerOptions);
 }
