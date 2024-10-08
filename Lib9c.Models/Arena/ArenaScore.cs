@@ -8,6 +8,7 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Arena;
 
+[BsonIgnoreExtraElements]
 public record ArenaScore : IBencodable
 {
     public Address Address { get; init; }

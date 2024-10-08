@@ -3,12 +3,14 @@ using Lib9c.Models.Exceptions;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Lib9c.Models.Mails;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.ProductSellerMail"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record ProductSellerMail : Mail
 {
     public Guid ProductId { get; init; }

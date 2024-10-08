@@ -7,6 +7,9 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Mails;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.Mail.Mail"/>
+/// </summary>
 [BsonIgnoreExtraElements]
 public record Mail : IBencodable
 {

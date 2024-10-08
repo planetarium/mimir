@@ -2,6 +2,7 @@ using Bencodex.Types;
 using Lib9c.Models.AttachmentActionResults;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Factories;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Mails;
@@ -9,6 +10,7 @@ namespace Lib9c.Models.Mails;
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.AttachmentMail"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record AttachmentMail : Mail
 {
     public AttachmentActionResult Attachment { get; init; }

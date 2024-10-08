@@ -7,6 +7,10 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.WorldBossKillRewardRecord"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record WorldBossKillRewardRecord : IBencodable
 {
     public Dictionary<int, bool> RewardRecordDictionary { get; init; }

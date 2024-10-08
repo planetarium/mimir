@@ -11,6 +11,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Action.DailyReward2.DailyRewardResult"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record DailyReward2Result : AttachmentActionResult
 {
     public Dictionary<Material, int> Materials { get; init; }

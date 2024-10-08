@@ -2,6 +2,7 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Libplanet.Types.Assets;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Mails;
@@ -9,6 +10,7 @@ namespace Lib9c.Models.Mails;
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.AdventureBossRaffleWinnerMail"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record AdventureBossRaffleWinnerMail : Mail
 {
     public long Season { get; init; }

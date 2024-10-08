@@ -1,4 +1,4 @@
-using Lib9c.Models.States;
+using Lib9c.Models.Market;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
 

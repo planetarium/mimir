@@ -7,6 +7,10 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Mails;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.Mail.MailBox"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record MailBox : IBencodable
 {
     public List<Mail> Mails { get; init; }

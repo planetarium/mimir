@@ -11,6 +11,7 @@ namespace Lib9c.Models.Stats;
 /// <see cref="Nekoyume.Model.Stat.StatMap"/>.
 /// <see cref="Nekoyume.Model.Stat.StatsMap"/>'s serialize and deserialize logic is same with <see cref="Nekoyume.Model.Stat.StatMap"/>.
 /// </summary>
+[BsonIgnoreExtraElements]
 public record StatMap : IBencodable
 {
     public Dictionary<StatType, DecimalStat> Value { get; init; }

@@ -3,11 +3,16 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Runes;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.EnumType;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.RuneSlotState"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record RuneSlotState : IBencodable
 {
     public BattleType BattleType { get; init; }

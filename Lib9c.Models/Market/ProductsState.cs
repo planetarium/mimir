@@ -5,8 +5,11 @@ using Lib9c.Models.Extensions;
 using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
-namespace Lib9c.Models.States;
+namespace Lib9c.Models.Market;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.Market.ProductsState"/>
+/// </summary>
 [BsonIgnoreExtraElements]
 public record ProductsState : IBencodable
 {

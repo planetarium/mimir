@@ -8,6 +8,9 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.WorldBossState"/>
+/// </summary>
 [BsonIgnoreExtraElements]
 public record WorldBossState : IBencodable
 {

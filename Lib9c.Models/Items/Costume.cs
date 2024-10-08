@@ -10,6 +10,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Costume"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record Costume : ItemBase
 {
     public bool Equipped { get; init; }

@@ -8,6 +8,10 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.RaiderState"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public class RaiderState : IBencodable
 {
     public long TotalScore { get; init; }

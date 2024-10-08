@@ -12,6 +12,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.ItemUsable"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record ItemUsable : ItemBase
 {
     public Guid ItemId { get; init; }

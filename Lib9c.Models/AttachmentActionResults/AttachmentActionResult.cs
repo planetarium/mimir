@@ -12,6 +12,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Action.AttachmentActionResult"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record AttachmentActionResult : IBencodable
 {
     public string TypeId { get; init; }

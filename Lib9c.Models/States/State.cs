@@ -5,12 +5,14 @@ using Libplanet.Crypto;
 using ValueKind = Bencodex.Types.ValueKind;
 using static Lib9c.SerializeKeys;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Lib9c.Models.States;
 
 /// <summary>
 /// <see cref="Nekoyume.Model.State.State"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record State : IBencodable
 {
     public Address Address { get; init; }

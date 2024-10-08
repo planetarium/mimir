@@ -11,6 +11,7 @@ namespace Lib9c.Models.Stats;
 /// <summary>
 /// <see cref="Nekoyume.Model.Stat.DecimalStat"/>.
 /// </summary>
+[BsonIgnoreExtraElements]
 public record DecimalStat : IBencodable
 {
     public StatType StatType { get; init; }
