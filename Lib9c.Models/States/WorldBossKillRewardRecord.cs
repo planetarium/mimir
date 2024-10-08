@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -15,7 +16,7 @@ public record WorldBossKillRewardRecord : IBencodable
 {
     public Dictionary<int, bool> RewardRecordDictionary { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => RewardRecordDictionary
         .OrderBy(kv => kv.Key)
         .Aggregate(

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -18,7 +19,7 @@ public record Buy7SellerResult : AttachmentActionResult
     public Guid Id { get; init; }
     public FungibleAssetValue Gold { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("shopItem", ShopItem.Bencoded)
         .Add("id", Id.Serialize())

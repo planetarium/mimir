@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -17,7 +18,7 @@ public record RapidCombination5Result : AttachmentActionResult
     public Guid Id { get; init; }
     public Dictionary<Material, int> Cost { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("id", Id.Serialize())
         .Add("cost", new List(Cost

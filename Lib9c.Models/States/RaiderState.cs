@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -30,7 +31,7 @@ public class RaiderState : IBencodable
     public int LatestBossLevel { get; init; }
     public long UpdatedBlockIndex { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
         List
             .Empty.Add(TotalScore.Serialize())

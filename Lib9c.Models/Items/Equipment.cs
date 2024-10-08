@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Stats;
@@ -23,7 +24,7 @@ public record Equipment : ItemUsable
     public int OptionCountFromCombination { get; init; }
     public bool MadeWithMimisbrunnrRecipe { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded
     {
         get

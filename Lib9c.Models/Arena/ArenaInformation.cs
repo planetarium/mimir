@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -18,7 +19,7 @@ public record ArenaInformation : IBencodable
     public int TicketResetCount { get; init; }
     public int PurchasedTicketCount { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => List.Empty
         .Add(Address.Serialize())
         .Add(Win)

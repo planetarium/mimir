@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -14,7 +15,7 @@ public record ArenaScore : IBencodable
     public Address Address { get; init; }
     public int Score { get; init; }
     
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => List.Empty
         .Add(Address.Serialize())
         .Add(Score);

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -17,7 +18,7 @@ public record DailyReward2Result : AttachmentActionResult
     public Dictionary<Material, int> Materials { get; init; }
     public Guid Id { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("materials", new List(Materials
             .OrderBy(kv => kv.Key.Id)

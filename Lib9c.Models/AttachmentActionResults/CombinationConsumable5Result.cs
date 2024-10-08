@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -22,7 +23,7 @@ public record CombinationConsumable5Result : AttachmentActionResult
     public int RecipeId { get; init; }
     public int? SubRecipeId { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("materials", new List(Materials
             .OrderBy(kv => kv.Key.Id)

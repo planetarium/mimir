@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
@@ -19,7 +20,7 @@ public record MonsterCollectionResult : AttachmentActionResult
     public Address AvatarAddress { get; init; }
     public List<MonsterCollectionRewardSheet.RewardInfo> Rewards { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("id", Id.Serialize())
         .Add(AvatarAddressKey, AvatarAddress.Serialize())

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -18,18 +19,18 @@ public record DecimalStat : IBencodable
     public decimal BaseValue { get; init; }
     public decimal AdditionalValue { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => Dictionary.Empty
         .Add("statType", StatType.Serialize())
         .Add("value", BaseValue.Serialize())
         .Add("additionalValue", AdditionalValue.Serialize());
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue BencodedWithoutAdditionalValue => Dictionary.Empty
         .Add("statType", StatType.Serialize())
         .Add("value", BaseValue.Serialize());
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue BencodedAsLegacy => Dictionary.Empty
         .Add("type", StatType.Serialize())
         .Add("value", BaseValue.Serialize());

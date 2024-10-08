@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -23,7 +24,7 @@ public record ItemEnhancement9Result : AttachmentActionResult
     public ItemEnhancement9.EnhancementResult EnhancementResult { get; init; }
     public ItemUsable? PreItemUsable { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded
     {
         get

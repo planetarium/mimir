@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.AttachmentActionResults;
@@ -21,7 +22,7 @@ public record CombinationSlotState : IBencodable
     public AttachmentActionResult? Result { get; init; }
     public int? PetId { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded
     {
         get

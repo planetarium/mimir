@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -58,7 +59,7 @@ public record Contract : IBencodable
         LockupInterval = (Integer)l[reservedCount + 3];
     }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
         new List(
             (Text)StateTypeName,

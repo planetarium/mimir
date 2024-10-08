@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -24,9 +25,9 @@ public record AvatarState : State
     public Address AgentAddress { get; init; }
     public MailBox MailBox { get; init; }
     public long BlockIndex { get; init; }
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public long DailyRewardReceivedIndex { get; init; }
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public int ActionPoint { get; init; }
     public CollectionMap StageMap { get; init; }
     public CollectionMap MonsterMap { get; init; }
@@ -39,7 +40,7 @@ public record AvatarState : State
     public List<Address> CombinationSlotAddresses { get; init; }
     public Address RankingMapAddress { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => new List(
         base.Bencoded,
         (Integer)Version,

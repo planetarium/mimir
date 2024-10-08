@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -14,7 +15,7 @@ public record Inventory : IBencodable
 {
     public List<InventoryItem> Items { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => new List(Items
         .OrderBy(i => i.Item.Id)
         .ThenByDescending(i => i.Count)

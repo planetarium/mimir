@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -25,7 +26,7 @@ public record ItemEnhancement11Result : AttachmentActionResult
     public ItemUsable? PreItemUsable { get; init; }
     public FungibleAssetValue Crystal { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded
     {
         get

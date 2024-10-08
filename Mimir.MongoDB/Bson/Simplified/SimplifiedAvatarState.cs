@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using HotChocolate;
 using Lib9c.Models.Exceptions;
@@ -24,26 +25,26 @@ public record SimplifiedAvatarState : State
     public long UpdatedAt { get; init; }
     public Address AgentAddress { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public MailBox MailBox { get; init; }
     public long BlockIndex { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public long DailyRewardReceivedIndex { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public int ActionPoint { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public CollectionMap StageMap { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public CollectionMap MonsterMap { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public CollectionMap ItemMap { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public CollectionMap EventMap { get; init; }
     public int Hair { get; init; }
     public int Lens { get; init; }
@@ -52,7 +53,7 @@ public record SimplifiedAvatarState : State
     public List<Address> CombinationSlotAddresses { get; init; }
     public Address RankingMapAddress { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded =>
         new List(
             base.Bencoded,
