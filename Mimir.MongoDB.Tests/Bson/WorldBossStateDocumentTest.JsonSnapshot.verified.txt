@@ -1,0 +1,1 @@
+﻿{"RaidId":0,"Object":{"Id":900001,"Level":47,"CurrentHp":"2428093","StartedBlockIndex":12038501,"EndedBlockIndex":12189700,"Bencoded":{"Kind":"List","EncodingLength":47}},"Address":"0000000000000000000000000000000000000000"}
