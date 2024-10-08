@@ -33,7 +33,7 @@ public class ApprovePledgeHandler(IStateService stateService, MongoDbService sto
             "Handle approve_pledge, approve contracting with patron: {PatronAddress}",
             approvePledge.PatronAddress);
 
-        await PledgeCollectionUpdater.ApproveAsync(Store, signer, session, stoppingToken);
+        await PledgeCollectionUpdater.ApproveAsync(Store, signer.GetPledgeAddress(), session, stoppingToken);
 
         return true;
     }
