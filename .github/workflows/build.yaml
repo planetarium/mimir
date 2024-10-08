@@ -12,7 +12,6 @@ jobs:
       matrix:
         project:
           - test: Mimir.Worker.Tests
-            codegen: Mimir.Worker
     steps:
       -
         name: Checkout
@@ -20,6 +19,4 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - run: dotnet tool restore
-      - run: dotnet graphql generate ${{ matrix.project.codegen }}
       - run: dotnet test ${{ matrix.project.test }}
