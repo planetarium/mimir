@@ -5,6 +5,9 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Mails;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.Mail.CustomCraftMail"/>
+/// </summary>
 public record CustomCraftMail : Mail
 {
     public Equipment Equipment { get; init; }
