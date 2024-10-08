@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -19,7 +20,7 @@ public record ItemBase : IBencodable
     public Nekoyume.Model.Item.ItemSubType ItemSubType { get; init; }
     public Nekoyume.Model.Elemental.ElementalType ElementalType { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public virtual IValue Bencoded => Dictionary.Empty
         .Add("id", Id.Serialize())
         .Add("item_type", ItemType.Serialize())

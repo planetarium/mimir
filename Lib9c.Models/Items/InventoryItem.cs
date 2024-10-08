@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -19,7 +20,7 @@ public record InventoryItem : IBencodable
     public int Count { get; init; }
     public ILock? Lock { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded
     {
         get

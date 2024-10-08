@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -15,7 +16,7 @@ public record MailBox : IBencodable
 {
     public List<Mail> Mails { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => new List(Mails
         .OrderBy(i => i.Id)
         .Select(m => m.Bencoded));

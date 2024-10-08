@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -15,7 +16,7 @@ public record ProductsState : IBencodable
 {
     public List<Guid> ProductIds { get; init; } = new();
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => new List(ProductIds.Select(e => e.Serialize()));
 
     public ProductsState()

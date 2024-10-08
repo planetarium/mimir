@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -19,7 +20,7 @@ public record AgentState : State
 
     public int Version { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => new List(
         base.Bencoded,
         (Integer)1,

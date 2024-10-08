@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -23,7 +24,7 @@ public record Skill : IBencodable
 
     private readonly bool _skillRowHasCombo = false;
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded
     {
         get

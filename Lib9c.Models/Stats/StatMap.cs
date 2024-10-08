@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -16,7 +17,7 @@ public record StatMap : IBencodable
 {
     public Dictionary<StatType, DecimalStat> Value { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => new Dictionary(Value
         .Where(x => x.Value.BaseValue > 0 || x.Value.AdditionalValue > 0)
         .Select(kv => new KeyValuePair<IKey, IValue>(

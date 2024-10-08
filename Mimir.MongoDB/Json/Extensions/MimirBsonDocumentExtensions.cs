@@ -16,7 +16,6 @@ public static class MimirBsonDocumentExtensions
             new BigIntegerJsonConverter(),
             new MaterialAndIntDictionaryJsonConverter(),
             new JsonStringEnumConverter(),
-            new IgnoreBencodedPropertiesConverter<MimirBsonDocument>(),
         },
     };
 

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -50,7 +51,7 @@ public record StakeState : IBencodable
         ReceivedBlockIndex = (Integer)l[reservedCount + 2];
     }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
         new List(
             (Text)StateTypeName,

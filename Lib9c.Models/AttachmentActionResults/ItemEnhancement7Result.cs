@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -18,7 +19,7 @@ public record ItemEnhancement7Result : AttachmentActionResult
     public BigInteger Gold { get; init; }
     public int ActionPoint { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("id", Id.Serialize())
         .Add("materialItemIdList", MaterialItemIdList

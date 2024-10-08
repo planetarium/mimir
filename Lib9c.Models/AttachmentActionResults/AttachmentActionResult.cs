@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -29,7 +30,7 @@ public record AttachmentActionResult : IBencodable
 
     public int TradableFungibleItemCount { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public virtual IValue Bencoded
     {
         get

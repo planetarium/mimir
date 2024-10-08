@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -24,7 +25,7 @@ public record ItemUsable : ItemBase
     public List<Skill> BuffSkills { get; init; }
     public long RequiredBlockIndex { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("itemId", ItemId.Serialize())
         .Add("statsMap", StatsMap.Bencoded)

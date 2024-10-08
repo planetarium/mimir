@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -20,7 +21,7 @@ public record WorldBossState : IBencodable
     public long StartedBlockIndex { get; init; }
     public long EndedBlockIndex { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
         List
             .Empty.Add(Id.Serialize())

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -22,7 +23,7 @@ public record Product : IBencodable
     public Address SellerAvatarAddress { get; init; }
     public Address SellerAgentAddress { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => List.Empty
         .Add(ProductId.Serialize())
         .Add(ProductType.Serialize())

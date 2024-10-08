@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -16,7 +17,7 @@ public record RapidCombination0Result : AttachmentActionResult
 {
     public Dictionary<Material, int> Cost { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded => ((Dictionary)base.Bencoded)
         .Add("cost", new List(Cost
             .OrderBy(kv => kv.Key.Id)

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using ValueKind = Bencodex.Types.ValueKind;
@@ -18,7 +19,7 @@ public record Costume : ItemBase
     public Guid ItemId { get; init; }
     public long RequiredBlockIndex { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public override IValue Bencoded
     {
         get

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -18,7 +19,7 @@ public record ItemProduct : Product, IBencodable
     public ItemBase TradableItem { get; init; }
     public int ItemCount { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public new IValue Bencoded => ((List)base.Bencoded)
         .Add(TradableItem.Bencoded)
         .Add(ItemCount.Serialize());

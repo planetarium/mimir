@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -35,7 +36,7 @@ public record ShopItem : IBencodable
     public int TradableFungibleItemCount { get; init; }
     public long ExpiredBlockIndex { get; init; }
 
-    [BsonIgnore, GraphQLIgnore]
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded
     {
         get
