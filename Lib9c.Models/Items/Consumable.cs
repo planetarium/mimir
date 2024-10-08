@@ -10,6 +10,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Consumable"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record Consumable : ItemUsable
 {
     public List<DecimalStat> Stats { get; init; }

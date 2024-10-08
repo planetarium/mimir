@@ -10,6 +10,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.TradableMaterial"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record TradableMaterial : Material
 {
     public long RequiredBlockIndex { get; init; }

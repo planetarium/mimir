@@ -11,6 +11,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Action.RapidCombination5.ResultModel"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record RapidCombination5Result : AttachmentActionResult
 {
     public Guid Id { get; init; }

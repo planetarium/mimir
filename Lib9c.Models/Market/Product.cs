@@ -9,6 +9,9 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Market;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.Market.Product"/>
+/// </summary>
 [BsonIgnoreExtraElements]
 public record Product : IBencodable
 {

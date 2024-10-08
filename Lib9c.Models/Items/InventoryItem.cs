@@ -12,6 +12,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Inventory.Item"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record InventoryItem : IBencodable
 {
     public ItemBase Item { get; init; }

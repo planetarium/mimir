@@ -11,6 +11,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.Equipment"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record Equipment : ItemUsable
 {
     public bool Equipped { get; init; }

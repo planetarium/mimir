@@ -7,6 +7,10 @@ using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.StakeState"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record StakeState : IBencodable
 {
     public const string StateTypeName = "stake_state";

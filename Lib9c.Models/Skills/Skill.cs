@@ -12,6 +12,7 @@ namespace Lib9c.Models.Skills;
 /// <summary>
 /// <see cref="Nekoyume.Model.Skill.Skill"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record Skill : IBencodable
 {
     public SkillSheet.Row SkillRow { get; init; }

@@ -10,6 +10,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Action.ItemEnhancement7.ResultModel"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record ItemEnhancement7Result : AttachmentActionResult
 {
     public Guid Id { get; init; }

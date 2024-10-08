@@ -5,6 +5,7 @@ using Lib9c.Models.Extensions;
 using Libplanet.Common;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Action.Garages;
 using ValueKind = Bencodex.Types.ValueKind;
 
@@ -13,6 +14,7 @@ namespace Lib9c.Models.Mails;
 /// <summary>
 /// <see cref="Nekoyume.Model.Mail.UnloadFromMyGaragesRecipientMail"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record UnloadFromMyGaragesRecipientMail : Mail
 {
     public IOrderedEnumerable<(Address balanceAddr, FungibleAssetValue value)>?

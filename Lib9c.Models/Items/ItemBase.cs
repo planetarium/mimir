@@ -10,6 +10,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.ItemBase"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record ItemBase : IBencodable
 {
     public int Id { get; init; }

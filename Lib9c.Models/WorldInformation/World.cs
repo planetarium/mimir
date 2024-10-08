@@ -2,10 +2,15 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.WorldInformation;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.WorldInformation.World"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record World : IBencodable
 {
     public int Id { get; init; }

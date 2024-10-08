@@ -1,10 +1,15 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
+using MongoDB.Bson.Serialization.Attributes;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.State.AllRuneState"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record AllRuneState : IBencodable
 {
     public Dictionary<int, RuneState> Runes { get; }

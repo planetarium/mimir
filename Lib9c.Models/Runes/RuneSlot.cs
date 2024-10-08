@@ -2,11 +2,16 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.EnumType;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Runes;
 
+/// <summary>
+/// <see cref="Nekoyume.Model.Rune.RuneSlot"/>
+/// </summary>
+[BsonIgnoreExtraElements]
 public record RuneSlot : IBencodable
 {
     public int Index { get; init; }

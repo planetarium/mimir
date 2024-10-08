@@ -11,6 +11,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Action.RapidCombination0.ResultModel"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record RapidCombination0Result : AttachmentActionResult
 {
     public Dictionary<Material, int> Cost { get; init; }

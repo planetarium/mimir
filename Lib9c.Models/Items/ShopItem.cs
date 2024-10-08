@@ -14,6 +14,7 @@ namespace Lib9c.Models.Items;
 /// <summary>
 /// <see cref="Nekoyume.Model.Item.ShopItem"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record ShopItem : IBencodable
 {
     public Address SellerAgentAddress { get; init; }

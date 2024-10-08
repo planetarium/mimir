@@ -12,6 +12,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Model.State.MonsterCollectionResult"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record MonsterCollectionResult : AttachmentActionResult
 {
     public Guid Id { get; init; }

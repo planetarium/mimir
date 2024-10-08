@@ -12,6 +12,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Action.CombinationConsumable5.ResultModel"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record CombinationConsumable5Result : AttachmentActionResult
 {
     public Dictionary<Material, int> Materials { get; init; }

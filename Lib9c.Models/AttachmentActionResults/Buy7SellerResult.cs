@@ -11,6 +11,7 @@ namespace Lib9c.Models.AttachmentActionResults;
 /// <summary>
 /// <see cref="Nekoyume.Action.Buy7.SellerResult"/>
 /// </summary>
+[BsonIgnoreExtraElements]
 public record Buy7SellerResult : AttachmentActionResult
 {
     public ShopItem ShopItem { get; init; }
