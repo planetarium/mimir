@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="Verify" Version="26.6.0" />
+    <PackageReference Include="Verify.Xunit" Version="26.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Mimir.MongoDB\Mimir.MongoDB.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="TestDatas\States\**">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Bson\RaiderStateDocumentTest.JsonSnapshot.verified.txt">
+      <ParentFile>PetStateDocumentTest</ParentFile>
+      <DependentUpon>QuestListDocumentTest.cs</DependentUpon>
+    </None>
+    <None Update="Bson\RuneSlotDocumentTest.JsonSnapshot.verified.txt">
+      <ParentFile>RaiderStateDocumentTest</ParentFile>
+      <DependentUpon>RuneSlotDocumentTest.cs</DependentUpon>
+    </None>
+    <None Update="Bson\StakeDocumentTest.JsonSnapshot.verified.txt">
+      <ParentFile>RuneSlotDocumentTest</ParentFile>
+      <DependentUpon>StakeDocumentTest.cs</DependentUpon>
+    </None>
+    <None Update="Bson\WorldBossStateDocumentTest.JsonSnapshot.verified.txt">
+      <ParentFile>StakeDocumentTest</ParentFile>
+      <DependentUpon>WorldBossDocumentTest.cs</DependentUpon>
+    </None>
+    <None Update="Bson\WorldInformationDocumentTest.JsonSnapshot.verified.txt">
+      <ParentFile>WorldBossStateDocumentTest</ParentFile>
+      <DependentUpon>WorldInformationDocumentTest.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
+</Project>
