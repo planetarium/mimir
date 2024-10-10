@@ -14,8 +14,6 @@ public class CombinationSlotStateDocumentTest
     {
         var docs = new CombinationSlotStateDocument(
             default,
-            default,
-            0,
             new CombinationSlotState(TestDataHelpers.LoadState("CombinationSlotState.bin"))
         );
 
@@ -27,11 +25,8 @@ public class CombinationSlotStateDocumentTest
     {
         var docs = new CombinationSlotStateDocument(
             default,
-            default,
-            0,
             new CombinationSlotState
             {
-                UnlockStage = 1,
                 UnlockBlockIndex = 100,
                 StartBlockIndex = 0,
                 PetId = 1,
@@ -46,11 +41,8 @@ public class CombinationSlotStateDocumentTest
     {
         var docs = new CombinationSlotStateDocument(
             default,
-            default,
-            0,
             new CombinationSlotState
             {
-                UnlockStage = 1,
                 UnlockBlockIndex = 100,
                 StartBlockIndex = 0,
                 Result = new DailyReward2Result

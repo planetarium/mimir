@@ -77,11 +77,7 @@ public class RapidCombinationHandler(IStateService stateService, MongoDbService 
             }
 
             // handle 
-            var doc = new CombinationSlotStateDocument(
-                slotAddress,
-                avatarAddress.Value,
-                slotIndex,
-                combinationSlotState);
+            var doc = new CombinationSlotStateDocument(slotAddress, combinationSlotState);
             await Store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<CombinationSlotStateDocument>(),
                 [doc],
