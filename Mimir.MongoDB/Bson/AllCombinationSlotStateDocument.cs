@@ -5,5 +5,5 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
-public record CombinationSlotStateDocument(Address Address, CombinationSlotState Object) :
+public record AllCombinationSlotStateDocument(Address Address, AllCombinationSlotState Object) :
     MimirBsonDocument(Address);

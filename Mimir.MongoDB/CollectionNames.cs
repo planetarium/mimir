@@ -37,7 +37,7 @@ namespace Mimir.MongoDB
             // CollectionAndAddressMappings.Add(Addresses.ExplorerList, "adventure_boss_explorer_list");
             // CollectionAndAddressMappings.Add(Addresses. typeof(ExplorerState), "adventure_boss_explorer");
             // CollectionAndAddressMappings.Add(Addresses.AdventureBoss, "adventure_boss_season_info");
-            CollectionAndAddressMappings.Add(Addresses.CombinationSlot, "combination_slot");
+            CollectionAndAddressMappings.Add(Addresses.CombinationSlot, "all_combination_slot");
 
             CollectionAndAddressMappings.Add(
                 new Address(OdinNCGCurrency.Hash.ToByteArray()),
@@ -92,7 +92,7 @@ namespace Mimir.MongoDB
                 "world_boss_kill_reward_record");
             CollectionAndStateTypeMappings.Add(typeof(RaiderStateDocument), "raider");
             CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
-            CollectionAndStateTypeMappings.Add(typeof(CombinationSlotStateDocument), "combination_slot");
+            CollectionAndStateTypeMappings.Add(typeof(AllCombinationSlotStateDocument), "all_combination_slot");
             CollectionAndStateTypeMappings.Add(typeof(PetStateDocument), "pet_state");
             // CollectionAndStateTypeMappings.Add(typeof(BountyBoardDocument), "adventure_boss_bounty_board");
             // CollectionAndStateTypeMappings.Add(typeof(ExploreBoardDocument), "adventure_boss_explore_board");
