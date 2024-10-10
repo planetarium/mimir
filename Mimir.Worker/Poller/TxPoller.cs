@@ -55,7 +55,6 @@ public class TxPoller : IBlockPoller
             // Market
             new ProductsHandler(stateService, dbService),
             // Avatar Related
-            new CombinationSlotStateHandler(stateService, dbService),
             new RapidCombinationHandler(stateService, dbService),
             new PetStateHandler(stateService, dbService),
             new RuneSlotStateHandler(stateService, dbService),
