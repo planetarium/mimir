@@ -104,28 +104,14 @@ public class Query
     public ArenaObject GetArena() => new();
 
     /// <summary>
-    /// Get the combination slot state for a specific avatar and slot index.
-    /// </summary>
-    /// <param name="avatarAddress">The address of the avatar.</param>
-    /// <param name="slotIndex">The slot index, used to identify the specific slot.</param>
-    /// <returns>The combination slot state for the specified avatar address and slot index.</returns>
-    public async Task<CombinationSlotState> GetCombinationSlotAsync(
-        Address avatarAddress,
-        int slotIndex,
-        [Service] CombinationSlotStateRepository repo) =>
-        (await repo.GetByAvatarAddressAsync(avatarAddress, slotIndex)).Object;
-
-    /// <summary>
     /// Get all combination slot states for a specific avatar address.
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar</param>
     /// <returns>All combination slot states for the specified avatar address.</returns>
-    public async Task<CombinationSlotState[]> GetCombinationSlotsAsync(
+    public async Task<AllCombinationSlotState> GetAllCombinationSlotsAsync(
         Address avatarAddress,
-        [Service] CombinationSlotStateRepository repo) =>
-        (await repo.GetByAvatarAddressAsync(avatarAddress))
-        .Select(e => e.Object)
-        .ToArray();
+        [Service] AllCombinationSlotStateRepository repo) =>
+        (await repo.GetByAddressAsync(avatarAddress)).Object;
 
     /// <summary>
     /// Get the product ids that are contained in the products state for a specific avatar address.
