@@ -15,7 +15,13 @@ builder
 
 builder.Services.Configure<Configuration>(builder.Configuration.GetSection("Configuration"));
 
-Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+var loggerConfiguration = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration);
+if (builder.Configuration.GetSection("Configuration").GetValue<string>("SentryDsn") is { } sentryDsn)
+{
+    loggerConfiguration = loggerConfiguration.WriteTo.Sentry(sentryDsn);
+}
+
+Log.Logger = loggerConfiguration.CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(Log.Logger);
 
