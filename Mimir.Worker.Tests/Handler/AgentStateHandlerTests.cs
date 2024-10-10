@@ -1,4 +1,4 @@
-using Bencodex;
+using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Handler;
@@ -7,7 +7,6 @@ namespace Mimir.Worker.Tests.Handler;
 
 public class AgentStateHandlerTests
 {
-    private static readonly Codec Codec = new();
     private readonly AgentStateHandler _handler = new();
 
     [Theory]
@@ -16,30 +15,22 @@ public class AgentStateHandlerTests
     public void ConvertToStateData(int avatarCount)
     {
         var address = new PrivateKey().Address;
-        var agentState = new Nekoyume.Model.State.AgentState(address);
+        var state = new Nekoyume.Model.State.AgentState(address);
         for (var i = 0; i < avatarCount; i++)
         {
-            agentState.avatarAddresses.Add(i, new PrivateKey().Address);
+            state.avatarAddresses.Add(i, new PrivateKey().Address);
         }
 
+        var bencoded = state.SerializeList();
         var context = new StateDiffContext
         {
             Address = address,
-            RawState = agentState.SerializeList(),
+            RawState = bencoded,
         };
-        var state = _handler.ConvertToDocument(context);
-
-        Assert.IsType<AgentDocument>(state);
-        var dataState = (AgentDocument)state;
-        Assert.Equal(agentState.address, dataState.Object.Address);
-        Assert.Equal(agentState.avatarAddresses.Count, dataState.Object.AvatarAddresses.Count);
-        foreach (var (key, value) in agentState.avatarAddresses)
-        {
-            Assert.True(dataState.Object.AvatarAddresses.ContainsKey(key));
-            Assert.Equal(value, dataState.Object.AvatarAddresses[key]);
-        }
-
-        Assert.Equal(agentState.MonsterCollectionRound, dataState.Object.MonsterCollectionRound);
-        Assert.Equal(agentState.Version, dataState.Object.Version);
+        var doc = _handler.ConvertToDocument(context);
+        Assert.IsType<AgentDocument>(doc);
+        var agentDoc = (AgentDocument)doc;
+        Assert.Equal(address, agentDoc.Address);
+        Assert.Equal(bencoded, agentDoc.Object.Bencoded);
     }
 }
