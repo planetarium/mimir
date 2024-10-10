@@ -1,4 +1,5 @@
-﻿using Bencodex;
+﻿using System.Text.Json.Serialization;
+using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
@@ -19,6 +20,7 @@ public record RuneSlotState : IBencodable
 
     public List<RuneSlot> Slots { get; init; }
 
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
         List.Empty.Add(BattleType.Serialize()).Add(new List(Slots.Select(x => x.Bencoded)));
 

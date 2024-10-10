@@ -20,6 +20,16 @@ public record StakeState : IBencodable
     public long StartedBlockIndex { get; init; }
     public long ReceivedBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public IValue Bencoded =>
+        new List(
+            (Text)StateTypeName,
+            (Integer)StateTypeVersion,
+            Contract.Bencoded,
+            (Integer)StartedBlockIndex,
+            (Integer)ReceivedBlockIndex
+        );
+
     public StakeState(IValue bencoded)
     {
         if (bencoded is not List l)
@@ -50,14 +60,4 @@ public record StakeState : IBencodable
         StartedBlockIndex = (Integer)l[reservedCount + 1];
         ReceivedBlockIndex = (Integer)l[reservedCount + 2];
     }
-
-    [BsonIgnore, GraphQLIgnore, JsonIgnore]
-    public IValue Bencoded =>
-        new List(
-            (Text)StateTypeName,
-            (Integer)StateTypeVersion,
-            Contract.Bencoded,
-            (Integer)StartedBlockIndex,
-            (Integer)ReceivedBlockIndex
-        );
 }
