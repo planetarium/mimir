@@ -6,13 +6,11 @@ on:
 
 jobs:
   build:
-    name: 'Test (${{ matrix.project.test }})'
+    name: 'Test (${{ matrix.project }})'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project:
-          - test: Mimir.Worker.Tests
-            codegen: Mimir.Worker
+        project: [Mimir.Worker.Tests, Lib9c.Models.Tests, Mimir.MongoDB.Tests]
     steps:
       -
         name: Checkout
@@ -20,6 +18,4 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - run: dotnet tool restore
-      - run: dotnet graphql generate ${{ matrix.project.codegen }}
-      - run: dotnet test ${{ matrix.project.test }}
+      - run: dotnet test ${{ matrix.project }}

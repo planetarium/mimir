@@ -13,5 +13,5 @@ public class VanillaState : Nekoyume.Model.State.State
     {
     }
     
-    public override IValue Serialize() => SerializeBase();
+    public override IValue Serialize() => SerializeListBase();
 }
