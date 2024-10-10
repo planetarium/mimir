@@ -5,7 +5,7 @@ using Mimir.MongoDB.Json.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Items;
 
@@ -46,9 +46,9 @@ public class TradableMaterialSerializer : ClassSerializerBase<TradableMaterial>
 
     public static TradableMaterial Deserialize(string jsonString)
     {
-        var material = JsonSerializer.Deserialize<TradableMaterial>(
+        var material = JsonConvert.DeserializeObject<TradableMaterial>(
             jsonString,
-            MimirBsonDocumentExtensions.JsonSerializerOptions);
+            MimirBsonDocumentExtensions.JsonSerializerSettings);
         if (material is null)
         {
             throw new BsonSerializationException("Failed to deserialize Material from JSON string.");

@@ -5,7 +5,7 @@ using Mimir.MongoDB.Json.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Items;
 
@@ -50,9 +50,9 @@ public class MaterialSerializer : ClassSerializerBase<Material>
 
     public static Material Deserialize(string jsonString)
     {
-        var material = JsonSerializer.Deserialize<Material>(
+        var material = JsonConvert.DeserializeObject<Material>(
             jsonString,
-            MimirBsonDocumentExtensions.JsonSerializerOptions);  // Use JsonSerializerOptions from System.Text.Json
+            MimirBsonDocumentExtensions.JsonSerializerSettings);  // Use JsonSerializerOptions from System.Text.Json
 
         if (material is null)
         {
