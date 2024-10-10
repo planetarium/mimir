@@ -2,6 +2,7 @@ using Lib9c;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Mimir.MongoDB.Bson;
+using Nekoyume;
 
 namespace Mimir.MongoDB
 {
@@ -22,20 +23,21 @@ namespace Mimir.MongoDB
 
         static CollectionNames()
         {
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.Agent, "agent");
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.Avatar, "avatar");
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.ActionPoint, "action_point");
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.DailyReward, "daily_reward");
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.Inventory, "inventory");
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.WorldInformation, "world_information");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.QuestList, "quest_list");
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.RuneState, "all_rune");
-            CollectionAndAddressMappings.Add(Nekoyume.Addresses.Collection, "collection");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.BountyBoard, "adventure_boss_bounty_board");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.ExploreBoard, "adventure_boss_explore_board");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.ExplorerList, "adventure_boss_explorer_list");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses. typeof(ExplorerState), "adventure_boss_explorer");
-            // CollectionAndAddressMappings.Add(Nekoyume.Addresses.AdventureBoss, "adventure_boss_season_info");
+            CollectionAndAddressMappings.Add(Addresses.Agent, "agent");
+            CollectionAndAddressMappings.Add(Addresses.Avatar, "avatar");
+            CollectionAndAddressMappings.Add(Addresses.ActionPoint, "action_point");
+            CollectionAndAddressMappings.Add(Addresses.DailyReward, "daily_reward");
+            CollectionAndAddressMappings.Add(Addresses.Inventory, "inventory");
+            CollectionAndAddressMappings.Add(Addresses.WorldInformation, "world_information");
+            // CollectionAndAddressMappings.Add(Addresses.QuestList, "quest_list");
+            CollectionAndAddressMappings.Add(Addresses.RuneState, "all_rune");
+            CollectionAndAddressMappings.Add(Addresses.Collection, "collection");
+            // CollectionAndAddressMappings.Add(Addresses.BountyBoard, "adventure_boss_bounty_board");
+            // CollectionAndAddressMappings.Add(Addresses.ExploreBoard, "adventure_boss_explore_board");
+            // CollectionAndAddressMappings.Add(Addresses.ExplorerList, "adventure_boss_explorer_list");
+            // CollectionAndAddressMappings.Add(Addresses. typeof(ExplorerState), "adventure_boss_explorer");
+            // CollectionAndAddressMappings.Add(Addresses.AdventureBoss, "adventure_boss_season_info");
+            CollectionAndAddressMappings.Add(Addresses.CombinationSlot, "combination_slot");
 
             CollectionAndAddressMappings.Add(
                 new Address(OdinNCGCurrency.Hash.ToByteArray()),
