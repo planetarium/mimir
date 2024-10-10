@@ -4,6 +4,8 @@ namespace Mimir.Worker;
 
 public class Configuration
 {
+    public string? SentryDsn { get; init; }
+
     public PollerType PollerType { get; init; }
 
     public string MongoDbConnectionString { get; init; }
