@@ -26,7 +26,7 @@ public static class AddressHandlerMappings
         HandlerMappings.Add(Addresses.Agent, new AgentStateHandler());
         HandlerMappings.Add(Addresses.Avatar, new AvatarStateHandler());
         HandlerMappings.Add(Addresses.ActionPoint, new ActionPointStateHandler());
-        HandlerMappings.Add(Addresses.CombinationSlot, new CombinationSlotStateHandler());
+        HandlerMappings.Add(Addresses.CombinationSlot, new AllCombinationSlotStateHandler());
         HandlerMappings.Add(Addresses.DailyReward, new DailyRewardStateHandler());
         HandlerMappings.Add(Addresses.Inventory, new InventoryStateHandler());
         HandlerMappings.Add(Addresses.WorldInformation, new WorldInformationStateHandler());

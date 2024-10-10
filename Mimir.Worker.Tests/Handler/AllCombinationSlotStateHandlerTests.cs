@@ -4,15 +4,15 @@ using Mimir.Worker.Handler;
 
 namespace Mimir.Worker.Tests.Handler;
 
-public class CombinationSlotStateHandlerTests
+public class AllCombinationSlotStateHandlerTests
 {
-    private readonly CombinationSlotStateHandler _handler = new();
+    private readonly AllCombinationSlotStateHandler _handler = new();
 
     [Fact]
     public void ConvertToStateData()
     {
         var address = new PrivateKey().Address;
-        var state = new Nekoyume.Model.State.CombinationSlotState(address);
+        var state = new Nekoyume.Model.State.AllCombinationSlotState();
         var bencoded = state.Serialize();
         var context = new StateDiffContext
         {
@@ -20,8 +20,8 @@ public class CombinationSlotStateHandlerTests
             RawState = bencoded,
         };
         var doc = _handler.ConvertToDocument(context);
-        Assert.IsType<CombinationSlotStateDocument>(doc);
-        var combinationSlotStateDoc = (CombinationSlotStateDocument)doc;
+        Assert.IsType<AllCombinationSlotStateDocument>(doc);
+        var combinationSlotStateDoc = (AllCombinationSlotStateDocument)doc;
         Assert.Equal(address, combinationSlotStateDoc.Address);
         Assert.Equal(bencoded, combinationSlotStateDoc.Object.Bencoded);
     }
