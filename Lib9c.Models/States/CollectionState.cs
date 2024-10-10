@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -13,6 +14,9 @@ namespace Lib9c.Models.States;
 public class CollectionState : IBencodable
 {
     public SortedSet<int> Ids { get; init; } = new();
+
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public IValue Bencoded => List.Empty.Add(new List(Ids));
 
     public CollectionState(IValue bencoded)
     {
@@ -31,6 +35,4 @@ public class CollectionState : IBencodable
             Ids.Add((Integer)value);
         }
     }
-
-    public IValue Bencoded => List.Empty.Add(new List(Ids));
 }

@@ -14,7 +14,6 @@ public class CombinationSlotStateSerializer : ClassSerializerBase<CombinationSlo
     public static CombinationSlotState Deserialize(BsonDocument doc) => new()
     {
         UnlockBlockIndex = doc["UnlockBlockIndex"].ToLong(),
-        UnlockStage = doc["UnlockStage"].AsInt32,
         StartBlockIndex = doc["StartBlockIndex"].ToLong(),
         Result = doc.TryGetValue("Result", out var resultBsonValue)
             ? AttachmentActionResultSerializer.Deserialize(resultBsonValue.AsBsonDocument)
@@ -22,6 +21,10 @@ public class CombinationSlotStateSerializer : ClassSerializerBase<CombinationSlo
         PetId = doc.TryGetValue("PetId", out var petIdBsonValue)
             ? petIdBsonValue.AsInt32
             : null,
+        Index = doc.TryGetValue("Index", out var indexBsonValue)
+            ? indexBsonValue.AsInt32
+            : -1,
+        IsUnlocked = doc.TryGetValue("IsUnlocked", out var isUnlockedBsonValue) && isUnlockedBsonValue.AsBoolean,
     };
 
     public override CombinationSlotState Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -16,7 +17,10 @@ public record RuneState : IBencodable
     public int RuneId { get; init; }
     public int Level { get; init; }
 
-    public IValue Bencoded => List.Empty.Add(RuneId.Serialize()).Add(Level.Serialize());
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public IValue Bencoded => List.Empty
+        .Add(RuneId.Serialize())
+        .Add(Level.Serialize());
 
     public RuneState(IValue bencoded)
     {

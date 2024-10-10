@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -18,6 +19,7 @@ public record ItemSlotState : IBencodable
     public List<Guid> Costumes { get; init; }
     public List<Guid> Equipments { get; init; }
 
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => List.Empty
         .Add(BattleType.Serialize())
         .Add(Costumes

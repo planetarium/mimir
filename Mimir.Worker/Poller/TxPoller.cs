@@ -5,6 +5,7 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.ActionHandler;
 using Mimir.Worker.Client;
+using Mimir.Worker.Handler;
 using Mimir.Worker.Services;
 using Nekoyume.Action.Loader;
 using Serilog;
@@ -55,8 +56,6 @@ public class TxPoller : IBlockPoller
             // Market
             new ProductsHandler(stateService, dbService),
             // Avatar Related
-            new CombinationSlotStateHandler(stateService, dbService),
-            new RapidCombinationHandler(stateService, dbService),
             new PetStateHandler(stateService, dbService),
             new RuneSlotStateHandler(stateService, dbService),
             new StakeHandler(stateService, dbService),
@@ -65,7 +64,7 @@ public class TxPoller : IBlockPoller
         [
             CollectionNames.GetCollectionName<StakeDocument>(),
             CollectionNames.GetCollectionName<PetStateDocument>(),
-            CollectionNames.GetCollectionName<CombinationSlotStateDocument>(),
+            CollectionNames.GetCollectionName<AllCombinationSlotStateDocument>(),
             CollectionNames.GetCollectionName<SheetDocument>(),
             CollectionNames.GetCollectionName<ItemSlotDocument>(),
             CollectionNames.GetCollectionName<RuneSlotDocument>(),

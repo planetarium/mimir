@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.AttachmentActionResults;
 using Lib9c.Models.Exceptions;
@@ -14,45 +13,57 @@ namespace Lib9c.Models.States;
 /// <see cref="Nekoyume.Model.State.CombinationSlotState"/>
 /// </summary>
 [BsonIgnoreExtraElements]
-public record CombinationSlotState : IBencodable
+public record CombinationSlotState : State
 {
+    private const string UnlockBlockIndexKey = "unlockBlockIndex";
+    private const string StartBlockIndexKey = "startBlockIndex";
+    private const string ResultKey = "result";
+    private const string PetIdKey = "petId";
+    private const string IndexKey = "index";
+    private const string IsUnlockedKey = "isUnlocked";
+
     public long UnlockBlockIndex { get; init; }
-    public int UnlockStage { get; init; }
     public long StartBlockIndex { get; init; }
     public AttachmentActionResult? Result { get; init; }
     public int? PetId { get; init; }
+    public int Index { get; init; }
+    public bool IsUnlocked { get; init; }
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
-    public IValue Bencoded
+    public override IValue Bencoded
     {
         get
         {
             var values = new Dictionary<IKey, IValue>
             {
-                [(Text)"unlockBlockIndex"] = UnlockBlockIndex.Serialize(),
-                [(Text)"unlockStage"] = UnlockStage.Serialize(),
-                [(Text)"startBlockIndex"] = StartBlockIndex.Serialize(),
+                [(Text)UnlockBlockIndexKey] = UnlockBlockIndex.Serialize(),
+                [(Text)StartBlockIndexKey] = StartBlockIndex.Serialize(),
+                [(Text)IndexKey] = (Integer)Index,
+                [(Text)IsUnlockedKey] = IsUnlocked.Serialize(),
             };
 
-            if (Result != null)
+            if (Result is not null)
             {
-                values.Add((Text)"result", Result.Bencoded);
+                values.Add((Text)ResultKey, Result.Bencoded);
             }
 
-            if (PetId.HasValue)
+            if (PetId is not null)
             {
-                values.Add((Text)"petId", PetId.Value.Serialize());
+                values.Add((Text)PetIdKey, PetId.Serialize());
             }
 
-            return new Dictionary(values);
+#pragma warning disable LAA1002
+            return new Dictionary(values.Union((Dictionary) base.BencodedAsDictionaryV1));
+#pragma warning restore LAA1002
         }
     }
 
     public CombinationSlotState()
     {
+        IsUnlocked = Index < Nekoyume.Model.State.AvatarState.DefaultCombinationSlotCount;
     }
 
-    public CombinationSlotState(IValue bencoded)
+    public CombinationSlotState(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not Dictionary d)
         {
@@ -63,22 +74,35 @@ public record CombinationSlotState : IBencodable
             );
         }
 
-        UnlockBlockIndex = d["unlockBlockIndex"].ToLong();
-        UnlockStage = d["unlockStage"].ToInteger();
+        UnlockBlockIndex = d[UnlockBlockIndexKey].ToLong();
 
-        if (d.TryGetValue((Text)"result", out var result))
+        if (d.TryGetValue((Text)IndexKey, out var index))
+        {
+            Index = (Integer)index;
+        }
+
+        if (d.TryGetValue((Text)ResultKey, out var result))
         {
             Result = AttachmentActionResultFactory.Create(result);
         }
 
-        if (d.TryGetValue((Text)"startBlockIndex", out var startIndex))
+        if (d.TryGetValue((Text)StartBlockIndexKey, out var value))
         {
-            StartBlockIndex = startIndex.ToLong();
+            StartBlockIndex = value.ToLong();
         }
 
-        if (d.TryGetValue((Text)"petId", out var petId))
+        if (d.TryGetValue((Text)PetIdKey, out var petId))
         {
             PetId = petId.ToNullableInteger();
+        }
+
+        if (d.TryGetValue((Text)IsUnlockedKey, out var isUnlocked))
+        {
+            IsUnlocked = isUnlocked.ToBoolean();
+        }
+        else
+        {
+            IsUnlocked = Index < Nekoyume.Model.State.AvatarState.DefaultCombinationSlotCount;
         }
     }
 }
