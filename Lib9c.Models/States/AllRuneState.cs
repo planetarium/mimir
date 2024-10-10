@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -14,6 +15,7 @@ public record AllRuneState : IBencodable
 {
     public Dictionary<int, RuneState> Runes { get; }
 
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => new List(Runes
         .OrderBy(e => e.Key)
         .Select(e => e.Value.Bencoded));

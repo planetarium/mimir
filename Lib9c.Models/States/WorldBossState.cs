@@ -22,13 +22,12 @@ public record WorldBossState : IBencodable
     public long EndedBlockIndex { get; init; }
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
-    public IValue Bencoded =>
-        List
-            .Empty.Add(Id.Serialize())
-            .Add(Level.Serialize())
-            .Add(CurrentHp.Serialize())
-            .Add(StartedBlockIndex.Serialize())
-            .Add(EndedBlockIndex.Serialize());
+    public IValue Bencoded => List.Empty
+        .Add(Id.Serialize())
+        .Add(Level.Serialize())
+        .Add(CurrentHp.Serialize())
+        .Add(StartedBlockIndex.Serialize())
+        .Add(EndedBlockIndex.Serialize());
 
     public WorldBossState(IValue bencoded)
     {

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -17,6 +18,12 @@ public class PetState : IBencodable
     public int Level { get; init; }
     public long UnlockedBlockIndex { get; init; }
 
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public IValue Bencoded => List.Empty
+        .Add(PetId.Serialize())
+        .Add(Level.Serialize())
+        .Add(UnlockedBlockIndex.Serialize());
+
     public PetState(IValue bencoded)
     {
         if (bencoded is not List l)
@@ -32,10 +39,4 @@ public class PetState : IBencodable
         Level = l[1].ToInteger();
         UnlockedBlockIndex = l[2].ToLong();
     }
-
-    public IValue Bencoded =>
-        List
-            .Empty.Add(PetId.Serialize())
-            .Add(Level.Serialize())
-            .Add(UnlockedBlockIndex.Serialize());
 }
