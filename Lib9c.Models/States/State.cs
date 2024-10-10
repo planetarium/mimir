@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -17,7 +18,21 @@ public record State : IBencodable
 {
     public Address Address { get; init; }
 
-    public virtual IValue Bencoded => new List(Address.Serialize());
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public virtual IValue Bencoded => BencodedAsList;
+
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public virtual IValue BencodedAsList => new List(Address.Serialize());
+
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public virtual IValue BencodedAsDictionaryV1 => Dictionary.Empty.SetItem(LegacyAddressKey, Address.Serialize());
+
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public virtual IValue BencodedAsDictionaryV2 => Dictionary.Empty.SetItem(AddressKey, Address.Serialize());
+
+    public State()
+    {
+    }
 
     public State(IValue bencoded)
     {
