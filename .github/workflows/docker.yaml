@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - hotfix-20241010
   pull_request:
 
 jobs:
