@@ -1,4 +1,3 @@
-using Bencodex;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Handler;
@@ -7,7 +6,6 @@ namespace Mimir.Worker.Tests.Handler;
 
 public class AllRuneStateHandlerTests
 {
-    private static readonly Codec Codec = new();
     private readonly AllRuneStateHandler _handler = new();
 
     [Theory]
@@ -16,21 +14,17 @@ public class AllRuneStateHandlerTests
     public void ConvertToStateData(int runeId, int level)
     {
         var address = new PrivateKey().Address;
-        var allRuneState = new Nekoyume.Model.State.AllRuneState(runeId, level);
+        var state = new Nekoyume.Model.State.AllRuneState(runeId, level);
+        var bencoded = state.Serialize();
         var context = new StateDiffContext
         {
             Address = address,
-            RawState = allRuneState.Serialize(),
+            RawState = bencoded,
         };
-        var state = _handler.ConvertToDocument(context);
-
-        Assert.IsType<AllRuneDocument>(state);
-        var dataState = (AllRuneDocument)state;
-        Assert.Equal(allRuneState.Runes.Count, dataState.Object.Runes.Count);
-        foreach (var (key, value) in allRuneState.Runes)
-        {
-            Assert.Contains(dataState.Object.Runes, r => r.Key == key);
-            Assert.Equal(value.Level, dataState.Object.Runes[key].Level);
-        }
+        var doc = _handler.ConvertToDocument(context);
+        Assert.IsType<AllRuneDocument>(doc);
+        var allRuneDoc = (AllRuneDocument)doc;
+        Assert.Equal(address, allRuneDoc.Address);
+        Assert.Equal(bencoded, allRuneDoc.Object.Bencoded);
     }
 }
