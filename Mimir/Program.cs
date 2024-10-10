@@ -41,7 +41,7 @@ builder.Services.AddSingleton<AgentRepository>();
 builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<ActionPointRepository>();
 builder.Services.AddSingleton<DailyRewardRepository>();
-builder.Services.AddSingleton<CombinationSlotStateRepository>();
+builder.Services.AddSingleton<AllCombinationSlotStateRepository>();
 // builder.Services.AddSingleton<InventoryRepository>();
 // builder.Services.AddSingleton<AllRuneRepository>();
 // builder.Services.AddSingleton<CollectionRepository>();
