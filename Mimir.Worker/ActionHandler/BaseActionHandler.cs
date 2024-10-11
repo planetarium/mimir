@@ -26,6 +26,7 @@ public abstract class BaseActionHandler(
     public async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
+        IValue actionPlainValue,
         IValue? actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
@@ -45,15 +46,18 @@ public abstract class BaseActionHandler(
         return await TryHandleAction(
             blockIndex,
             signer,
+            actionPlainValue,
             actionTypeStr,
             actionPlainValueInternal,
             session,
             stoppingToken);
     }
 
+    // FIXME: `string actionType` argument may can be removed.
     protected virtual Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,

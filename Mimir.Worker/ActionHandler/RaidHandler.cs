@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.CollectionUpdaters;
@@ -19,6 +20,8 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
 {
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
+        Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,

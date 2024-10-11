@@ -184,6 +184,7 @@ public class TxPoller : IBlockPoller
                     var task = handler.TryHandleAction(
                         blockIndex,
                         signer,
+                        action.PlainValue,
                         actionType,
                         actionPlainValueInternal,
                         stoppingToken: cancellationToken);

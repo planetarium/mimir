@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
+using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Exceptions;
@@ -35,6 +36,8 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
 
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
+        Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,

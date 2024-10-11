@@ -22,6 +22,8 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
 {
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
+        Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
