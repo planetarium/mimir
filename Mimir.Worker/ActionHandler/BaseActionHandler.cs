@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
-using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
@@ -43,14 +42,40 @@ public abstract class BaseActionHandler(
             return false;
         }
 
-        return await TryHandleAction(
-            blockIndex,
-            signer,
-            actionPlainValue,
+        Logger.Information(
+            "Attempting to handle action of type {ActionType} at block index {BlockIndex} for signer {Signer}",
             actionTypeStr,
-            actionPlainValueInternal,
-            session,
-            stoppingToken);
+            blockIndex,
+            signer);
+        bool result;
+        try
+        {
+            result = await TryHandleAction(
+                blockIndex,
+                signer,
+                actionPlainValue,
+                actionTypeStr,
+                actionPlainValueInternal,
+                session,
+                stoppingToken);
+        }
+        catch (Exception e)
+        {
+            Logger.Fatal(
+                e,
+                "Failed to load plain value for action: {ActionType} at block index {BlockIndex} for signer {Signer}",
+                actionType,
+                blockIndex,
+                signer);
+            return false;
+        }
+
+        Logger.Information(
+            "Successfully handled action of type {ActionType} at block index {BlockIndex} for signer {Signer}",
+            actionTypeStr,
+            blockIndex,
+            signer);
+        return result;
     }
 
     // FIXME: `string actionType` argument may can be removed.
