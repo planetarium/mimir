@@ -68,7 +68,7 @@ public class GetTransactionsResponse
 public class TransactionResponse
 {
     [JsonPropertyName("ncTransactions")]
-    public List<NcTransaction> NCTransactions { get; set; }
+    public List<NcTransaction?> NCTransactions { get; set; }
 }
 
 public class NcTransaction
@@ -83,7 +83,7 @@ public class NcTransaction
     public string SerializedPayload { get; set; }
 
     [JsonPropertyName("actions")]
-    public List<Action> Actions { get; set; }
+    public List<Action?> Actions { get; set; }
 }
 
 public class Action
