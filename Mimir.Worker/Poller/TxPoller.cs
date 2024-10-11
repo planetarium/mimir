@@ -40,6 +40,8 @@ public class TxPoller : IBlockPoller
         _handlers =
         [
             new PatchTableHandler(stateService, dbService),
+            // Pledge
+            new ApprovePledgeHandler(stateService, dbService),
             // World
             new HackAndSlashHandler(stateService, dbService),
             new HackAndSlashSweepHandler(stateService, dbService),

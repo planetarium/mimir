@@ -1,4 +1,4 @@
-using Libplanet.Action;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
@@ -13,28 +13,21 @@ public class ApprovePledgeHandler(IStateService stateService, MongoDbService sto
         stateService,
         store,
         "^approve_pledge[0-9]*$",
-        Log.ForContext<ApprovePledgeHandler>()
-    )
+        Log.ForContext<ApprovePledgeHandler>())
 {
+    private static readonly ApprovePledge Action = new();
+
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not ApprovePledge approvePledge)
-        {
-            return false;
-        }
-
-        Logger.Information(
-            "Handle approve_pledge, approve contracting with patron: {PatronAddress}",
-            approvePledge.PatronAddress);
-
-        await PledgeCollectionUpdater.ApproveAsync(Store, signer.GetPledgeAddress(), session, stoppingToken);
-
+        Action.LoadPlainValue(actionPlainValue);
+        await PledgeCollectionUpdater.ApproveAsync(Store, Action.PatronAddress, session, stoppingToken);
         return true;
     }
 }
