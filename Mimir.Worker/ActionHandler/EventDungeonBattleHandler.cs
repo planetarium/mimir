@@ -1,51 +1,43 @@
-using Lib9c.Abstractions;
-using Libplanet.Action;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
 using MongoDB.Driver;
+using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class EventDungeonBattleHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+public class EventDungeonBattleHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(
         stateService,
         store,
         "^event_dungeon_battle[0-9]*$",
-        Log.ForContext<EventDungeonBattleHandler>()
-    )
+        Log.ForContext<EventDungeonBattleHandler>())
 {
+    private static readonly EventDungeonBattle Action = new();
+
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not IEventDungeonBattleV2 eventDungeonBattle)
-        {
-            return false;
-        }
-
-        Logger.Information(
-            "Handle event_dungeon_battle, address: {AvatarAddress}",
-            eventDungeonBattle.AvatarAddress
-        );
-
+        Action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Adventure,
-            eventDungeonBattle.AvatarAddress,
-            eventDungeonBattle.Costumes,
-            eventDungeonBattle.Equipments,
+            Action.AvatarAddress,
+            Action.Costumes,
+            Action.Equipments,
             session,
             stoppingToken
         );
-
         return true;
     }
 }
