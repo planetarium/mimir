@@ -63,8 +63,6 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
                 $"Unable to find a class type matching the table name '{tableName}' in the specified namespace.");
         }
 
-        Logger.Information("Handle patch_table, table: {TableName} ", tableName);
-
         await SyncSheetStateAsync(tableName, sheetType, session, stoppingToken);
     }
 

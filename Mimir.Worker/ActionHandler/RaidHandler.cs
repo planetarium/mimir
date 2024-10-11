@@ -43,8 +43,6 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
         var avatarAddress = d["a"].ToAddress();
         var equipmentIds = d["e"].ToList(StateExtensions.ToGuid);
         var costumeIds = d["c"].ToList(StateExtensions.ToGuid);
-        Logger.Information("Handle raid, avatar: {AvatarAddress}", avatarAddress);
-
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,

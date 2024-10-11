@@ -79,11 +79,8 @@ public class PetStateHandler(IStateService stateService, MongoDbService store) :
             throw new ArgumentException($"Unknown actionType: {actionType}");
         }
 
-        Logger.Information("Handle pet_state, avatar: {AvatarAddress} ", avatarAddress);
-
         var petStateAddress = Nekoyume.Model.State.PetState.DeriveAddress(avatarAddress, petId);
         var petState = await StateGetter.GetPetState(petStateAddress, stoppingToken);
-
         await Store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<PetStateDocument>(),
             [new PetStateDocument(petStateAddress, petState)],

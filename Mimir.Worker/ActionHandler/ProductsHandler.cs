@@ -37,10 +37,6 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
         }
 
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
-        Logger.Information(
-            "Handle products, product, addresses: {AvatarAddresses}",
-            string.Join(", ", avatarAddresses));
-
         foreach (var avatarAddress in avatarAddresses)
         {
             var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
