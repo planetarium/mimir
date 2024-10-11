@@ -33,8 +33,7 @@ public class TxPoller : IBlockPoller
     public TxPoller(
         IStateService stateService,
         IHeadlessGQLClient headlessGqlClient,
-        MongoDbService dbService
-    )
+        MongoDbService dbService)
     {
         _headlessGqlClient = headlessGqlClient;
 
@@ -96,8 +95,7 @@ public class TxPoller : IBlockPoller
             _logger.Information(
                 "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
                 syncedBlockIndex,
-                currentBlockIndex
-            );
+                currentBlockIndex);
 
             if (syncedBlockIndex >= currentBlockIndex)
             {
@@ -111,8 +109,7 @@ public class TxPoller : IBlockPoller
         _logger.Information(
             "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
             GetType().Name,
-            DateTime.UtcNow.Subtract(started).Minutes
-        );
+            DateTime.UtcNow.Subtract(started).Minutes);
     }
 
     private async Task ProcessBlocksAsync(
@@ -121,16 +118,15 @@ public class TxPoller : IBlockPoller
         CancellationToken stoppingToken
     )
     {
-        long indexDifference = Math.Abs(targetBlockIndex - syncedBlockIndex);
-        int limit = 1;
+        var indexDifference = Math.Abs(targetBlockIndex - syncedBlockIndex);
+        const int limit = 1;
 
         _logger.Information(
             "Process block, target&sync: {TargetBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",
             targetBlockIndex,
             syncedBlockIndex,
             indexDifference,
-            limit
-        );
+            limit);
 
         await ProcessTransactions(syncedBlockIndex, limit, stoppingToken);
     }
@@ -138,8 +134,7 @@ public class TxPoller : IBlockPoller
     private async Task ProcessTransactions(
         long syncedBlockIndex,
         int limit,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
         if (txsResponse.NCTransactions.Count == 0)
@@ -156,54 +151,43 @@ public class TxPoller : IBlockPoller
                         LatestBlockIndex = syncedBlockIndex + limit
                     },
                     null,
-                    cancellationToken
-                );
+                    cancellationToken);
             }
 
             return;
         }
 
         var blockIndex = syncedBlockIndex + limit;
-        var tuples = txsResponse
-            .NCTransactions.Where(tx => tx is not null)
+        var tuples = txsResponse.NCTransactions
+            .Where(tx => tx is not null)
             .Select(tx =>
                 (
                     Signer: new Address(tx!.Signer),
-                    actions: tx.Actions.Where(action => action is not null)
-                        .Select(action =>
-                            ActionLoader.LoadAction(
-                                blockIndex,
-                                _codec.Decode(Convert.FromHexString(action!.Raw))
-                            )
-                        )
+                    actions: tx.Actions
+                        .Where(action => action is not null)
+                        .Select(action => ActionLoader.LoadAction(
+                            blockIndex,
+                            _codec.Decode(Convert.FromHexString(action!.Raw))))
                         .ToList()
                 )
             )
             .ToList();
-        _logger.Information(
-            "GetTransaction Success, tx-count: {TxCount}",
-            txsResponse.NCTransactions.Count()
-        );
+        _logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
         var tasks = new List<Task>();
-
         foreach (var (signer, actions) in tuples)
         {
             foreach (var action in actions)
             {
-                var (actionType, actionPlainValueInternal) = DeconstructActionPlainValue(
-                    action.PlainValue
-                );
+                var (actionType, actionPlainValueInternal) = DeconstructActionPlainValue(action.PlainValue);
                 foreach (var handler in _handlers)
                 {
-                    tasks.Add(
-                        handler.TryHandleAction(
-                            blockIndex,
-                            signer,
-                            action,
-                            actionType,
-                            actionPlainValueInternal
-                        )
-                    );
+                    var task = handler.TryHandleAction(
+                        blockIndex,
+                        signer,
+                        actionType,
+                        actionPlainValueInternal,
+                        stoppingToken: cancellationToken);
+                    tasks.Add(task);
                 }
             }
         }
@@ -218,23 +202,20 @@ public class TxPoller : IBlockPoller
                     PollerType = nameof(TxPoller),
                     CollectionName = collectionName,
                     LatestBlockIndex = syncedBlockIndex + limit
-                }
-            );
+                },
+                cancellationToken: cancellationToken);
         }
     }
 
     private async Task<TransactionResponse> FetchTransactionsAsync(
         long syncedBlockIndex,
         int limit,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         var result = await _headlessGqlClient.GetTransactionsAsync(
             syncedBlockIndex,
             limit,
-            cancellationToken
-        );
-
+            cancellationToken);
         return result.Transaction;
     }
 
@@ -253,9 +234,7 @@ public class TxPoller : IBlockPoller
     ///            <see cref="Libplanet.Action.ActionTypeAttribute"/>)
     /// "values": It can be any type of Bencodex.Types.
     /// </returns>
-    private static (IValue? typeId, IValue? values) DeconstructActionPlainValue(
-        IValue actionPlainValue
-    )
+    private static (IValue? typeId, IValue? values) DeconstructActionPlainValue(IValue actionPlainValue)
     {
         if (actionPlainValue is not Dictionary actionPlainValueDict)
         {
@@ -271,18 +250,14 @@ public class TxPoller : IBlockPoller
         return (actionType, actionPlainValueInternal);
     }
 
-    public async Task<long> GetSyncedBlockIndex(
-        string collectionName,
-        CancellationToken stoppingToken
-    )
+    public async Task<long> GetSyncedBlockIndex(string collectionName, CancellationToken stoppingToken)
     {
         try
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndexAsync(
                 nameof(TxPoller),
                 collectionName,
-                stoppingToken
-            );
+                stoppingToken);
             return syncedBlockIndex;
         }
         catch (InvalidOperationException)
@@ -290,8 +265,7 @@ public class TxPoller : IBlockPoller
             var currentBlockIndex = await _stateService.GetLatestIndex(stoppingToken);
             _logger.Information(
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
-                currentBlockIndex
-            );
+                currentBlockIndex);
             await _dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
@@ -300,8 +274,7 @@ public class TxPoller : IBlockPoller
                     LatestBlockIndex = currentBlockIndex - 1
                 },
                 null,
-                stoppingToken
-            );
+                stoppingToken);
             return currentBlockIndex - 1;
         }
     }

@@ -26,17 +26,11 @@ public abstract class BaseActionHandler(
     public async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
         IValue? actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        if (await TryHandleAction(blockIndex, signer, action, session, stoppingToken))
-        {
-            return true;
-        }
-
         var actionTypeStr = actionType switch
         {
             Integer integer => integer.ToString(),
@@ -48,22 +42,18 @@ public abstract class BaseActionHandler(
             return false;
         }
 
-        return await TryHandleAction(blockIndex, actionTypeStr, actionPlainValueInternal, session, stoppingToken);
+        return await TryHandleAction(
+            blockIndex,
+            signer,
+            actionTypeStr,
+            actionPlainValueInternal,
+            session,
+            stoppingToken);
     }
 
-    [Obsolete("Use the overload with actionType instead.")]
     protected virtual Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
-    {
-        return Task.FromResult(false);
-    }
-
-    protected virtual Task<bool> TryHandleAction(
-        long blockIndex,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
