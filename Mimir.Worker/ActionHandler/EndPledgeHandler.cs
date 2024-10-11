@@ -1,9 +1,11 @@
-using Libplanet.Action;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Exceptions;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Action;
+using Nekoyume.Model.State;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
@@ -13,27 +15,25 @@ public class EndPledgeHandler(IStateService stateService, MongoDbService store)
         stateService,
         store,
         "^end_pledge[0-9]*$",
-        Log.ForContext<EndPledgeHandler>()
-    )
+        Log.ForContext<EndPledgeHandler>())
 {
+    private static readonly EndPledge Action = new();
+
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not EndPledge endPledge)
-        {
-            return false;
-        }
-
-        Logger.Information("Handle end_pledge, ends pledge with agent: {AgentAddress}", endPledge.AgentAddress);
-
+        Action.LoadPlainValue(actionPlainValue);
         await PledgeCollectionUpdater.DeleteAsync(
-            Store, endPledge.AgentAddress.GetPledgeAddress(), session, stoppingToken);
-
+            Store,
+            Action.AgentAddress.GetPledgeAddress(),
+            session,
+            stoppingToken);
         return true;
     }
 }
