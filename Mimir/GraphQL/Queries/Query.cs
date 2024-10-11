@@ -99,6 +99,14 @@ public class Query
         => (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
+    /// Get an pet state by avatar address.
+    /// </summary>
+    /// <param name="avatarAddress">The address of the agent.</param>
+    /// <returns>The agent state</returns>
+    public async Task<PetState> GetPetAsync(Address avatarAddress, [Service] PetRepository repo) =>
+        (await repo.GetByAvatarAddressAsync(avatarAddress)).Object;
+
+    /// <summary>
     /// Get arena sub-fields.
     /// </summary>
     public ArenaObject GetArena() => new();

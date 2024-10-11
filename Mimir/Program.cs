@@ -48,6 +48,7 @@ builder.Services.AddSingleton<AllCombinationSlotStateRepository>();
 // builder.Services.AddSingleton<AllRuneRepository>();
 // builder.Services.AddSingleton<CollectionRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
+builder.Services.AddSingleton<PetRepository>();
 builder.Services.AddSingleton<RuneSlotRepository>();
 // Others
 builder.Services.AddSingleton<ArenaRepository>();
