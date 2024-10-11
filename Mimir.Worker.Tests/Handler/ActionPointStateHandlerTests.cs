@@ -20,10 +20,11 @@ public class ActionPointStateHandlerTests
             Address = address,
             RawState = new Integer(actionPoint),
         };
-        var state = _handler.ConvertToDocument(context);
+        var doc = _handler.ConvertToDocument(context);
 
-        Assert.IsType<ActionPointDocument>(state);
-        var dataState = (ActionPointDocument)state;
+        Assert.IsType<ActionPointDocument>(doc);
+        var dataState = (ActionPointDocument)doc;
+        Assert.Equal(address, dataState.Address);
         Assert.Equal(actionPoint, dataState.Object);
     }
 }

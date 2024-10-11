@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -17,6 +18,13 @@ public record WorldInformationState : IBencodable
 {
     public Dictionary<int, World> WorldDictionary { get; init; }
 
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
+    public IValue Bencoded => WorldDictionary.Aggregate(
+        List.Empty,
+        (current, kv) => current.Add(List.Empty
+            .Add(kv.Key.Serialize())
+            .Add(kv.Value.Bencoded)));
+
     public WorldInformationState(IValue bencoded)
     {
         if (bencoded is not Dictionary d)
@@ -30,10 +38,4 @@ public record WorldInformationState : IBencodable
 
         WorldDictionary = d.ToDictionary(kv => kv.Key.ToInteger(), kv => new World(kv.Value));
     }
-
-    public IValue Bencoded =>
-        WorldDictionary.Aggregate(
-            List.Empty,
-            (current, kv) => current.Add(List.Empty.Add(kv.Key.Serialize()).Add(kv.Value.Bencoded))
-        );
 }

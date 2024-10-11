@@ -282,17 +282,43 @@ public class StateGetter
         return new WorldBossKillRewardRecord(state);
     }
 
-    public async Task<CombinationSlotState> GetCombinationSlotStateAsync(
-        Address slotAddress,
+    public async Task<AllCombinationSlotState> GetAllCombinationSlotStateAsync(
+        Address avatarAddress,
         CancellationToken stoppingToken = default)
     {
-        var state = await _service.GetState(slotAddress, stoppingToken);
-        if (state is null)
+        var state = await _service.GetState(
+            avatarAddress,
+            Addresses.CombinationSlot,
+            stoppingToken);
+        if (state is not null)
         {
-            throw new StateNotFoundException(slotAddress, typeof(CombinationSlotState));
+            return new AllCombinationSlotState(state);
         }
 
-        return new CombinationSlotState(state);
+        // try migration
+        var allCombinationSlotState = new AllCombinationSlotState();
+        for (var i = 0; i < Nekoyume.Model.State.AvatarState.DefaultCombinationSlotCount; i++)
+        {
+            var slotAddress = Nekoyume.Model.State.CombinationSlotState.DeriveAddress(avatarAddress, i);
+            var combinationSlotState = await _service.GetState(slotAddress, stoppingToken);
+            if (combinationSlotState is null)
+            {
+                allCombinationSlotState.CombinationSlots[i] = new CombinationSlotState
+                {
+                    Address = slotAddress,
+                    Index = i,
+                };
+            }
+            else
+            {
+                allCombinationSlotState.CombinationSlots[i] = new CombinationSlotState(combinationSlotState)
+                {
+                    Index = i,
+                };
+            }
+        }
+
+        return allCombinationSlotState;
     }
 
     public async Task<PetState> GetPetState(
