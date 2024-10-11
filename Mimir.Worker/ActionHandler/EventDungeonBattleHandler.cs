@@ -18,7 +18,7 @@ public class EventDungeonBattleHandler(IStateService stateService, MongoDbServic
 {
     private static readonly EventDungeonBattle Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -36,8 +36,6 @@ public class EventDungeonBattleHandler(IStateService stateService, MongoDbServic
             Action.Costumes,
             Action.Equipments,
             session,
-            stoppingToken
-        );
-        return true;
+            stoppingToken);
     }
 }

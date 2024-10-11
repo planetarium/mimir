@@ -27,7 +27,7 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
 
     private static readonly BattleType[] BattleTypes = Enum.GetValues<BattleType>();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -38,16 +38,16 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
     {
         if (await TryProcessRuneSlotStateAsync(actionPlainValue, actionType, session, stoppingToken))
         {
-            return true;
+            return;
         }
 
         if (await TryProcessUnlockRuneSlotAsync(actionPlainValue, actionType, session, stoppingToken))
         {
-            return true;
+            return;
         }
 
-        // FIXME: throw exception.
-        return false;
+        throw new InvalidOperationException(
+            $"{nameof(RuneSlotStateHandler)} not support the action type: {actionType}");
     }
 
     private async Task<bool> TryProcessRuneSlotStateAsync(

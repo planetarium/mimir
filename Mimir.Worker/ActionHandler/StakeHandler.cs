@@ -13,7 +13,7 @@ public class StakeHandler(IStateService stateService, MongoDbService store) :
 {
     private static readonly Stake Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -29,6 +29,5 @@ public class StakeHandler(IStateService stateService, MongoDbService store) :
             signer,
             session,
             stoppingToken);
-        return true;
     }
 }

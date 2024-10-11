@@ -17,7 +17,7 @@ public class ApprovePledgeHandler(IStateService stateService, MongoDbService sto
 {
     private static readonly ApprovePledge Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -28,6 +28,5 @@ public class ApprovePledgeHandler(IStateService stateService, MongoDbService sto
     {
         Action.LoadPlainValue(actionPlainValue);
         await PledgeCollectionUpdater.ApproveAsync(Store, Action.PatronAddress, session, stoppingToken);
-        return true;
     }
 }

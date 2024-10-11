@@ -19,7 +19,7 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
 {
     private static readonly JoinArena Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -37,34 +37,28 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
             Action.costumes,
             Action.equipments,
             session,
-            stoppingToken
-        );
+            stoppingToken);
         await ProcessArena(Action, session, stoppingToken);
-        return true;
     }
 
     private async Task ProcessArena(
         JoinArena joinArena,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var arenaScore = await StateGetter.GetArenaScoreAsync(
             joinArena.avatarAddress,
             joinArena.championshipId,
             joinArena.round,
-            stoppingToken
-        );
+            stoppingToken);
         var arenaInfo = await StateGetter.GetArenaInformationAsync(
             joinArena.avatarAddress,
             joinArena.championshipId,
             joinArena.round,
-            stoppingToken
-        );
+            stoppingToken);
         var avatarState = await StateGetter.GetAvatarState(
             joinArena.avatarAddress,
-            stoppingToken
-        );
+            stoppingToken);
         var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
         await ArenaCollectionUpdater.UpsertAsync(
             Store,
@@ -75,7 +69,6 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
             joinArena.championshipId,
             joinArena.round,
             session,
-            stoppingToken
-        );
+            stoppingToken);
     }
 }

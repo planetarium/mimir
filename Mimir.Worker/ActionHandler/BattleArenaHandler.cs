@@ -19,7 +19,7 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
 {
     private static readonly BattleArena Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -39,7 +39,6 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
             null,
             stoppingToken);
         await ProcessArena(blockIndex, Action, session, stoppingToken);
-        return true;
     }
 
     private async Task ProcessArena(

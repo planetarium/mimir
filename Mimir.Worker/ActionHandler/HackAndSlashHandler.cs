@@ -18,7 +18,7 @@ public class HackAndSlashHandler(IStateService stateService, MongoDbService stor
 {
     private static readonly HackAndSlash Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -36,8 +36,6 @@ public class HackAndSlashHandler(IStateService stateService, MongoDbService stor
             Action.Costumes,
             Action.Equipments,
             session,
-            stoppingToken
-        );
-        return true;
+            stoppingToken);
     }
 }

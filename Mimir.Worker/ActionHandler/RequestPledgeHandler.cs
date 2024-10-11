@@ -17,7 +17,7 @@ public class RequestPledgeHandler(IStateService stateService, MongoDbService sto
 {
     private static readonly RequestPledge Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -35,6 +35,5 @@ public class RequestPledgeHandler(IStateService stateService, MongoDbService sto
             Action.RefillMead,
             session,
             stoppingToken);
-        return true;
     }
 }

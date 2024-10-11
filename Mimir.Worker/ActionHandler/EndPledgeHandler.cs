@@ -19,7 +19,7 @@ public class EndPledgeHandler(IStateService stateService, MongoDbService store)
 {
     private static readonly EndPledge Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -34,6 +34,5 @@ public class EndPledgeHandler(IStateService stateService, MongoDbService store)
             Action.AgentAddress.GetPledgeAddress(),
             session,
             stoppingToken);
-        return true;
     }
 }

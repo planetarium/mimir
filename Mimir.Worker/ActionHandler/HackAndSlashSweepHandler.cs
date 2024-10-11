@@ -18,7 +18,7 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
 {
     private static readonly HackAndSlashSweep Action = new();
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -36,8 +36,6 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
             Action.costumes,
             Action.equipments,
             session,
-            stoppingToken
-        );
-        return true;
+            stoppingToken);
     }
 }

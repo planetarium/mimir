@@ -44,14 +44,13 @@ public abstract class BaseActionHandler(
         }
 
         Logger.Information(
-            "Attempting to handle action. {BlockIndex}, {TxId}, {ActionType}",
+            "Handling action. {BlockIndex}, {TxId}, {ActionType}",
             blockIndex,
             txId,
             actionTypeStr);
-        bool result;
         try
         {
-            result = await TryHandleAction(
+            await HandleAction(
                 blockIndex,
                 signer,
                 actionPlainValue,
@@ -64,7 +63,7 @@ public abstract class BaseActionHandler(
         {
             Logger.Fatal(
                 e,
-                "Failed to load plain value. {BlockIndex}, {TxId}, {ActionType}",
+                "Failed to handling action. {BlockIndex}, {TxId}, {ActionType}",
                 blockIndex,
                 txId,
                 actionTypeStr);
@@ -72,23 +71,20 @@ public abstract class BaseActionHandler(
         }
 
         Logger.Information(
-            "Successfully handled action. {BlockIndex}, {TxId}, {ActionType}",
+            "Finished handling action. {BlockIndex}, {TxId}, {ActionType}",
             blockIndex,
             txId,
             actionTypeStr);
-        return result;
+        return true;
     }
 
     // FIXME: `string actionType` argument may can be removed.
-    protected virtual Task<bool> TryHandleAction(
+    protected abstract Task HandleAction(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
-    {
-        return Task.FromResult(false);
-    }
+        CancellationToken stoppingToken = default);
 }
