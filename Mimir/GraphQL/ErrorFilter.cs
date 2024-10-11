@@ -12,6 +12,11 @@ public class ErrorFilter : IErrorFilter
             return error;
         }
 
+        if (SentrySdk.IsEnabled)
+        {
+            SentrySdk.CaptureException(e);
+        }
+
         var defaultMessage = e is IDefaultMessageException dme
             ? dme.GetDefaultMessage()
             : e.Message;
