@@ -17,6 +17,7 @@ public class PlanetType
     {
         return planetType switch
         {
+            null => throw new ArgumentNullException(nameof(planetType)),
             "odin" => new PlanetType("odin"),
             "heimdall" => new PlanetType("heimdall"),
             _ => throw new ArgumentException($"Not expected planetType. {planetType}")
