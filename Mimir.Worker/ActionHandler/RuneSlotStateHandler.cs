@@ -76,19 +76,19 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
 
         if (Regex.IsMatch(actionType, "^hack_and_slash_sweep[0-9]*$"))
         {
-            HackAndSlash.LoadPlainValue(actionPlainValue);
+            HackAndSlashSweep.LoadPlainValue(actionPlainValue);
             return await TryProcessRuneSlotStateAsync(HackAndSlashSweep, session, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^join_arena[0-9]*$"))
         {
-            HackAndSlash.LoadPlainValue(actionPlainValue);
+            JoinArena.LoadPlainValue(actionPlainValue);
             return await TryProcessRuneSlotStateAsync(JoinArena, session, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^raid[0-9]*$"))
         {
-            HackAndSlash.LoadPlainValue(actionPlainValue);
+            Raid.LoadPlainValue(actionPlainValue);
             return await TryProcessRuneSlotStateAsync(Raid, session, stoppingToken);
         }
 
@@ -235,7 +235,7 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
     {
         if (Regex.IsMatch(actionType, "^unlock_rune_slot[0-9]*$"))
         {
-            BattleArena.LoadPlainValue(actionPlainValue);
+            UnlockRuneSlot.LoadPlainValue(actionPlainValue);
             return await TryProcessUnlockRuneSlotAsync(UnlockRuneSlot, session, stoppingToken);
         }
 
