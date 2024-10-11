@@ -1,37 +1,34 @@
-using Lib9c.Abstractions;
-using Libplanet.Action;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
+using Nekoyume.Action;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class StakeHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeHandler>())
+public class StakeHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeHandler>())
 {
+    private static readonly Stake Action = new();
+
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not IStakeV1)
-        {
-            return false;
-        }
-
+        Action.LoadPlainValue(actionPlainValue);
         await StakeCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             signer,
             session,
-            stoppingToken
-        );
-
+            stoppingToken);
         return true;
     }
 }
