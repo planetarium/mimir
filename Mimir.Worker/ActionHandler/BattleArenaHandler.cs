@@ -1,10 +1,10 @@
-using Lib9c.Abstractions;
+using Bencodex.Types;
 using Lib9c.Models.States;
-using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
+using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
@@ -15,107 +15,87 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         stateService,
         store,
         "^battle_arena[0-9]*$",
-        Log.ForContext<BattleArenaHandler>()
-    )
+        Log.ForContext<BattleArenaHandler>())
 {
+    private static readonly BattleArena Action = new();
+
     protected override async Task<bool> TryHandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not IBattleArenaV1 battleArena)
-        {
-            return false;
-        }
-
+        Action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Arena,
-            battleArena.MyAvatarAddress,
-            battleArena.Costumes,
-            battleArena.Equipments,
+            Action.myAvatarAddress,
+            Action.costumes,
+            Action.equipments,
             null,
-            stoppingToken
-        );
-
-        Logger.Information(
-            "Handle battle_arena, my: {MyAvatarAddress}, enemy: {EnemyAvatarAddress}",
-            battleArena.MyAvatarAddress,
-            battleArena.EnemyAvatarAddress
-        );
-
-        await ProcessArena(blockIndex, battleArena, session, stoppingToken);
-
+            stoppingToken);
+        await ProcessArena(blockIndex, Action, session, stoppingToken);
         return true;
     }
 
     private async Task ProcessArena(
         long blockIndex,
-        IBattleArenaV1 battleArena,
+        BattleArena battleArena,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var myArenaScore = await StateGetter.GetArenaScoreAsync(
-            battleArena.MyAvatarAddress,
-            battleArena.ChampionshipId,
-            battleArena.Round,
-            stoppingToken
-        );
+            battleArena.myAvatarAddress,
+            battleArena.championshipId,
+            battleArena.round,
+            stoppingToken);
         var myArenaInfo = await StateGetter.GetArenaInformationAsync(
-            battleArena.MyAvatarAddress,
-            battleArena.ChampionshipId,
-            battleArena.Round,
-            stoppingToken
-        );
+            battleArena.myAvatarAddress,
+            battleArena.championshipId,
+            battleArena.round,
+            stoppingToken);
         var myAvatarState = await StateGetter.GetAvatarState(
-            battleArena.MyAvatarAddress,
-            stoppingToken
-        );
+            battleArena.myAvatarAddress,
+            stoppingToken);
         var mySimpleAvatarState = SimplifiedAvatarState.FromAvatarState(myAvatarState);
         await ArenaCollectionUpdater.UpsertAsync(
             Store,
             mySimpleAvatarState,
             myArenaScore,
             myArenaInfo,
-            battleArena.MyAvatarAddress,
-            battleArena.ChampionshipId,
-            battleArena.Round,
+            battleArena.myAvatarAddress,
+            battleArena.championshipId,
+            battleArena.round,
             session,
-            stoppingToken
-        );
+            stoppingToken);
 
         var enemyArenaScore = await StateGetter.GetArenaScoreAsync(
-            battleArena.EnemyAvatarAddress,
-            battleArena.ChampionshipId,
-            battleArena.Round,
-            stoppingToken
-        );
+            battleArena.enemyAvatarAddress,
+            battleArena.championshipId,
+            battleArena.round,
+            stoppingToken);
         var enemyArenaInfo = await StateGetter.GetArenaInformationAsync(
-            battleArena.EnemyAvatarAddress,
-            battleArena.ChampionshipId,
-            battleArena.Round,
-            stoppingToken
-        );
+            battleArena.enemyAvatarAddress,
+            battleArena.championshipId,
+            battleArena.round,
+            stoppingToken);
         var enemyAvatarState = await StateGetter.GetAvatarState(
-            battleArena.EnemyAvatarAddress,
-            stoppingToken
-        );
+            battleArena.enemyAvatarAddress,
+            stoppingToken);
         var enemySimpleAvatarState = SimplifiedAvatarState.FromAvatarState(enemyAvatarState);
         await ArenaCollectionUpdater.UpsertAsync(
             Store,
             enemySimpleAvatarState,
             enemyArenaScore,
             enemyArenaInfo,
-            battleArena.EnemyAvatarAddress,
-            battleArena.ChampionshipId,
-            battleArena.Round,
+            battleArena.enemyAvatarAddress,
+            battleArena.championshipId,
+            battleArena.round,
             session,
-            stoppingToken
-        );
+            stoppingToken);
     }
 }
