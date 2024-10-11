@@ -5,7 +5,7 @@ using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
 
-public class AgentStateHandler : IStateHandler
+public class AgentStateHandler : IStateDiffHandler
 {
     public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {

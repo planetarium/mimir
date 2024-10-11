@@ -3,7 +3,7 @@ using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
 
-public class AvatarStateHandler : IStateHandler
+public class AvatarStateHandler : IStateDiffHandler
 {
     public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {

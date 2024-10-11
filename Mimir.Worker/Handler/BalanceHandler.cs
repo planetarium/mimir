@@ -4,7 +4,7 @@ using Mimir.MongoDB.Bson;
 
 namespace Mimir.Worker.Handler;
 
-public record BalanceHandler(Currency Currency) : IStateHandler
+public record BalanceHandler(Currency Currency) : IStateDiffHandler
 {
     public MimirBsonDocument ConvertToDocument(StateDiffContext context)
     {
