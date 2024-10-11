@@ -71,10 +71,12 @@ public class TableSheetsRepository(MongoDbService dbService)
         try
         {
             var roundDoc = document["Round"];
+            Enum.TryParse(roundDoc["ArenaType"].AsString, out ArenaType arenaType);
+
             return new ArenaSheet.RoundData(
                 roundDoc["ChampionshipId"].AsInt32,
                 roundDoc["Round"].AsInt32,
-                (ArenaType)roundDoc["ArenaType"].AsInt32,
+                arenaType,
                 roundDoc["StartBlockIndex"].ToLong(),
                 roundDoc["EndBlockIndex"].ToLong(),
                 roundDoc["RequiredMedalCount"].AsInt32,
