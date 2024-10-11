@@ -16,8 +16,6 @@ public class HackAndSlashHandler(IStateService stateService, MongoDbService stor
         "^hack_and_slash[0-9]*$",
         Log.ForContext<HackAndSlashHandler>())
 {
-    private static readonly HackAndSlash Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -27,14 +25,15 @@ public class HackAndSlashHandler(IStateService stateService, MongoDbService stor
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new HackAndSlash();
+        action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Adventure,
-            Action.AvatarAddress,
-            Action.Costumes,
-            Action.Equipments,
+            action.AvatarAddress,
+            action.Costumes,
+            action.Equipments,
             session,
             stoppingToken);
     }

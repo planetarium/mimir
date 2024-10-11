@@ -11,8 +11,6 @@ namespace Mimir.Worker.ActionHandler;
 public class StakeHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeHandler>())
 {
-    private static readonly Stake Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -22,7 +20,8 @@ public class StakeHandler(IStateService stateService, MongoDbService store) :
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new Stake();
+        action.LoadPlainValue(actionPlainValue);
         await StakeCollectionUpdater.UpdateAsync(
             StateService,
             Store,

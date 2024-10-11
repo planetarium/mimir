@@ -15,8 +15,6 @@ public class ApprovePledgeHandler(IStateService stateService, MongoDbService sto
         "^approve_pledge[0-9]*$",
         Log.ForContext<ApprovePledgeHandler>())
 {
-    private static readonly ApprovePledge Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -26,7 +24,8 @@ public class ApprovePledgeHandler(IStateService stateService, MongoDbService sto
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
-        await PledgeCollectionUpdater.ApproveAsync(Store, Action.PatronAddress, session, stoppingToken);
+        var action = new ApprovePledge();
+        action.LoadPlainValue(actionPlainValue);
+        await PledgeCollectionUpdater.ApproveAsync(Store, action.PatronAddress, session, stoppingToken);
     }
 }

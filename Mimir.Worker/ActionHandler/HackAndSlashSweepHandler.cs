@@ -16,8 +16,6 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
         "^hack_and_slash_sweep[0-9]*$",
         Log.ForContext<HackAndSlashSweepHandler>())
 {
-    private static readonly HackAndSlashSweep Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -27,14 +25,15 @@ public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new HackAndSlashSweep();
+        action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Adventure,
-            Action.avatarAddress,
-            Action.costumes,
-            Action.equipments,
+            action.avatarAddress,
+            action.costumes,
+            action.equipments,
             session,
             stoppingToken);
     }

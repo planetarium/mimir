@@ -17,14 +17,6 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
         "^(battle_arena[0-9]*|event_dungeon_battle[0-9]*|hack_and_slash[0-9]*|hack_and_slash_sweep[0-9]*|join_arena[0-9]*|raid[0-9]*|unlock_rune_slot[0-9]*)$",
         Log.ForContext<RuneSlotStateHandler>())
 {
-    private static readonly BattleArena BattleArena = new();
-    private static readonly EventDungeonBattle EventDungeonBattle = new();
-    private static readonly HackAndSlash HackAndSlash = new();
-    private static readonly HackAndSlashSweep HackAndSlashSweep = new();
-    private static readonly JoinArena JoinArena = new();
-    private static readonly Raid Raid = new();
-    private static readonly UnlockRuneSlot UnlockRuneSlot = new();
-
     private static readonly BattleType[] BattleTypes = Enum.GetValues<BattleType>();
 
     protected override async Task HandleAction(
@@ -58,38 +50,44 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
     {
         if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
         {
-            BattleArena.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(BattleArena, session, stoppingToken);
+            var action = new BattleArena();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^event_dungeon_battle[0-9]*$"))
         {
-            EventDungeonBattle.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(EventDungeonBattle, session, stoppingToken);
+            var action = new EventDungeonBattle();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^hack_and_slash[0-9]*$"))
         {
-            HackAndSlash.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(HackAndSlash, session, stoppingToken);
+            var action = new HackAndSlash();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^hack_and_slash_sweep[0-9]*$"))
         {
-            HackAndSlashSweep.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(HackAndSlashSweep, session, stoppingToken);
+            var action = new HackAndSlashSweep();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^join_arena[0-9]*$"))
         {
-            JoinArena.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(JoinArena, session, stoppingToken);
+            var action = new JoinArena();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^raid[0-9]*$"))
         {
-            Raid.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(Raid, session, stoppingToken);
+            var action = new Raid();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
         }
 
         return false;
@@ -235,8 +233,9 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
     {
         if (Regex.IsMatch(actionType, "^unlock_rune_slot[0-9]*$"))
         {
-            UnlockRuneSlot.LoadPlainValue(actionPlainValue);
-            return await TryProcessUnlockRuneSlotAsync(UnlockRuneSlot, session, stoppingToken);
+            var action = new UnlockRuneSlot();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessUnlockRuneSlotAsync(action, session, stoppingToken);
         }
 
         return false;

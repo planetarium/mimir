@@ -17,8 +17,6 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
         "^join_arena[0-9]*$",
         Log.ForContext<JoinArenaHandler>())
 {
-    private static readonly JoinArena Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -28,17 +26,18 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new JoinArena();
+        action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Arena,
-            Action.avatarAddress,
-            Action.costumes,
-            Action.equipments,
+            action.avatarAddress,
+            action.costumes,
+            action.equipments,
             session,
             stoppingToken);
-        await ProcessArena(Action, session, stoppingToken);
+        await ProcessArena(action, session, stoppingToken);
     }
 
     private async Task ProcessArena(

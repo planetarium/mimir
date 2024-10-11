@@ -17,8 +17,6 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         "^battle_arena[0-9]*$",
         Log.ForContext<BattleArenaHandler>())
 {
-    private static readonly BattleArena Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -28,21 +26,21 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new BattleArena();
+        action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Arena,
-            Action.myAvatarAddress,
-            Action.costumes,
-            Action.equipments,
+            action.myAvatarAddress,
+            action.costumes,
+            action.equipments,
             null,
             stoppingToken);
-        await ProcessArena(blockIndex, Action, session, stoppingToken);
+        await ProcessArena(action, session, stoppingToken);
     }
 
     private async Task ProcessArena(
-        long blockIndex,
         BattleArena battleArena,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)

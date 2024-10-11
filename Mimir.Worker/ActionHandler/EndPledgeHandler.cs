@@ -17,8 +17,6 @@ public class EndPledgeHandler(IStateService stateService, MongoDbService store)
         "^end_pledge[0-9]*$",
         Log.ForContext<EndPledgeHandler>())
 {
-    private static readonly EndPledge Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -28,10 +26,11 @@ public class EndPledgeHandler(IStateService stateService, MongoDbService store)
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new EndPledge();
+        action.LoadPlainValue(actionPlainValue);
         await PledgeCollectionUpdater.DeleteAsync(
             Store,
-            Action.AgentAddress.GetPledgeAddress(),
+            action.AgentAddress.GetPledgeAddress(),
             session,
             stoppingToken);
     }

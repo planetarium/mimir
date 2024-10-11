@@ -15,8 +15,6 @@ public class RequestPledgeHandler(IStateService stateService, MongoDbService sto
         "^request_pledge[0-9]*$",
         Log.ForContext<RequestPledgeHandler>())
 {
-    private static readonly RequestPledge Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -26,13 +24,14 @@ public class RequestPledgeHandler(IStateService stateService, MongoDbService sto
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new RequestPledge();
+        action.LoadPlainValue(actionPlainValue);
         await PledgeCollectionUpdater.UpsertAsync(
             Store,
-            Action.AgentAddress.GetPledgeAddress(),
+            action.AgentAddress.GetPledgeAddress(),
             signer,
             false,
-            Action.RefillMead,
+            action.RefillMead,
             session,
             stoppingToken);
     }

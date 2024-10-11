@@ -16,8 +16,6 @@ public class EventDungeonBattleHandler(IStateService stateService, MongoDbServic
         "^event_dungeon_battle[0-9]*$",
         Log.ForContext<EventDungeonBattleHandler>())
 {
-    private static readonly EventDungeonBattle Action = new();
-
     protected override async Task HandleAction(
         long blockIndex,
         Address signer,
@@ -27,14 +25,15 @@ public class EventDungeonBattleHandler(IStateService stateService, MongoDbServic
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        Action.LoadPlainValue(actionPlainValue);
+        var action = new EventDungeonBattle();
+        action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Adventure,
-            Action.AvatarAddress,
-            Action.Costumes,
-            Action.Equipments,
+            action.AvatarAddress,
+            action.Costumes,
+            action.Equipments,
             session,
             stoppingToken);
     }
