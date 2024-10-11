@@ -18,26 +18,20 @@ public static class RuneSlotCollectionUpdater
         MongoDbService store,
         BattleType battleType,
         Address avatarAddress,
-        IEnumerable<IValue> runeSlotInfos,
+        IEnumerable<RuneSlotInfo> runeSlotInfos,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
         var collection = store.GetCollection(collectionName);
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
             avatarAddress,
-            battleType
-        );
+            battleType);
         var orderedRuneSlotInfos = runeSlotInfos
-            .OfType<List>()
-            .Select(e => new RuneSlotInfo(e))
             .OrderBy(e => e.SlotIndex)
             .ToList();
-        if (
-            !HasChanged(collection, runeSlotAddress, orderedRuneSlotInfos)
-            || await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized
-        )
+        if (!HasChanged(collection, runeSlotAddress, orderedRuneSlotInfos) ||
+            await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized)
         {
             return;
         }
@@ -48,8 +42,7 @@ public static class RuneSlotCollectionUpdater
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
             [runeSlotDocument],
             session,
-            stoppingToken
-        );
+            stoppingToken);
     }
 
     public static async Task UpdateAsync(
@@ -59,19 +52,15 @@ public static class RuneSlotCollectionUpdater
         Address avatarAddress,
         int runeSlotIndexToUnlock,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
         var collection = store.GetCollection(collectionName);
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
             avatarAddress,
-            battleType
-        );
-        if (
-            !HasChanged(collection, runeSlotAddress, runeSlotIndexToUnlock)
-            || await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized
-        )
+            battleType);
+        if (!HasChanged(collection, runeSlotAddress, runeSlotIndexToUnlock) ||
+            await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized)
         {
             return;
         }
@@ -82,15 +71,13 @@ public static class RuneSlotCollectionUpdater
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
             [runeSlotDocument],
             session,
-            stoppingToken
-        );
+            stoppingToken);
     }
 
     private static bool HasChanged(
         IMongoCollection<BsonDocument> collection,
         Address runeSlotAddress,
-        List<RuneSlotInfo> runeSlotInfos
-    )
+        List<RuneSlotInfo> runeSlotInfos)
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
@@ -121,10 +108,8 @@ public static class RuneSlotCollectionUpdater
 
             for (var i = 0; i < storedRuneSlots.Length; i++)
             {
-                if (
-                    storedRuneSlots[i].slotIndex != runeSlotInfos[i].SlotIndex
-                    || storedRuneSlots[i].runeId != runeSlotInfos[i].RuneId
-                )
+                if (storedRuneSlots[i].slotIndex != runeSlotInfos[i].SlotIndex ||
+                    storedRuneSlots[i].runeId != runeSlotInfos[i].RuneId)
                 {
                     return true;
                 }
@@ -141,8 +126,7 @@ public static class RuneSlotCollectionUpdater
     private static bool HasChanged(
         IMongoCollection<BsonDocument> collection,
         Address runeSlotAddress,
-        int runeSlotIndexToUnlock
-    )
+        int runeSlotIndexToUnlock)
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
         var document = collection.Find(filter).FirstOrDefault();
@@ -153,12 +137,15 @@ public static class RuneSlotCollectionUpdater
 
         try
         {
-            return document["Object"]
-                ["Slots"]
-                .AsBsonArray.Select(e =>
-                    (slotIndex: e["SlotIndex"].AsInt32, isLock: e["IsLock"].AsBoolean)
+            return document["Object"]["Slots"].AsBsonArray
+                .Select(e =>
+                    (
+                        slotIndex: e["SlotIndex"].AsInt32,
+                        isLock: e["IsLock"].AsBoolean
+                    )
                 )
-                .Any(tuple => tuple.slotIndex == runeSlotIndexToUnlock && tuple.isLock);
+                .Any(tuple => tuple.slotIndex == runeSlotIndexToUnlock &&
+                              tuple.isLock);
         }
         catch (KeyNotFoundException)
         {
