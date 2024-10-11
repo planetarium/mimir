@@ -43,6 +43,7 @@ public class TxPoller : IBlockPoller
             // Pledge
             new ApprovePledgeHandler(stateService, dbService),
             new EndPledgeHandler(stateService, dbService),
+            new RequestPledgeHandler(stateService, dbService),
             // World
             new HackAndSlashHandler(stateService, dbService),
             new HackAndSlashSweepHandler(stateService, dbService),
