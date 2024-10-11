@@ -24,6 +24,7 @@ public abstract class BaseActionHandler(
 
     public async Task<bool> TryHandleAction(
         long blockIndex,
+        string txId,
         Address signer,
         IValue actionPlainValue,
         IValue? actionType,
@@ -43,10 +44,10 @@ public abstract class BaseActionHandler(
         }
 
         Logger.Information(
-            "Attempting to handle action of type {ActionType} at block index {BlockIndex} for signer {Signer}",
-            actionTypeStr,
+            "Attempting to handle action. {BlockIndex}, {TxId}, {ActionType}",
             blockIndex,
-            signer);
+            txId,
+            actionTypeStr);
         bool result;
         try
         {
@@ -63,18 +64,18 @@ public abstract class BaseActionHandler(
         {
             Logger.Fatal(
                 e,
-                "Failed to load plain value for action: {ActionType} at block index {BlockIndex} for signer {Signer}",
-                actionType,
+                "Failed to load plain value. {BlockIndex}, {TxId}, {ActionType}",
                 blockIndex,
-                signer);
+                txId,
+                actionTypeStr);
             return false;
         }
 
         Logger.Information(
-            "Successfully handled action of type {ActionType} at block index {BlockIndex} for signer {Signer}",
-            actionTypeStr,
+            "Successfully handled action. {BlockIndex}, {TxId}, {ActionType}",
             blockIndex,
-            signer);
+            txId,
+            actionTypeStr);
         return result;
     }
 

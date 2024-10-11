@@ -1,6 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Libplanet.Types.Tx;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.ActionHandler;
@@ -166,6 +167,7 @@ public class TxPoller : IBlockPoller
             .Where(tx => tx is not null)
             .Select(tx =>
                 (
+                    TxId: tx!.Id,
                     Signer: new Address(tx!.Signer),
                     actions: tx.Actions
                         .Where(action => action is not null)
@@ -178,7 +180,7 @@ public class TxPoller : IBlockPoller
             .ToList();
         _logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
         var tasks = new List<Task>();
-        foreach (var (signer, actions) in tuples)
+        foreach (var (txId, signer, actions) in tuples)
         {
             foreach (var action in actions)
             {
@@ -187,6 +189,7 @@ public class TxPoller : IBlockPoller
                 {
                     var task = handler.TryHandleAction(
                         blockIndex,
+                        txId,
                         signer,
                         action.PlainValue,
                         actionType,
