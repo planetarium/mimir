@@ -83,7 +83,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store) :
         var petState = await StateGetter.GetPetState(petStateAddress, stoppingToken);
         await Store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<PetStateDocument>(),
-            [new PetStateDocument(petStateAddress, petState)],
+            [new PetStateDocument(petStateAddress, avatarAddress, petState)],
             session,
             stoppingToken);
     }

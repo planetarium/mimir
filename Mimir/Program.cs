@@ -47,6 +47,7 @@ builder.Services.AddSingleton<DailyRewardRepository>();
 // builder.Services.AddSingleton<InventoryRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<MetadataRepository>();
+builder.Services.AddSingleton<PetRepository>();
 builder.Services.AddSingleton<PledgeRepository>();
 builder.Services.AddSingleton<ProductRepository>();
 builder.Services.AddSingleton<ProductsRepository>();

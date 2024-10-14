@@ -101,6 +101,14 @@ public class Query
         await repo.GetByCollectionAsync(collectionName);
 
     /// <summary>
+    /// Get an pet state by avatar address.
+    /// </summary>
+    /// <param name="avatarAddress">The address of the agent.</param>
+    /// <returns>The agent state</returns>
+    public async Task<PetState> GetPetAsync(Address avatarAddress, [Service] PetRepository repo) =>
+        (await repo.GetByAvatarAddressAsync(avatarAddress)).Object;
+
+    /// <summary>
     /// Get the pledge state for a given agent address.
     /// </summary>
     public async Task<PledgeDocument> GetPledgeAsync(Address agentAddress, [Service] PledgeRepository repo) =>
