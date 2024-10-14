@@ -8,17 +8,17 @@ namespace Mimir.MongoDB.Repositories;
 
 public class AllRuneRepository(MongoDbService dbService)
 {
-    public Task<AllRuneDocument> GetByAddressAsync(Address avatarAddress)
+    public async Task<AllRuneDocument> GetByAddressAsync(Address address)
     {
         var collectionName = CollectionNames.GetCollectionName<AllRuneDocument>();
         var collection = dbService.GetCollection<AllRuneDocument>(collectionName);
-        var filter = Builders<AllRuneDocument>.Filter.Eq("Address", avatarAddress.ToHex());
-        var document = collection.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<AllRuneDocument>.Filter.Eq("Address", address.ToHex());
+        var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{avatarAddress.ToHex()}'");
+                $"'Address' equals to '{address.ToHex()}'");
         }
 
         return document;
