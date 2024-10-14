@@ -122,6 +122,9 @@ public class Query
     public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] ProductsRepository repo) =>
         (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
 
+    public async Task<RuneState[]> GetRunesAsync(Address avatarAddress, [Service] AllRuneRepository repo) =>
+        (await repo.GetByAddressAsync(avatarAddress)).Object.Runes.Values.ToArray();
+
     /// <summary>
     /// Get a stake state by agent address.
     /// </summary>
