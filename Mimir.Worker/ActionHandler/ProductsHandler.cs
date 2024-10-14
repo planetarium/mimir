@@ -20,8 +20,10 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
         Log.ForContext<ProductsHandler>())
 {
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
+        Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
@@ -35,24 +37,10 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
         }
 
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
-        Logger.Information(
-            "Handle products, product, addresses: {AvatarAddresses}",
-            string.Join(", ", avatarAddresses));
-
         foreach (var avatarAddress in avatarAddresses)
         {
             var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
-            ProductsState productsState;
-            try
-            {
-                productsState = await StateGetter.GetProductsState(avatarAddress, stoppingToken);
-            }
-            catch (Exception e)
-            {
-                Logger.Fatal(e, "Failed to get ProductsState for avatar address: {AvatarAddress}", avatarAddress);
-                return false;
-            }
-
+            var productsState = await StateGetter.GetProductsState(avatarAddress, stoppingToken);
             await SyncWrappedProductsStateAsync(
                 avatarAddress,
                 productsStateAddress,
@@ -60,8 +48,6 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
                 session,
                 stoppingToken);
         }
-
-        return true;
     }
 
     private static List<Address> GetAvatarAddresses(string actionType, Dictionary actionValues)

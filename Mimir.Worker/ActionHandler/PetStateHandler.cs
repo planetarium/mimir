@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
-using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
@@ -12,15 +11,17 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PetStateHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+public class PetStateHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(
         stateService,
         store,
         "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$|^rapid_combination[0-9]*$",
         Log.ForContext<PetStateHandler>())
 {
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
+        Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
@@ -47,7 +48,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
             var pid = actionValues["pid"].ToNullableInteger();
             if (pid is null)
             {
-                return false;
+                return;
             }
 
             petId = pid.Value;
@@ -56,29 +57,19 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
         {
             avatarAddress = actionValues["avatarAddress"].ToAddress();
             var slotIndex = actionValues["slotIndex"].ToInteger();
-            AllCombinationSlotState allCombinationSlotState;
-            try
-            {
-                allCombinationSlotState = await StateGetter.GetAllCombinationSlotStateAsync(
-                    avatarAddress,
-                    stoppingToken);    
-            }
-            catch (Exception e)
-            {
-                Logger.Fatal(e, "Failed to get AllCombinationSlotState for avatar: {AvatarAddress}", avatarAddress);
-                return false;
-            }
+            var allCombinationSlotState = await StateGetter.GetAllCombinationSlotStateAsync(
+                avatarAddress,
+                stoppingToken);
 
             if (!allCombinationSlotState.CombinationSlots.TryGetValue(slotIndex, out var combinationSlotState))
             {
-                Logger.Fatal("CombinationSlotState not found for slotIndex: {SlotIndex}", slotIndex);
-                return false;
+                throw new InvalidOperationException($"CombinationSlotState not found for slotIndex: {slotIndex}");
             }
 
             if (combinationSlotState.PetId is null)
             {
                 // ignore
-                return true;
+                return;
             }
 
             petId = combinationSlotState.PetId.Value;
@@ -88,18 +79,12 @@ public class PetStateHandler(IStateService stateService, MongoDbService store)
             throw new ArgumentException($"Unknown actionType: {actionType}");
         }
 
-        Logger.Information("Handle pet_state, avatar: {AvatarAddress} ", avatarAddress);
-
         var petStateAddress = Nekoyume.Model.State.PetState.DeriveAddress(avatarAddress, petId);
-        var petState = await StateGetter.GetPetState(petStateAddress);
-
+        var petState = await StateGetter.GetPetState(petStateAddress, stoppingToken);
         await Store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<PetStateDocument>(),
             [new PetStateDocument(petStateAddress, avatarAddress, petState)],
             session,
-            stoppingToken
-        );
-
-        return true;
+            stoppingToken);
     }
 }

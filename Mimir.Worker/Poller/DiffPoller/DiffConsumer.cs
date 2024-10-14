@@ -81,7 +81,7 @@ public class DiffConsumer
     }
 
     private async Task ProcessStateDiff(
-        IStateHandler handler,
+        IStateDiffHandler handler,
         Address accountAddress,
         GetAccountDiffsResponse diffResponse,
         CancellationToken stoppingToken

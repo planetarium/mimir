@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
-using Libplanet.Action;
 using Libplanet.Crypto;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
@@ -25,18 +24,14 @@ public abstract class BaseActionHandler(
 
     public async Task<bool> TryHandleAction(
         long blockIndex,
+        string txId,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
         IValue? actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        if (await TryHandleAction(blockIndex, signer, action, session, stoppingToken))
-        {
-            return true;
-        }
-
         var actionTypeStr = actionType switch
         {
             Integer integer => integer.ToString(),
@@ -48,27 +43,48 @@ public abstract class BaseActionHandler(
             return false;
         }
 
-        return await TryHandleAction(blockIndex, actionTypeStr, actionPlainValueInternal, session, stoppingToken);
+        Logger.Information(
+            "Handling action. {BlockIndex}, {TxId}, {ActionType}",
+            blockIndex,
+            txId,
+            actionTypeStr);
+        try
+        {
+            await HandleAction(
+                blockIndex,
+                signer,
+                actionPlainValue,
+                actionTypeStr,
+                actionPlainValueInternal,
+                session,
+                stoppingToken);
+        }
+        catch (Exception e)
+        {
+            Logger.Fatal(
+                e,
+                "Failed to handling action. {BlockIndex}, {TxId}, {ActionType}",
+                blockIndex,
+                txId,
+                actionTypeStr);
+            return false;
+        }
+
+        Logger.Information(
+            "Finished handling action. {BlockIndex}, {TxId}, {ActionType}",
+            blockIndex,
+            txId,
+            actionTypeStr);
+        return true;
     }
 
-    [Obsolete("Use the overload with actionType instead.")]
-    protected virtual Task<bool> TryHandleAction(
+    // FIXME: `string actionType` argument may can be removed.
+    protected abstract Task HandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
-    {
-        return Task.FromResult(false);
-    }
-
-    protected virtual Task<bool> TryHandleAction(
-        long blockIndex,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
-    {
-        return Task.FromResult(false);
-    }
+        CancellationToken stoppingToken = default);
 }

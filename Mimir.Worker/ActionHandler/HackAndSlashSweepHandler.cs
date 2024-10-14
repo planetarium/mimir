@@ -1,51 +1,40 @@
-using Lib9c.Abstractions;
-using Libplanet.Action;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
 using MongoDB.Driver;
+using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+public class HackAndSlashSweepHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(
         stateService,
         store,
         "^hack_and_slash_sweep[0-9]*$",
-        Log.ForContext<HackAndSlashSweepHandler>()
-    )
+        Log.ForContext<HackAndSlashSweepHandler>())
 {
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not IHackAndSlashSweepV3 hackAndSlashSweep)
-        {
-            return false;
-        }
-
-        Logger.Information(
-            "Handle hack_and_slash_sweep, address: {AvatarAddress}",
-            hackAndSlashSweep.AvatarAddress
-        );
-
+        var action = new HackAndSlashSweep();
+        action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Adventure,
-            hackAndSlashSweep.AvatarAddress,
-            hackAndSlashSweep.Costumes,
-            hackAndSlashSweep.Equipments,
+            action.avatarAddress,
+            action.costumes,
+            action.equipments,
             session,
-            stoppingToken
-        );
-
-        return true;
+            stoppingToken);
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
+using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Exceptions;
@@ -13,13 +14,12 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PatchTableHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+public class PatchTableHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(
         stateService,
         store,
         "^patch_table_sheet[0-9]*$",
-        Log.ForContext<PatchTableHandler>()
-    )
+        Log.ForContext<PatchTableHandler>())
 {
     private static readonly ImmutableArray<Type> SheetTypes =
     [
@@ -29,12 +29,13 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
                 type.Namespace is { } @namespace
                 && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
                 && !type.IsAbstract
-                && typeof(ISheet).IsAssignableFrom(type)
-            )
+                && typeof(ISheet).IsAssignableFrom(type))
     ];
 
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
+        Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
@@ -44,8 +45,7 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind
-            );
+                actionPlainValueInternal?.Kind);
         }
 
         var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
@@ -60,22 +60,17 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         if (sheetType == null)
         {
             throw new TypeLoadException(
-                $"Unable to find a class type matching the table name '{tableName}' in the specified namespace."
-            );
+                $"Unable to find a class type matching the table name '{tableName}' in the specified namespace.");
         }
 
-        Logger.Information("Handle patch_table, table: {TableName} ", tableName);
-
         await SyncSheetStateAsync(tableName, sheetType, session, stoppingToken);
-        return true;
     }
 
     public async Task SyncSheetStateAsync(
         string sheetName,
         Type sheetType,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
         if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
         {
@@ -83,14 +78,11 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
             return;
         }
 
-        if (
-            sheetType == typeof(WorldBossKillRewardSheet)
-            || sheetType == typeof(WorldBossBattleRewardSheet)
-        )
+        if (sheetType == typeof(WorldBossKillRewardSheet) ||
+            sheetType == typeof(WorldBossBattleRewardSheet))
         {
             Logger.Information(
-                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later"
-            );
+                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
             return;
         }
 
@@ -110,12 +102,10 @@ public class PatchTableHandler(IStateService stateService, MongoDbService store)
         sheet.Set(sheetValue.Value);
 
         var document = new SheetDocument(sheetAddress, sheet, sheetName, sheetState);
-
         await Store.UpsertSheetDocumentAsync(
             CollectionNames.GetCollectionName<SheetDocument>(),
             [document],
             session,
-            stoppingToken
-        );
+            stoppingToken);
     }
 }

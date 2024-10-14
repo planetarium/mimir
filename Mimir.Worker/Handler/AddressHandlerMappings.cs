@@ -8,7 +8,7 @@ namespace Mimir.Worker.Handler;
 
 public static class AddressHandlerMappings
 {
-    public static readonly Dictionary<Address, IStateHandler> HandlerMappings = new();
+    public static readonly Dictionary<Address, IStateDiffHandler> HandlerMappings = new();
 
     public static readonly Currency OdinNCGCurrency = Currency.Legacy(
         "NCG",

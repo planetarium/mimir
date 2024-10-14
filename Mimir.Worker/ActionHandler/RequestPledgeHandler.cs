@@ -1,4 +1,4 @@
-using Libplanet.Action;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
@@ -13,35 +13,26 @@ public class RequestPledgeHandler(IStateService stateService, MongoDbService sto
         stateService,
         store,
         "^request_pledge[0-9]*$",
-        Log.ForContext<RequestPledgeHandler>()
-    )
+        Log.ForContext<RequestPledgeHandler>())
 {
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not RequestPledge requestPledge)
-        {
-            return false;
-        }
-
-        Logger.Information(
-            "Handle request_pledge, request contracting with agent: {AgentAddress}",
-            requestPledge.AgentAddress);
-
+        var action = new RequestPledge();
+        action.LoadPlainValue(actionPlainValue);
         await PledgeCollectionUpdater.UpsertAsync(
             Store,
-            requestPledge.AgentAddress.GetPledgeAddress(),
+            action.AgentAddress.GetPledgeAddress(),
             signer,
             false,
-            requestPledge.RefillMead,
+            action.RefillMead,
             session,
             stoppingToken);
-
-        return true;
     }
 }
