@@ -19,16 +19,6 @@ namespace Mimir.GraphQL.Queries;
 public class Query
 {
     /// <summary>
-    /// Get all combination slot states for a specific avatar address.
-    /// </summary>
-    /// <param name="avatarAddress">The address of the avatar</param>
-    /// <returns>All combination slot states for the specified avatar address.</returns>
-    public async Task<AllCombinationSlotState> GetAllCombinationSlotsAsync(
-        Address avatarAddress,
-        [Service] AllCombinationSlotStateRepository repo) =>
-        (await repo.GetByAddressAsync(avatarAddress)).Object;
-
-    /// <summary>
     /// Get an action point by address.
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
@@ -83,6 +73,16 @@ public class Query
 
         throw new GraphQLRequestException("Either currency or currencyTicker must be provided.");
     }
+
+    /// <summary>
+    /// Get combination slot states for a specific avatar address.
+    /// </summary>
+    /// <param name="avatarAddress">The address of the avatar</param>
+    /// <returns>Combination slot states for the specified avatar address.</returns>
+    public async Task<Dictionary<int, CombinationSlotState>> GetCombinationSlotsAsync(
+        Address avatarAddress,
+        [Service] AllCombinationSlotStateRepository repo) =>
+        (await repo.GetByAddressAsync(avatarAddress)).Object.CombinationSlots;
 
     /// <summary>
     /// Get the daily reward received block index by address.
