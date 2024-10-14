@@ -13,7 +13,7 @@ namespace Lib9c.Models.States;
 [BsonIgnoreExtraElements]
 public record AllRuneState : IBencodable
 {
-    public Dictionary<int, RuneState> Runes { get; }
+    public Dictionary<int, RuneState> Runes { get; init; }
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => new List(Runes
