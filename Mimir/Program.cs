@@ -38,7 +38,7 @@ builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddSingleton<ActionPointRepository>();
 builder.Services.AddSingleton<AgentRepository>();
 builder.Services.AddSingleton<AllCombinationSlotStateRepository>();
-// builder.Services.AddSingleton<AllRuneRepository>();
+builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<BalanceRepository>();
