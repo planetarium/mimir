@@ -34,30 +34,30 @@ builder.WebHost.UseSentry();
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<MongoDbService>();
-builder.Services.AddSingleton<MetadataRepository>();
-builder.Services.AddSingleton<TableSheetsRepository>();
-builder.Services.AddSingleton<BalanceRepository>();
-builder.Services.AddSingleton<PledgeRepository>();
-builder.Services.AddSingleton<AgentRepository>();
-// AvatarState dependencies
-builder.Services.AddSingleton<AvatarRepository>();
+// NOTE: MongoDB repositories. Sort in alphabetical order.
 builder.Services.AddSingleton<ActionPointRepository>();
-builder.Services.AddSingleton<DailyRewardRepository>();
+builder.Services.AddSingleton<AgentRepository>();
 builder.Services.AddSingleton<AllCombinationSlotStateRepository>();
-// builder.Services.AddSingleton<InventoryRepository>();
-// builder.Services.AddSingleton<AllRuneRepository>();
-// builder.Services.AddSingleton<CollectionRepository>();
-builder.Services.AddSingleton<ItemSlotRepository>();
-builder.Services.AddSingleton<PetRepository>();
-builder.Services.AddSingleton<RuneSlotRepository>();
-// Others
+builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
-builder.Services.AddSingleton<StakeRepository>();
-builder.Services.AddSingleton<ProductsRepository>();
+builder.Services.AddSingleton<AvatarRepository>();
+builder.Services.AddSingleton<BalanceRepository>();
+// builder.Services.AddSingleton<CollectionRepository>();
+builder.Services.AddSingleton<DailyRewardRepository>();
+// builder.Services.AddSingleton<InventoryRepository>();
+builder.Services.AddSingleton<ItemSlotRepository>();
+builder.Services.AddSingleton<MetadataRepository>();
+builder.Services.AddSingleton<PetRepository>();
+builder.Services.AddSingleton<PledgeRepository>();
 builder.Services.AddSingleton<ProductRepository>();
-builder.Services.AddSingleton<WorldBossRepository>();
-builder.Services.AddSingleton<WorldBossRaiderRepository>();
+builder.Services.AddSingleton<ProductsRepository>();
+builder.Services.AddSingleton<RuneSlotRepository>();
+builder.Services.AddSingleton<StakeRepository>();
+builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
+builder.Services.AddSingleton<WorldBossRaiderRepository>();
+builder.Services.AddSingleton<WorldBossRepository>();
+// ~MongoDB repositories.
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services
