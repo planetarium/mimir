@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.CollectionUpdaters;
@@ -17,8 +18,10 @@ namespace Mimir.Worker.ActionHandler;
 public class RaidHandler(IStateService stateService, MongoDbService store)
     : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaidHandler>())
 {
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
+        Address signer,
+        IValue actionPlainValue,
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
@@ -26,26 +29,20 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
     {
         if (actionPlainValueInternal is null)
         {
-            var e = new ArgumentNullException(nameof(actionPlainValueInternal));
-            Logger.Fatal(e, "Failed to handle action: {ActionType}", actionType);
-            return false;
+            throw new ArgumentNullException(nameof(actionPlainValueInternal));
         }
 
         if (actionPlainValueInternal is not Dictionary d)
         {
-            var e = new UnsupportedArgumentTypeException<ValueKind>(
+            throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(actionPlainValueInternal),
                 [ValueKind.Dictionary],
                 actionPlainValueInternal.Kind);
-            Logger.Fatal(e, "Failed to handle action: {ActionType}", actionType);
-            return false;
         }
 
         var avatarAddress = d["a"].ToAddress();
         var equipmentIds = d["e"].ToList(StateExtensions.ToGuid);
         var costumeIds = d["c"].ToList(StateExtensions.ToGuid);
-        Logger.Information("Handle raid, avatar: {AvatarAddress}", avatarAddress);
-
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
@@ -59,22 +56,11 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
         var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>(stoppingToken);
         if (worldBossListSheet is null)
         {
-            Logger.Fatal("RaidActionHandler requires worldBossListSheet");
-            return false;
+            throw new InvalidOperationException($"{nameof(RaidHandler)} requires ${nameof(WorldBossListSheet)}");
         }
 
-        int raidId;
-        try
-        {
-            var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
-            raidId = row.Id;
-        }
-        catch (InvalidOperationException)
-        {
-            Logger.Fatal("Failed to get this raidId");
-            return false;
-        }
-
+        var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
+        var raidId = row.Id;
         var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
         var worldBossState = await StateGetter.GetWorldBossStateAsync(worldBossAddress, stoppingToken);
         await Store.UpsertStateDataManyAsync(
@@ -107,7 +93,5 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
             ],
             session,
             stoppingToken);
-
-        return true;
     }
 }

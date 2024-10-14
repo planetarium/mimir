@@ -1,4 +1,4 @@
-using Libplanet.Action;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
@@ -9,43 +9,32 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class HackAndSlashHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+public class HackAndSlashHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(
         stateService,
         store,
         "^hack_and_slash[0-9]*$",
-        Log.ForContext<HackAndSlashHandler>()
-    )
+        Log.ForContext<HackAndSlashHandler>())
 {
-    protected override async Task<bool> TryHandleAction(
+    protected override async Task HandleAction(
         long blockIndex,
         Address signer,
-        IAction action,
+        IValue actionPlainValue,
+        string actionType,
+        IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
-    )
+        CancellationToken stoppingToken = default)
     {
-        if (action is not IHackAndSlashV10 hackAndSlash)
-        {
-            return false;
-        }
-
-        Logger.Information(
-            "Handle hack_and_slash, address: {AvatarAddress}",
-            hackAndSlash.AvatarAddress
-        );
-
+        var action = new HackAndSlash();
+        action.LoadPlainValue(actionPlainValue);
         await ItemSlotCollectionUpdater.UpdateAsync(
             StateService,
             Store,
             BattleType.Adventure,
-            hackAndSlash.AvatarAddress,
-            hackAndSlash.Costumes,
-            hackAndSlash.Equipments,
+            action.AvatarAddress,
+            action.Costumes,
+            action.Equipments,
             session,
-            stoppingToken
-        );
-
-        return true;
+            stoppingToken);
     }
 }

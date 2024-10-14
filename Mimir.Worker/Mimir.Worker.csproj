@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj" />
     <ProjectReference Include="..\Mimir.MongoDB\Mimir.MongoDB.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\State\" />
-  </ItemGroup>
 </Project>
