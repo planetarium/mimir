@@ -102,7 +102,7 @@ namespace Mimir.MongoDB
             // CollectionAndStateTypeMappings.Add(typeof(SeasonInfoDocument), "adventure_boss_season_info");
             CollectionAndStateTypeMappings.Add(typeof(AgentDocument), "agent");
             CollectionAndStateTypeMappings.Add(typeof(AllCombinationSlotStateDocument), "all_combination_slot");
-            // CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
+            CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
             CollectionAndStateTypeMappings.Add(typeof(AvatarDocument), "avatar");
             CollectionAndStateTypeMappings.Add(typeof(ArenaDocument), "arena");
             CollectionAndStateTypeMappings.Add(typeof(DailyRewardDocument), "daily_reward");
