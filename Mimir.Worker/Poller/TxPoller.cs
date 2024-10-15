@@ -50,7 +50,8 @@ public class TxPoller : IBlockPoller
             new RaidHandler(stateService, dbService),
 
             // Market
-            new ProductsHandler(stateService, dbService),
+            new ProductStateHandler(stateService, dbService),
+            new ProductsStateHandler(stateService, dbService),
             // Avatar Related
             new PetStateHandler(stateService, dbService),
             new RuneSlotStateHandler(stateService, dbService),
