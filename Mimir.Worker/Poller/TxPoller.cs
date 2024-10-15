@@ -45,8 +45,7 @@ public class TxPoller : IBlockPoller
             new ItemSlotStateHandler(stateService, dbService),
 
             // Arena
-            new JoinArenaHandler(stateService, dbService),
-            new BattleArenaHandler(stateService, dbService),
+            new ArenaStateHandler(stateService, dbService),
             // Raid
             new RaidHandler(stateService, dbService),
 
