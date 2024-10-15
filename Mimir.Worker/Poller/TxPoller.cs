@@ -55,7 +55,7 @@ public class TxPoller : IBlockPoller
             // Avatar Related
             new PetStateHandler(stateService, dbService),
             new RuneSlotStateHandler(stateService, dbService),
-            new StakeHandler(stateService, dbService),
+            new StakeStateHandler(stateService, dbService),
         ];
         _collectionNames =
         [

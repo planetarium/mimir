@@ -8,8 +8,8 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class StakeHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeHandler>())
+public class StakeStateHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
 {
     protected override async Task HandleAction(
         long blockIndex,
