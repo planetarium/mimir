@@ -5,7 +5,6 @@ using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Action;
-using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
@@ -28,15 +27,6 @@ public class BattleArenaHandler(IStateService stateService, MongoDbService store
     {
         var action = new BattleArena();
         action.LoadPlainValue(actionPlainValue);
-        await ItemSlotCollectionUpdater.UpdateAsync(
-            StateService,
-            Store,
-            BattleType.Arena,
-            action.myAvatarAddress,
-            action.costumes,
-            action.equipments,
-            null,
-            stoppingToken);
         await ProcessArena(action, session, stoppingToken);
     }
 

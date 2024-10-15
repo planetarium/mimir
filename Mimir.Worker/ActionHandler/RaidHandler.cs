@@ -4,12 +4,10 @@ using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Extensions;
-using Nekoyume.Model.EnumType;
 using Nekoyume.TableData;
 using Serilog;
 
@@ -41,18 +39,6 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
         }
 
         var avatarAddress = d["a"].ToAddress();
-        var equipmentIds = d["e"].ToList(StateExtensions.ToGuid);
-        var costumeIds = d["c"].ToList(StateExtensions.ToGuid);
-        await ItemSlotCollectionUpdater.UpdateAsync(
-            StateService,
-            Store,
-            BattleType.Raid,
-            avatarAddress,
-            costumeIds,
-            equipmentIds,
-            session,
-            stoppingToken);
-
         var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>(stoppingToken);
         if (worldBossListSheet is null)
         {

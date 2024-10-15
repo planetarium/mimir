@@ -5,7 +5,6 @@ using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Action;
-using Nekoyume.Model.EnumType;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
@@ -28,15 +27,6 @@ public class JoinArenaHandler(IStateService stateService, MongoDbService store) 
     {
         var action = new JoinArena();
         action.LoadPlainValue(actionPlainValue);
-        await ItemSlotCollectionUpdater.UpdateAsync(
-            StateService,
-            Store,
-            BattleType.Arena,
-            action.avatarAddress,
-            action.costumes,
-            action.equipments,
-            session,
-            stoppingToken);
         await ProcessArena(action, session, stoppingToken);
     }
 

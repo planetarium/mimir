@@ -41,17 +41,14 @@ public class TxPoller : IBlockPoller
             new TableSheetStateHandler(stateService, dbService),
             // Pledge
             new PledgeStateHandler(stateService, dbService),
-            // World
-            new HackAndSlashHandler(stateService, dbService),
-            new HackAndSlashSweepHandler(stateService, dbService),
+            // ItemSlotState
+            new ItemSlotStateHandler(stateService, dbService),
 
             // Arena
             new JoinArenaHandler(stateService, dbService),
             new BattleArenaHandler(stateService, dbService),
             // Raid
             new RaidHandler(stateService, dbService),
-            // Event Dungeon
-            new EventDungeonBattleHandler(stateService, dbService),
 
             // Market
             new ProductsHandler(stateService, dbService),
