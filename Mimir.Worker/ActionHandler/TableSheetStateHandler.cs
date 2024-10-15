@@ -14,12 +14,12 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PatchTableHandler(IStateService stateService, MongoDbService store) :
+public class TableSheetStateHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(
         stateService,
         store,
         "^patch_table_sheet[0-9]*$",
-        Log.ForContext<PatchTableHandler>())
+        Log.ForContext<TableSheetStateHandler>())
 {
     private static readonly ImmutableArray<Type> SheetTypes =
     [

@@ -38,7 +38,7 @@ public class TxPoller : IBlockPoller
 
         _handlers =
         [
-            new PatchTableHandler(stateService, dbService),
+            new TableSheetStateHandler(stateService, dbService),
             // Pledge
             new PledgeStateHandler(stateService, dbService),
             // World

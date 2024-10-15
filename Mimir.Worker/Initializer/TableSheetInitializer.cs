@@ -13,7 +13,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
     {
-        var handler = new PatchTableHandler(_stateService, _store);
+        var handler = new TableSheetStateHandler(_stateService, _store);
         var sheetTypes = TableSheetUtil.GetTableSheetTypes();
 
         foreach (var sheetType in sheetTypes)
