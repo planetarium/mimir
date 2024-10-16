@@ -166,9 +166,7 @@ public class TxPoller : IBlockPoller
                     Signer: new Address(tx.Signer),
                     actions: tx.Actions
                         .Where(action => action is not null)
-                        .Select(action => ActionLoader.LoadAction(
-                            blockIndex,
-                            _codec.Decode(Convert.FromHexString(action!.Raw))))
+                        .Select(action => _codec.Decode(Convert.FromHexString(action!.Raw)))
                         .ToList()
                 )
             )
@@ -179,16 +177,16 @@ public class TxPoller : IBlockPoller
         {
             foreach (var action in actions)
             {
-                var (actionType, actionPlainValueInternal) = DeconstructActionPlainValue(action.PlainValue);
+                var (actionType, actionValues) = DeconstructActionPlainValue(action);
                 foreach (var handler in _handlers)
                 {
                     var task = handler.TryHandleAction(
                         blockIndex,
                         txId,
                         signer,
-                        action.PlainValue,
+                        action,
                         actionType,
-                        actionPlainValueInternal,
+                        actionValues,
                         stoppingToken: cancellationToken);
                     tasks.Add(task);
                 }
