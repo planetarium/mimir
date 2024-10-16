@@ -61,7 +61,6 @@ public class TxPoller : IBlockPoller
         [
             CollectionNames.GetCollectionName<StakeDocument>(),
             CollectionNames.GetCollectionName<PetStateDocument>(),
-            CollectionNames.GetCollectionName<AllCombinationSlotStateDocument>(),
             CollectionNames.GetCollectionName<SheetDocument>(),
             CollectionNames.GetCollectionName<ItemSlotDocument>(),
             CollectionNames.GetCollectionName<RuneSlotDocument>(),
