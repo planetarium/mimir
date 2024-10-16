@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
@@ -11,6 +12,7 @@ namespace Mimir.Worker.ActionHandler;
 public abstract class BaseActionHandler(
     IStateService stateService,
     MongoDbService store,
+    [StringSyntax(StringSyntaxAttribute.Regex)]
     string actionTypeRegex,
     ILogger logger)
 {
