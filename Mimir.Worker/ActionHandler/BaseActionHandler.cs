@@ -22,7 +22,7 @@ public abstract class BaseActionHandler(
 
     protected readonly ILogger Logger = logger;
 
-    public async Task HandleAction(
+    public async Task HandleActionAsync(
         long blockIndex,
         string txId,
         Address signer,
@@ -49,7 +49,7 @@ public abstract class BaseActionHandler(
             txId,
             actionTypeStr);
 
-        await HandleAction(
+        await HandleActionAsync(
             blockIndex,
             signer,
             actionPlainValue,
@@ -66,7 +66,7 @@ public abstract class BaseActionHandler(
     }
 
     // FIXME: `string actionType` argument may can be removed.
-    protected abstract Task HandleAction(
+    protected abstract Task HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,

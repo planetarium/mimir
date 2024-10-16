@@ -16,7 +16,7 @@ public class PledgeStateHandler(IStateService stateService, MongoDbService store
         "^approve_pledge[0-9]*$|^end_pledge[0-9]*$|^request_pledge[0-9]*$",
         Log.ForContext<PledgeStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,

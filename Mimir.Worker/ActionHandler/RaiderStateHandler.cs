@@ -16,7 +16,7 @@ namespace Mimir.Worker.ActionHandler;
 public class RaiderStateHandler(IStateService stateService, MongoDbService store)
     : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,

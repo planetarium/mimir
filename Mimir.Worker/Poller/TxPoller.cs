@@ -180,7 +180,7 @@ public class TxPoller : IBlockPoller
                 var (actionType, actionValues) = DeconstructActionPlainValue(action);
                 foreach (var handler in _handlers)
                 {
-                    var task = handler.HandleAction(
+                    var task = handler.HandleActionAsync(
                         blockIndex,
                         txId,
                         signer,
