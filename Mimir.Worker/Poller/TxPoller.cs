@@ -1,6 +1,3 @@
-using Bencodex;
-using Bencodex.Types;
-using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.ActionHandler;
@@ -26,8 +23,6 @@ public class TxPoller : IBlockPoller
     private readonly string[] _collectionNames;
 
     private readonly IHeadlessGQLClient _headlessGqlClient;
-
-    private readonly Codec _codec = new();
 
     public TxPoller(
         IStateService stateService,
@@ -158,42 +153,15 @@ public class TxPoller : IBlockPoller
         }
 
         var blockIndex = syncedBlockIndex + limit;
-        var tuples = txsResponse.NCTransactions
-            .Where(tx => tx is not null)
-            .Select(tx =>
-                (
-                    TxId: tx!.Id,
-                    Signer: new Address(tx.Signer),
-                    actions: tx.Actions
-                        .Where(action => action is not null)
-                        .Select(action => _codec.Decode(Convert.FromHexString(action!.Raw)))
-                        .ToList()
-                )
-            )
-            .ToList();
         _logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
-        var tasks = new List<Task>();
-        foreach (var (txId, signer, actions) in tuples)
-        {
-            foreach (var action in actions)
-            {
-                var (actionType, actionValues) = DeconstructActionPlainValue(action);
-                foreach (var handler in _handlers)
-                {
-                    var task = handler.HandleActionAsync(
-                        blockIndex,
-                        txId,
-                        signer,
-                        action,
-                        actionType,
-                        actionValues,
-                        stoppingToken: cancellationToken);
-                    tasks.Add(task);
-                }
-            }
-        }
-
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(
+            _handlers.Select(
+                handler => handler.HandleTransactionsAsync(
+                    blockIndex,
+                    txsResponse,
+                    cancellationToken)
+            )
+        );
 
         foreach (var collectionName in _collectionNames)
         {
@@ -218,37 +186,6 @@ public class TxPoller : IBlockPoller
             limit,
             cancellationToken);
         return result.Transaction;
-    }
-
-    /// <summary>
-    /// Deconstructs the given action plain value.
-    /// </summary>
-    /// <param name="actionPlainValue"><see cref="Libplanet.Action.IAction.PlainValue"/></param>
-    /// <returns>
-    /// A tuple of two values: the first is the value of the "type_id" key, and the second is the value of the
-    /// "values" key.
-    /// If the given action plain value is not a dictionary, both values are null.
-    /// And if the given action plain value is a dictionary but does not contain the "type_id" or "values" key,
-    /// the value of the key is null.
-    /// "type_id": Bencodex.Types.Text or Bencodex.Types.Integer.
-    ///            (check <see cref="Nekoyume.Action.GameAction.PlainValue"/> with
-    ///            <see cref="Libplanet.Action.ActionTypeAttribute"/>)
-    /// "values": It can be any type of Bencodex.Types.
-    /// </returns>
-    private static (IValue? typeId, IValue? values) DeconstructActionPlainValue(IValue actionPlainValue)
-    {
-        if (actionPlainValue is not Dictionary actionPlainValueDict)
-        {
-            return (null, null);
-        }
-
-        var actionType = actionPlainValueDict.ContainsKey("type_id")
-            ? actionPlainValueDict["type_id"]
-            : null;
-        var actionPlainValueInternal = actionPlainValueDict.ContainsKey("values")
-            ? actionPlainValueDict["values"]
-            : null;
-        return (actionType, actionPlainValueInternal);
     }
 
     private async Task<long> GetSyncedBlockIndex(string collectionName, CancellationToken stoppingToken)
