@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Market;
-using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
@@ -13,12 +12,12 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductsHandler(IStateService stateService, MongoDbService store) :
+public class ProductStateHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(
         stateService,
         store,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductsHandler>())
+        Log.ForContext<ProductStateHandler>())
 {
     protected override async Task HandleAction(
         long blockIndex,
@@ -88,23 +87,14 @@ public class ProductsHandler(IStateService stateService, MongoDbService store) :
 
         await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd, session, stoppingToken);
         await RemoveOldProductsAsync(productsToRemove);
-
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ProductsStateDocument>(),
-            [new ProductsStateDocument(productsStateAddress, productsState, avatarAddress)],
-            session,
-            stoppingToken);
     }
 
     private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", productsStateAddress.ToHex());
-        var existingState = await Store.GetCollection<ProductsStateDocument>().Find(filter).FirstOrDefaultAsync();
-        return existingState == null
-            ? []
-            : existingState["Object"]["ProductIds"].AsBsonArray
-                .Select(p => Guid.Parse(p.AsString))
-                .ToList();
+        var filter = Builders<BsonDocument>.Filter.Eq("Object.ProductsStateAddress", productsStateAddress.ToHex());
+        var projection = Builders<BsonDocument>.Projection.Include("Object.ProductId");
+        var documents = await Store.GetCollection<ProductDocument>().Find<BsonDocument>(filter).Project(projection).ToListAsync();
+        return documents is null ? [] : documents.Select(doc => Guid.Parse(doc["Object"]["ProductId"].AsString)).ToList();
     }
 
     private async Task AddNewProductsAsync(

@@ -8,12 +8,8 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RequestPledgeHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
-        stateService,
-        store,
-        "^request_pledge[0-9]*$",
-        Log.ForContext<RequestPledgeHandler>())
+public class StakeStateHandler(IStateService stateService, MongoDbService store) :
+    BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
 {
     protected override async Task HandleAction(
         long blockIndex,
@@ -24,14 +20,12 @@ public class RequestPledgeHandler(IStateService stateService, MongoDbService sto
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        var action = new RequestPledge();
+        var action = new Stake();
         action.LoadPlainValue(actionPlainValue);
-        await PledgeCollectionUpdater.UpsertAsync(
+        await StakeCollectionUpdater.UpdateAsync(
+            StateService,
             Store,
-            action.AgentAddress.GetPledgeAddress(),
             signer,
-            false,
-            action.RefillMead,
             session,
             stoppingToken);
     }

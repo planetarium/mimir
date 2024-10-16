@@ -38,29 +38,24 @@ public class TxPoller : IBlockPoller
 
         _handlers =
         [
-            new PatchTableHandler(stateService, dbService),
+            new TableSheetStateHandler(stateService, dbService),
             // Pledge
-            new ApprovePledgeHandler(stateService, dbService),
-            new EndPledgeHandler(stateService, dbService),
-            new RequestPledgeHandler(stateService, dbService),
-            // World
-            new HackAndSlashHandler(stateService, dbService),
-            new HackAndSlashSweepHandler(stateService, dbService),
+            new PledgeStateHandler(stateService, dbService),
+            // ItemSlotState
+            new ItemSlotStateHandler(stateService, dbService),
 
             // Arena
-            new JoinArenaHandler(stateService, dbService),
-            new BattleArenaHandler(stateService, dbService),
+            new ArenaStateHandler(stateService, dbService),
             // Raid
             new RaidHandler(stateService, dbService),
-            // Event Dungeon
-            new EventDungeonBattleHandler(stateService, dbService),
 
             // Market
-            new ProductsHandler(stateService, dbService),
+            new ProductStateHandler(stateService, dbService),
+            new ProductsStateHandler(stateService, dbService),
             // Avatar Related
             new PetStateHandler(stateService, dbService),
             new RuneSlotStateHandler(stateService, dbService),
-            new StakeHandler(stateService, dbService),
+            new StakeStateHandler(stateService, dbService),
         ];
         _collectionNames =
         [
