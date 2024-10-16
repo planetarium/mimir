@@ -1,6 +1,5 @@
 using Lib9c.Models.Market;
 using Mimir.MongoDB.Bson;
-using Mimir.MongoDB.Json.Extensions;
 using Mimir.MongoDB.Tests.TestDatas;
 using ItemProduct = Lib9c.Models.Market.ItemProduct;
 

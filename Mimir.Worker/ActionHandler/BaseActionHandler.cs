@@ -3,20 +3,24 @@ using System.Text.RegularExpressions;
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.MongoDB;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.ActionHandler;
 
-public abstract class BaseActionHandler(
+public abstract class BaseActionHandler<TMimirBsonDocument>(
     IStateService stateService,
     MongoDbService store,
     [StringSyntax(StringSyntaxAttribute.Regex)]
     string actionTypeRegex,
-    ILogger logger)
+    ILogger logger) : IActionHandler
+    where TMimirBsonDocument : MimirBsonDocument
 {
     private readonly Codec Codec = new();
 
@@ -79,24 +83,31 @@ public abstract class BaseActionHandler(
             )
             .ToList();
         
+        var documents = new List<WriteModel<BsonDocument>>();
         foreach (var (txId, signer, actions) in tuples)
         {
             foreach (var action in actions)
             {
                 var (actionType, actionValues) = DeconstructActionPlainValue(action);
-                await HandleActionAsync(
+                documents.AddRange(await HandleActionAsync(
                     blockIndex,
                     txId,
                     signer,
                     action,
                     actionType,
                     actionValues,
-                    stoppingToken: cancellationToken);
+                    stoppingToken: cancellationToken));
             }
         }
+
+        await Store.UpsertStateDataManyAsync(
+            CollectionNames.GetCollectionName<TMimirBsonDocument>(),
+            documents,
+            null,
+            cancellationToken);
     }
 
-    private async Task HandleActionAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         string txId,
         Address signer,
@@ -114,7 +125,7 @@ public abstract class BaseActionHandler(
         };
         if (actionTypeStr is null || !Regex.IsMatch(actionTypeStr, actionTypeRegex))
         {
-            return;
+            return [];
         }
 
         Logger.Information(
@@ -123,7 +134,7 @@ public abstract class BaseActionHandler(
             txId,
             actionTypeStr);
 
-        await HandleActionAsync(
+        var documents = await HandleActionAsync(
             blockIndex,
             signer,
             actionPlainValue,
@@ -137,10 +148,12 @@ public abstract class BaseActionHandler(
             blockIndex,
             txId,
             actionTypeStr);
+
+        return documents;
     }
 
     // FIXME: `string actionType` argument may can be removed.
-    protected abstract Task HandleActionAsync(
+    protected abstract Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,

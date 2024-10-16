@@ -1,25 +1,16 @@
 using Lib9c.Models.States;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mimir.Worker.CollectionUpdaters;
 
 public static class AvatarCollectionUpdater
 {
-    public static async Task UpsertAsync(
-        MongoDbService dbService,
-        AvatarState avatarState,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
+    public static WriteModel<BsonDocument> UpsertAsync(
+        AvatarState avatarState
     )
     {
-        await dbService.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<AvatarDocument>(),
-            [new AvatarDocument(avatarState.Address, avatarState)],
-            session,
-            stoppingToken
-        );
+        return new AvatarDocument(avatarState.Address, avatarState).ToUpdateOneModel();
     }
 }

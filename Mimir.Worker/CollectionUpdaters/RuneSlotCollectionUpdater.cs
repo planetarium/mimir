@@ -1,6 +1,5 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -13,65 +12,23 @@ namespace Mimir.Worker.CollectionUpdaters;
 
 public static class RuneSlotCollectionUpdater
 {
-    public static async Task UpdateAsync(
+    public static async Task<IEnumerable<WriteModel<BsonDocument>>> UpdateAsync(
         IStateService stateService,
-        MongoDbService store,
         BattleType battleType,
         Address avatarAddress,
-        IEnumerable<RuneSlotInfo> runeSlotInfos,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
-        var collection = store.GetCollection(collectionName);
         var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
             avatarAddress,
             battleType);
-        var orderedRuneSlotInfos = runeSlotInfos
-            .OrderBy(e => e.SlotIndex)
-            .ToList();
-        if (!HasChanged(collection, runeSlotAddress, orderedRuneSlotInfos) ||
-            await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized)
+        if (await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized)
         {
-            return;
+            return [];
         }
 
         var runeSlotState = new RuneSlotState(serialized);
         var runeSlotDocument = new RuneSlotDocument(runeSlotAddress, runeSlotState);
-        await store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<RuneSlotDocument>(),
-            [runeSlotDocument],
-            session,
-            stoppingToken);
-    }
-
-    public static async Task UpdateAsync(
-        IStateService stateService,
-        MongoDbService store,
-        BattleType battleType,
-        Address avatarAddress,
-        int runeSlotIndexToUnlock,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
-    {
-        var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
-        var collection = store.GetCollection(collectionName);
-        var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
-            avatarAddress,
-            battleType);
-        if (!HasChanged(collection, runeSlotAddress, runeSlotIndexToUnlock) ||
-            await stateService.GetState(runeSlotAddress, stoppingToken) is not List serialized)
-        {
-            return;
-        }
-
-        var runeSlotState = new RuneSlotState(serialized);
-        var runeSlotDocument = new RuneSlotDocument(runeSlotAddress, runeSlotState);
-        await store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<RuneSlotDocument>(),
-            [runeSlotDocument],
-            session,
-            stoppingToken);
+        return [runeSlotDocument.ToUpdateOneModel()];
     }
 
     private static bool HasChanged(

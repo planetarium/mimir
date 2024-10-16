@@ -1,7 +1,5 @@
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -9,50 +7,30 @@ namespace Mimir.Worker.CollectionUpdaters;
 
 public static class PledgeCollectionUpdater
 {
-    public static async Task UpsertAsync(
-        MongoDbService dbService,
+    public static WriteModel<BsonDocument> UpsertAsync(
         Address address,
         Address contractAddress,
         bool contracted,
-        int refillMead,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
+        int refillMead
     )
     {
-        await dbService.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ArenaDocument>(),
-            [new PledgeDocument(address, contractAddress, contracted, refillMead),],
-            session,
-            stoppingToken
-        );
+        return new PledgeDocument(address, contractAddress, contracted, refillMead).ToUpdateOneModel();
     }
 
-    public static async Task ApproveAsync(
-        MongoDbService dbService,
-        Address address,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
+    public static UpdateOneModel<BsonDocument> ApproveAsync(
+        Address address
     )
     {
-        var collection = dbService.GetCollection<PledgeDocument>();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToString());
         var update = Builders<BsonDocument>.Update.Set("Contracted", true);
-        await (session is null
-            ? collection.UpdateOneAsync(session, filter, update, null, stoppingToken)
-            : collection.UpdateOneAsync(filter, update, null, stoppingToken));
+        return new UpdateOneModel<BsonDocument>(filter, update);
     }
 
-    public static async Task DeleteAsync(
-        MongoDbService dbService,
-        Address address,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default
+    public static DeleteOneModel<BsonDocument> DeleteAsync(
+        Address address
     )
     {
-        var collection = dbService.GetCollection<PledgeDocument>();
         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToString());
-        await (session is null
-            ? collection.DeleteOneAsync(session, filter, null, stoppingToken)
-            : collection.DeleteOneAsync(filter, null, stoppingToken));
+        return new DeleteOneModel<BsonDocument>(filter);
     }
 }

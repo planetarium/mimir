@@ -6,6 +6,7 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Action;
@@ -15,7 +16,7 @@ using Serilog;
 namespace Mimir.Worker.ActionHandler;
 
 public class TableSheetStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+    BaseActionHandler<SheetDocument>(
         stateService,
         store,
         "^patch_table_sheet[0-9]*$",
@@ -32,7 +33,7 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
                 && typeof(ISheet).IsAssignableFrom(type))
     ];
 
-    protected override async Task HandleActionAsync(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -63,19 +64,18 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
                 $"Unable to find a class type matching the table name '{tableName}' in the specified namespace.");
         }
 
-        await SyncSheetStateAsync(tableName, sheetType, session, stoppingToken);
+        return await SyncSheetStateAsync(tableName, sheetType, stoppingToken);
     }
 
-    public async Task SyncSheetStateAsync(
+    public async Task<IEnumerable<WriteModel<BsonDocument>>> SyncSheetStateAsync(
         string sheetName,
         Type sheetType,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
         {
             Logger.Information("ItemSheet, QuestSheet is not Sheet");
-            return;
+            return [];
         }
 
         if (sheetType == typeof(WorldBossKillRewardSheet) ||
@@ -83,7 +83,7 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
         {
             Logger.Information(
                 "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
-            return;
+            return [];
         }
 
         var sheetInstance = Activator.CreateInstance(sheetType);
@@ -101,11 +101,6 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
 
         sheet.Set(sheetValue.Value);
 
-        var document = new SheetDocument(sheetAddress, sheet, sheetName, sheetState);
-        await Store.UpsertSheetDocumentAsync(
-            CollectionNames.GetCollectionName<SheetDocument>(),
-            [document],
-            session,
-            stoppingToken);
+        return [new SheetDocument(sheetAddress, sheet, sheetName, sheetState).ToUpdateOneModel()];
     }
 }

@@ -1,5 +1,4 @@
 using Mimir.MongoDB.Bson;
-using Mimir.MongoDB.Json.Extensions;
 
 namespace Mimir.MongoDB.Tests.Bson;
 

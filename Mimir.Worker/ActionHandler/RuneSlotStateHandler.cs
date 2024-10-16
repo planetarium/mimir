@@ -1,8 +1,10 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
@@ -11,7 +13,7 @@ using Serilog;
 namespace Mimir.Worker.ActionHandler;
 
 public class RuneSlotStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+    BaseActionHandler<RuneSlotDocument>(
         stateService,
         store,
         "^(battle_arena[0-9]*|event_dungeon_battle[0-9]*|hack_and_slash[0-9]*|hack_and_slash_sweep[0-9]*|join_arena[0-9]*|raid[0-9]*|unlock_rune_slot[0-9]*)$",
@@ -19,7 +21,7 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
 {
     private static readonly BattleType[] BattleTypes = Enum.GetValues<BattleType>();
 
-    protected override async Task HandleActionAsync(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -28,204 +30,163 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        if (await TryProcessRuneSlotStateAsync(actionPlainValue, actionType, session, stoppingToken))
-        {
-            return;
-        }
-
-        if (await TryProcessUnlockRuneSlotAsync(actionPlainValue, actionType, session, stoppingToken))
-        {
-            return;
-        }
-
-        throw new InvalidOperationException(
-            $"{nameof(RuneSlotStateHandler)} not support the action type: {actionType}");
+        return (await TryProcessRuneSlotStateAsync(actionPlainValue, actionType, stoppingToken))
+            .Concat(await TryProcessUnlockRuneSlotAsync(actionPlainValue, actionType, session, stoppingToken));
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         IValue actionPlainValue,
         string actionType,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (Regex.IsMatch(actionType, "^battle_arena[0-9]*$"))
         {
             var action = new BattleArena();
             action.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
+            return await TryProcessRuneSlotStateAsync(action, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^event_dungeon_battle[0-9]*$"))
         {
             var action = new EventDungeonBattle();
             action.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
+            return await TryProcessRuneSlotStateAsync(action, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^hack_and_slash[0-9]*$"))
         {
             var action = new HackAndSlash();
             action.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
+            return await TryProcessRuneSlotStateAsync(action, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^hack_and_slash_sweep[0-9]*$"))
         {
             var action = new HackAndSlashSweep();
             action.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
+            return await TryProcessRuneSlotStateAsync(action, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^join_arena[0-9]*$"))
         {
             var action = new JoinArena();
             action.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
+            return await TryProcessRuneSlotStateAsync(action, stoppingToken);
         }
 
         if (Regex.IsMatch(actionType, "^raid[0-9]*$"))
         {
             var action = new Raid();
             action.LoadPlainValue(actionPlainValue);
-            return await TryProcessRuneSlotStateAsync(action, session, stoppingToken);
+            return await TryProcessRuneSlotStateAsync(action, stoppingToken);
         }
 
-        return false;
+        return [];
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         BattleArena action,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (action.runeInfos is null)
         {
             // ignore
-            return false;
+            return [];
         }
 
-        await RuneSlotCollectionUpdater.UpdateAsync(
+        return await RuneSlotCollectionUpdater.UpdateAsync(
             StateService,
-            Store,
             BattleType.Arena,
             action.myAvatarAddress,
-            action.runeInfos,
-            session,
             stoppingToken);
-        return true;
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         EventDungeonBattle action,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (action.RuneInfos is null)
         {
             // ignore
-            return false;
+            return [];
         }
 
-        await RuneSlotCollectionUpdater.UpdateAsync(
+        return await RuneSlotCollectionUpdater.UpdateAsync(
             StateService,
-            Store,
             BattleType.Arena,
             action.AvatarAddress,
-            action.RuneInfos,
-            session,
             stoppingToken);
-        return true;
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         HackAndSlash action,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (action.RuneInfos is null)
         {
             // ignore
-            return false;
+            return [];
         }
 
-        await RuneSlotCollectionUpdater.UpdateAsync(
+        return await RuneSlotCollectionUpdater.UpdateAsync(
             StateService,
-            Store,
             BattleType.Arena,
             action.AvatarAddress,
-            action.RuneInfos,
-            session,
             stoppingToken);
-        return true;
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         HackAndSlashSweep action,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (action.runeInfos is null)
         {
             // ignore
-            return false;
+            return [];
         }
 
-        await RuneSlotCollectionUpdater.UpdateAsync(
+        return await RuneSlotCollectionUpdater.UpdateAsync(
             StateService,
-            Store,
             BattleType.Arena,
             action.avatarAddress,
-            action.runeInfos,
-            session,
             stoppingToken);
-        return true;
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         JoinArena action,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (action.runeInfos is null)
         {
             // ignore
-            return false;
+            return [];
         }
 
-        await RuneSlotCollectionUpdater.UpdateAsync(
+        return await RuneSlotCollectionUpdater.UpdateAsync(
             StateService,
-            Store,
             BattleType.Arena,
             action.avatarAddress,
-            action.runeInfos,
-            session,
             stoppingToken);
-        return true;
     }
 
-    private async Task<bool> TryProcessRuneSlotStateAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         Raid action,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
         if (action.RuneInfos is null)
         {
             // ignore
-            return false;
+            return [];
         }
 
-        await RuneSlotCollectionUpdater.UpdateAsync(
+        return await RuneSlotCollectionUpdater.UpdateAsync(
             StateService,
-            Store,
             BattleType.Arena,
             action.AvatarAddress,
-            action.RuneInfos,
-            session,
             stoppingToken);
-        return true;
     }
 
-    private async Task<bool> TryProcessUnlockRuneSlotAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessUnlockRuneSlotAsync(
         IValue actionPlainValue,
         string actionType,
         IClientSessionHandle? session = null,
@@ -238,26 +199,24 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
             return await TryProcessUnlockRuneSlotAsync(action, session, stoppingToken);
         }
 
-        return false;
+        return [];
     }
 
-    private async Task<bool> TryProcessUnlockRuneSlotAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessUnlockRuneSlotAsync(
         UnlockRuneSlot action,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
+        var ops = new List<WriteModel<BsonDocument>>();
         foreach (var battleType in BattleTypes)
         {
-            await RuneSlotCollectionUpdater.UpdateAsync(
+            ops.AddRange(await RuneSlotCollectionUpdater.UpdateAsync(
                 StateService,
-                Store,
                 battleType,
                 action.AvatarAddress,
-                action.SlotIndex,
-                session,
-                stoppingToken);
+                stoppingToken));
         }
 
-        return true;
+        return ops;
     }
 }

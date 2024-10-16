@@ -5,6 +5,7 @@ using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Extensions;
@@ -14,9 +15,10 @@ using Serilog;
 namespace Mimir.Worker.ActionHandler;
 
 public class WorldBossKillRewardRecordStateHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<WorldBossKillRewardRecordStateHandler>())
+    : BaseActionHandler<WorldBossKillRewardRecordDocument>(
+        stateService, store, "^raid[0-9]*$", Log.ForContext<WorldBossKillRewardRecordStateHandler>())
 {
-    protected override async Task HandleActionAsync(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -54,15 +56,12 @@ public class WorldBossKillRewardRecordStateHandler(IStateService stateService, M
         var worldBossKillRewardRecordState = await StateGetter.GetWorldBossKillRewardRecordStateAsync(
             worldBossKillRewardRecordAddress,
             stoppingToken);
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
-            [
-                new WorldBossKillRewardRecordDocument(
-                    worldBossKillRewardRecordAddress,
-                    avatarAddress,
-                    worldBossKillRewardRecordState)
-            ],
-            session,
-            stoppingToken);
+        return
+        [
+            new WorldBossKillRewardRecordDocument(
+                worldBossKillRewardRecordAddress,
+                avatarAddress,
+                worldBossKillRewardRecordState).ToUpdateOneModel()
+        ];
     }
 }

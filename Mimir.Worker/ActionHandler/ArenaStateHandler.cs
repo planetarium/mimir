@@ -2,22 +2,25 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
+using LiteDB;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Action;
 using Serilog;
+using BsonDocument = MongoDB.Bson.BsonDocument;
 
 namespace Mimir.Worker.ActionHandler;
 
 public class ArenaStateHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+    : BaseActionHandler<ArenaDocument>(
         stateService,
         store,
         "^battle_arena[0-9]*$|^join_arena[0-9]*$",
         Log.ForContext<ArenaStateHandler>())
 {
-    protected override async Task HandleActionAsync(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -30,18 +33,20 @@ public class ArenaStateHandler(IStateService stateService, MongoDbService store)
         {
             var action = new BattleArena();
             action.LoadPlainValue(actionPlainValue);
-            await ProcessBattleArena(action, session, stoppingToken);   
+            return await ProcessBattleArena(action, session, stoppingToken);   
         }
 
         if (Regex.IsMatch(actionType, "^join_arena[0-9]*$"))
         {
             var action = new JoinArena();
             action.LoadPlainValue(actionPlainValue);
-            await ProcessJoinArena(action, session, stoppingToken);   
+            return await ProcessJoinArena(action, session, stoppingToken);   
         }
+
+        return [];
     }
 
-    private async Task ProcessBattleArena(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> ProcessBattleArena(
         BattleArena battleArena,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
@@ -60,16 +65,6 @@ public class ArenaStateHandler(IStateService stateService, MongoDbService store)
             battleArena.myAvatarAddress,
             stoppingToken);
         var mySimpleAvatarState = SimplifiedAvatarState.FromAvatarState(myAvatarState);
-        await ArenaCollectionUpdater.UpsertAsync(
-            Store,
-            mySimpleAvatarState,
-            myArenaScore,
-            myArenaInfo,
-            battleArena.myAvatarAddress,
-            battleArena.championshipId,
-            battleArena.round,
-            session,
-            stoppingToken);
 
         var enemyArenaScore = await StateGetter.GetArenaScoreAsync(
             battleArena.enemyAvatarAddress,
@@ -85,19 +80,26 @@ public class ArenaStateHandler(IStateService stateService, MongoDbService store)
             battleArena.enemyAvatarAddress,
             stoppingToken);
         var enemySimpleAvatarState = SimplifiedAvatarState.FromAvatarState(enemyAvatarState);
-        await ArenaCollectionUpdater.UpsertAsync(
-            Store,
-            enemySimpleAvatarState,
-            enemyArenaScore,
-            enemyArenaInfo,
-            battleArena.enemyAvatarAddress,
-            battleArena.championshipId,
-            battleArena.round,
-            session,
-            stoppingToken);
+        return
+        [
+            ArenaCollectionUpdater.UpsertAsync(
+                mySimpleAvatarState,
+                myArenaScore,
+                myArenaInfo,
+                battleArena.myAvatarAddress,
+                battleArena.championshipId,
+                battleArena.round),
+            ArenaCollectionUpdater.UpsertAsync(
+                enemySimpleAvatarState,
+                enemyArenaScore,
+                enemyArenaInfo,
+                battleArena.enemyAvatarAddress,
+                battleArena.championshipId,
+                battleArena.round),
+        ];
     }
     
-    private async Task ProcessJoinArena(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> ProcessJoinArena(
         JoinArena joinArena,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
@@ -116,15 +118,15 @@ public class ArenaStateHandler(IStateService stateService, MongoDbService store)
             joinArena.avatarAddress,
             stoppingToken);
         var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
-        await ArenaCollectionUpdater.UpsertAsync(
-            Store,
-            simpleAvatarState,
-            arenaScore,
-            arenaInfo,
-            joinArena.avatarAddress,
-            joinArena.championshipId,
-            joinArena.round,
-            session,
-            stoppingToken);
+        return
+        [
+            ArenaCollectionUpdater.UpsertAsync(
+                simpleAvatarState,
+                arenaScore,
+                arenaInfo,
+                joinArena.avatarAddress,
+                joinArena.championshipId,
+                joinArena.round),
+        ];
     }
 }
