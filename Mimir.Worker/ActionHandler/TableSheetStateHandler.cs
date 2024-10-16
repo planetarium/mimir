@@ -32,7 +32,7 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
                 && typeof(ISheet).IsAssignableFrom(type))
     ];
 
-    protected override async Task HandleAction(
+    protected override async Task HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,

@@ -11,7 +11,7 @@ namespace Mimir.Worker.ActionHandler;
 public class StakeStateHandler(IStateService stateService, MongoDbService store) :
     BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,

@@ -18,7 +18,7 @@ public class ItemSlotStateHandler(IStateService stateService, MongoDbService sto
         "^hack_and_slash[0-9]*$|^hack_and_slash_sweep[0-9]*$|^battle_arena[0-9]*$|^event_dungeon_battle[0-9]*$|^join_arena[0-9]*$|^raid[0-9]*$",
         Log.ForContext<ItemSlotStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,

@@ -19,7 +19,7 @@ public class RuneSlotStateHandler(IStateService stateService, MongoDbService sto
 {
     private static readonly BattleType[] BattleTypes = Enum.GetValues<BattleType>();
 
-    protected override async Task HandleAction(
+    protected override async Task HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
