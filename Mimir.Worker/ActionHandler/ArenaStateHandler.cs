@@ -14,7 +14,7 @@ public class ArenaStateHandler(IStateService stateService, MongoDbService store)
     : BaseActionHandler(
         stateService,
         store,
-        "^battle_arena[0-9]*$",
+        "^battle_arena[0-9]*$|^join_arena[0-9]*$",
         Log.ForContext<ArenaStateHandler>())
 {
     protected override async Task HandleAction(
