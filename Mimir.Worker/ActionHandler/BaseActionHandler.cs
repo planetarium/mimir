@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Driver;
@@ -16,6 +18,8 @@ public abstract class BaseActionHandler(
     string actionTypeRegex,
     ILogger logger)
 {
+    private readonly Codec Codec = new();
+
     protected readonly IStateService StateService = stateService;
 
     protected readonly StateGetter StateGetter = stateService.At();
@@ -23,8 +27,76 @@ public abstract class BaseActionHandler(
     protected readonly MongoDbService Store = store;
 
     protected readonly ILogger Logger = logger;
+    
+    
+    /// <summary>
+    /// Deconstructs the given action plain value.
+    /// </summary>
+    /// <param name="actionPlainValue"><see cref="Libplanet.Action.IAction.PlainValue"/></param>
+    /// <returns>
+    /// A tuple of two values: the first is the value of the "type_id" key, and the second is the value of the
+    /// "values" key.
+    /// If the given action plain value is not a dictionary, both values are null.
+    /// And if the given action plain value is a dictionary but does not contain the "type_id" or "values" key,
+    /// the value of the key is null.
+    /// "type_id": Bencodex.Types.Text or Bencodex.Types.Integer.
+    ///            (check <see cref="Nekoyume.Action.GameAction.PlainValue"/> with
+    ///            <see cref="Libplanet.Action.ActionTypeAttribute"/>)
+    /// "values": It can be any type of Bencodex.Types.
+    /// </returns>
+    private static (IValue? typeId, IValue? values) DeconstructActionPlainValue(IValue actionPlainValue)
+    {
+        if (actionPlainValue is not Dictionary actionPlainValueDict)
+        {
+            return (null, null);
+        }
 
-    public async Task HandleActionAsync(
+        var actionType = actionPlainValueDict.ContainsKey("type_id")
+            ? actionPlainValueDict["type_id"]
+            : null;
+        var actionPlainValueInternal = actionPlainValueDict.ContainsKey("values")
+            ? actionPlainValueDict["values"]
+            : null;
+        return (actionType, actionPlainValueInternal);
+    }
+
+    public async Task HandleTransactionsAsync(
+        long blockIndex,
+        TransactionResponse transactionResponse,
+        CancellationToken cancellationToken)
+    {
+        var tuples = transactionResponse.NCTransactions
+            .Where(tx => tx is not null)
+            .Select(tx =>
+                (
+                    TxId: tx!.Id,
+                    Signer: new Address(tx.Signer),
+                    actions: tx.Actions
+                        .Where(action => action is not null)
+                        .Select(action => Codec.Decode(Convert.FromHexString(action!.Raw)))
+                        .ToList()
+                )
+            )
+            .ToList();
+        
+        foreach (var (txId, signer, actions) in tuples)
+        {
+            foreach (var action in actions)
+            {
+                var (actionType, actionValues) = DeconstructActionPlainValue(action);
+                await HandleActionAsync(
+                    blockIndex,
+                    txId,
+                    signer,
+                    action,
+                    actionType,
+                    actionValues,
+                    stoppingToken: cancellationToken);
+            }
+        }
+    }
+
+    private async Task HandleActionAsync(
         long blockIndex,
         string txId,
         Address signer,
