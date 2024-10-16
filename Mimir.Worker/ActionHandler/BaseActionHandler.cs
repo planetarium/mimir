@@ -22,7 +22,7 @@ public abstract class BaseActionHandler(
 
     protected readonly ILogger Logger = logger;
 
-    public async Task<bool> TryHandleAction(
+    public async Task HandleAction(
         long blockIndex,
         string txId,
         Address signer,
@@ -40,7 +40,7 @@ public abstract class BaseActionHandler(
         };
         if (actionTypeStr is null || !Regex.IsMatch(actionTypeStr, actionTypeRegex))
         {
-            return false;
+            return;
         }
 
         Logger.Information(
@@ -48,34 +48,21 @@ public abstract class BaseActionHandler(
             blockIndex,
             txId,
             actionTypeStr);
-        try
-        {
-            await HandleAction(
-                blockIndex,
-                signer,
-                actionPlainValue,
-                actionTypeStr,
-                actionPlainValueInternal,
-                session,
-                stoppingToken);
-        }
-        catch (Exception e)
-        {
-            Logger.Fatal(
-                e,
-                "Failed to handling action. {BlockIndex}, {TxId}, {ActionType}",
-                blockIndex,
-                txId,
-                actionTypeStr);
-            return false;
-        }
+
+        await HandleAction(
+            blockIndex,
+            signer,
+            actionPlainValue,
+            actionTypeStr,
+            actionPlainValueInternal,
+            session,
+            stoppingToken);
 
         Logger.Information(
             "Finished handling action. {BlockIndex}, {TxId}, {ActionType}",
             blockIndex,
             txId,
             actionTypeStr);
-        return true;
     }
 
     // FIXME: `string actionType` argument may can be removed.
