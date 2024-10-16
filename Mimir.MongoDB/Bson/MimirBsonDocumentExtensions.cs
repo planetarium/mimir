@@ -1,12 +1,24 @@
-using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Json.Converters;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Mimir.MongoDB.Json.Extensions;
+namespace Mimir.MongoDB.Bson;
 
 public static class MimirBsonDocumentExtensions
 {
+    public static WriteModel<BsonDocument> ToUpdateOneModel(this MimirBsonDocument document)
+    {
+        var json = document.ToJson();
+        var bsonDocument = BsonDocument.Parse(json);
+        var filter = Builders<BsonDocument>.Filter.Eq("Address", document.Address.ToHex());
+        var update = new BsonDocument("$set", bsonDocument);
+        var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
+
+        return upsertOne;
+    }
+    
     public static readonly JsonSerializerSettings JsonSerializerSettings = new()
     {
         Formatting = Formatting.None,

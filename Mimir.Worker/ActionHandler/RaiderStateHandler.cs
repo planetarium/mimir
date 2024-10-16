@@ -2,9 +2,9 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Extensions;
@@ -14,9 +14,9 @@ using Serilog;
 namespace Mimir.Worker.ActionHandler;
 
 public class RaiderStateHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>())
+    : BaseActionHandler<RaiderStateDocument>(stateService, store, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>())
 {
-    protected override async Task HandleActionAsync(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -49,10 +49,6 @@ public class RaiderStateHandler(IStateService stateService, MongoDbService store
         var raidId = row.Id;
         var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
         var raiderState = await StateGetter.GetRaiderStateAsync(raiderAddress, stoppingToken);
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<RaiderStateDocument>(),
-            [new RaiderStateDocument(raiderAddress, raiderState)],
-            session,
-            stoppingToken);
+        return [new RaiderStateDocument(raiderAddress, raiderState).ToUpdateOneModel()];
     }
 }

@@ -23,6 +23,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
             // using (var session = await _store.GetMongoClient().StartSessionAsync())
             // {
                 // session.StartTransaction();
+            
             await handler.SyncSheetStateAsync(sheetType.Name, sheetType);
                 // session.CommitTransaction();
             // }

@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using Lib9c.Models.Items;
 using Libplanet.Common;
-using Mimir.MongoDB.Json.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;

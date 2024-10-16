@@ -19,7 +19,7 @@ public class TxPoller : IBlockPoller
 
     private static readonly NCActionLoader ActionLoader = new();
 
-    private readonly BaseActionHandler[] _handlers;
+    private readonly IActionHandler[] _handlers;
     private readonly string[] _collectionNames;
 
     private readonly IHeadlessGQLClient _headlessGqlClient;

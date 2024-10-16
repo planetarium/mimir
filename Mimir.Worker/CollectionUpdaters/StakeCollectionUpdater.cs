@@ -1,20 +1,18 @@
 using Bencodex.Types;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mimir.Worker.CollectionUpdaters;
 
 public static class StakeCollectionUpdater
 {
-    public static async Task UpdateAsync(
+    public static async Task<IEnumerable<WriteModel<BsonDocument>>> UpdateAsync(
         IStateService stateService,
-        MongoDbService store,
         Address agentAddress,
-        IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default
     )
     {
@@ -31,19 +29,6 @@ public static class StakeCollectionUpdater
             document = new StakeDocument(stakeAddress, agentAddress, new StakeState(stakeState));
         }
 
-        try
-        {
-            await store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName<StakeDocument>(),
-                [document],
-                session,
-                stoppingToken
-            );
-        }
-        catch (ArgumentException)
-        {
-            // Skip stake state v1
-            return;
-        }
+        return [document.ToUpdateOneModel()];
     }
 }
