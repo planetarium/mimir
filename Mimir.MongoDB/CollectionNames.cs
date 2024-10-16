@@ -127,14 +127,7 @@ namespace Mimir.MongoDB
 
         public static string GetCollectionName<T>()
         {
-            if (!CollectionAndStateTypeMappings.TryGetValue(typeof(T), out var collectionName))
-            {
-                throw new InvalidOperationException(
-                    $"No collection mapping found for state type: {typeof(T).FullName}"
-                );
-            }
-
-            return collectionName;
+            return GetCollectionName(typeof(T));
         }
 
         public static string GetCollectionName(Type type)
