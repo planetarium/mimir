@@ -46,8 +46,11 @@ public class TxPoller : IBlockPoller
 
             // Arena
             new ArenaStateHandler(stateService, dbService),
+            // WorldBoss-related
+            new WorldBossKillRewardRecordStateHandler(stateService, dbService),
+            new WorldBossStateHandler(stateService, dbService),
             // Raid
-            new RaidHandler(stateService, dbService),
+            new RaiderStateHandler(stateService, dbService),
 
             // Market
             new ProductStateHandler(stateService, dbService),

@@ -1,6 +1,5 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
-using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
@@ -13,8 +12,8 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RaidHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<RaidHandler>())
+public class WorldBossStateHandler(IStateService stateService, MongoDbService store)
+    : BaseActionHandler(stateService, store, "^raid[0-9]*$", Log.ForContext<WorldBossStateHandler>())
 {
     protected override async Task HandleAction(
         long blockIndex,
@@ -38,11 +37,10 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
                 actionPlainValueInternal.Kind);
         }
 
-        var avatarAddress = d["a"].ToAddress();
         var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>(stoppingToken);
         if (worldBossListSheet is null)
         {
-            throw new InvalidOperationException($"{nameof(RaidHandler)} requires ${nameof(WorldBossListSheet)}");
+            throw new InvalidOperationException($"{nameof(WorldBossKillRewardRecordStateHandler)} requires ${nameof(WorldBossListSheet)}");
         }
 
         var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
@@ -52,31 +50,6 @@ public class RaidHandler(IStateService stateService, MongoDbService store)
         await Store.UpsertStateDataManyAsync(
             CollectionNames.GetCollectionName<WorldBossStateDocument>(),
             [new WorldBossStateDocument(worldBossAddress, raidId, worldBossState)],
-            session,
-            stoppingToken);
-
-        var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
-        var raiderState = await StateGetter.GetRaiderStateAsync(raiderAddress, stoppingToken);
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<RaiderStateDocument>(),
-            [new RaiderStateDocument(raiderAddress, raiderState)],
-            session,
-            stoppingToken);
-
-        var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(
-            avatarAddress,
-            raidId);
-        var worldBossKillRewardRecordState = await StateGetter.GetWorldBossKillRewardRecordStateAsync(
-            worldBossKillRewardRecordAddress,
-            stoppingToken);
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>(),
-            [
-                new WorldBossKillRewardRecordDocument(
-                    worldBossKillRewardRecordAddress,
-                    avatarAddress,
-                    worldBossKillRewardRecordState)
-            ],
             session,
             stoppingToken);
     }
