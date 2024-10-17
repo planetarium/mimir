@@ -3,6 +3,7 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -13,8 +14,8 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RaiderStateHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler<RaiderStateDocument>(stateService, store, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>())
+public class RaiderStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient)
+    : BaseActionHandler<RaiderStateDocument>(stateService, store, headlessGqlClient, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>())
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,

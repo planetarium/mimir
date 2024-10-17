@@ -33,27 +33,27 @@ public class TxPoller : IBlockPoller
 
         _handlers =
         [
-            new TableSheetStateHandler(stateService, dbService),
+            new TableSheetStateHandler(stateService, dbService, headlessGqlClient),
             // Pledge
-            new PledgeStateHandler(stateService, dbService),
+            new PledgeStateHandler(stateService, dbService, headlessGqlClient),
             // ItemSlotState
-            new ItemSlotStateHandler(stateService, dbService),
+            new ItemSlotStateHandler(stateService, dbService, headlessGqlClient),
 
             // Arena
-            new ArenaStateHandler(stateService, dbService),
+            new ArenaStateHandler(stateService, dbService, headlessGqlClient),
             // WorldBoss-related
-            new WorldBossKillRewardRecordStateHandler(stateService, dbService),
-            new WorldBossStateHandler(stateService, dbService),
+            new WorldBossKillRewardRecordStateHandler(stateService, dbService, headlessGqlClient),
+            new WorldBossStateHandler(stateService, dbService, headlessGqlClient),
             // Raid
-            new RaiderStateHandler(stateService, dbService),
+            new RaiderStateHandler(stateService, dbService, headlessGqlClient),
 
             // Market
-            new ProductStateHandler(stateService, dbService),
-            new ProductsStateHandler(stateService, dbService),
+            new ProductStateHandler(stateService, dbService, headlessGqlClient),
+            new ProductsStateHandler(stateService, dbService, headlessGqlClient),
             // Avatar Related
-            new PetStateHandler(stateService, dbService),
-            new RuneSlotStateHandler(stateService, dbService),
-            new StakeStateHandler(stateService, dbService),
+            new PetStateHandler(stateService, dbService, headlessGqlClient),
+            new RuneSlotStateHandler(stateService, dbService, headlessGqlClient),
+            new StakeStateHandler(stateService, dbService, headlessGqlClient),
         ];
         _collectionNames =
         [

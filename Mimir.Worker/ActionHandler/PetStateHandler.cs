@@ -3,6 +3,7 @@ using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -11,10 +12,11 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PetStateHandler(IStateService stateService, MongoDbService store) :
+public class PetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient) :
     BaseActionHandler<PetStateDocument>(
         stateService,
         store,
+        headlessGqlClient,
         "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$|^rapid_combination[0-9]*$",
         Log.ForContext<PetStateHandler>())
 {

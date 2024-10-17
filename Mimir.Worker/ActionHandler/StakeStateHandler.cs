@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -10,8 +11,8 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class StakeStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler<StakeDocument>(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
+public class StakeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient) :
+    BaseActionHandler<StakeDocument>(stateService, store, headlessGqlClient, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
