@@ -132,25 +132,6 @@ public class TxPoller : IBlockPoller
         CancellationToken cancellationToken)
     {
         var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
-        if (txsResponse.NCTransactions.Count == 0)
-        {
-            _logger.Information("Transactions is empty");
-
-            foreach (var collectionName in _collectionNames)
-            {
-                await _dbService.UpdateLatestBlockIndexAsync(
-                    new MetadataDocument
-                    {
-                        PollerType = nameof(TxPoller),
-                        CollectionName = collectionName,
-                        LatestBlockIndex = syncedBlockIndex + limit
-                    },
-                    null,
-                    cancellationToken);
-            }
-
-            return;
-        }
 
         var blockIndex = syncedBlockIndex + limit;
         _logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
@@ -162,18 +143,6 @@ public class TxPoller : IBlockPoller
                     cancellationToken)
             )
         );
-
-        foreach (var collectionName in _collectionNames)
-        {
-            await _dbService.UpdateLatestBlockIndexAsync(
-                new MetadataDocument
-                {
-                    PollerType = nameof(TxPoller),
-                    CollectionName = collectionName,
-                    LatestBlockIndex = syncedBlockIndex + limit
-                },
-                cancellationToken: cancellationToken);
-        }
     }
 
     private async Task<TransactionResponse> FetchTransactionsAsync(
