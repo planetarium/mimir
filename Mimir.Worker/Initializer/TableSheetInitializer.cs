@@ -13,7 +13,6 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
     {
-        var handler = new TableSheetStateHandler(_stateService, _store);
         var sheetTypes = TableSheetUtil.GetTableSheetTypes();
 
         foreach (var sheetType in sheetTypes)
@@ -23,10 +22,12 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
             // using (var session = await _store.GetMongoClient().StartSessionAsync())
             // {
                 // session.StartTransaction();
-            
-            await handler.SyncSheetStateAsync(sheetType.Name, sheetType);
+
+                await TableSheetStateHandler.SyncSheetStateAsync(
+                    Log.ForContext<TableSheetInitializer>().ForContext<TableSheetStateHandler>(), _stateService, _store,
+                    sheetType.Name, sheetType);
                 // session.CommitTransaction();
-            // }
+                // }
         }
     }
 

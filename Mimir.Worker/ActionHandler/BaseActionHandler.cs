@@ -18,9 +18,10 @@ namespace Mimir.Worker.ActionHandler;
 public abstract class BaseActionHandler<TMimirBsonDocument>(
     IStateService stateService,
     MongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
     [StringSyntax(StringSyntaxAttribute.Regex)]
     string actionTypeRegex,
-    ILogger logger) : IActionHandler
+    ILogger logger) : BackgroundService, IActionHandler
     where TMimirBsonDocument : MimirBsonDocument
 {
     private readonly Codec Codec = new();
@@ -63,6 +64,116 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
             ? actionPlainValueDict["values"]
             : null;
         return (actionType, actionPlainValueInternal);
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var started = DateTime.UtcNow;
+        Logger.Information("Start {PollerType} background service", GetType().Name);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            var collectionName = CollectionNames.GetCollectionName<TMimirBsonDocument>();
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
+                // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
+                var syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
+
+                Logger.Information(
+                    "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
+                    syncedBlockIndex,
+                    currentBlockIndex);
+
+                if (syncedBlockIndex >= currentBlockIndex)
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
+                    continue;
+                }
+
+                await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
+            }
+
+            Logger.Information(
+                "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
+                GetType().Name,
+                DateTime.UtcNow.Subtract(started).Minutes);
+        }
+    }
+    
+    private async Task ProcessBlocksAsync(
+        long syncedBlockIndex,
+        long targetBlockIndex,
+        CancellationToken stoppingToken
+    )
+    {
+        var indexDifference = Math.Abs(targetBlockIndex - syncedBlockIndex);
+        const int limit = 1;
+
+        Logger.Information(
+            "Process block, target&sync: {TargetBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",
+            targetBlockIndex,
+            syncedBlockIndex,
+            indexDifference,
+            limit);
+
+        await ProcessTransactions(syncedBlockIndex, limit, stoppingToken);
+    }
+
+    private async Task ProcessTransactions(
+        long syncedBlockIndex,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
+
+        var blockIndex = syncedBlockIndex + limit;
+        Logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
+        await HandleTransactionsAsync(
+            blockIndex,
+            txsResponse,
+            cancellationToken);
+    }
+
+    private async Task<TransactionResponse> FetchTransactionsAsync(
+        long syncedBlockIndex,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        var result = await headlessGqlClient.GetTransactionsAsync(
+            syncedBlockIndex,
+            limit,
+            cancellationToken);
+        return result.Transaction;
+    }
+
+    private async Task<long> GetSyncedBlockIndex(string collectionName, CancellationToken stoppingToken)
+    {
+        try
+        {
+            var syncedBlockIndex = await Store.GetLatestBlockIndexAsync(
+                nameof(TxPoller),
+                collectionName,
+                stoppingToken);
+            return syncedBlockIndex;
+        }
+        catch (InvalidOperationException)
+        {
+            var currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
+            Logger.Information(
+                "Metadata collection is not found, set block index to {BlockIndex} - 1",
+                currentBlockIndex);
+            await Store.UpdateLatestBlockIndexAsync(
+                new MetadataDocument
+                {
+                    PollerType = nameof(TxPoller),
+                    CollectionName = collectionName,
+                    LatestBlockIndex = currentBlockIndex - 1
+                },
+                null,
+                stoppingToken);
+            return currentBlockIndex - 1;
+        }
     }
 
     public async Task HandleTransactionsAsync(

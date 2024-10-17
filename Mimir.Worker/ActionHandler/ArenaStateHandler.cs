@@ -4,6 +4,7 @@ using Lib9c.Models.States;
 using Libplanet.Crypto;
 using LiteDB;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
@@ -13,10 +14,11 @@ using BsonDocument = MongoDB.Bson.BsonDocument;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ArenaStateHandler(IStateService stateService, MongoDbService store)
+public class ArenaStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient)
     : BaseActionHandler<ArenaDocument>(
         stateService,
         store,
+        headlessGqlClient,
         "^battle_arena[0-9]*$|^join_arena[0-9]*$",
         Log.ForContext<ArenaStateHandler>())
 {

@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
 using MongoDB.Bson;
@@ -12,10 +13,11 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RuneSlotStateHandler(IStateService stateService, MongoDbService store) :
+public class RuneSlotStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient) :
     BaseActionHandler<RuneSlotDocument>(
         stateService,
         store,
+        headlessGqlClient,
         "^(battle_arena[0-9]*|event_dungeon_battle[0-9]*|hack_and_slash[0-9]*|hack_and_slash_sweep[0-9]*|join_arena[0-9]*|raid[0-9]*|unlock_rune_slot[0-9]*)$",
         Log.ForContext<RuneSlotStateHandler>())
 {
