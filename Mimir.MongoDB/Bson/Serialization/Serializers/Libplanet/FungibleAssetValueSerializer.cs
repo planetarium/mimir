@@ -1,5 +1,6 @@
 using System.Numerics;
 using Libplanet.Types.Assets;
+using Mimir.MongoDB.Bson.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -19,7 +20,7 @@ public class FungibleAssetValueSerializer : StructSerializerBase<FungibleAssetVa
     public static FungibleAssetValue Deserialize(BsonDocument doc)
     {
         var currency = CurrencySerializer.Deserialize(doc[ElementNames.Currency].AsBsonDocument);
-        var rawValue = BigInteger.Parse(doc[ElementNames.RawValue].AsString);
+        var rawValue = doc.GetValueOrDefault(ElementNames.RawValue, bsonValue => BigInteger.Parse(bsonValue.AsString));
         return FungibleAssetValue.FromRawValue(currency, rawValue);
     }
 
