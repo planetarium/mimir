@@ -75,11 +75,11 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         
         await initializerManager.WaitInitializers(stoppingToken);
 
+        var collectionName = CollectionNames.GetCollectionName<TMimirBsonDocument>();
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            var collectionName = CollectionNames.GetCollectionName<TMimirBsonDocument>();
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
                 var currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
                 // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
@@ -98,12 +98,16 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
 
                 await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
             }
-
-            Logger.Information(
-                "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
-                GetType().Name,
-                DateTime.UtcNow.Subtract(started).Minutes);
+            catch (Exception e)
+            {
+                Logger.Error(e, "Unexpected error.");
+            }
         }
+
+        Logger.Information(
+            "Stopped {PollerType} background service. Elapsed {TotalElapsedMinutes} minutes",
+            GetType().Name,
+            DateTime.UtcNow.Subtract(started).Minutes);
     }
     
     private async Task ProcessBlocksAsync(
