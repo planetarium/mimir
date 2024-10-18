@@ -23,7 +23,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
     InitializerManager initializerManager,
     [StringSyntax(StringSyntaxAttribute.Regex)]
     string actionTypeRegex,
-    ILogger logger) : BackgroundService, IActionHandler
+    ILogger logger) : BackgroundService
     where TMimirBsonDocument : MimirBsonDocument
 {
     private readonly Codec Codec = new();
@@ -185,7 +185,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         }
     }
 
-    public async Task HandleTransactionsAsync(
+    private async Task HandleTransactionsAsync(
         long blockIndex,
         TransactionResponse transactionResponse,
         CancellationToken cancellationToken)
