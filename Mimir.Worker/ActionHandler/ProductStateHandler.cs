@@ -6,6 +6,7 @@ using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -13,11 +14,12 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient) :
+public class ProductStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
     BaseActionHandler<ProductDocument>(
         stateService,
         store,
         headlessGqlClient,
+        initializerManager,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
         Log.ForContext<ProductStateHandler>())
 {

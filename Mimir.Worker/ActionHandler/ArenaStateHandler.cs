@@ -6,6 +6,7 @@ using LiteDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Action;
@@ -14,11 +15,12 @@ using BsonDocument = MongoDB.Bson.BsonDocument;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ArenaStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient)
+public class ArenaStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager)
     : BaseActionHandler<ArenaDocument>(
         stateService,
         store,
         headlessGqlClient,
+        initializerManager,
         "^battle_arena[0-9]*$|^join_arena[0-9]*$",
         Log.ForContext<ArenaStateHandler>())
 {

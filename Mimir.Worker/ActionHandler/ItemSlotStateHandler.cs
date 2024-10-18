@@ -6,6 +6,7 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Initializer;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
@@ -14,11 +15,12 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ItemSlotStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient) :
+public class ItemSlotStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
     BaseActionHandler<ItemSlotDocument>(
         stateService,
         store,
         headlessGqlClient,
+        initializerManager,
         "^hack_and_slash[0-9]*$|^hack_and_slash_sweep[0-9]*$|^battle_arena[0-9]*$|^event_dungeon_battle[0-9]*$|^join_arena[0-9]*$|^raid[0-9]*$",
         Log.ForContext<ItemSlotStateHandler>())
 {

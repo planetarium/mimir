@@ -5,6 +5,7 @@ using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -12,11 +13,12 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient) :
+public class PetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
     BaseActionHandler<PetStateDocument>(
         stateService,
         store,
         headlessGqlClient,
+        initializerManager,
         "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$|^rapid_combination[0-9]*$",
         Log.ForContext<PetStateHandler>())
 {

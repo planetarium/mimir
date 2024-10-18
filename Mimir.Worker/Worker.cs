@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
+using Mimir.Worker.Handler;
 using Mimir.Worker.Initializer;
 using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
@@ -11,15 +13,29 @@ namespace Mimir.Worker;
 public class Worker : BackgroundService
 {
     private readonly ILogger _logger;
+    private readonly IHeadlessGQLClient _headlessGqlClient;
+    private readonly IStateService _stateService;
+    private readonly MongoDbService _dbService;
+    private readonly InitializerManager _initializerManager;
     private readonly PollerType _pollerType;
     private readonly bool _enableInitializing;
-    public IServiceProvider Services { get; }
 
-    public Worker(IServiceProvider services, PollerType pollerType, bool enableInitializing)
+    public Worker(
+        IHeadlessGQLClient headlessGqlClient,
+        IStateService stateService,
+        MongoDbService dbService,
+        InitializerManager initializerManager,
+        IOptions<Configuration> config)
     {
-        Services = services;
-        _pollerType = pollerType;
-        _enableInitializing = enableInitializing;
+        var conf = config.Value;
+        _headlessGqlClient = headlessGqlClient;
+        _stateService = stateService;
+        _dbService = dbService;
+        _initializerManager = initializerManager;
+        _pollerType = conf.PollerType;
+        _enableInitializing = conf.EnableInitializing;
+        
+        AddressHandlerMappings.RegisterCurrencyHandler(PlanetType.FromString(conf.PlanetType));
 
         _logger = Log.ForContext<Worker>();
     }
@@ -45,37 +61,29 @@ public class Worker : BackgroundService
 
     private async Task DoWork(CancellationToken stoppingToken)
     {
-        using (var scope = Services.CreateScope())
+        if (_enableInitializing)
         {
-            var gqlClient = scope.ServiceProvider.GetRequiredService<IHeadlessGQLClient>();
-            var stateService = scope.ServiceProvider.GetRequiredService<IStateService>();
-            var dbService = scope.ServiceProvider.GetRequiredService<MongoDbService>();
+            _logger.Information("Initializing enabled, start initializing");
 
-            if (_enableInitializing)
-            {
-                _logger.Information("Initializing enabled, start initializing");
+            await _initializerManager.WaitInitializers(stoppingToken);
+        }
 
-                var initializerManager = new InitializerManager(stateService, dbService);
-                await initializerManager.RunInitializersAsync(stoppingToken);
-            }
+        try
+        {
+            _logger.Information("Start Polling");
+            var poller = PollerFactory.CreatePoller(
+                _pollerType,
+                _stateService,
+                _headlessGqlClient,
+                _dbService
+            );
 
-            try
-            {
-                _logger.Information("Start Polling");
-                var poller = PollerFactory.CreatePoller(
-                    _pollerType,
-                    stateService,
-                    gqlClient,
-                    dbService
-                );
-
-                await poller.RunAsync(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.Fatal(ex, "An error occurred during polling.");
-                throw;
-            }
+            await poller.RunAsync(stoppingToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.Fatal(ex, "An error occurred during polling.");
+            throw;
         }
     }
 }

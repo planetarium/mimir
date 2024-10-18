@@ -10,7 +10,7 @@ using Serilog;
 
 namespace Mimir.Worker.Initializer;
 
-public class ArenaInitializer(IStateService stateService, MongoDbService dbService)
+public class ArenaInitializer(IStateService stateService, MongoDbService dbService, TableSheetInitializer tableSheetInitializer)
     : BaseInitializer(stateService, dbService, Log.ForContext<ArenaInitializer>())
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
@@ -76,6 +76,13 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
 
     public override async Task<bool> IsInitialized()
     {
+        while (tableSheetInitializer.ExecuteTask is null)
+        {
+            await Task.Yield();
+        }
+
+        await tableSheetInitializer.ExecuteTask;
+
         var blockIndex = await _stateService.GetLatestIndex();
 
         var arenaSheet = await _store.GetSheetAsync<ArenaSheet>();
