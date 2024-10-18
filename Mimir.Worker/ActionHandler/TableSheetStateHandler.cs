@@ -2,7 +2,6 @@ using System.Collections.Immutable;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
@@ -14,7 +13,6 @@ using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.TableData;
 using Serilog;
-using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.ActionHandler;
 
@@ -70,51 +68,6 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
         }
 
         return await SyncSheetStateAsync(tableName, sheetType, stoppingToken);
-    }
-    
-    public static async Task SyncSheetStateAsync(
-        ILogger logger,
-        IStateService stateService,
-        MongoDbService mongoDbService,
-        string sheetName,
-        Type sheetType,
-        CancellationToken stoppingToken = default)
-    {
-        if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
-        {
-            logger.Information("ItemSheet, QuestSheet is not Sheet");
-            return;
-        }
-
-        if (sheetType == typeof(WorldBossKillRewardSheet) ||
-            sheetType == typeof(WorldBossBattleRewardSheet))
-        {
-            logger.Information(
-                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
-            return;
-        }
-
-        var sheetInstance = Activator.CreateInstance(sheetType);
-        if (sheetInstance is not ISheet sheet)
-        {
-            throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
-        }
-
-        var sheetAddress = Addresses.TableSheet.Derive(sheetName);
-        var sheetState = await stateService.GetState(sheetAddress, stoppingToken);
-        if (sheetState is not Text sheetValue)
-        {
-            throw new InvalidCastException($"Expected sheet state to be of type 'Text'.");
-        }
-
-        sheet.Set(sheetValue.Value);
-
-        await mongoDbService.UpsertSheetDocumentAsync(
-            CollectionNames.GetCollectionName<SheetDocument>(),
-            [new SheetDocument(sheetAddress, sheet, sheetName, sheetState)],
-            null,
-            stoppingToken
-        );
     }
 
     public async Task<IEnumerable<WriteModel<BsonDocument>>> SyncSheetStateAsync(
