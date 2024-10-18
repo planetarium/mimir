@@ -212,11 +212,14 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
             }
         }
 
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<TMimirBsonDocument>(),
-            documents,
-            null,
-            cancellationToken);
+        if (documents.Count > 0)
+        {
+            await Store.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName<TMimirBsonDocument>(),
+                documents,
+                null,
+                cancellationToken);   
+        }
         
         await Store.UpdateLatestBlockIndexAsync(
             new MetadataDocument
