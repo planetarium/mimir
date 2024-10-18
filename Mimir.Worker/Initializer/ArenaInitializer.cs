@@ -51,7 +51,7 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
 
             _logger.Information("Init arena, address: {AvatarAddress}", avatarAddress);
             await _store.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName<AgentDocument>(),
+                CollectionNames.GetCollectionName<ArenaDocument>(),
                 [
                     ArenaCollectionUpdater.UpsertAsync(
                         simpleAvatarState,
