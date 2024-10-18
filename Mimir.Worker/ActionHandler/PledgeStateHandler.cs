@@ -4,6 +4,7 @@ using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -12,11 +13,12 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PledgeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient)
+public class PledgeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager)
     : BaseActionHandler<PledgeDocument>(
         stateService,
         store,
         headlessGqlClient,
+        initializerManager,
         "^approve_pledge[0-9]*$|^end_pledge[0-9]*$|^request_pledge[0-9]*$",
         Log.ForContext<PledgeStateHandler>())
 {

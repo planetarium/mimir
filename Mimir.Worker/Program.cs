@@ -41,6 +41,7 @@ builder.Services.AddSingleton(serviceProvider =>
     );
 });
 
+builder.ConfigureInitializers();
 builder.ConfigureHandlers();
 
 var host = builder.Build();

@@ -3,6 +3,7 @@ using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -13,8 +14,8 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class WorldBossStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient)
-    : BaseActionHandler<WorldBossStateDocument>(stateService, store, headlessGqlClient, "^raid[0-9]*$", Log.ForContext<WorldBossStateHandler>())
+public class WorldBossStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager)
+    : BaseActionHandler<WorldBossStateDocument>(stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<WorldBossStateHandler>())
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,

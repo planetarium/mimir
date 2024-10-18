@@ -6,6 +6,7 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -17,11 +18,12 @@ using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class TableSheetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient) :
+public class TableSheetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
     BaseActionHandler<SheetDocument>(
         stateService,
         store,
         headlessGqlClient,
+        initializerManager,
         "^patch_table_sheet[0-9]*$",
         Log.ForContext<TableSheetStateHandler>())
 {

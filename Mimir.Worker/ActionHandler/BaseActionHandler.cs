@@ -6,6 +6,7 @@ using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
@@ -19,6 +20,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
+    InitializerManager initializerManager,
     [StringSyntax(StringSyntaxAttribute.Regex)]
     string actionTypeRegex,
     ILogger logger) : BackgroundService, IActionHandler
@@ -70,6 +72,9 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
     {
         var started = DateTime.UtcNow;
         Logger.Information("Start {PollerType} background service", GetType().Name);
+        
+        await initializerManager.WaitInitializers(stoppingToken);
+
         while (!stoppingToken.IsCancellationRequested)
         {
             var collectionName = CollectionNames.GetCollectionName<TMimirBsonDocument>();
