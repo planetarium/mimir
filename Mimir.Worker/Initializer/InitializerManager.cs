@@ -15,7 +15,7 @@ public class InitializerManager
 
     public async Task WaitInitializers(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested && !_initializers.Any(initializer => initializer.ExecuteTask is null))
+        while (!stoppingToken.IsCancellationRequested && _initializers.Any(initializer => initializer.ExecuteTask is null))
         {
             await Task.Yield();
         }
