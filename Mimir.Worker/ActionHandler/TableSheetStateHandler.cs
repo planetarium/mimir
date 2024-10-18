@@ -109,9 +109,9 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
 
         sheet.Set(sheetValue.Value);
 
-        await mongoDbService.UpsertStateDataManyAsync(
+        await mongoDbService.UpsertSheetDocumentAsync(
             CollectionNames.GetCollectionName<SheetDocument>(),
-            [new SheetDocument(sheetAddress, sheet, sheetName, sheetState).ToUpdateOneModel()],
+            [new SheetDocument(sheetAddress, sheet, sheetName, sheetState)],
             null,
             stoppingToken
         );
