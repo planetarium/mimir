@@ -16,7 +16,6 @@ public static class PollerFactory
         return pollerType switch
         {
             PollerType.DiffPoller => new DiffPoller(stateService, headlessGQLClient, dbService),
-            PollerType.TxPoller => new TxPoller(stateService, headlessGQLClient, dbService),
             _
                 => throw new ArgumentException(
                     $"Unsupported poller type: {pollerType}",

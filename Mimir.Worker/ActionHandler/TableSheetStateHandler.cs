@@ -4,20 +4,26 @@ using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.TableData;
 using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class TableSheetStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class TableSheetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
+    BaseActionHandler<SheetDocument>(
         stateService,
         store,
+        headlessGqlClient,
+        initializerManager,
         "^patch_table_sheet[0-9]*$",
         Log.ForContext<TableSheetStateHandler>())
 {
@@ -32,7 +38,7 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
                 && typeof(ISheet).IsAssignableFrom(type))
     ];
 
-    protected override async Task HandleAction(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -63,19 +69,63 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
                 $"Unable to find a class type matching the table name '{tableName}' in the specified namespace.");
         }
 
-        await SyncSheetStateAsync(tableName, sheetType, session, stoppingToken);
+        return await SyncSheetStateAsync(tableName, sheetType, stoppingToken);
     }
-
-    public async Task SyncSheetStateAsync(
+    
+    public static async Task SyncSheetStateAsync(
+        ILogger logger,
+        IStateService stateService,
+        MongoDbService mongoDbService,
         string sheetName,
         Type sheetType,
-        IClientSessionHandle? session = null,
+        CancellationToken stoppingToken = default)
+    {
+        if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
+        {
+            logger.Information("ItemSheet, QuestSheet is not Sheet");
+            return;
+        }
+
+        if (sheetType == typeof(WorldBossKillRewardSheet) ||
+            sheetType == typeof(WorldBossBattleRewardSheet))
+        {
+            logger.Information(
+                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
+            return;
+        }
+
+        var sheetInstance = Activator.CreateInstance(sheetType);
+        if (sheetInstance is not ISheet sheet)
+        {
+            throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
+        }
+
+        var sheetAddress = Addresses.TableSheet.Derive(sheetName);
+        var sheetState = await stateService.GetState(sheetAddress, stoppingToken);
+        if (sheetState is not Text sheetValue)
+        {
+            throw new InvalidCastException($"Expected sheet state to be of type 'Text'.");
+        }
+
+        sheet.Set(sheetValue.Value);
+
+        await mongoDbService.UpsertSheetDocumentAsync(
+            CollectionNames.GetCollectionName<SheetDocument>(),
+            [new SheetDocument(sheetAddress, sheet, sheetName, sheetState)],
+            null,
+            stoppingToken
+        );
+    }
+
+    public async Task<IEnumerable<WriteModel<BsonDocument>>> SyncSheetStateAsync(
+        string sheetName,
+        Type sheetType,
         CancellationToken stoppingToken = default)
     {
         if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
         {
             Logger.Information("ItemSheet, QuestSheet is not Sheet");
-            return;
+            return [];
         }
 
         if (sheetType == typeof(WorldBossKillRewardSheet) ||
@@ -83,7 +133,7 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
         {
             Logger.Information(
                 "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
-            return;
+            return [];
         }
 
         var sheetInstance = Activator.CreateInstance(sheetType);
@@ -101,11 +151,6 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
 
         sheet.Set(sheetValue.Value);
 
-        var document = new SheetDocument(sheetAddress, sheet, sheetName, sheetState);
-        await Store.UpsertSheetDocumentAsync(
-            CollectionNames.GetCollectionName<SheetDocument>(),
-            [document],
-            session,
-            stoppingToken);
+        return [new SheetDocument(sheetAddress, sheet, sheetName, sheetState).ToUpdateOneModel()];
     }
 }

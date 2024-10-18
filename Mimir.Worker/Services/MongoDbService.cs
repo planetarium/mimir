@@ -4,7 +4,6 @@ using Bencodex;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Serialization;
-using Mimir.MongoDB.Json.Extensions;
 using Mimir.Worker.Constants;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -173,19 +172,28 @@ public class MongoDbService
         return sheet;
     }
 
-    public async Task<BulkWriteResult> UpsertStateDataManyAsync(
+    public Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<MimirBsonDocument> documents,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default)
     {
-        List<UpdateOneModel<BsonDocument>> bulkOps = [];
+        List<WriteModel<BsonDocument>> bulkOps = [];
         foreach (var document in documents)
         {
             var stateUpdateModel = GetMimirDocumentUpdateModel(collectionName, document);
             bulkOps.Add(stateUpdateModel);
         }
 
+        return UpsertStateDataManyAsync(collectionName, bulkOps, session, cancellationToken);
+    }
+
+    public async Task<BulkWriteResult> UpsertStateDataManyAsync(
+        string collectionName,
+        List<WriteModel<BsonDocument>> bulkOps,
+        IClientSessionHandle? session = null,
+        CancellationToken cancellationToken = default)
+    {
         return session is null
             ? await GetCollection(collectionName)
                 .BulkWriteAsync(bulkOps, null, cancellationToken)

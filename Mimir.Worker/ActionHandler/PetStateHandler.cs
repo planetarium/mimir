@@ -2,23 +2,27 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PetStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class PetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
+    BaseActionHandler<PetStateDocument>(
         stateService,
         store,
+        headlessGqlClient,
+        initializerManager,
         "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$|^rapid_combination[0-9]*$",
         Log.ForContext<PetStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -48,7 +52,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store) :
             var pid = actionValues["pid"].ToNullableInteger();
             if (pid is null)
             {
-                return;
+                return [];
             }
 
             petId = pid.Value;
@@ -69,7 +73,7 @@ public class PetStateHandler(IStateService stateService, MongoDbService store) :
             if (combinationSlotState.PetId is null)
             {
                 // ignore
-                return;
+                return [];
             }
 
             petId = combinationSlotState.PetId.Value;
@@ -81,10 +85,6 @@ public class PetStateHandler(IStateService stateService, MongoDbService store) :
 
         var petStateAddress = Nekoyume.Model.State.PetState.DeriveAddress(avatarAddress, petId);
         var petState = await StateGetter.GetPetState(petStateAddress, stoppingToken);
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<PetStateDocument>(),
-            [new PetStateDocument(petStateAddress, avatarAddress, petState)],
-            session,
-            stoppingToken);
+        return [new PetStateDocument(petStateAddress, avatarAddress, petState).ToUpdateOneModel()];
     }
 }

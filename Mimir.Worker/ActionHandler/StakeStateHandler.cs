@@ -1,17 +1,21 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Initializer;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class StakeStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(stateService, store, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
+public class StakeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
+    BaseActionHandler<StakeDocument>(stateService, store, headlessGqlClient, initializerManager, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -22,11 +26,9 @@ public class StakeStateHandler(IStateService stateService, MongoDbService store)
     {
         var action = new Stake();
         action.LoadPlainValue(actionPlainValue);
-        await StakeCollectionUpdater.UpdateAsync(
+        return await StakeCollectionUpdater.UpdateAsync(
             StateService,
-            Store,
             signer,
-            session,
             stoppingToken);
     }
 }
