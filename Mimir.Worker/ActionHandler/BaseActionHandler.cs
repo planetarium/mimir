@@ -152,7 +152,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         try
         {
             var syncedBlockIndex = await Store.GetLatestBlockIndexAsync(
-                nameof(TxPoller),
+                "TxPoller",
                 collectionName,
                 stoppingToken);
             return syncedBlockIndex;
@@ -166,7 +166,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
             await Store.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
-                    PollerType = nameof(TxPoller),
+                    PollerType = "TxPoller",
                     CollectionName = collectionName,
                     LatestBlockIndex = currentBlockIndex - 1
                 },
@@ -221,7 +221,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         await Store.UpdateLatestBlockIndexAsync(
             new MetadataDocument
             {
-                PollerType = nameof(TxPoller),
+                PollerType = "TxPoller",
                 CollectionName = CollectionNames.GetCollectionName<TMimirBsonDocument>(),
                 LatestBlockIndex = blockIndex,
             },
