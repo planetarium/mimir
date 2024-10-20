@@ -223,4 +223,13 @@ public class Query
         var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
         return (await worldBossRaiderRepo.GetByAddressAsync(raiderAddress)).Object;
     }
+
+    /// <summary>
+    /// Get a world information state by avatar address.
+    /// </summary>
+    /// <param name="address">The address of the avatar.</param>
+    /// <returns>The world information state.</returns>
+    public async Task<WorldInformationState> GetWorldInformationAsync(Address address, [Service] WorldInformationRepository repo) =>
+        (await repo.GetByAvatarAddressAsync(address)).Object;
+
 }
