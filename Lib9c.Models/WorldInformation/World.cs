@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
@@ -44,6 +45,7 @@ public record World : IBencodable
         StageClearedId = d.GetInteger("StageClearedId");
     }
 
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
         new Dictionary(
             new Dictionary<IKey, IValue>
