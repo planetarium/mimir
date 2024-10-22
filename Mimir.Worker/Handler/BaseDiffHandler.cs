@@ -32,8 +32,15 @@ public abstract class BaseDiffHandler(
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var diffContext = await ProduceByAccount(stoppingToken);
-            await ConsumeAsync(diffContext, stoppingToken);
+            try
+            {
+                var diffContext = await ProduceByAccount(stoppingToken);
+                await ConsumeAsync(diffContext, stoppingToken);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Unexpected error occurred.");
+            }
         }
     }
 
