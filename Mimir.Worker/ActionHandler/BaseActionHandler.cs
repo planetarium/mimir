@@ -7,7 +7,6 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer;
-using Mimir.Worker.Poller;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
@@ -20,7 +19,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    InitializerManager initializerManager,
+    IInitializerManager initializerManager,
     [StringSyntax(StringSyntaxAttribute.Regex)]
     string actionTypeRegex,
     ILogger logger) : BackgroundService

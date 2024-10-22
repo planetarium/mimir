@@ -1,10 +1,8 @@
-using Microsoft.Extensions.Options;
 using Mimir.Worker.ActionHandler;
-using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
+using Mimir.Worker.Handler.Balance;
 using Mimir.Worker.Initializer;
-using Mimir.Worker.Services;
 
 namespace Mimir.Worker;
 
@@ -31,7 +29,26 @@ public static class HostApplicationBuilderExtensions
         }
         else
         {
-            builder.Services.AddBackgroundService<Worker>();   
+            builder.Services.AddBackgroundService<ActionPointStateHandler>();   
+            builder.Services.AddBackgroundService<AgentStateHandler>();
+            builder.Services.AddBackgroundService<AllCombinationSlotStateHandler>();
+            builder.Services.AddBackgroundService<AllRuneStateHandler>();
+            builder.Services.AddBackgroundService<AvatarStateHandler>();
+            builder.Services.AddBackgroundService<CollectionStateHandler>();
+            builder.Services.AddBackgroundService<DailyRewardStateHandler>();
+            builder.Services.AddBackgroundService<InventoryStateHandler>();
+            builder.Services.AddBackgroundService<WorldInformationStateHandler>();
+            
+            // Balance Handlers
+            builder.Services.AddBackgroundService<CrystalBalanceHandler>();
+            builder.Services.AddBackgroundService<FreyaBlessingRuneBalanceHandler>();
+            builder.Services.AddBackgroundService<FreyaLiberationRuneBalanceHandler>();
+            builder.Services.AddBackgroundService<GarageBalanceHandler>();
+            builder.Services.AddBackgroundService<MeadBalanceHandler>();
+            builder.Services.AddBackgroundService<NcgBalanceHandler>();
+            builder.Services.AddBackgroundService<OdinWeaknessRuneBalanceHandler>();
+            builder.Services.AddBackgroundService<OdinWisdomRuneBalanceHandler>();
+            builder.Services.AddBackgroundService<StakeRuneBalanceHandler>();
         }
 
         return builder;
@@ -42,7 +59,7 @@ public static class HostApplicationBuilderExtensions
         builder.Services.AddBackgroundService<TableSheetInitializer>();
         builder.Services.AddBackgroundService<ArenaInitializer>();
 
-        builder.Services.AddSingleton<InitializerManager>();
+        builder.Services.AddSingleton<IInitializerManager, InitializerManager>();
 
         return builder;
     }

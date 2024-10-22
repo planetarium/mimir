@@ -15,7 +15,7 @@ using BsonDocument = MongoDB.Bson.BsonDocument;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ArenaStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager)
+public class ArenaStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
     : BaseActionHandler<ArenaDocument>(
         stateService,
         store,

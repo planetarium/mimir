@@ -20,12 +20,17 @@ namespace Mimir.MongoDB
 
         public static readonly Dictionary<Type, string> CollectionAndStateTypeMappings = new();
         public static readonly Dictionary<Address, string> CollectionAndAddressMappings = new();
+        private static Dictionary<string, Address> CollectionToAddressMappings { get; }
 
         static CollectionNames()
         {
             RegisterCollectionAndAddressMappings();
             RegisterCollectionAndAddressMappingsForCurrencies();
             RegisterCollectionAndStateMappings();
+
+            CollectionToAddressMappings = CollectionAndAddressMappings
+                .Select(pair => new KeyValuePair<string, Address>(pair.Value, pair.Key))
+                .ToDictionary();
         }
 
         private static Address GetAccountAddress(Currency currency) => new(currency.Hash.ToByteArray());
@@ -152,6 +157,11 @@ namespace Mimir.MongoDB
             }
 
             return collectionName;
+        }
+
+        public static Address GetAccountAddress(string collectionName)
+        {
+            return CollectionToAddressMappings[collectionName];
         }
     }
 }

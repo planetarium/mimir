@@ -1,12 +1,12 @@
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Handler;
+using Mimir.Worker.StateDocumentConverter;
 
-namespace Mimir.Worker.Tests.Handler;
+namespace Mimir.Worker.Tests.StateDocumentConverter;
 
-public class AllRuneStateHandlerTests
+public class AllRuneStateDocumentConverterTests
 {
-    private readonly AllRuneStateHandler _handler = new();
+    private readonly AllRuneStateDocumentConverter _converter = new();
 
     [Theory]
     [InlineData(0, 0)]
@@ -16,12 +16,12 @@ public class AllRuneStateHandlerTests
         var address = new PrivateKey().Address;
         var state = new Nekoyume.Model.State.AllRuneState(runeId, level);
         var bencoded = state.Serialize();
-        var context = new StateDiffContext
+        var context = new AddressStatePair
         {
             Address = address,
             RawState = bencoded,
         };
-        var doc = _handler.ConvertToDocument(context);
+        var doc = _converter.ConvertToDocument(context);
         Assert.IsType<AllRuneDocument>(doc);
         var allRuneDoc = (AllRuneDocument)doc;
         Assert.Equal(address, allRuneDoc.Address);

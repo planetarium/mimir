@@ -1,6 +1,6 @@
 namespace Mimir.Worker.Initializer;
 
-public class InitializerManager
+public class InitializerManager : IInitializerManager
 {
     private readonly List<BaseInitializer> _initializers;
 

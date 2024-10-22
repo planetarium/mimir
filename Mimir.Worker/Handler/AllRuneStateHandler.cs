@@ -1,13 +1,20 @@
-using Lib9c.Models.States;
-using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Services;
+using Mimir.Worker.StateDocumentConverter;
+using Serilog;
 
 namespace Mimir.Worker.Handler;
 
-public class AllRuneStateHandler : IStateDiffHandler
-{
-    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
-    {
-        var allRuneState = new AllRuneState(context.RawState);
-        return new AllRuneDocument(context.Address, allRuneState);
-    }
-}
+public sealed class AllRuneStateHandler(
+    MongoDbService dbService,
+    IStateService stateService,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager)
+    : BaseDiffHandler("all_rune",
+        new AllRuneStateDocumentConverter(),
+        dbService,
+        stateService,
+        headlessGqlClient,
+        initializerManager,
+        Log.ForContext<AllRuneStateHandler>());

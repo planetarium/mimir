@@ -12,7 +12,7 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class StakeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
+public class StakeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
     BaseActionHandler<StakeDocument>(stateService, store, headlessGqlClient, initializerManager, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>())
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(

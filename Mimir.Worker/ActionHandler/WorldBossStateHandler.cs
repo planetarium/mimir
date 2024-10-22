@@ -14,7 +14,7 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class WorldBossStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager)
+public class WorldBossStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
     : BaseActionHandler<WorldBossStateDocument>(stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<WorldBossStateHandler>())
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(

@@ -1,20 +1,20 @@
-using Bencodex.Types;
-using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Services;
+using Mimir.Worker.StateDocumentConverter;
+using Serilog;
 
 namespace Mimir.Worker.Handler;
 
-public class DailyRewardStateHandler : IStateDiffHandler
-{
-    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
-    {
-        if (context.RawState is not Integer value)
-        {
-            throw new ArgumentException(
-                $"Invalid state type. Expected {nameof(Integer)}, got {context.RawState.GetType().Name}.",
-                nameof(context.RawState)
-            );
-        }
-
-        return new DailyRewardDocument(context.Address, value);
-    }
-}
+public sealed class DailyRewardStateHandler(
+    MongoDbService dbService,
+    IStateService stateService,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager)
+    : BaseDiffHandler("daily_reward",
+        new DailyRewardStateDocumentConverter(),
+        dbService,
+        stateService,
+        headlessGqlClient,
+        initializerManager,
+        Log.ForContext<DailyRewardStateHandler>());

@@ -16,7 +16,7 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class WorldBossKillRewardRecordStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager)
+public class WorldBossKillRewardRecordStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
     : BaseActionHandler<WorldBossKillRewardRecordDocument>(
         stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<WorldBossKillRewardRecordStateHandler>())
 {

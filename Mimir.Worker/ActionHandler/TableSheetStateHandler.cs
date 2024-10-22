@@ -16,7 +16,7 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class TableSheetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
+public class TableSheetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
     BaseActionHandler<SheetDocument>(
         stateService,
         store,

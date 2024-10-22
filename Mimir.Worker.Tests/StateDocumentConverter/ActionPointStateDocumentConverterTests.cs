@@ -1,13 +1,13 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Handler;
+using Mimir.Worker.StateDocumentConverter;
 
-namespace Mimir.Worker.Tests.Handler;
+namespace Mimir.Worker.Tests.StateDocumentConverter;
 
-public class ActionPointStateHandlerTests
+public class ActionPointStateDocumentConverterTests
 {
-    private readonly ActionPointStateHandler _handler = new();
+    private readonly ActionPointStateDocumentConverter _converter = new();
 
     [Theory]
     [InlineData(0)]
@@ -15,12 +15,12 @@ public class ActionPointStateHandlerTests
     public void ConvertToStateData(int actionPoint)
     {
         var address = new PrivateKey().Address;
-        var context = new StateDiffContext
+        var context = new AddressStatePair
         {
             Address = address,
             RawState = new Integer(actionPoint),
         };
-        var doc = _handler.ConvertToDocument(context);
+        var doc = _converter.ConvertToDocument(context);
 
         Assert.IsType<ActionPointDocument>(doc);
         var dataState = (ActionPointDocument)doc;

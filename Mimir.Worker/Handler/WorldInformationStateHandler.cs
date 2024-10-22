@@ -1,15 +1,20 @@
-using Lib9c.Models.States;
-using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Services;
+using Mimir.Worker.StateDocumentConverter;
+using Serilog;
 
 namespace Mimir.Worker.Handler;
 
-public class WorldInformationStateHandler : IStateDiffHandler
-{
-    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
-    {
-        return new WorldInformationDocument(
-            context.Address,
-            new WorldInformationState(context.RawState)
-        );
-    }
-}
+public sealed class WorldInformationStateHandler(
+    MongoDbService dbService,
+    IStateService stateService,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager)
+    : BaseDiffHandler("world_information",
+        new WorldInformationStateDocumentConverter(),
+        dbService,
+        stateService,
+        headlessGqlClient,
+        initializerManager,
+        Log.ForContext<WorldInformationStateHandler>());

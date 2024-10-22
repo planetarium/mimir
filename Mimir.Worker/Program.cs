@@ -36,7 +36,7 @@ builder.Services.AddSingleton(serviceProvider =>
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     return new MongoDbService(
         config.MongoDbConnectionString,
-        PlanetType.FromString(config.PlanetType),
+        config.PlanetType,
         config.MongoDbCAFile
     );
 });

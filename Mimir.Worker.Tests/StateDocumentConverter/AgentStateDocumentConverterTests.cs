@@ -1,13 +1,12 @@
-using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Handler;
+using Mimir.Worker.StateDocumentConverter;
 
-namespace Mimir.Worker.Tests.Handler;
+namespace Mimir.Worker.Tests.StateDocumentConverter;
 
-public class AgentStateHandlerTests
+public class AgentStateDocumentConverterTests
 {
-    private readonly AgentStateHandler _handler = new();
+    private readonly AgentStateDocumentConverter _converter = new();
 
     [Theory]
     [InlineData(0)]
@@ -22,12 +21,12 @@ public class AgentStateHandlerTests
         }
 
         var bencoded = state.SerializeList();
-        var context = new StateDiffContext
+        var context = new AddressStatePair
         {
             Address = address,
             RawState = bencoded,
         };
-        var doc = _handler.ConvertToDocument(context);
+        var doc = _converter.ConvertToDocument(context);
         Assert.IsType<AgentDocument>(doc);
         var agentDoc = (AgentDocument)doc;
         Assert.Equal(address, agentDoc.Address);

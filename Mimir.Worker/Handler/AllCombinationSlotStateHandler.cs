@@ -1,10 +1,20 @@
-using Lib9c.Models.States;
-using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Services;
+using Mimir.Worker.StateDocumentConverter;
+using Serilog;
 
 namespace Mimir.Worker.Handler;
 
-public class AllCombinationSlotStateHandler : IStateDiffHandler
-{
-    public MimirBsonDocument ConvertToDocument(StateDiffContext context) =>
-        new AllCombinationSlotStateDocument(context.Address, new AllCombinationSlotState(context.RawState));
-}
+public sealed class AllCombinationSlotStateHandler(
+    MongoDbService dbService,
+    IStateService stateService,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager)
+    : BaseDiffHandler("all_combination_slot",
+        new AllCombinationSlotStateDocumentConverter(),
+        dbService,
+        stateService,
+        headlessGqlClient,
+        initializerManager,
+        Log.ForContext<AllCombinationSlotStateHandler>());

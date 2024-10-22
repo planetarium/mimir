@@ -15,7 +15,7 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RaiderStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager)
+public class RaiderStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
     : BaseActionHandler<RaiderStateDocument>(stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>())
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(

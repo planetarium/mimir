@@ -13,7 +13,7 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductsStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
+public class ProductsStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
     BaseActionHandler<ProductsStateDocument>(
         stateService,
         store,

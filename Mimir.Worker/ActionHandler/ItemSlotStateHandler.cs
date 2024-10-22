@@ -15,7 +15,7 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ItemSlotStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, InitializerManager initializerManager) :
+public class ItemSlotStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
     BaseActionHandler<ItemSlotDocument>(
         stateService,
         store,
