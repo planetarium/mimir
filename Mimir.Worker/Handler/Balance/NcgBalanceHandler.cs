@@ -1,5 +1,6 @@
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Initializer;
@@ -14,13 +15,13 @@ public sealed class NcgBalanceHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    PlanetType planetType)
+    IOptions<Configuration> configuration)
     : BaseBalanceHandler("balance_ncg", dbService, stateService, headlessGqlClient, initializerManager,
-        Log.ForContext<NcgBalanceHandler>(), planetType switch
+        Log.ForContext<NcgBalanceHandler>(), configuration.Value.PlanetType switch
         {
             PlanetType.Odin => OdinNCGCurrency,
             PlanetType.Heimdall => HeimdallNCGCurrency,
-            _ => throw new ArgumentOutOfRangeException(nameof(planetType), planetType, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(configuration.Value.PlanetType), configuration.Value.PlanetType, null)
         })
 {
     private static readonly Currency OdinNCGCurrency = Currency.Legacy(
