@@ -7,6 +7,7 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Bson;

@@ -1,4 +1,4 @@
-namespace Mimir.Worker.Initializer;
+namespace Mimir.Worker.Initializer.Manager;
 
 public interface IInitializerManager
 {

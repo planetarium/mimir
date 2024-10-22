@@ -7,6 +7,7 @@ using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using MongoDB.Driver;
 using Nekoyume.Action;

@@ -3,6 +3,7 @@ using Mimir.Worker.Constants;
 using Mimir.Worker.Handler;
 using Mimir.Worker.Handler.Balance;
 using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
 
 namespace Mimir.Worker;
 
@@ -56,10 +57,17 @@ public static class HostApplicationBuilderExtensions
     
     public static HostApplicationBuilder ConfigureInitializers(this  HostApplicationBuilder builder)
     {
-        builder.Services.AddBackgroundService<TableSheetInitializer>();
-        builder.Services.AddBackgroundService<ArenaInitializer>();
+        if (builder.Configuration.GetSection("Configuration").GetValue<bool?>("EnableInitializing") is true)
+        {
+            builder.Services.AddBackgroundService<TableSheetInitializer>();
+            builder.Services.AddBackgroundService<ArenaInitializer>();
 
-        builder.Services.AddSingleton<IInitializerManager, InitializerManager>();
+            builder.Services.AddSingleton<IInitializerManager, DefaultInitializerManager>();   
+        }
+        else
+        {
+            builder.Services.AddSingleton<IInitializerManager, BypassInitializerManager>();   
+        }
 
         return builder;
     }

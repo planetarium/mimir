@@ -1,10 +1,10 @@
-namespace Mimir.Worker.Initializer;
+namespace Mimir.Worker.Initializer.Manager;
 
-public class InitializerManager : IInitializerManager
+public class DefaultInitializerManager : IInitializerManager
 {
     private readonly List<BaseInitializer> _initializers;
 
-    public InitializerManager(TableSheetInitializer tableSheetInitializer, ArenaInitializer arenaInitializer)
+    public DefaultInitializerManager(TableSheetInitializer tableSheetInitializer, ArenaInitializer arenaInitializer)
     {
         _initializers =
         [
