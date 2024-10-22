@@ -13,6 +13,7 @@ namespace Mimir.Worker.Handler;
 
 public abstract class BaseDiffHandler(
     string collectionName,
+    Address accountAddress,
     IStateDocumentConverter stateDocumentConverter,
     MongoDbService dbService,
     IStateService stateService,
@@ -21,7 +22,7 @@ public abstract class BaseDiffHandler(
     ILogger logger)
     : BackgroundService
 {
-    private readonly Address _accountAddress = CollectionNames.GetAccountAddress(collectionName);
+    private readonly Address _accountAddress = accountAddress;
     private readonly Codec _codec = new();
     protected ILogger Logger { get; } = logger;
 
@@ -40,7 +41,7 @@ public abstract class BaseDiffHandler(
         CancellationToken stoppingToken
     )
     {
-        var syncedIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
+        var syncedIndex = await GetSyncedBlockIndex(stoppingToken);
         var currentBaseIndex = syncedIndex;
         Logger.Information(
             "{CollectionName} Synced BlockIndex: {SyncedBlockIndex}",
@@ -110,7 +111,6 @@ public abstract class BaseDiffHandler(
 
         await ProcessStateDiff(
             stateDocumentConverter,
-            diffContext.AccountAddress,
             diffContext.DiffResponse,
             stoppingToken
         );
@@ -129,7 +129,6 @@ public abstract class BaseDiffHandler(
 
     private async Task ProcessStateDiff(
         IStateDocumentConverter converter,
-        Address accountAddress,
         GetAccountDiffsResponse diffResponse,
         CancellationToken stoppingToken
     )
@@ -160,7 +159,7 @@ public abstract class BaseDiffHandler(
 
         if (documents.Count > 0)
             await dbService.UpsertStateDataManyAsync(
-                CollectionNames.GetCollectionName(accountAddress),
+                collectionName,
                 documents,
                 null,
                 stoppingToken
@@ -168,7 +167,6 @@ public abstract class BaseDiffHandler(
     }
 
     private async Task<long> GetSyncedBlockIndex(
-        string collectionName,
         CancellationToken stoppingToken
     )
     {

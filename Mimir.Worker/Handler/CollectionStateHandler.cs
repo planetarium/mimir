@@ -3,6 +3,7 @@ using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
+using Nekoyume;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -14,6 +15,7 @@ public sealed class CollectionStateHandler(
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager)
     : BaseDiffHandler("collection",
+        Addresses.Collection,
         new CollectionStateDocumentConverter(),
         dbService,
         stateService,

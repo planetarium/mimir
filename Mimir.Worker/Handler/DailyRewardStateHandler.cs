@@ -3,6 +3,7 @@ using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
+using Nekoyume;
 using Serilog;
 
 namespace Mimir.Worker.Handler;
@@ -13,6 +14,7 @@ public sealed class DailyRewardStateHandler(
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager)
     : BaseDiffHandler("daily_reward",
+        Addresses.DailyReward,
         new DailyRewardStateDocumentConverter(),
         dbService,
         stateService,

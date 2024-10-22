@@ -1,4 +1,5 @@
 using Libplanet.Types.Assets;
+using Mimir.MongoDB;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
@@ -16,7 +17,9 @@ public abstract class BaseBalanceHandler(
     IInitializerManager initializerManager,
     ILogger logger,
     Currency currency)
-    : BaseDiffHandler(collectionName,
+    : BaseDiffHandler(
+        collectionName,
+        CollectionNames.GetAccountAddress(currency),
         new BalanceStateDocumentConverter(currency),
         dbService,
         stateService,

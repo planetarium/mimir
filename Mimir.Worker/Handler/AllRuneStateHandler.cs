@@ -3,6 +3,7 @@ using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
+using Nekoyume;
 using Serilog;
 
 namespace Mimir.Worker.Handler;
@@ -13,6 +14,7 @@ public sealed class AllRuneStateHandler(
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager)
     : BaseDiffHandler("all_rune",
+        Addresses.RuneState,
         new AllRuneStateDocumentConverter(),
         dbService,
         stateService,
