@@ -8,12 +8,12 @@ namespace Mimir.MongoDB.Repositories;
 
 public class CollectionRepository(MongoDbService dbService)
 {
-    public Task<CollectionDocument> GetByAddressAsync(Address address)
+    public async Task<CollectionDocument> GetByAddressAsync(Address address)
     {
         var collectionName = CollectionNames.GetCollectionName<CollectionDocument>();
         var collection = dbService.GetCollection<CollectionDocument>(collectionName);
         var filter = Builders<CollectionDocument>.Filter.Eq("Address", address.ToHex());
-        var document = collection.Find(filter).FirstOrDefaultAsync();
+        var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
