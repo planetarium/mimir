@@ -75,6 +75,14 @@ public class Query
     }
 
     /// <summary>
+    /// Get a collection state by avatar address.
+    /// </summary>
+    /// <param name="address">The address of the avatar.</param>
+    /// <returns>The collection state for the specified avatar address.</returns>
+    public async Task<CollectionState> GetCollectionAsync(Address address, [Service] CollectionRepository repo) =>
+        (await repo.GetByAddressAsync(address)).Object;
+
+    /// <summary>
     /// Get combination slot states for a specific avatar address.
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar</param>
@@ -229,7 +237,8 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The world information state.</returns>
-    public async Task<WorldInformationState> GetWorldInformationAsync(Address address, [Service] WorldInformationRepository repo) =>
+    public async Task<WorldInformationState> GetWorldInformationAsync(
+        Address address,
+        [Service] WorldInformationRepository repo) =>
         (await repo.GetByAvatarAddressAsync(address)).Object;
-
 }
