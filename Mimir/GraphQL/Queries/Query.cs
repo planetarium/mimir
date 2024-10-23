@@ -1,6 +1,7 @@
 using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
+using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
@@ -99,6 +100,14 @@ public class Query
     /// <returns>The daily reward received block index.</returns>
     public async Task<long> GetDailyRewardReceivedBlockIndexAsync(Address address, [Service] DailyRewardRepository repo)
         => (await repo.GetByAddressAsync(address)).Object;
+
+    /// <summary>
+    /// Get the inventory state by avatar address.
+    /// </summary>
+    /// <param name="address">The address of the avatar.</param>
+    /// <returns>The inventory state for the specified avatar address.</returns>
+    public async Task<Inventory> GetInventoryAsync(Address address, [Service] InventoryRepository repo) =>
+        (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
     /// Get metadata by collection name.
