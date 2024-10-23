@@ -12,7 +12,7 @@ public class Configuration
 
     public bool EnableInitializing { get; init; } = false;
 
-    public string PlanetType { get; init; }
+    public PlanetType PlanetType { get; init; }
 
     public Uri[] HeadlessEndpoints { get; init; }
 

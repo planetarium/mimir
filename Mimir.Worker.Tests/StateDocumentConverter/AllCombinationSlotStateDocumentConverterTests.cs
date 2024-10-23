@@ -1,12 +1,12 @@
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Handler;
+using Mimir.Worker.StateDocumentConverter;
 
-namespace Mimir.Worker.Tests.Handler;
+namespace Mimir.Worker.Tests.StateDocumentConverter;
 
-public class AllCombinationSlotStateHandlerTests
+public class AllCombinationSlotStateDocumentConverterTests
 {
-    private readonly AllCombinationSlotStateHandler _handler = new();
+    private readonly AllCombinationSlotStateDocumentConverter _converter = new();
 
     [Fact]
     public void ConvertToStateData()
@@ -14,12 +14,12 @@ public class AllCombinationSlotStateHandlerTests
         var address = new PrivateKey().Address;
         var state = new Nekoyume.Model.State.AllCombinationSlotState();
         var bencoded = state.Serialize();
-        var context = new StateDiffContext
+        var context = new AddressStatePair
         {
             Address = address,
             RawState = bencoded,
         };
-        var doc = _handler.ConvertToDocument(context);
+        var doc = _converter.ConvertToDocument(context);
         Assert.IsType<AllCombinationSlotStateDocument>(doc);
         var combinationSlotStateDoc = (AllCombinationSlotStateDocument)doc;
         Assert.Equal(address, combinationSlotStateDoc.Address);

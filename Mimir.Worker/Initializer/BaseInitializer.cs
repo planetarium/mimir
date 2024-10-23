@@ -3,7 +3,7 @@ using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Initializer;
 
-public abstract class BaseInitializer
+public abstract class BaseInitializer : BackgroundService
 {
     protected IStateService _stateService;
 
@@ -13,9 +13,18 @@ public abstract class BaseInitializer
 
     protected BaseInitializer(IStateService stateService, MongoDbService store, ILogger logger)
     {
+        logger.Information("LOG");
         _stateService = stateService;
         _store = store;
         _logger = logger;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        if (!await IsInitialized())
+        {
+            await RunAsync(stoppingToken);   
+        }
     }
 
     public abstract Task RunAsync(CancellationToken stoppingToken);

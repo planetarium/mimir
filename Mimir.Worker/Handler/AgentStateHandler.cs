@@ -1,23 +1,23 @@
-using Bencodex.Types;
-using Lib9c.Models.Exceptions;
-using Lib9c.Models.States;
-using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
+using Mimir.Worker.Services;
+using Mimir.Worker.StateDocumentConverter;
+using Nekoyume;
+using Serilog;
 
 namespace Mimir.Worker.Handler;
 
-public class AgentStateHandler : IStateDiffHandler
-{
-    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
-    {
-        if (context.RawState is not List l)
-        {
-            throw new UnsupportedArgumentTypeException<ValueKind>(
-                nameof(context.RawState),
-                new[] { ValueKind.List },
-                context.RawState.Kind);
-        }
-
-        var agentState = new AgentState(l);
-        return new AgentDocument(context.Address, agentState);
-    }
-}
+public sealed class AgentStateHandler(
+    MongoDbService dbService,
+    IStateService stateService,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager)
+    : BaseDiffHandler("agent",
+        Addresses.Agent,
+        new AgentStateDocumentConverter(),
+        dbService,
+        stateService,
+        headlessGqlClient,
+        initializerManager,
+        Log.ForContext<AgentStateHandler>());

@@ -28,7 +28,7 @@ namespace Mimir.MongoDB
             RegisterCollectionAndStateMappings();
         }
 
-        private static Address GetAccountAddress(Currency currency) => new(currency.Hash.ToByteArray());
+        public static Address GetAccountAddress(Currency currency) => new(currency.Hash.ToByteArray());
 
         /// <summary>
         /// Register MongoDB collections for various related address.
@@ -127,14 +127,7 @@ namespace Mimir.MongoDB
 
         public static string GetCollectionName<T>()
         {
-            if (!CollectionAndStateTypeMappings.TryGetValue(typeof(T), out var collectionName))
-            {
-                throw new InvalidOperationException(
-                    $"No collection mapping found for state type: {typeof(T).FullName}"
-                );
-            }
-
-            return collectionName;
+            return GetCollectionName(typeof(T));
         }
 
         public static string GetCollectionName(Type type)

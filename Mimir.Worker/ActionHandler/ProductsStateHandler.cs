@@ -2,23 +2,28 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Market;
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductsStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class ProductsStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
+    BaseActionHandler<ProductsStateDocument>(
         stateService,
         store,
+        headlessGqlClient,
+        initializerManager,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
         Log.ForContext<ProductsStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -35,17 +40,18 @@ public class ProductsStateHandler(IStateService stateService, MongoDbService sto
         }
 
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
+        var ops = new List<WriteModel<BsonDocument>>();
         foreach (var avatarAddress in avatarAddresses)
         {
             var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
             var productsState = await StateGetter.GetProductsState(avatarAddress, stoppingToken);
-            await SyncWrappedProductsStateAsync(
+            ops.AddRange(SyncWrappedProductsStateAsync(
                 avatarAddress,
                 productsStateAddress,
-                productsState,
-                session,
-                stoppingToken);
+                productsState));
         }
+
+        return ops;
     }
 
     private static List<Address> GetAvatarAddresses(string actionType, Dictionary actionValues)
@@ -72,17 +78,11 @@ public class ProductsStateHandler(IStateService stateService, MongoDbService sto
         return avatarAddresses;
     }
 
-    public async Task SyncWrappedProductsStateAsync(
+    public IEnumerable<WriteModel<BsonDocument>> SyncWrappedProductsStateAsync(
         Address avatarAddress,
         Address productsStateAddress,
-        ProductsState productsState,
-        IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        ProductsState productsState)
     {
-        await Store.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<ProductsStateDocument>(),
-            [new ProductsStateDocument(productsStateAddress, productsState, avatarAddress)],
-            session,
-            stoppingToken);
+        return [new ProductsStateDocument(productsStateAddress, productsState, avatarAddress).ToUpdateOneModel()];
     }
 }

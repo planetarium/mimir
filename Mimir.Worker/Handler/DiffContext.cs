@@ -1,7 +1,7 @@
 using Libplanet.Crypto;
 using Mimir.Worker.Client;
 
-namespace Mimir.Worker.Poller;
+namespace Mimir.Worker.Handler;
 
 public class DiffContext
 {

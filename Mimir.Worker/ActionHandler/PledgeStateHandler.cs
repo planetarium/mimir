@@ -1,22 +1,29 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PledgeStateHandler(IStateService stateService, MongoDbService store)
-    : BaseActionHandler(
+public class PledgeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
+    : BaseActionHandler<PledgeDocument>(
         stateService,
         store,
+        headlessGqlClient,
+        initializerManager,
         "^approve_pledge[0-9]*$|^end_pledge[0-9]*$|^request_pledge[0-9]*$",
         Log.ForContext<PledgeStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -29,32 +36,30 @@ public class PledgeStateHandler(IStateService stateService, MongoDbService store
         {
             var action = new ApprovePledge();
             action.LoadPlainValue(actionPlainValue);
-            await PledgeCollectionUpdater.ApproveAsync(Store, action.PatronAddress, session, stoppingToken);   
+            return [PledgeCollectionUpdater.ApproveAsync(action.PatronAddress)];   
         }
 
         if (Regex.IsMatch(actionType, "^end_pledge[0-9]*$"))
         {
             var action = new EndPledge();
             action.LoadPlainValue(actionPlainValue);
-            await PledgeCollectionUpdater.DeleteAsync(
-                Store,
-                action.AgentAddress.GetPledgeAddress(),
-                session,
-                stoppingToken);   
+            return [PledgeCollectionUpdater.DeleteAsync(action.AgentAddress.GetPledgeAddress())];
         }
 
         if (Regex.IsMatch(actionType, "^request_pledge[0-9]*$"))
         {
             var action = new RequestPledge();
             action.LoadPlainValue(actionPlainValue);
-            await PledgeCollectionUpdater.UpsertAsync(
-                Store,
-                action.AgentAddress.GetPledgeAddress(),
-                signer,
-                false,
-                action.RefillMead,
-                session,
-                stoppingToken);   
+            return
+            [
+                PledgeCollectionUpdater.UpsertAsync(
+                    action.AgentAddress.GetPledgeAddress(),
+                    signer,
+                    false,
+                    action.RefillMead)
+            ];
         }
+
+        return [];
     }
 }

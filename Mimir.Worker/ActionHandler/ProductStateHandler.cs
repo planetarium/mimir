@@ -1,10 +1,13 @@
+using System.Collections;
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Market;
 using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -12,14 +15,16 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class ProductStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
+    BaseActionHandler<ProductDocument>(
         stateService,
         store,
+        headlessGqlClient,
+        initializerManager,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
         Log.ForContext<ProductStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -36,17 +41,20 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         }
 
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
+        var ops = new List<WriteModel<BsonDocument>>();
         foreach (var avatarAddress in avatarAddresses)
         {
             var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
             var productsState = await StateGetter.GetProductsState(avatarAddress, stoppingToken);
-            await SyncWrappedProductsStateAsync(
+            ops.AddRange(await SyncWrappedProductsStateAsync(
                 avatarAddress,
                 productsStateAddress,
                 productsState,
                 session,
-                stoppingToken);
+                stoppingToken));
         }
+
+        return ops;
     }
 
     private static List<Address> GetAvatarAddresses(string actionType, Dictionary actionValues)
@@ -73,7 +81,7 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         return avatarAddresses;
     }
 
-    public async Task SyncWrappedProductsStateAsync(
+    public async Task<IEnumerable<WriteModel<BsonDocument>>> SyncWrappedProductsStateAsync(
         Address avatarAddress,
         Address productsStateAddress,
         ProductsState productsState,
@@ -85,8 +93,8 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         var productsToAdd = productIds.Except(existingProductIds).ToList();
         var productsToRemove = existingProductIds.Except(productIds).ToList();
 
-        await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd, session, stoppingToken);
-        await RemoveOldProductsAsync(productsToRemove);
+        return (await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd, session, stoppingToken))
+            .Concat(RemoveOldProducts(productsToRemove));
     }
 
     private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)
@@ -97,7 +105,7 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         return documents is null ? [] : documents.Select(doc => Guid.Parse(doc["Object"]["ProductId"].AsString)).ToList();
     }
 
-    private async Task AddNewProductsAsync(
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> AddNewProductsAsync(
         Address avatarAddress,
         Address productsStateAddress,
         List<Guid> productsToAdd,
@@ -126,19 +134,7 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
             }
         }
 
-        if (documents.Count > 0)
-        {
-            const int batchSize = 20;
-            for (var i = 0; i < documents.Count; i += batchSize)
-            {
-                var batch = documents.Skip(i).Take(batchSize).ToList();
-                await Store.UpsertStateDataManyAsync(
-                    CollectionNames.GetCollectionName<ProductDocument>(),
-                    batch,
-                    session,
-                    stoppingToken);
-            }
-        }
+        return documents.Select(doc => doc.ToUpdateOneModel());
     }
 
     private ProductDocument CreateProductDocumentAsync(
@@ -261,15 +257,17 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
     //     return (null, null);
     // }
 
-    private async Task RemoveOldProductsAsync(List<Guid> productsToRemove)
+    private IEnumerable<WriteModel<BsonDocument>> RemoveOldProducts(List<Guid> productsToRemove)
     {
-        var collection = Store.GetCollection<ProductDocument>();
+        var ops = new List<WriteModel<BsonDocument>>();
         foreach (var productId in productsToRemove)
         {
             var productFilter = Builders<BsonDocument>.Filter.Eq(
                 "Object.TradableItem.TradableId",
                 productId.ToString());
-            await collection.DeleteOneAsync(productFilter);
+            ops.Add(new DeleteOneModel<BsonDocument>(productFilter));
         }
+
+        return ops;
     }
 }

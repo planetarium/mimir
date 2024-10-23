@@ -1,5 +1,5 @@
 using Lib9c.Models.Items;
-using Mimir.MongoDB.Json.Extensions;
+using Mimir.MongoDB.Bson;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

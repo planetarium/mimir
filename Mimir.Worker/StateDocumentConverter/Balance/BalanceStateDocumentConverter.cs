@@ -2,18 +2,16 @@ using Bencodex.Types;
 using Libplanet.Types.Assets;
 using Mimir.MongoDB.Bson;
 
-namespace Mimir.Worker.Handler;
+namespace Mimir.Worker.StateDocumentConverter.Balance;
 
-public record BalanceHandler(Currency Currency) : IStateDiffHandler
+public record BalanceStateDocumentConverter(Currency Currency) : IStateDocumentConverter
 {
-    public MimirBsonDocument ConvertToDocument(StateDiffContext context)
+    public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
         if (context.RawState is not Integer value)
-        {
             throw new InvalidCastException(
                 $"{nameof(context.RawState)} Invalid state type. " +
                 $"Expected {nameof(Integer)}, got {context.RawState.GetType().Name}.");
-        }
 
         return new BalanceDocument(
             context.Address,

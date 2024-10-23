@@ -1,13 +1,13 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Handler;
+using Mimir.Worker.StateDocumentConverter;
 
-namespace Mimir.Worker.Tests.Handler;
+namespace Mimir.Worker.Tests.StateDocumentConverter;
 
-public class DailyRewardStateHandlerTests
+public class DailyRewardStateDocumentConverterTests
 {
-    private readonly DailyRewardStateHandler _handler = new();
+    private readonly DailyRewardStateDocumentConverter _converter = new();
 
     [Theory]
     [InlineData(0)]
@@ -15,12 +15,12 @@ public class DailyRewardStateHandlerTests
     public void ConvertToStateData(int dailyRewardReceivedBlockIndex)
     {
         var address = new PrivateKey().Address;
-        var context = new StateDiffContext
+        var context = new AddressStatePair
         {
             Address = address,
             RawState = new Integer(dailyRewardReceivedBlockIndex),
         };
-        var doc = _handler.ConvertToDocument(context);
+        var doc = _converter.ConvertToDocument(context);
 
         Assert.IsType<DailyRewardDocument>(doc);
         var dataState = (DailyRewardDocument)doc;

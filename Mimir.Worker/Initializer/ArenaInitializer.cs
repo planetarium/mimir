@@ -1,5 +1,6 @@
 using Mimir.MongoDB.Bson;
 using Lib9c.Models.States;
+using Mimir.MongoDB;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -9,7 +10,7 @@ using Serilog;
 
 namespace Mimir.Worker.Initializer;
 
-public class ArenaInitializer(IStateService stateService, MongoDbService dbService)
+public class ArenaInitializer(IStateService stateService, MongoDbService dbService, TableSheetInitializer tableSheetInitializer)
     : BaseInitializer(stateService, dbService, Log.ForContext<ArenaInitializer>())
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
@@ -49,23 +50,39 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
             var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
 
             _logger.Information("Init arena, address: {AvatarAddress}", avatarAddress);
-            await ArenaCollectionUpdater.UpsertAsync(
-                _store,
-                simpleAvatarState,
-                arenaScore,
-                arenaInfo,
-                avatarAddress,
-                roundData.ChampionshipId,
-                roundData.Round,
+            await _store.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName<ArenaDocument>(),
+                [
+                    ArenaCollectionUpdater.UpsertAsync(
+                        simpleAvatarState,
+                        arenaScore,
+                        arenaInfo,
+                        avatarAddress,
+                        roundData.ChampionshipId,
+                        roundData.Round
+                    )
+                ],
                 null,
                 stoppingToken
             );
-            await AvatarCollectionUpdater.UpsertAsync(_store, avatarState, null, stoppingToken);
+            await _store.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName<AvatarDocument>(),
+                [AvatarCollectionUpdater.UpsertAsync(avatarState)],
+                null,
+                stoppingToken
+            );
         }
     }
 
     public override async Task<bool> IsInitialized()
     {
+        while (tableSheetInitializer.ExecuteTask is null)
+        {
+            await Task.Yield();
+        }
+
+        await tableSheetInitializer.ExecuteTask;
+
         var blockIndex = await _stateService.GetLatestIndex();
 
         var arenaSheet = await _store.GetSheetAsync<ArenaSheet>();

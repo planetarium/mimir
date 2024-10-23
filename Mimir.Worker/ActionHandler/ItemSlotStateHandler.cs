@@ -2,8 +2,13 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Mimir.Worker.CollectionUpdaters;
+using Mimir.Worker.Initializer;
+using Mimir.Worker.Initializer.Manager;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
@@ -11,14 +16,16 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ItemSlotStateHandler(IStateService stateService, MongoDbService store) :
-    BaseActionHandler(
+public class ItemSlotStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
+    BaseActionHandler<ItemSlotDocument>(
         stateService,
         store,
+        headlessGqlClient,
+        initializerManager,
         "^hack_and_slash[0-9]*$|^hack_and_slash_sweep[0-9]*$|^battle_arena[0-9]*$|^event_dungeon_battle[0-9]*$|^join_arena[0-9]*$|^raid[0-9]*$",
         Log.ForContext<ItemSlotStateHandler>())
 {
-    protected override async Task HandleAction(
+    protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
         Address signer,
         IValue actionPlainValue,
@@ -31,14 +38,10 @@ public class ItemSlotStateHandler(IStateService stateService, MongoDbService sto
         {
             var action = new HackAndSlash();
             action.LoadPlainValue(actionPlainValue);
-            await ItemSlotCollectionUpdater.UpdateAsync(
+            return await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
-                Store,
                 BattleType.Adventure,
                 action.AvatarAddress,
-                action.Costumes,
-                action.Equipments,
-                session,
                 stoppingToken);
         }
 
@@ -48,12 +51,8 @@ public class ItemSlotStateHandler(IStateService stateService, MongoDbService sto
             action.LoadPlainValue(actionPlainValue);
             await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
-                Store,
                 BattleType.Adventure,
                 action.avatarAddress,
-                action.costumes,
-                action.equipments,
-                session,
                 stoppingToken);
         }
 
@@ -63,12 +62,8 @@ public class ItemSlotStateHandler(IStateService stateService, MongoDbService sto
             action.LoadPlainValue(actionPlainValue);
             await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
-                Store,
                 BattleType.Arena,
                 action.myAvatarAddress,
-                action.costumes,
-                action.equipments,
-                null,
                 stoppingToken);
         }
         
@@ -78,12 +73,8 @@ public class ItemSlotStateHandler(IStateService stateService, MongoDbService sto
             action.LoadPlainValue(actionPlainValue);
             await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
-                Store,
                 BattleType.Adventure,
                 action.AvatarAddress,
-                action.Costumes,
-                action.Equipments,
-                session,
                 stoppingToken);
         }
 
@@ -93,12 +84,8 @@ public class ItemSlotStateHandler(IStateService stateService, MongoDbService sto
             action.LoadPlainValue(actionPlainValue);
             await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
-                Store,
                 BattleType.Arena,
                 action.avatarAddress,
-                action.costumes,
-                action.equipments,
-                session,
                 stoppingToken);
         }
 
@@ -138,13 +125,11 @@ public class ItemSlotStateHandler(IStateService stateService, MongoDbService sto
             var costumeIds = costumeIdsList.Cast<Binary>().Select(x => new Guid(x.ToByteArray()));
             await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
-                Store,
                 BattleType.Raid,
                 avatarAddress,
-                costumeIds,
-                equipmentIds,
-                session,
                 stoppingToken);
         }
+
+        return [];
     }
 }

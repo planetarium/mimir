@@ -1,10 +1,15 @@
+using Bencodex.Types;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.ActionHandler;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
+using Nekoyume;
+using Nekoyume.Action;
+using Nekoyume.TableData;
 using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Initializer;
 
@@ -13,7 +18,6 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
     {
-        var handler = new TableSheetStateHandler(_stateService, _store);
         var sheetTypes = TableSheetUtil.GetTableSheetTypes();
 
         foreach (var sheetType in sheetTypes)
@@ -23,9 +27,12 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
             // using (var session = await _store.GetMongoClient().StartSessionAsync())
             // {
                 // session.StartTransaction();
-            await handler.SyncSheetStateAsync(sheetType.Name, sheetType);
+
+                await SyncSheetStateAsync(
+                    Log.ForContext<TableSheetInitializer>().ForContext<TableSheetStateHandler>(), _stateService, _store,
+                    sheetType.Name, sheetType);
                 // session.CommitTransaction();
-            // }
+                // }
         }
     }
 
@@ -38,5 +45,50 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         var sheetTypesCount = sheetTypes.Count() - 4;
 
         return count >= sheetTypesCount;
+    }
+
+    private static async Task SyncSheetStateAsync(
+        ILogger logger,
+        IStateService stateService,
+        MongoDbService mongoDbService,
+        string sheetName,
+        Type sheetType,
+        CancellationToken stoppingToken = default)
+    {
+        if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
+        {
+            logger.Information("ItemSheet, QuestSheet is not Sheet");
+            return;
+        }
+
+        if (sheetType == typeof(WorldBossKillRewardSheet) ||
+            sheetType == typeof(WorldBossBattleRewardSheet))
+        {
+            logger.Information(
+                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
+            return;
+        }
+
+        var sheetInstance = Activator.CreateInstance(sheetType);
+        if (sheetInstance is not ISheet sheet)
+        {
+            throw new InvalidCastException($"Type {sheetType.Name} cannot be cast to ISheet.");
+        }
+
+        var sheetAddress = Addresses.TableSheet.Derive(sheetName);
+        var sheetState = await stateService.GetState(sheetAddress, stoppingToken);
+        if (sheetState is not Text sheetValue)
+        {
+            throw new InvalidCastException($"Expected sheet state to be of type 'Text'.");
+        }
+
+        sheet.Set(sheetValue.Value);
+
+        await mongoDbService.UpsertSheetDocumentAsync(
+            CollectionNames.GetCollectionName<SheetDocument>(),
+            [new SheetDocument(sheetAddress, sheet, sheetName, sheetState)],
+            null,
+            stoppingToken
+        );
     }
 }
