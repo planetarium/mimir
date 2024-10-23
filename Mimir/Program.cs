@@ -44,7 +44,7 @@ builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<BalanceRepository>();
 builder.Services.AddSingleton<CollectionRepository>();
 builder.Services.AddSingleton<DailyRewardRepository>();
-// builder.Services.AddSingleton<InventoryRepository>();
+builder.Services.AddSingleton<InventoryRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<MetadataRepository>();
 builder.Services.AddSingleton<PetRepository>();
