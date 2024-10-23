@@ -53,7 +53,7 @@ public class MongoDbService
         }
 
         _client = new MongoClient(settings);
-        _database = _client.GetDatabase(planetType.ToString());
+        _database = _client.GetDatabase(planetType.ToString().ToLowerInvariant());
         _gridFs = new GridFSBucket(_database);
         _stateCollectionMappings = InitStateCollections();
         _metadataCollection = _database.GetCollection<MetadataDocument>("metadata");
