@@ -8,7 +8,6 @@ using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Nekoyume.Action;
 using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
@@ -25,11 +24,17 @@ public class StakeStateHandler(IStateService stateService, MongoDbService store,
         IClientSessionHandle? session = null,
         CancellationToken stoppingToken = default)
     {
-        var action = new Stake();
-        action.LoadPlainValue(actionPlainValue);
+        const string amountKey = "am";
+        if (actionPlainValueInternal is not Dictionary dictionary)
+        {
+            // Skip when it cannot understand the actionPlainValueInternal.
+            return [];
+        }
+
         return await StakeCollectionUpdater.UpdateAsync(
             StateService,
             signer,
+            (Integer)dictionary[amountKey],
             stoppingToken);
     }
 }

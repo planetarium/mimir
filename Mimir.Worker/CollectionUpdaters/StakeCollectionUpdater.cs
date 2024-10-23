@@ -1,3 +1,4 @@
+using System.Numerics;
 using Bencodex.Types;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
@@ -13,6 +14,7 @@ public static class StakeCollectionUpdater
     public static async Task<IEnumerable<WriteModel<BsonDocument>>> UpdateAsync(
         IStateService stateService,
         Address agentAddress,
+        BigInteger amount, 
         CancellationToken stoppingToken = default
     )
     {
@@ -22,11 +24,11 @@ public static class StakeCollectionUpdater
         if (stakeState is null ||
             stakeState.Kind == ValueKind.Null)
         {
-            document = new StakeDocument(stakeAddress, agentAddress, null);
+            document = new StakeDocument(stakeAddress, agentAddress, null, amount);
         }
         else
         {
-            document = new StakeDocument(stakeAddress, agentAddress, new StakeState(stakeState));
+            document = new StakeDocument(stakeAddress, agentAddress, new StakeState(stakeState), amount);
         }
 
         return [document.ToUpdateOneModel()];
