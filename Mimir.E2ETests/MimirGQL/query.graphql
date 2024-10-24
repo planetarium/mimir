@@ -1,0 +1,11 @@
+query GetAgent($agentAddress: Address!) {
+  agent(address: $agentAddress) {
+    address
+    monsterCollectionRound
+    version
+    avatarAddresses {
+      key
+      value
+    }
+  }
+}
