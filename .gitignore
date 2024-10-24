@@ -291,3 +291,5 @@ obj/
 Generated
 
 appsettings.local.json
+
+!.devcontainer/bin
