@@ -8,20 +8,20 @@ namespace Mimir.MongoDB.Repositories;
 
 public class WorldInformationRepository(MongoDbService dbService)
 {
-    public async Task<WorldInformationDocument> GetByAvatarAddressAsync(Address avatarAddress)
+    public async Task<WorldInformationDocument> GetByAddressAsync(Address address)
     {
         var collectionName = CollectionNames.GetCollectionName<WorldInformationDocument>();
         var collection = dbService.GetCollection<WorldInformationDocument>(collectionName);
         var filter = Builders<WorldInformationDocument>.Filter.Eq(
             "Address",
-            avatarAddress.ToHex()
+            address.ToHex()
         );
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{avatarAddress.ToHex()}'"
+                $"'Address' equals to '{address.ToHex()}'"
             );
         }
 

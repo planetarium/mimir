@@ -249,5 +249,5 @@ public class Query
     public async Task<WorldInformationState> GetWorldInformationAsync(
         Address address,
         [Service] WorldInformationRepository repo) =>
-        (await repo.GetByAvatarAddressAsync(address)).Object;
+        (await repo.GetByAddressAsync(address)).Object;
 }
