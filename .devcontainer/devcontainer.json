@@ -1,33 +1,37 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
 {
-	"name": "C# (.NET)",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
+	"name": "Mimir & Mimir.Worker",
+    "dockerComposeFile": [
+		"../docker-compose.yml",
+		"docker-compose.yml"
+	],
+    "service": "devcontainer",
+    "workspaceFolder": "/workspace",
 	"features": {
-		"ghcr.io/devcontainers/features/dotnet:2": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers-contrib/features/mongodb-atlas-cli-homebrew:1": {},
-		"ghcr.io/devcontainers-contrib/features/mongosh-homebrew:1": {}
+		"ghcr.io/devcontainers/features/dotnet:2": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [5195, 7272],
+	"forwardPorts": [7272, 27017],
 	"portsAttributes": {
         "7272": {
+			"label": "MongoDB",
             "protocol": "https"
-        }
+        },
+		"27017": {
+			"label": "MongoDB"
+		}
 	},
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-    "postAttachCommand": "./.devcontainer/scripts/postCreateCommand.sh"
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+    "postCreateCommand": "./.devcontainer/bin/postCreateCommand.sh",
+    "postAttachCommand": "./.devcontainer/bin/postAttachCommand.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-dotnettools.vscode-dotnet-runtime",
+				"ms-dotnettools.csharp",
+				"ms-dotnettools.csdevkit",
+				"mongodb.mongodb-vscode"
+			]
+		}
+	}
 }

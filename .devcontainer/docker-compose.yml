@@ -1,0 +1,7 @@
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm
+    volumes:
+      - .:/workspace
+    network_mode: service:mongo
+    command: sleep infinity
