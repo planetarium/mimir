@@ -14,7 +14,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Lib9c" Version="1.18.0" />
+        <PackageReference Include="Lib9c" Version="1.19.0-dev.8bea55389944c5b9a77eb68153db90e6a6793848" />
         <PackageReference Include="Libplanet" Version="5.3.0-alpha.3" />
     </ItemGroup>
 
