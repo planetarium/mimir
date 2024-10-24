@@ -1,0 +1,1066 @@
+schema {
+  query: Query
+}
+
+input CurrencyInput {
+  currencyMethodType: CurrencyMethodType!
+  ticker: String!
+  decimalPlaces: Byte!
+  minters: [Address]
+  totalSupplyTrackable: Boolean! = false
+  maximumSupplyMajor: Long
+  maximumSupplyMinor: Long
+}
+
+scalar Address
+
+interface AttachmentActionResultInterface {
+  itemUsable: ItemUsableInterface
+  typeId: String!
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type AttachmentActionResult implements AttachmentActionResultInterface {
+  itemUsable: ItemUsableInterface
+  typeId: String!
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type Buy7BuyerResult implements AttachmentActionResultInterface {
+  shopItem: ShopItem!
+  id: UUID!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type Buy7SellerResult implements AttachmentActionResultInterface {
+  shopItem: ShopItem!
+  id: UUID!
+  gold: FungibleAssetValue!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type CombinationConsumable5Result implements AttachmentActionResultInterface {
+  materials: [KeyValuePairOfMaterialAndInt32!]!
+  id: UUID!
+  gold: BigInteger!
+  actionPoint: Int!
+  recipeId: Int!
+  subRecipeId: Int
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type DailyReward2Result implements AttachmentActionResultInterface {
+  materials: [KeyValuePairOfMaterialAndInt32!]!
+  id: UUID!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type ItemEnhancement11Result implements AttachmentActionResultInterface {
+  id: UUID!
+  materialItemIdList: [UUID!]!
+  gold: BigInteger!
+  actionPoint: Int!
+  enhancementResult: EnhancementResult!
+  preItemUsable: ItemUsableInterface
+  crystal: FungibleAssetValue!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type ItemEnhancement12Result implements AttachmentActionResultInterface {
+  id: UUID!
+  materialItemIdList: [UUID!]!
+  gold: BigInteger!
+  actionPoint: Int!
+  enhancementResult: EnhancementResult!
+  preItemUsable: ItemUsableInterface
+  crystal: FungibleAssetValue!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type ItemEnhancement13Result implements AttachmentActionResultInterface {
+  id: UUID!
+  materialItemIdList: [UUID!]!
+  gold: BigInteger!
+  actionPoint: Int!
+  enhancementResult: EnhancementResult!
+  preItemUsable: ItemUsableInterface
+  crystal: FungibleAssetValue!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type ItemEnhancement7Result implements AttachmentActionResultInterface {
+  id: UUID!
+  materialItemIdList: [UUID!]!
+  gold: BigInteger!
+  actionPoint: Int!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type ItemEnhancement9Result implements AttachmentActionResultInterface {
+  id: UUID!
+  materialItemIdList: [UUID!]!
+  gold: BigInteger!
+  actionPoint: Int!
+  enhancementResult: EnhancementResult!
+  preItemUsable: ItemUsableInterface
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type MonsterCollectionResult implements AttachmentActionResultInterface {
+  id: UUID!
+  avatarAddress: Address!
+  rewards: [RewardInfo!]!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type RapidCombination0Result implements AttachmentActionResultInterface {
+  cost: [KeyValuePairOfMaterialAndInt32!]!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type RapidCombination5Result implements AttachmentActionResultInterface {
+  id: UUID!
+  cost: [KeyValuePairOfMaterialAndInt32!]!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type SellCancellationResult implements AttachmentActionResultInterface {
+  shopItem: ShopItem!
+  id: UUID!
+  typeId: String!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+}
+
+type IValue {
+  kind: ValueKind!
+  inspect: String!
+  encodingLength: Long!
+}
+
+scalar BigInteger
+
+type Currency {
+  ticker: String!
+  decimalPlaces: Byte!
+  minters: [Address]
+  totalSupplyTrackable: Boolean!
+}
+
+type FungibleAssetValue {
+  rawValue: String!
+  quantity: String!
+  ticker: String!
+  decimalPlaces: Byte!
+}
+
+scalar HashDigestSHA256
+
+type Armor implements EquipmentInterface & ItemBaseInterface & ItemUsableInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Aura implements EquipmentInterface & ItemBaseInterface & ItemUsableInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Belt implements EquipmentInterface & ItemBaseInterface & ItemUsableInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Consumable implements ItemUsableInterface & ItemBaseInterface {
+  stats: [DecimalStat!]!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Costume implements ItemBaseInterface {
+  equipped: Boolean!
+  spineResourcePath: String!
+  itemId: UUID!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+interface EquipmentInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Equipment implements ItemUsableInterface & EquipmentInterface & ItemBaseInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+interface IFungibleItem {
+  "The fungible ID of the item."
+  fungibleId: HashDigestSHA256!
+}
+
+type Grimoire implements EquipmentInterface & ItemBaseInterface & ItemUsableInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+interface ItemBaseInterface {
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type ItemBase implements ItemBaseInterface {
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+interface ItemUsableInterface {
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type ItemUsable implements ItemBaseInterface & ItemUsableInterface {
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+interface MaterialInterface {
+  itemId: HashDigestSHA256!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Material implements ItemBaseInterface & MaterialInterface {
+  itemId: HashDigestSHA256!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Necklace implements EquipmentInterface & ItemBaseInterface & ItemUsableInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+interface INonFungibleItem {
+  "The non-fungible ID of the item."
+  nonFungibleId: UUID!
+  requiredBlockIndex: Long!
+}
+
+type Ring implements EquipmentInterface & ItemBaseInterface & ItemUsableInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+interface ITradableItem {
+  tradableId: UUID!
+  requiredBlockIndex: Long!
+}
+
+type TradableMaterial implements MaterialInterface & ItemBaseInterface {
+  requiredBlockIndex: Long!
+  itemId: HashDigestSHA256!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type Weapon implements EquipmentInterface & ItemBaseInterface & ItemUsableInterface {
+  equipped: Boolean!
+  level: Int!
+  exp: Long!
+  stat: DecimalStat!
+  setId: Int!
+  spineResourcePath: String!
+  optionCountFromCombination: Int!
+  madeWithMimisbrunnrRecipe: Boolean!
+  itemId: UUID!
+  statsMap: StatMap!
+  skills: [Skill!]!
+  buffSkills: [Skill!]!
+  requiredBlockIndex: Long!
+  id: Int!
+  grade: Int!
+  itemType: ItemType!
+  itemSubType: ItemSubType!
+  elementalType: ElementalType!
+}
+
+type FavProduct implements ProductInterface {
+  asset: FungibleAssetValue!
+  productId: UUID!
+  productType: ProductType!
+  price: FungibleAssetValue!
+  registeredBlockIndex: Long!
+  sellerAvatarAddress: Address!
+  sellerAgentAddress: Address!
+}
+
+type ItemProduct implements ProductInterface {
+  tradableItem: ItemBaseInterface
+  itemCount: Int!
+  productId: UUID!
+  productType: ProductType!
+  price: FungibleAssetValue!
+  registeredBlockIndex: Long!
+  sellerAvatarAddress: Address!
+  sellerAgentAddress: Address!
+}
+
+interface ProductInterface {
+  productId: UUID!
+  productType: ProductType!
+  price: FungibleAssetValue!
+  registeredBlockIndex: Long!
+  sellerAvatarAddress: Address!
+  sellerAgentAddress: Address!
+}
+
+type Product implements ProductInterface {
+  productId: UUID!
+  productType: ProductType!
+  price: FungibleAssetValue!
+  registeredBlockIndex: Long!
+  sellerAvatarAddress: Address!
+  sellerAgentAddress: Address!
+}
+
+scalar SheetNameType
+
+type Row {
+  id: Int!
+  elementalType: ElementalType!
+  skillType: SkillType!
+  skillCategory: SkillCategory!
+  skillTargetType: SkillTargetType!
+  hitCount: Int!
+  cooldown: Int!
+  combo: Boolean!
+}
+
+type CombinationSlotState {
+  result: AttachmentActionResultInterface
+  unlockBlockIndex: Long!
+  startBlockIndex: Long!
+  petId: Int
+  index: Int!
+  isUnlocked: Boolean!
+  address: Address!
+}
+
+type RoundData {
+  championshipId: Int!
+  round: Int!
+  arenaType: ArenaType!
+  startBlockIndex: Long!
+  endBlockIndex: Long!
+  requiredMedalCount: Int!
+  entranceFee: Long!
+  ticketPrice: Long!
+  additionalTicketPrice: Long!
+  maxPurchaseCount: Int!
+  maxPurchaseCountWithInterval: Int!
+}
+
+type ArenaObject {
+  "The round of the arena."
+  round: RoundData
+  "The avatar's ranking of the arena."
+  ranking(avatarAddress: Address!): Long
+  "The leaderboard of the arena."
+  leaderboard("The ranking of the first avatar. default is 1. This must be greater than or equal to 1." ranking: Long! = 1 "The number of avatars. default is 10. This must be greater than or equal to 1 and less than or equal to 100." length: Int! = 10): [ArenaRankingDocument]
+  "The leaderboard of the arena filtered by the avatar's address."
+  leaderboardByAvatarAddress(avatarAddress: Address!): [ArenaRankingDocument]
+}
+
+type ProductDocument {
+  avatarAddress: Address!
+  productsStateAddress: Address!
+  object: ProductInterface!
+  combatPoint: Int
+  unitPrice: Decimal
+  crystal: Int
+  crystalPerPrice: Int
+  address: Address!
+}
+
+type Query {
+  "Retrieves a list of market products."
+  products(skip: Int take: Int): ProductsCollectionSegment
+  "Get an action point by address.\n\n\n**Returns:**\nThe action point."
+  actionPoint("The address of the avatar." address: Address!): Int!
+  "Get an agent state by address.\n\n\n**Returns:**\nThe agent state"
+  agent("The address of the agent." address: Address!): AgentState!
+  "Get arena sub-fields."
+  arena: ArenaObject!
+  "Get an avatar state by address.\n\n\n**Returns:**\nThe avatar state"
+  avatar("The address of the avatar." address: Address!): AvatarState!
+  "Get the balance of a specific currency for a given address.\nChoose one of the following parameters to specify the currency: currency, currencyTicker"
+  balance("The currency object." currency: CurrencyInput "The ticker of the currency." currencyTicker: String "The address of the balance." address: Address!): String!
+  "Get combination slot states for a specific avatar address.\n\n\n**Returns:**\nCombination slot states for the specified avatar address."
+  combinationSlots("The address of the avatar" avatarAddress: Address!): [KeyValuePairOfInt32AndCombinationSlotState!]!
+  "Get the daily reward received block index by address.\n\n\n**Returns:**\nThe daily reward received block index."
+  dailyRewardReceivedBlockIndex("The address of the avatar." address: Address!): Long!
+  "Get metadata by collection name.\n\n\n**Returns:**\nThe metadata"
+  metadata("The name of the collection." collectionName: String!): MetadataDocument!
+  "Get an pet state by avatar address.\n\n\n**Returns:**\nThe agent state"
+  pet("The address of the agent." avatarAddress: Address!): PetState!
+  "Get the pledge state for a given agent address."
+  pledge(agentAddress: Address!): PledgeDocument!
+  "Get the product by product ID.\n\n\n**Returns:**\nThe product."
+  product("The product ID" productId: UUID!): ProductInterface!
+  "Get the product ids that are contained in the products state for a specific avatar address.\n\n\n**Returns:**\nThe product ids that contained in the products state for the specified avatar address."
+  productIds("The address of the avatar." avatarAddress: Address!): [UUID!]!
+  runes(avatarAddress: Address!): [RuneState!]!
+  "Get a stake state by agent address.\n\n\n**Returns:**\nThe stake state."
+  stake("The address of the agent." address: Address!): StakeState
+  "Get the world boss."
+  worldBoss: WorldBossState!
+  "Get the kill reward record of world boss."
+  worldBossKillRewardRecord(avatarAddress: Address!): WorldBossKillRewardRecord!
+  "Get the raider of world boss."
+  worldBossRaider(avatarAddress: Address!): RaiderState!
+  "Get a world information state by avatar address.\n\n\n**Returns:**\nThe world information state."
+  worldInformation("The address of the avatar." address: Address!): WorldInformationState!
+  "Get the names of all sheets."
+  sheetNames: [String!]!
+  "Get the sheet by name."
+  sheet("The name of the sheet." sheetName: SheetNameType! "Indicates whether the sheet content should be encoded in Base64 format." encodeAsBase64: Boolean = false): SheetObject!
+}
+
+type SheetObject {
+  "The name of the sheet."
+  name: SheetNameType!
+  "The CSV content of the sheet."
+  csv: String
+}
+
+enum CurrencyMethodType {
+  LEGACY
+  CAPPED
+  UNCAPPED
+}
+
+"The `Byte` scalar type represents non-fractional whole numeric values. Byte can represent values between 0 and 255."
+scalar Byte
+
+"The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1."
+scalar Long
+
+enum ValueKind {
+  NULL
+  BOOLEAN
+  INTEGER
+  BINARY
+  TEXT
+  LIST
+  DICTIONARY
+}
+
+scalar UUID
+
+enum ElementalType {
+  NORMAL
+  FIRE
+  WATER
+  LAND
+  WIND
+}
+
+enum SkillType {
+  ATTACK
+  HEAL
+  BUFF
+  DEBUFF
+}
+
+enum SkillCategory {
+  NORMAL_ATTACK
+  BLOW_ATTACK
+  DOUBLE_ATTACK
+  AREA_ATTACK
+  BUFF_REMOVAL_ATTACK
+  SHATTER_STRIKE
+  HEAL
+  HP_BUFF
+  ATTACK_BUFF
+  DEFENSE_BUFF
+  CRITICAL_BUFF
+  HIT_BUFF
+  SPEED_BUFF
+  DAMAGE_REDUCTION_BUFF
+  CRITICAL_DAMAGE_BUFF
+  BUFF
+  DEBUFF
+  TICK_DAMAGE
+  FOCUS
+  DISPEL
+}
+
+enum SkillTargetType {
+  ENEMY
+  ENEMIES
+  SELF
+  ALLY
+}
+
+type ArenaRankingDocument {
+  address: Address!
+  championshipId: Int!
+  round: Int!
+  arenaInformation: ArenaInformation!
+  arenaScore: ArenaScore!
+  simpleAvatar: SimplifiedAvatarState!
+  rank: Int!
+}
+
+"A segment of a collection."
+type ProductsCollectionSegment {
+  "Information to aid in pagination."
+  pageInfo: CollectionSegmentInfo!
+  "A flattened list of the items."
+  items: [ProductDocument]
+}
+
+"Information about the offset pagination."
+type CollectionSegmentInfo {
+  "Indicates whether more items exist following the set defined by the clients arguments."
+  hasNextPage: Boolean!
+  "Indicates whether more items exist prior the set defined by the clients arguments."
+  hasPreviousPage: Boolean!
+}
+
+type ShopItem {
+  sellerAgentAddress: Address!
+  sellerAvatarAddress: Address!
+  productId: UUID!
+  price: FungibleAssetValue!
+  itemUsable: ItemUsableInterface
+  costume: Costume
+  tradableFungibleItem: TradableMaterial
+  tradableFungibleItemCount: Int!
+  expiredBlockIndex: Long!
+}
+
+type KeyValuePairOfMaterialAndInt32 {
+  key: MaterialInterface!
+  value: Int!
+}
+
+enum EnhancementResult {
+  GREAT_SUCCESS
+  SUCCESS
+  FAIL
+}
+
+type RewardInfo {
+  serialize: IValue
+}
+
+type DecimalStat {
+  statType: StatType!
+  baseValue: Decimal!
+  additionalValue: Decimal!
+}
+
+type StatMap {
+  value: [KeyValuePairOfStatTypeAndDecimalStat!]!
+}
+
+type Skill {
+  skillRow: Row!
+  power: Long!
+  chance: Int!
+  statPowerRatio: Int!
+  referencedStatType: StatType!
+}
+
+enum ItemType {
+  CONSUMABLE
+  COSTUME
+  EQUIPMENT
+  MATERIAL
+}
+
+enum ItemSubType {
+  FOOD
+  FULL_COSTUME
+  HAIR_COSTUME
+  EAR_COSTUME
+  EYE_COSTUME
+  TAIL_COSTUME
+  WEAPON
+  ARMOR
+  BELT
+  NECKLACE
+  RING
+  EQUIPMENT_MATERIAL
+  FOOD_MATERIAL
+  MONSTER_PART
+  NORMAL_MATERIAL
+  HOURGLASS
+  AP_STONE
+  CHEST @deprecated(reason: "ItemSubType.Chest has never been used outside the MaterialItemSheet. And we won't use it in the future until we have a specific reason.")
+  TITLE
+  AURA
+  GRIMOIRE
+  SCROLL
+  CIRCLE
+}
+
+enum ProductType {
+  FUNGIBLE
+  FUNGIBLE_ASSET_VALUE
+  NON_FUNGIBLE
+}
+
+type AgentState {
+  avatarAddresses: [KeyValuePairOfInt32AndAddress!]!
+  monsterCollectionRound: Int!
+  version: Int!
+  address: Address!
+}
+
+type AvatarState {
+  version: Int!
+  name: String!
+  characterId: Int!
+  level: Int!
+  exp: Long!
+  updatedAt: Long!
+  agentAddress: Address!
+  mailBox: MailBox!
+  blockIndex: Long!
+  stageMap: [KeyValuePairOfInt32AndInt32!]!
+  monsterMap: [KeyValuePairOfInt32AndInt32!]!
+  itemMap: [KeyValuePairOfInt32AndInt32!]!
+  eventMap: [KeyValuePairOfInt32AndInt32!]!
+  hair: Int!
+  lens: Int!
+  ear: Int!
+  tail: Int!
+  combinationSlotAddresses: [Address!]!
+  rankingMapAddress: Address!
+  address: Address!
+}
+
+type KeyValuePairOfInt32AndCombinationSlotState {
+  key: Int!
+  value: CombinationSlotState!
+}
+
+type MetadataDocument {
+  id: ObjectId!
+  pollerType: String!
+  collectionName: String!
+  latestBlockIndex: Long!
+}
+
+type PetState {
+  petId: Int!
+  level: Int!
+  unlockedBlockIndex: Long!
+}
+
+type PledgeDocument {
+  contractAddress: Address!
+  contracted: Boolean!
+  refillMead: Int!
+  address: Address!
+}
+
+type RuneState {
+  runeId: Int!
+  level: Int!
+}
+
+type StakeState {
+  contract: Contract!
+  startedBlockIndex: Long!
+  receivedBlockIndex: Long!
+}
+
+type WorldBossState {
+  id: Int!
+  level: Int!
+  currentHp: BigInteger!
+  startedBlockIndex: Long!
+  endedBlockIndex: Long!
+}
+
+type WorldBossKillRewardRecord {
+  rewardRecordDictionary: [KeyValuePairOfInt32AndBoolean!]!
+}
+
+type RaiderState {
+  totalScore: Long!
+  highScore: Long!
+  totalChallengeCount: Int!
+  remainChallengeCount: Int!
+  latestRewardRank: Int!
+  claimedBlockIndex: Long!
+  refillBlockIndex: Long!
+  purchaseCount: Int!
+  cp: Int!
+  level: Int!
+  iconId: Int!
+  avatarAddress: Address!
+  avatarName: String!
+  latestBossLevel: Int!
+  updatedBlockIndex: Long!
+}
+
+type WorldInformationState {
+  worldDictionary: [KeyValuePairOfInt32AndWorld!]!
+}
+
+enum ArenaType {
+  OFF_SEASON
+  SEASON
+  CHAMPIONSHIP
+}
+
+"The built-in `Decimal` scalar type."
+scalar Decimal
+
+type ArenaInformation {
+  address: Address!
+  win: Int!
+  lose: Int!
+  ticket: Int!
+  ticketResetCount: Int!
+  purchasedTicketCount: Int!
+}
+
+type ArenaScore {
+  address: Address!
+  score: Int!
+}
+
+type SimplifiedAvatarState {
+  version: Int!
+  name: String!
+  characterId: Int!
+  level: Int!
+  exp: Long!
+  updatedAt: Long!
+  agentAddress: Address!
+  blockIndex: Long!
+  hair: Int!
+  lens: Int!
+  ear: Int!
+  tail: Int!
+  combinationSlotAddresses: [Address!]!
+  rankingMapAddress: Address!
+  address: Address!
+}
+
+type KeyValuePairOfInt32AndWorld {
+  key: Int!
+  value: World!
+}
+
+type KeyValuePairOfInt32AndBoolean {
+  key: Int!
+  value: Boolean!
+}
+
+type Contract {
+  stakeRegularFixedRewardSheetTableName: String!
+  stakeRegularRewardSheetTableName: String!
+  rewardInterval: Long!
+  lockupInterval: Long!
+}
+
+type ObjectId {
+  toByteArray: [Byte!]
+  timestamp: Int!
+  machine: Int! @deprecated(reason: "This property will be removed in a later release.")
+  pid: Short! @deprecated(reason: "This property will be removed in a later release.")
+  increment: Int! @deprecated(reason: "This property will be removed in a later release.")
+  creationTime: DateTime!
+}
+
+type KeyValuePairOfInt32AndInt32 {
+  key: Int!
+  value: Int!
+}
+
+type MailBox {
+  mails: [Mail!]!
+}
+
+type KeyValuePairOfInt32AndAddress {
+  key: Int!
+  value: Address!
+}
+
+type KeyValuePairOfStatTypeAndDecimalStat {
+  key: StatType!
+  value: DecimalStat!
+}
+
+enum StatType {
+  NONE
+  HP
+  ATK
+  DEF
+  CRI
+  HIT
+  SPD
+  DRV
+  DRR
+  CDMG
+  ARMOR_PENETRATION
+  THORN
+}
+
+type Mail {
+  id: UUID!
+  typeId: String!
+  blockIndex: Long!
+  requiredBlockIndex: Long!
+}
+
+"The `DateTime` scalar represents an ISO-8601 compliant date time type."
+scalar DateTime
+
+"The `Short` scalar type represents non-fractional signed whole 16-bit numeric values. Short can represent values between -(2^15) and 2^15 - 1."
+scalar Short
+
+type World {
+  id: Int!
+  name: String!
+  stageBegin: Int!
+  stageEnd: Int!
+  unlockedBlockIndex: Long!
+  stageClearedBlockIndex: Long!
+  stageClearedId: Int!
+  isUnlocked: Boolean!
+  isStageCleared: Boolean!
+}
