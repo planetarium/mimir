@@ -120,7 +120,7 @@ public class Query
     /// <summary>
     /// Get an pet state by avatar address.
     /// </summary>
-    /// <param name="avatarAddress">The address of the agent.</param>
+    /// <param name="avatarAddress">The address of the avatar.</param>
     /// <returns>The agent state</returns>
     public async Task<PetState> GetPetAsync(Address avatarAddress, [Service] PetRepository repo) =>
         (await repo.GetByAvatarAddressAsync(avatarAddress)).Object;
