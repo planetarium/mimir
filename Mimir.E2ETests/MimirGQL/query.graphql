@@ -9,3 +9,7 @@ query GetAgent($agentAddress: Address!) {
     }
   }
 }
+
+query GetActionPoint($avatarAddress: Address!) {
+  actionPoint(address: $avatarAddress)
+}
