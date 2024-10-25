@@ -147,6 +147,11 @@ public class Query
     public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] ProductsRepository repo) =>
         (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
 
+    /// <summary>
+    /// Get the runes for a specific avatar address.
+    /// </summary>
+    /// <param name="avatarAddress">The address of the avatar.</param>
+    /// <returns>The runes for a specific avatar address.</returns>
     public async Task<RuneState[]> GetRunesAsync(Address avatarAddress, [Service] AllRuneRepository repo) =>
         (await repo.GetByAddressAsync(avatarAddress)).Object.Runes.Values.ToArray();
 
