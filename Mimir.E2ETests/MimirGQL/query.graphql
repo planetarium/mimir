@@ -10,6 +10,10 @@ query GetAgent($agentAddress: Address!) {
   }
 }
 
+query GetActionPoint($avatarAddress: Address!) {
+  actionPoint(address: $avatarAddress)
+}
+
 query GetDailyReward($avatarAddress: Address!) {
   dailyRewardReceivedBlockIndex(address: $avatarAddress)
 }
