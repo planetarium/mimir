@@ -22,7 +22,7 @@ public class ActionPointTests : IClassFixture<GraphQLClientFixture>
 
     [Theory]
     [InlineData("9bFA9196e93E8186A22757c367b92c74F7B0BeA3")]
-    public async Task CompareAgentDataFromDifferentServices_ShouldMatch(string address)
+    public async Task CompareActionPointData(string address)
     {
         var actionPointDataFromMimir = await GetMimirActionPointData(new Address(address));
         var actionPointDataFromHeadless = await GetHeadlessActionPointData(new Address(address));
