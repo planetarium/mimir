@@ -9,3 +9,7 @@ query GetAgent($agentAddress: Address!) {
     }
   }
 }
+
+query GetDailyReward($avatarAddress: Address!) {
+  dailyRewardReceivedBlockIndex(address: $avatarAddress)
+}
