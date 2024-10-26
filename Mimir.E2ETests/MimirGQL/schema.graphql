@@ -1,7 +1,3 @@
-schema {
-  query: Query
-}
-
 input CurrencyInput {
   currencyMethodType: CurrencyMethodType!
   ticker: String!
@@ -299,7 +295,7 @@ type Costume implements ItemBaseInterface {
   elementalType: ElementalType!
 }
 
-interface EquipmentInterface {
+interface EquipmentInterface implements ItemBaseInterface & ItemUsableInterface {
   equipped: Boolean!
   level: Int!
   exp: Long!
@@ -342,7 +338,9 @@ type Equipment implements ItemUsableInterface & EquipmentInterface & ItemBaseInt
 }
 
 interface IFungibleItem {
-  "The fungible ID of the item."
+  """
+  The fungible ID of the item.
+  """
   fungibleId: HashDigestSHA256!
 }
 
@@ -367,6 +365,11 @@ type Grimoire implements EquipmentInterface & ItemBaseInterface & ItemUsableInte
   elementalType: ElementalType!
 }
 
+type InventoryItem {
+  item: ItemBaseInterface!
+  count: Int!
+}
+
 interface ItemBaseInterface {
   id: Int!
   grade: Int!
@@ -383,7 +386,7 @@ type ItemBase implements ItemBaseInterface {
   elementalType: ElementalType!
 }
 
-interface ItemUsableInterface {
+interface ItemUsableInterface implements ItemBaseInterface {
   itemId: UUID!
   statsMap: StatMap!
   skills: [Skill!]!
@@ -409,7 +412,7 @@ type ItemUsable implements ItemBaseInterface & ItemUsableInterface {
   elementalType: ElementalType!
 }
 
-interface MaterialInterface {
+interface MaterialInterface implements ItemBaseInterface {
   itemId: HashDigestSHA256!
   id: Int!
   grade: Int!
@@ -449,7 +452,9 @@ type Necklace implements EquipmentInterface & ItemBaseInterface & ItemUsableInte
 }
 
 interface INonFungibleItem {
-  "The non-fungible ID of the item."
+  """
+  The non-fungible ID of the item.
+  """
   nonFungibleId: UUID!
   requiredBlockIndex: Long!
 }
@@ -588,13 +593,34 @@ type RoundData {
 }
 
 type ArenaObject {
-  "The round of the arena."
+  """
+  The round of the arena.
+  """
   round: RoundData
-  "The avatar's ranking of the arena."
+
+  """
+  The avatar's ranking of the arena.
+  """
   ranking(avatarAddress: Address!): Long
-  "The leaderboard of the arena."
-  leaderboard("The ranking of the first avatar. default is 1. This must be greater than or equal to 1." ranking: Long! = 1 "The number of avatars. default is 10. This must be greater than or equal to 1 and less than or equal to 100." length: Int! = 10): [ArenaRankingDocument]
-  "The leaderboard of the arena filtered by the avatar's address."
+
+  """
+  The leaderboard of the arena.
+  """
+  leaderboard(
+    """
+    The ranking of the first avatar. default is 1. This must be greater than or equal to 1.
+    """
+    ranking: Long! = 1
+
+    """
+    The number of avatars. default is 10. This must be greater than or equal to 1 and less than or equal to 100.
+    """
+    length: Int! = 10
+  ): [ArenaRankingDocument]
+
+  """
+  The leaderboard of the arena filtered by the avatar's address.
+  """
   leaderboardByAvatarAddress(avatarAddress: Address!): [ArenaRankingDocument]
 }
 
@@ -610,53 +636,270 @@ type ProductDocument {
 }
 
 type Query {
-  "Retrieves a list of market products."
-  products(skip: Int take: Int): ProductsCollectionSegment
-  "Get an action point by address.\n\n\n**Returns:**\nThe action point."
-  actionPoint("The address of the avatar." address: Address!): Int!
-  "Get an agent state by address.\n\n\n**Returns:**\nThe agent state"
-  agent("The address of the agent." address: Address!): AgentState!
-  "Get arena sub-fields."
+  """
+  Retrieves a list of market products.
+  """
+  products(skip: Int, take: Int): ProductsCollectionSegment
+
+  """
+  Get an action point by address.
+
+
+  **Returns:**
+  The action point.
+  """
+  actionPoint(
+    """
+    The address of the avatar.
+    """
+    address: Address!
+  ): Int!
+
+  """
+  Get an agent state by address.
+
+
+  **Returns:**
+  The agent state
+  """
+  agent(
+    """
+    The address of the agent.
+    """
+    address: Address!
+  ): AgentState!
+
+  """
+  Get arena sub-fields.
+  """
   arena: ArenaObject!
-  "Get an avatar state by address.\n\n\n**Returns:**\nThe avatar state"
-  avatar("The address of the avatar." address: Address!): AvatarState!
-  "Get the balance of a specific currency for a given address.\nChoose one of the following parameters to specify the currency: currency, currencyTicker"
-  balance("The currency object." currency: CurrencyInput "The ticker of the currency." currencyTicker: String "The address of the balance." address: Address!): String!
-  "Get combination slot states for a specific avatar address.\n\n\n**Returns:**\nCombination slot states for the specified avatar address."
-  combinationSlots("The address of the avatar" avatarAddress: Address!): [KeyValuePairOfInt32AndCombinationSlotState!]!
-  "Get the daily reward received block index by address.\n\n\n**Returns:**\nThe daily reward received block index."
-  dailyRewardReceivedBlockIndex("The address of the avatar." address: Address!): Long!
-  "Get metadata by collection name.\n\n\n**Returns:**\nThe metadata"
-  metadata("The name of the collection." collectionName: String!): MetadataDocument!
-  "Get an pet state by avatar address.\n\n\n**Returns:**\nThe agent state"
-  pet("The address of the agent." avatarAddress: Address!): PetState!
-  "Get the pledge state for a given agent address."
+
+  """
+  Get an avatar state by address.
+
+
+  **Returns:**
+  The avatar state
+  """
+  avatar(
+    """
+    The address of the avatar.
+    """
+    address: Address!
+  ): AvatarState!
+
+  """
+  Get the balance of a specific currency for a given address.
+  Choose one of the following parameters to specify the currency: currency, currencyTicker
+  """
+  balance(
+    """
+    The currency object.
+    """
+    currency: CurrencyInput
+
+    """
+    The ticker of the currency.
+    """
+    currencyTicker: String
+
+    """
+    The address of the balance.
+    """
+    address: Address!
+  ): String!
+
+  """
+  Get a collection state by avatar address.
+
+
+  **Returns:**
+  The collection state for the specified avatar address.
+  """
+  collection(
+    """
+    The address of the avatar.
+    """
+    address: Address!
+  ): CollectionState!
+
+  """
+  Get combination slot states for a specific avatar address.
+
+
+  **Returns:**
+  Combination slot states for the specified avatar address.
+  """
+  combinationSlots(
+    """
+    The address of the avatar
+    """
+    avatarAddress: Address!
+  ): [KeyValuePairOfInt32AndCombinationSlotState!]!
+
+  """
+  Get the daily reward received block index by address.
+
+
+  **Returns:**
+  The daily reward received block index.
+  """
+  dailyRewardReceivedBlockIndex(
+    """
+    The address of the avatar.
+    """
+    address: Address!
+  ): Long!
+
+  """
+  Get the inventory state by avatar address.
+
+
+  **Returns:**
+  The inventory state for the specified avatar address.
+  """
+  inventory(
+    """
+    The address of the avatar.
+    """
+    address: Address!
+  ): Inventory!
+
+  """
+  Get metadata by collection name.
+
+
+  **Returns:**
+  The metadata
+  """
+  metadata(
+    """
+    The name of the collection.
+    """
+    collectionName: String!
+  ): MetadataDocument!
+
+  """
+  Get an pet state by avatar address.
+
+
+  **Returns:**
+  The agent state
+  """
+  pet(
+    """
+    The address of the agent.
+    """
+    avatarAddress: Address!
+  ): PetState!
+
+  """
+  Get the pledge state for a given agent address.
+  """
   pledge(agentAddress: Address!): PledgeDocument!
-  "Get the product by product ID.\n\n\n**Returns:**\nThe product."
-  product("The product ID" productId: UUID!): ProductInterface!
-  "Get the product ids that are contained in the products state for a specific avatar address.\n\n\n**Returns:**\nThe product ids that contained in the products state for the specified avatar address."
-  productIds("The address of the avatar." avatarAddress: Address!): [UUID!]!
+
+  """
+  Get the product by product ID.
+
+
+  **Returns:**
+  The product.
+  """
+  product(
+    """
+    The product ID
+    """
+    productId: UUID!
+  ): ProductInterface!
+
+  """
+  Get the product ids that are contained in the products state for a specific avatar address.
+
+
+  **Returns:**
+  The product ids that contained in the products state for the specified avatar address.
+  """
+  productIds(
+    """
+    The address of the avatar.
+    """
+    avatarAddress: Address!
+  ): [UUID!]!
   runes(avatarAddress: Address!): [RuneState!]!
-  "Get a stake state by agent address.\n\n\n**Returns:**\nThe stake state."
-  stake("The address of the agent." address: Address!): StakeState
-  "Get the world boss."
+
+  """
+  Get a stake state by agent address.
+
+
+  **Returns:**
+  The stake state.
+  """
+  stake(
+    """
+    The address of the agent.
+    """
+    address: Address!
+  ): StakeState
+
+  """
+  Get the world boss.
+  """
   worldBoss: WorldBossState!
-  "Get the kill reward record of world boss."
+
+  """
+  Get the kill reward record of world boss.
+  """
   worldBossKillRewardRecord(avatarAddress: Address!): WorldBossKillRewardRecord!
-  "Get the raider of world boss."
+
+  """
+  Get the raider of world boss.
+  """
   worldBossRaider(avatarAddress: Address!): RaiderState!
-  "Get a world information state by avatar address.\n\n\n**Returns:**\nThe world information state."
-  worldInformation("The address of the avatar." address: Address!): WorldInformationState!
-  "Get the names of all sheets."
+
+  """
+  Get a world information state by avatar address.
+
+
+  **Returns:**
+  The world information state.
+  """
+  worldInformation(
+    """
+    The address of the avatar.
+    """
+    address: Address!
+  ): WorldInformationState!
+
+  """
+  Get the names of all sheets.
+  """
   sheetNames: [String!]!
-  "Get the sheet by name."
-  sheet("The name of the sheet." sheetName: SheetNameType! "Indicates whether the sheet content should be encoded in Base64 format." encodeAsBase64: Boolean = false): SheetObject!
+
+  """
+  Get the sheet by name.
+  """
+  sheet(
+    """
+    The name of the sheet.
+    """
+    sheetName: SheetNameType!
+
+    """
+    Indicates whether the sheet content should be encoded in Base64 format.
+    """
+    encodeAsBase64: Boolean = false
+  ): SheetObject!
 }
 
 type SheetObject {
-  "The name of the sheet."
+  """
+  The name of the sheet.
+  """
   name: SheetNameType!
-  "The CSV content of the sheet."
+
+  """
+  The CSV content of the sheet.
+  """
   csv: String
 }
 
@@ -666,10 +909,14 @@ enum CurrencyMethodType {
   UNCAPPED
 }
 
-"The `Byte` scalar type represents non-fractional whole numeric values. Byte can represent values between 0 and 255."
+"""
+The `Byte` scalar type represents non-fractional whole numeric values. Byte can represent values between 0 and 255.
+"""
 scalar Byte
 
-"The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1."
+"""
+The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1.
+"""
 scalar Long
 
 enum ValueKind {
@@ -682,7 +929,7 @@ enum ValueKind {
   DICTIONARY
 }
 
-scalar UUID
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 
 enum ElementalType {
   NORMAL
@@ -739,19 +986,33 @@ type ArenaRankingDocument {
   rank: Int!
 }
 
-"A segment of a collection."
+"""
+A segment of a collection.
+"""
 type ProductsCollectionSegment {
-  "Information to aid in pagination."
+  """
+  Information to aid in pagination.
+  """
   pageInfo: CollectionSegmentInfo!
-  "A flattened list of the items."
+
+  """
+  A flattened list of the items.
+  """
   items: [ProductDocument]
 }
 
-"Information about the offset pagination."
+"""
+Information about the offset pagination.
+"""
 type CollectionSegmentInfo {
-  "Indicates whether more items exist following the set defined by the clients arguments."
+  """
+  Indicates whether more items exist following the set defined by the clients arguments.
+  """
   hasNextPage: Boolean!
-  "Indicates whether more items exist prior the set defined by the clients arguments."
+
+  """
+  Indicates whether more items exist prior the set defined by the clients arguments.
+  """
   hasPreviousPage: Boolean!
 }
 
@@ -825,7 +1086,10 @@ enum ItemSubType {
   NORMAL_MATERIAL
   HOURGLASS
   AP_STONE
-  CHEST @deprecated(reason: "ItemSubType.Chest has never been used outside the MaterialItemSheet. And we won't use it in the future until we have a specific reason.")
+  CHEST
+    @deprecated(
+      reason: "ItemSubType.Chest has never been used outside the MaterialItemSheet. And we won't use it in the future until we have a specific reason."
+    )
   TITLE
   AURA
   GRIMOIRE
@@ -869,9 +1133,17 @@ type AvatarState {
   address: Address!
 }
 
+type CollectionState {
+  ids: [Int!]!
+}
+
 type KeyValuePairOfInt32AndCombinationSlotState {
   key: Int!
   value: CombinationSlotState!
+}
+
+type Inventory {
+  items: [InventoryItem!]!
 }
 
 type MetadataDocument {
@@ -945,7 +1217,9 @@ enum ArenaType {
   CHAMPIONSHIP
 }
 
-"The built-in `Decimal` scalar type."
+"""
+The built-in `Decimal` scalar type.
+"""
 scalar Decimal
 
 type ArenaInformation {
@@ -1000,9 +1274,12 @@ type Contract {
 type ObjectId {
   toByteArray: [Byte!]
   timestamp: Int!
-  machine: Int! @deprecated(reason: "This property will be removed in a later release.")
-  pid: Short! @deprecated(reason: "This property will be removed in a later release.")
-  increment: Int! @deprecated(reason: "This property will be removed in a later release.")
+  machine: Int!
+    @deprecated(reason: "This property will be removed in a later release.")
+  pid: Short!
+    @deprecated(reason: "This property will be removed in a later release.")
+  increment: Int!
+    @deprecated(reason: "This property will be removed in a later release.")
   creationTime: DateTime!
 }
 
@@ -1047,10 +1324,14 @@ type Mail {
   requiredBlockIndex: Long!
 }
 
-"The `DateTime` scalar represents an ISO-8601 compliant date time type."
-scalar DateTime
+"""
+The `DateTime` scalar represents an ISO-8601 compliant date time type.
+"""
+scalar DateTime @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
 
-"The `Short` scalar type represents non-fractional signed whole 16-bit numeric values. Short can represent values between -(2^15) and 2^15 - 1."
+"""
+The `Short` scalar type represents non-fractional signed whole 16-bit numeric values. Short can represent values between -(2^15) and 2^15 - 1.
+"""
 scalar Short
 
 type World {
