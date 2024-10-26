@@ -26,3 +26,11 @@ query GetAvatar($avatarAddress: Address!) {
     name
   }
 }
+
+query GetInventory($avatarAddress: Address!) {
+  inventory(address: $avatarAddress) {
+    items { 
+      count
+    }
+  }
+}
