@@ -24,7 +24,7 @@ Since all data is stored in DocumentDB (MongoDB), fast queries through indexing 
 Odin: https://mimir.nine-chronicles.dev/odin/graphql/
 Heimdall: https://mimir.nine-chronicles.dev/heimdall/graphql/
 
-It can be used on both Planets, and you can use [Banana Cake Pop](https://chillicream.com/docs/bananacakepop/v2/explore-the-ui) to create GraphQL queries in a UI.
+It can be used on both Planets, and you can use [Nitro](https://chillicream.com/docs/nitro/explore-the-ui) to create GraphQL queries in a UI.
 
 ## Structure
 
