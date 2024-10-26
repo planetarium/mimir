@@ -17,3 +17,12 @@ query GetActionPoint($avatarAddress: Address!) {
 query GetDailyReward($avatarAddress: Address!) {
   dailyRewardReceivedBlockIndex(address: $avatarAddress)
 }
+
+query GetAvatar($avatarAddress: Address!) {
+  avatar(address: $avatarAddress) {
+    address
+    agentAddress
+    level
+    name
+  }
+}
