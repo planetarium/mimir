@@ -35,6 +35,12 @@ query GetInventory($avatarAddress: Address!) {
   }
 }
 
+query GetStake($agentAddress: Address!) {
+  stake(address: $agentAddress) {
+    receivedBlockIndex
+    startedBlockIndex
+  }
+}
 query GetWorldInformation($avatarAddress: Address!) {
   worldInformation(address: $avatarAddress) {
     worldDictionary {
