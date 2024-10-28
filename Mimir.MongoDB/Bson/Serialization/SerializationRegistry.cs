@@ -1,6 +1,7 @@
 using System.Numerics;
 using Lib9c.Models.AttachmentActionResults;
 using Lib9c.Models.Items;
+using Lib9c.Models.Market;
 using Lib9c.Models.Skills;
 using Lib9c.Models.States;
 using Lib9c.Models.Stats;
@@ -8,6 +9,7 @@ using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.AttachmentActionResults;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Items;
+using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Market;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Sheets;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Skills;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.States;
@@ -84,6 +86,11 @@ public static class SerializationRegistry
             typeof(Dictionary<Material, int>),
             new DictionaryInterfaceImplementerSerializer<Dictionary<Material, int>>()
                 .WithKeySerializer(MaterialSerializer.Instance));
+
+        // Lib9c.Models.Market
+        BsonSerializer.RegisterSerializer(typeof(Product), ProductSerializer.Instance);
+        BsonSerializer.RegisterSerializer(typeof(FavProduct), FavProductSerializer.Instance);
+        BsonSerializer.RegisterSerializer(typeof(ItemProduct), ItemProductSerializer.Instance);
 
         // Lib9c.Models.Skills
         BsonSerializer.RegisterSerializer(typeof(Skill), SkillSerializer.Instance);
