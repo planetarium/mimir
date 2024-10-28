@@ -1,4 +1,5 @@
 using Lib9c.Models.Items;
+using Mimir.MongoDB.Bson.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -21,8 +22,8 @@ public class ItemBaseSerializer : ClassSerializerBase<ItemBase>
             throw new BsonSerializationException("Missing itemSubTypeValue in document.");
         }
 
-        var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeBsonValue.AsString);
-        var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeBsonValue.AsString);
+        var itemType = itemTypeBsonValue.ToEnum<Nekoyume.Model.Item.ItemType>();
+        var itemSubType = itemSubTypeBsonValue.ToEnum<Nekoyume.Model.Item.ItemSubType>();
         return itemType switch
         {
             Nekoyume.Model.Item.ItemType.Consumable or
