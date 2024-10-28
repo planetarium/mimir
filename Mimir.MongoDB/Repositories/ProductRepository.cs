@@ -29,7 +29,7 @@ public class ProductRepository
 
     public async Task<ProductDocument> GetByProductIdAsync(Guid productId)
     {
-        var filter = Builders<ProductDocument>.Filter.Eq(doc => doc.Object.ProductId, productId);
+        var filter = Builders<ProductDocument>.Filter.Eq("Object.ProductId", productId);
         var productDocument = await _collection.Find(filter).FirstOrDefaultAsync();
         if (productDocument is null)
         {
