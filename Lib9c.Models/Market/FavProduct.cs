@@ -15,11 +15,15 @@ namespace Lib9c.Models.Market;
 [BsonIgnoreExtraElements]
 public record FavProduct : Product, IBencodable
 {
-    public FungibleAssetValue Asset { get; }
+    public FungibleAssetValue Asset { get; init; }
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public new IValue Bencoded => ((List)base.Bencoded)
         .Add(Asset.Serialize());
+
+    public FavProduct()
+    {
+    }
 
     public FavProduct(IValue bencoded) : base(bencoded)
     {

@@ -24,6 +24,10 @@ public record ItemProduct : Product, IBencodable
         .Add(TradableItem.Bencoded)
         .Add(ItemCount.Serialize());
 
+    public ItemProduct()
+    {
+    }
+
     public ItemProduct(IValue bencoded) : base(bencoded)
     {
         if (bencoded is not List l)
