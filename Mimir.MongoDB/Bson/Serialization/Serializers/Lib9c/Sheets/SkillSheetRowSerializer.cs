@@ -1,3 +1,4 @@
+using Mimir.MongoDB.Bson.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -14,10 +15,10 @@ public class SkillSheetRowSerializer : ClassSerializerBase<SkillSheet.Row>
         var fields = new[]
         {
             doc["Id"].AsInt32.ToString(),
-            doc["ElementalType"].AsString,
-            doc["SkillType"].AsString,
-            doc["SkillCategory"].AsString,
-            doc["SkillTargetType"].AsString,
+            doc["ElementalType"].ToEnum<Nekoyume.Model.Elemental.ElementalType>().ToString(),
+            doc["SkillType"].ToEnum<Nekoyume.Model.Skill.SkillType>().ToString(),
+            doc["SkillCategory"].ToEnum<Nekoyume.Model.Skill.SkillCategory>().ToString(),
+            doc["SkillTargetType"].ToEnum<Nekoyume.Model.Skill.SkillTargetType>().ToString(),
             doc["HitCount"].AsInt32.ToString(),
             doc["Cooldown"].AsInt32.ToString(),
             doc["Combo"].AsBoolean.ToString(),
