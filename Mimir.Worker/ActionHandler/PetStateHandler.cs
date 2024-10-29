@@ -5,7 +5,6 @@ using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
-using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -14,7 +13,11 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
+public class PetStateHandler(
+    IStateService stateService,
+    MongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager) :
     BaseActionHandler<PetStateDocument>(
         stateService,
         store,
@@ -40,12 +43,11 @@ public class PetStateHandler(IStateService stateService, MongoDbService store, I
         }
 
         Address avatarAddress;
-        int petId;
-
+        var petIds = new List<int>();
         if (Regex.IsMatch(actionType, "^pet_enhancement[0-9]*$"))
         {
             avatarAddress = actionValues["a"].ToAddress();
-            petId = actionValues["p"].ToInteger();
+            petIds.Add(actionValues["p"].ToInteger());
         }
         else if (Regex.IsMatch(actionType, "^combination_equipment[0-9]*$"))
         {
@@ -56,40 +58,46 @@ public class PetStateHandler(IStateService stateService, MongoDbService store, I
                 return [];
             }
 
-            petId = pid.Value;
+            petIds.Add(pid.Value);
         }
         else if (Regex.IsMatch(actionType, "^rapid_combination[0-9]*$"))
         {
             avatarAddress = actionValues.TryGetValue((Text)"a", out var avatarAddressValue)
                 ? avatarAddressValue.ToAddress()
                 : actionValues["avatarAddress"].ToAddress();
-            var slotIndex = actionValues.TryGetValue((Text)"s", out var slotIndexValue)
-                ? slotIndexValue.ToInteger()
-                : actionValues["slotIndex"].ToInteger();
+            var slotIndexes = actionValues.TryGetValue((Text)"s", out var slotIndexValue)
+                ? slotIndexValue.ToList(i => (int)(Integer)i)
+                : [actionValues["slotIndex"].ToInteger()];
             var allCombinationSlotState = await StateGetter.GetAllCombinationSlotStateAsync(
                 avatarAddress,
                 stoppingToken);
-
-            if (!allCombinationSlotState.CombinationSlots.TryGetValue(slotIndex, out var combinationSlotState))
+            foreach (var slotIndex in slotIndexes)
             {
-                throw new InvalidOperationException($"CombinationSlotState not found for slotIndex: {slotIndex}");
-            }
+                if (!allCombinationSlotState.CombinationSlots.TryGetValue(slotIndex, out var combinationSlotState))
+                {
+                    throw new InvalidOperationException($"CombinationSlotState not found for slotIndex: {slotIndex}");
+                }
 
-            if (combinationSlotState.PetId is null)
-            {
-                // ignore
-                return [];
-            }
+                if (combinationSlotState.PetId is null)
+                {
+                    // ignore
+                    continue;
+                }
 
-            petId = combinationSlotState.PetId.Value;
+                petIds.Add(combinationSlotState.PetId.Value);
+            }
         }
         else
         {
             throw new ArgumentException($"Unknown actionType: {actionType}");
         }
 
-        var petStateAddress = Nekoyume.Model.State.PetState.DeriveAddress(avatarAddress, petId);
-        var petState = await StateGetter.GetPetState(petStateAddress, stoppingToken);
-        return [new PetStateDocument(petStateAddress, avatarAddress, petState).ToUpdateOneModel()];
+        var petStateAddresses = petIds
+            .Select(e => Nekoyume.Model.State.PetState.DeriveAddress(avatarAddress, e))
+            .ToArray();
+        var petStates = (await StateGetter.GetPetStates(petStateAddresses, stoppingToken)).ToArray();
+        return petStateAddresses
+            .Select((e, i) => new PetStateDocument(e, avatarAddress, petStates[i]).ToUpdateOneModel())
+            .ToArray();
     }
 }
