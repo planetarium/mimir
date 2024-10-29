@@ -211,10 +211,22 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     {
         return await _transactionCache.GetOrAddAsync(
             blockIndex,
-            async (index) => await PostGraphQLRequestAsync<GetTransactionsResponse>(
-            GraphQLQueries.GetTransactions,
-            new { blockIndex=index, limit },
-            stoppingToken
-        ));
+            async (index) =>
+            {
+                var response = await PostGraphQLRequestAsync<GetTransactionsResponse>(
+                    GraphQLQueries.GetTransactions,
+                    new { blockIndex = index, limit },
+                    stoppingToken
+                );
+
+                // Validate `GetTransactionsResponse` is valid.
+                if (response.Transaction?.NCTransactions is null ||
+                    response.Transaction.NCTransactions.Any(t => t is null || t.Actions.Any(a => a is null)))
+                {
+                    throw new InvalidOperationException("Invalid transactions response.");
+                }
+
+                return response;
+            });
     }
 }
