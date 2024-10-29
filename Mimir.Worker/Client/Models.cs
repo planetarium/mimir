@@ -68,7 +68,7 @@ public class GetTransactionsResponse
 public class TransactionResponse
 {
     [JsonPropertyName("ncTransactions")]
-    public List<NcTransaction?> NCTransactions { get; set; }
+    public List<NcTransaction?>? NCTransactions { get; set; }
 }
 
 public class NcTransaction

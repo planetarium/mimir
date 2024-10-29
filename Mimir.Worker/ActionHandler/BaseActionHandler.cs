@@ -137,7 +137,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
 
         var blockIndex = syncedBlockIndex + limit;
-        Logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
+        Logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions?.Count ?? 0);
         await HandleTransactionsAsync(
             blockIndex,
             txsResponse,
@@ -190,7 +190,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         TransactionResponse transactionResponse,
         CancellationToken cancellationToken)
     {
-        var tuples = transactionResponse.NCTransactions
+        var tuples = transactionResponse.NCTransactions?
             .Where(tx => tx is not null)
             .Select(tx =>
                 (
@@ -202,7 +202,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
                         .ToList()
                 )
             )
-            .ToList();
+            .ToList() ?? [];
         
         var documents = new List<WriteModel<BsonDocument>>();
         foreach (var (txId, signer, actions) in tuples)
