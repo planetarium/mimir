@@ -60,8 +60,12 @@ public class PetStateHandler(IStateService stateService, MongoDbService store, I
         }
         else if (Regex.IsMatch(actionType, "^rapid_combination[0-9]*$"))
         {
-            avatarAddress = actionValues["avatarAddress"].ToAddress();
-            var slotIndex = actionValues["slotIndex"].ToInteger();
+            avatarAddress = actionValues.TryGetValue((Text)"a", out var avatarAddressValue)
+                ? avatarAddressValue.ToAddress()
+                : actionValues["avatarAddress"].ToAddress();
+            var slotIndex = actionValues.TryGetValue((Text)"s", out var slotIndexValue)
+                ? slotIndexValue.ToInteger()
+                : actionValues["slotIndex"].ToInteger();
             var allCombinationSlotState = await StateGetter.GetAllCombinationSlotStateAsync(
                 avatarAddress,
                 stoppingToken);

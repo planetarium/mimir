@@ -19,7 +19,7 @@ public class GraphQLClientFixture
         serviceCollection
             .AddHeadlessClient()
             .ConfigureHttpClient(client =>
-                client.BaseAddress = new Uri("https://9c-main-rpc-1.nine-chronicles.com/graphql")
+                client.BaseAddress = new Uri("https://odin-rpc-1.nine-chronicles.com/graphql")
             );
 
         ServiceProvider = serviceCollection.BuildServiceProvider();
