@@ -1,6 +1,7 @@
+
 <div align="center">
     <img src="./docs/assets/logo.png" width="144" />
-    <h2>Mimir</h2>
+    <h2>🌌 Mimir 🌌</h2>
     <p>A service that allows you to easily query real-time data from the Nine Chronicles chain via GraphQL.</p>
 
 [![Discord](https://img.shields.io/discord/928926944937013338.svg?color=7289da&logo=discord&logoColor=white)][Discord]
@@ -9,44 +10,60 @@
 
 [Discord]: https://planetarium.dev/discord
 
-> [!TIP]
-> If you're new to Nine Chronicles, try to visit our **Developer Portal**!
->
-> https://nine-chronicles.dev/
+> ✨ **Tip:**  
+> If you’re new to Nine Chronicles, don’t forget to visit our **Developer Portal** for all the basics!  
+> 🔗 https://nine-chronicles.dev/
 
-# What is Mimir?
+---
 
-Mimir is a service that allows you to easily query real-time data from the Nine Chronicles chain via GraphQL.
-Since all data is stored in DocumentDB (MongoDB), fast queries through indexing are possible.
+### 📑 Table of Contents
 
-## How to use?
+1. [What is Mimir?](#-what-is-mimir)
+2. [How to Use?](#-how-to-use)
+3. [Structure](#-structure)
+4. [Check Sync Index](#-check-sync-index)
+5. [Applications](#-applications)
+6. [Limitations](#-limitations)
+7. [Contribution](#-contribution)
+8. [License](#-license)
 
-Odin: https://mimir.nine-chronicles.dev/odin/graphql/
-Heimdall: https://mimir.nine-chronicles.dev/heimdall/graphql/
+---
 
-It can be used on both Planets, and you can use [Nitro](https://chillicream.com/docs/nitro/explore-the-ui) to create GraphQL queries in a UI.
+### 📜 What is Mimir?
 
-## Structure
+Mimir is a real-time data query service for the Nine Chronicles chain, built on GraphQL. With data stored in **DocumentDB (MongoDB)**, you get fast queries and indexed results.
 
-Mimir is composed of Mimir, which provides GraphQL, Mimir.Worker, which syncs data, and a database.
-Mimir.Worker periodically fetches chain data and stores it in the database (MongoDB), while Mimir provides this data via GraphQL.
+### 🚀 How to Use?
+
+- **Odin:** [mimir.nine-chronicles.dev/odin/graphql/](https://mimir.nine-chronicles.dev/odin/graphql/)
+- **Heimdall:** [mimir.nine-chronicles.dev/heimdall/graphql/](https://mimir.nine-chronicles.dev/heimdall/graphql/)
+
+Plus, use [Nitro](https://chillicream.com/docs/nitro/explore-the-ui) for building GraphQL queries with a great UI experience!
+
+### 🔧 Structure
+
+Mimir includes three main parts:  
+1. **Mimir** - Provides the GraphQL service.  
+2. **Mimir.Worker** - Syncs chain data regularly.  
+3. **MongoDB** - Stores and indexes the data.
 
 ```mermaid
 flowchart TD
-    Mimir[Mimir - GraphQL Service]
-    MimirWorker[Mimir.Worker - Data Sync]
-    MongoDB[(MongoDB - Database)]
-    NineChroniclesChain[Nine Chronicles Chain]
+    Mimir[Mimir - GraphQL Service 🚀]
+    MimirWorker[Mimir.Worker - Data Sync 🔄]
+    MongoDB[(MongoDB - Database 🗄️)]
+    NineChroniclesChain[Nine Chronicles Chain 🌌]
 
     NineChroniclesChain -->|Fetches Data| MimirWorker
     MimirWorker -->|Stores Data| MongoDB
     MongoDB -->|Fetches Data| Mimir
 ```
 
-## Check Sync Index
+---
 
-Mimir synchronizes Nine Chronicles chain data with Mimir's database using Pollers.
-Due to this, there may be differences between the actual chain and the stored data, and you can check which index the data is stored up to through the metadata collection.
+### 📊 Check Sync Index
+
+Mimir syncs chain data using **Pollers**. Since data may differ slightly from the chain, you can check the latest data block index with the following query:
 
 ```graphql
 query {
@@ -56,21 +73,24 @@ query {
 }
 ```
 
-## Applications
+---
 
-Check out an example of a website created using Mimir: https://nine-chronicles.dev/modding/guide/avatar-information-dapp-guide
-Create various applications using Mimir!
+### 🌐 Applications
 
-## Limitations
+See a **sample site** using Mimir:  
+https://nine-chronicles.dev/modding/guide/avatar-information-dapp-guide  
+With Mimir, you can create a variety of applications! 🚀
 
-Mimir has a default rate limit.
-If you need more access, please contact us on the Dev Discord with your use case and expected usage, and we will issue a key without restrictions.
+### ⚠️ Limitations
 
-## Contribution
+Mimir has a default rate limit. Need more access? Message us on **Dev Discord** with your use case, and we’ll help!
 
-If you want to contribute to the Mimir project, please check the [Contributor guide](CONTRIBUTING.md).
-If you have suggestions or topics you'd like to discuss, please use the [Discussions](https://github.com/planetarium/mimir/discussions) section.
+### 🤝 Contribution
 
-## License
+Want to contribute? Check out the [Contributor Guide](CONTRIBUTING.md), and join our [Discussions](https://github.com/planetarium/mimir/discussions) section with any suggestions! 🛠️
 
-Please note that Mimir is licensed under the AGPL-3.0 license. However, with the exception of the logo image, it is not licensed under AGPL-3.0. This is because it is Planetarium's asset.
+### 📜 License
+
+Mimir is licensed under **AGPL-3.0**. Note that the logo is a Planetarium asset and not included in this license.
+
+
