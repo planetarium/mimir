@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using BitFaster.Caching;
 using BitFaster.Caching.Lru;
 using Libplanet.Crypto;
 using Microsoft.IdentityModel.Tokens;
@@ -17,7 +18,13 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     private readonly Uri[] _urls;
     private readonly string? _issuer;
     private readonly string? _secret;
-    private readonly ConcurrentLru<long, GetTransactionsResponse> _transactionCache = new(10);
+
+    private readonly IAsyncCache<long, GetTransactionsResponse> _transactionCache =
+        new ConcurrentLruBuilder<long, GetTransactionsResponse>()
+            .AsAsyncCache()
+            .WithExpireAfterWrite(TimeSpan.FromSeconds(30))
+            .WithCapacity(10)
+            .Build();
     private const int RetryAttempts = 3;
     private const int DelayInSeconds = 5;
 
@@ -94,7 +101,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         jsonResponse
                     );
 
-                    if (graphQLResponse is null || graphQLResponse.Data is null)
+                    if (graphQLResponse is null || graphQLResponse.Data is null || graphQLResponse.Errors is not null)
                     {
                         throw new HttpRequestException("Response data is null.");
                     }
@@ -211,10 +218,22 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     {
         return await _transactionCache.GetOrAddAsync(
             blockIndex,
-            async (index) => await PostGraphQLRequestAsync<GetTransactionsResponse>(
-            GraphQLQueries.GetTransactions,
-            new { blockIndex=index, limit },
-            stoppingToken
-        ));
+            async (index) =>
+            {
+                var response = await PostGraphQLRequestAsync<GetTransactionsResponse>(
+                    GraphQLQueries.GetTransactions,
+                    new { blockIndex = index, limit },
+                    stoppingToken
+                );
+
+                // Validate `GetTransactionsResponse` is valid.
+                if (response.Transaction?.NCTransactions is null ||
+                    response.Transaction.NCTransactions.Any(t => t is null || t.Actions.Any(a => a is null)))
+                {
+                    throw new InvalidOperationException("Invalid transactions response.");
+                }
+
+                return response;
+            });
     }
 }
