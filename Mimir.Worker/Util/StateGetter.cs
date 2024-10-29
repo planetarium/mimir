@@ -335,6 +335,14 @@ public class StateGetter
 
         return new PetState(state);
     }
+    
+    public async Task<IEnumerable<PetState>> GetPetStates(
+        Address[] petStateAddresses,
+        CancellationToken stoppingToken = default)
+    {
+        var states = await _service.GetStates(petStateAddresses, stoppingToken);
+        return states.Select(e => new PetState(e));
+    }
 
     public async Task<IValue?> GetAvatarStateWithLegacyAccount(
         Address avatarAddress,
