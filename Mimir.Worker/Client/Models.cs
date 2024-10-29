@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Mimir.Worker.Client;
@@ -14,7 +15,9 @@ public class GraphQLRequest
 public class GraphQLResponse<T>
 {
     [JsonPropertyName("data")]
-    public T Data { get; set; }
+    public T? Data { get; set; }
+
+    public JsonElement[]? Errors { get; set; }
 }
 
 public class GetAccountDiffsResponse

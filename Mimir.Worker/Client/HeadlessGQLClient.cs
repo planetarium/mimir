@@ -94,7 +94,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         jsonResponse
                     );
 
-                    if (graphQLResponse is null || graphQLResponse.Data is null)
+                    if (graphQLResponse is null || graphQLResponse.Data is null || graphQLResponse.Errors is not null)
                     {
                         throw new HttpRequestException("Response data is null.");
                     }
