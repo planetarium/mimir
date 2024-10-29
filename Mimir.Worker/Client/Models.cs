@@ -62,13 +62,13 @@ public class GetStateResponse
 public class GetTransactionsResponse
 {
     [JsonPropertyName("transaction")]
-    public TransactionResponse Transaction { get; set; }
+    public TransactionResponse? Transaction { get; set; }
 }
 
 public class TransactionResponse
 {
     [JsonPropertyName("ncTransactions")]
-    public List<NcTransaction?> NCTransactions { get; set; }
+    public List<NcTransaction?>? NCTransactions { get; set; }
 }
 
 public class NcTransaction
