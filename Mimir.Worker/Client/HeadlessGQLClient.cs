@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using BitFaster.Caching.Lru;
 using Libplanet.Crypto;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -16,6 +17,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     private readonly Uri[] _urls;
     private readonly string? _issuer;
     private readonly string? _secret;
+    private readonly ConcurrentLru<long, GetTransactionsResponse> _transactionCache = new(10);
     private const int RetryAttempts = 3;
     private const int DelayInSeconds = 5;
 
@@ -207,10 +209,12 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         CancellationToken stoppingToken = default
     )
     {
-        return await PostGraphQLRequestAsync<GetTransactionsResponse>(
+        return await _transactionCache.GetOrAddAsync(
+            blockIndex,
+            async (index) => await PostGraphQLRequestAsync<GetTransactionsResponse>(
             GraphQLQueries.GetTransactions,
-            new { blockIndex, limit },
+            new { blockIndex=index, limit },
             stoppingToken
-        );
+        ));
     }
 }
