@@ -14,9 +14,9 @@ public class CostumeSerializer : ClassSerializerBase<Costume>
     {
         Id = doc["Id"].AsInt32,
         Grade = doc["Grade"].AsInt32,
-        ItemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(doc["ItemType"].AsString),
-        ItemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(doc["ItemSubType"].AsString),
-        ElementalType = Enum.Parse<Nekoyume.Model.Elemental.ElementalType>(doc["ElementalType"].AsString),
+        ItemType = doc["ItemType"].ToEnum<Nekoyume.Model.Item.ItemType>(),
+        ItemSubType = doc["ItemSubType"].ToEnum<Nekoyume.Model.Item.ItemSubType>(),
+        ElementalType = doc["ElementalType"].ToEnum<Nekoyume.Model.Elemental.ElementalType>(),
         Equipped = doc["Equipped"].AsBoolean,
         SpineResourcePath = doc["SpineResourcePath"].AsString,
         ItemId = Guid.Parse(doc["ItemId"].AsString),

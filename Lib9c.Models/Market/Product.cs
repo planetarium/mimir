@@ -32,6 +32,10 @@ public record Product : IBencodable
         .Add(SellerAgentAddress.Serialize())
         .Add(SellerAvatarAddress.Serialize());
 
+    public Product()
+    {
+    }
+
     public Product(IValue bencoded)
     {
         if (bencoded is not List l)

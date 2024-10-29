@@ -1,5 +1,6 @@
 using System.Numerics;
 using Lib9c.Models.AttachmentActionResults;
+using Mimir.MongoDB.Bson.Extensions;
 using Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Items;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -29,8 +30,7 @@ public class ItemEnhancement9ResultSerializer : ClassSerializerBase<ItemEnhancem
         MaterialItemIdList = doc["MaterialItemIdList"].AsBsonArray.Select(id => Guid.Parse(id.AsString)),
         Gold = BigInteger.Parse(doc["Gold"].AsString),
         ActionPoint = doc["ActionPoint"].AsInt32,
-        EnhancementResult =
-            Enum.Parse<Nekoyume.Action.ItemEnhancement9.EnhancementResult>(doc["EnhancementResult"].AsString),
+        EnhancementResult = doc["EnhancementResult"].ToEnum<Nekoyume.Action.ItemEnhancement9.EnhancementResult>(),
         PreItemUsable = doc.TryGetValue("PreItemUsable", out var preItemUsableBsonValue)
             ? ItemUsableSerializer.Deserialize(preItemUsableBsonValue.AsBsonDocument)
             : null,

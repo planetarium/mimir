@@ -1,4 +1,5 @@
 using Lib9c.Models.Stats;
+using Mimir.MongoDB.Bson.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -11,7 +12,7 @@ public class DecimalStatSerializer : ClassSerializerBase<DecimalStat>
 
     public static DecimalStat Deserialize(BsonDocument doc) => new()
     {
-        StatType = Enum.Parse<Nekoyume.Model.Stat.StatType>(doc["StatType"].AsString),
+        StatType = doc["StatType"].ToEnum<Nekoyume.Model.Stat.StatType>(),
         BaseValue = (decimal)doc["BaseValue"].AsDouble,
         AdditionalValue = (decimal)doc["AdditionalValue"].AsDouble,
     };

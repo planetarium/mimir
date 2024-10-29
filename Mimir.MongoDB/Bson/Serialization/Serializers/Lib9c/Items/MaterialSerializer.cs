@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Lib9c.Models.Items;
 using Libplanet.Common;
+using Mimir.MongoDB.Bson.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -24,8 +25,8 @@ public class MaterialSerializer : ClassSerializerBase<Material>
             throw new BsonSerializationException("Missing itemSubTypeValue in document.");
         }
 
-        var itemType = Enum.Parse<Nekoyume.Model.Item.ItemType>(itemTypeBsonValue.AsString);
-        var itemSubType = Enum.Parse<Nekoyume.Model.Item.ItemSubType>(itemSubTypeBsonValue.AsString);
+        var itemType = itemTypeBsonValue.ToEnum<Nekoyume.Model.Item.ItemType>();
+        var itemSubType = itemSubTypeBsonValue.ToEnum<Nekoyume.Model.Item.ItemSubType>();
         if (itemType != Nekoyume.Model.Item.ItemType.Material)
         {
             throw new BsonSerializationException($"Unsupported ItemType: {itemType} or ItemSubType: {itemSubType}");
@@ -42,7 +43,7 @@ public class MaterialSerializer : ClassSerializerBase<Material>
             Grade = doc["Grade"].AsInt32,
             ItemType = itemType,
             ItemSubType = itemSubType,
-            ElementalType = Enum.Parse<Nekoyume.Model.Elemental.ElementalType>(doc["ElementalType"].AsString),
+            ElementalType = doc["ElementalType"].ToEnum<Nekoyume.Model.Elemental.ElementalType>(),
             ItemId = HashDigest<SHA256>.FromString(doc["ItemId"].AsString),
         };
     }
