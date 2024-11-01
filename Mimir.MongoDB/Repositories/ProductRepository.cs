@@ -1,6 +1,7 @@
 using Bencodex;
 using HotChocolate;
 using HotChocolate.Data;
+using HotChocolate.Data.MongoDb;
 using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
@@ -60,10 +61,7 @@ public class ProductRepository
                 case SortBy.Crystal:
                     break;
                 case SortBy.Price:
-                    find = productFilter.SortDirection == SortDirection.Ascending
-                        ? find.SortBy(x => x.Object.Price.RawValue)
-                        : find.SortByDescending(x => x.Object.Price.RawValue);
-                    break;
+                    return SortByPrice(filter, productFilter);
                 case SortBy.UnitPrice:
                     // ProductDocument.UnitPrice is null
                     if (productFilter.ProductType == ProductType.FungibleAssetValue)
@@ -117,13 +115,29 @@ public class ProductRepository
         UnitPrice
     }
 
-
-    private IExecutable<ProductDocument> SortFungibleAssetValueByUnitPrice(ProductFilter productFilter, FilterDefinition<ProductDocument> filter)
+    
+    private MongoDbAggregateFluentExecutable<ProductDocument> SortByPrice(FilterDefinition<ProductDocument> filter, ProductFilter productFilter)
     {
         var convertStage = new BsonDocument("$addFields", new BsonDocument
         {
-            { "convertedPrice", new BsonDocument("$toDecimal", "$Object.Price.RawValue") },
-            { "convertedQty", new BsonDocument("$toDecimal", "$Object.Asset.RawValue") },
+            { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.RawValue") },
+        });
+        var sortStage = new BsonDocument("$sort", new BsonDocument("convertedPrice",
+            productFilter.SortDirection == SortDirection.Ascending ? 1 : -1));
+        
+        return _collection.Aggregate()
+            .Match(filter)
+            .AppendStage<ProductDocument>(convertStage)
+            .AppendStage<ProductDocument>(sortStage)
+            .AsExecutable();
+    }
+
+    private MongoDbAggregateFluentExecutable<ProductDocument> SortFungibleAssetValueByUnitPrice(ProductFilter productFilter, FilterDefinition<ProductDocument> filter)
+    {
+        var convertStage = new BsonDocument("$addFields", new BsonDocument
+        {
+            { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.RawValue") },
+            { "convertedQty", new BsonDocument("$toLong", "$Object.Asset.RawValue") },
         });
         var calcStage = new BsonDocument("$addFields", new BsonDocument
         {
@@ -132,7 +146,8 @@ public class ProductRepository
         var sortStage = new BsonDocument("$sort", new BsonDocument("calcUnitPrice",
             productFilter.SortDirection == SortDirection.Ascending ? 1 : -1));
 
-        return _collection.Aggregate().Match(filter)
+        return _collection.Aggregate()
+            .Match(filter)
             .AppendStage<ProductDocument>(convertStage)
             .AppendStage<ProductDocument>(calcStage)
             .AppendStage<ProductDocument>(sortStage)
