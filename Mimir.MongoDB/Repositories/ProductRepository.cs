@@ -121,7 +121,7 @@ public class ProductRepository
     {
         var convertStage = new BsonDocument("$addFields", new BsonDocument
         {
-            { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.RawValue") },
+            { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.MajorUnit") },
         });
         var sortStage = new BsonDocument("$sort", new BsonDocument("convertedPrice",
             productFilter.SortDirection == Enums.SortDirection.Ascending ? 1 : -1));
@@ -137,8 +137,8 @@ public class ProductRepository
     {
         var convertStage = new BsonDocument("$addFields", new BsonDocument
         {
-            { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.RawValue") },
-            { "convertedQty", new BsonDocument("$toLong", "$Object.Asset.RawValue") },
+            { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.MajorUnit") },
+            { "convertedQty", new BsonDocument("$toLong", "$Object.Asset.MajorUnit") },
         });
         var calcStage = new BsonDocument("$addFields", new BsonDocument
         {
