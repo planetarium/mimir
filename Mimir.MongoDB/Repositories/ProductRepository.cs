@@ -4,6 +4,7 @@ using HotChocolate.Data;
 using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using Nekoyume.Model.Item;
@@ -64,9 +65,15 @@ public class ProductRepository
                         : find.SortByDescending(x => x.Object.Price.RawValue);
                     break;
                 case SortBy.UnitPrice:
+                    // ProductDocument.UnitPrice is null
+                    if(productFilter.ProductType == ProductType.FungibleAssetValue)
+                    {
+                        return SortFungibleAssetValueByUnitPrice(productFilter, filter);
+                    }
+                    
                     find = productFilter.SortDirection == SortDirection.Ascending 
                         ? find.SortBy(x => x.UnitPrice)               
-                        : find.SortByDescending(x => x.UnitPrice);    
+                        : find.SortByDescending(x => x.UnitPrice);
                     break;
                 case null:
                     break;
@@ -76,6 +83,27 @@ public class ProductRepository
         }
 
         return find.AsExecutable();
+    }
+
+    private IExecutable<ProductDocument> SortFungibleAssetValueByUnitPrice(ProductFilter productFilter, FilterDefinition<ProductDocument> filter)
+    {
+        var convertStage = new BsonDocument("$addFields", new BsonDocument
+        {
+            { "convertedPrice", new BsonDocument("$toDecimal", "$Object.Price.RawValue") },
+            { "convertedQty", new BsonDocument("$toDecimal", "$Object.Asset.RawValue") },
+        });
+        var calcStage = new BsonDocument("$addFields", new BsonDocument
+        {
+            { "calcUnitPrice", new BsonDocument("$divide", new BsonArray { "$convertedPrice", "$convertedQty" }) },
+        });
+        var sortStage = new BsonDocument("$sort", new BsonDocument("calcUnitPrice", 
+            productFilter.SortDirection == SortDirection.Ascending ? 1 : -1));
+        
+        return _collection.Aggregate().Match(filter)
+            .AppendStage<ProductDocument>(convertStage)
+            .AppendStage<ProductDocument>(calcStage)
+            .AppendStage<ProductDocument>(sortStage)
+            .AsExecutable();
     }
 
     public async Task<ProductDocument> GetByProductIdAsync(Guid productId)
