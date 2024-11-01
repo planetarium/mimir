@@ -4,6 +4,7 @@ using HotChocolate.Data;
 using HotChocolate.Data.MongoDb;
 using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Enums;
 using Mimir.MongoDB.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -29,8 +30,12 @@ public class ProductRepository
 
     public IExecutable<ProductDocument> Get(ProductFilter? productFilter)
     {
+        if(productFilter is not null)
+        {
+            productFilter.SortDirection ??= Enums.SortDirection.Ascending;
+        }
+        
         var filterBuilder = Builders<ProductDocument>.Filter;
-        var sortBuilder = Builders<ProductDocument>.Sort;
 
         var filter = filterBuilder.Empty;
 
@@ -55,25 +60,26 @@ public class ProductRepository
         {
             switch (productFilter.SortBy)
             {
-                case SortBy.Cp:
+                case ProductSortBy.Cp:
                     break;
-                case SortBy.Crystal:
+                case ProductSortBy.Crystal:
                     break;
-                case SortBy.Grade:
-                    find = productFilter.SortDirection == SortDirection.Ascending
+                case ProductSortBy.Grade:
+                    var sortBuilder = Builders<ProductDocument>.Sort;
+                    find = productFilter.SortDirection == Enums.SortDirection.Ascending
                         ? find.Sort(sortBuilder.Ascending("Object.TradableItem.Grade"))
                         : find.Sort(sortBuilder.Descending("Object.TradableItem.Grade"));
                     break;
-                case SortBy.Price:
+                case ProductSortBy.Price:
                     return SortByPrice(filter, productFilter);
-                case SortBy.UnitPrice:
+                case ProductSortBy.UnitPrice:
                     // ProductDocument.UnitPrice is null
                     if (productFilter.ProductType == ProductType.FungibleAssetValue)
                     {
                         return SortFungibleAssetValueByUnitPrice(productFilter, filter);
                     }
 
-                    find = productFilter.SortDirection == SortDirection.Ascending
+                    find = productFilter.SortDirection == Enums.SortDirection.Ascending
                         ? find.SortBy(x => x.UnitPrice)
                         : find.SortByDescending(x => x.UnitPrice);
                     break;
@@ -106,19 +112,10 @@ public class ProductRepository
         public ProductType? ProductType { get; set; }
         public ItemType? ItemType { get; set; }
         public ItemSubType? ItemSubType { get; set; }
-        public SortBy? SortBy { get; set; }
-        public SortDirection? SortDirection { get; set; } = new SortDirection?(0);
+        public ProductSortBy? SortBy { get; set; }
+        public Enums.SortDirection? SortDirection { get; set; } = Enums.SortDirection.Ascending;
     }
-
-    public enum SortBy
-    {
-        Cp,
-        Crystal,
-        Grade,
-        Price,
-        UnitPrice
-    }
-
+    
     
     private MongoDbAggregateFluentExecutable<ProductDocument> SortByPrice(FilterDefinition<ProductDocument> filter, ProductFilter productFilter)
     {
@@ -127,7 +124,7 @@ public class ProductRepository
             { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.RawValue") },
         });
         var sortStage = new BsonDocument("$sort", new BsonDocument("convertedPrice",
-            productFilter.SortDirection == SortDirection.Ascending ? 1 : -1));
+            productFilter.SortDirection == Enums.SortDirection.Ascending ? 1 : -1));
         
         return _collection.Aggregate()
             .Match(filter)
@@ -148,7 +145,7 @@ public class ProductRepository
             { "calcUnitPrice", new BsonDocument("$divide", new BsonArray { "$convertedPrice", "$convertedQty" }) },
         });
         var sortStage = new BsonDocument("$sort", new BsonDocument("calcUnitPrice",
-            productFilter.SortDirection == SortDirection.Ascending ? 1 : -1));
+            productFilter.SortDirection == Enums.SortDirection.Ascending ? 1 : -1));
 
         return _collection.Aggregate()
             .Match(filter)
