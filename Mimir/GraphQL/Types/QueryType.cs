@@ -6,16 +6,8 @@ namespace Mimir.GraphQL.Types;
 
 public class QueryType : ObjectType<Query>
 {
-
-
-    public class ProductFilterInputType : InputObjectType<ProductRepository.ProductFilter>
-    {
-        protected override void Configure(
-            IInputObjectTypeDescriptor<ProductRepository.ProductFilter> descriptor)
-        {
-        }
-    }
-
+    
+    public class ProductFilterInputType : InputObjectType<ProductRepository.ProductFilter>;
 
     protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
     {

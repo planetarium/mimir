@@ -199,9 +199,9 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         return decimal.Parse(itemProduct.Price.GetQuantityString()) / itemProduct.ItemCount;
     }
     
-    private static decimal CalculateUnitPrice(FavProduct itemProduct)
+    private static decimal CalculateUnitPrice(FavProduct favProduct)
     {
-        return decimal.Parse(itemProduct.Price.GetQuantityString()) / decimal.Parse(itemProduct.Asset.GetQuantityString());
+        return decimal.Parse(favProduct.Price.GetQuantityString()) / decimal.Parse(favProduct.Asset.GetQuantityString());
     }
     
     // private async Task<int?> CalculateCombatPointAsync(ItemProduct itemProduct)

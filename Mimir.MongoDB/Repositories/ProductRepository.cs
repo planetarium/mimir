@@ -29,14 +29,14 @@ public class ProductRepository
     public IExecutable<ProductDocument> Get(ProductFilter? productFilter)
     {
         var builder = Builders<ProductDocument>.Filter;
-        
+
         var filter = builder.Empty;
 
         if (productFilter?.ProductType is not null)
         {
             filter &= builder.Eq(x => x.Object.ProductType, productFilter.ProductType);
         }
-        
+
         if (productFilter?.ItemType is not null)
         {
             filter &= builder.Eq("Object.TradableItem.ItemType", productFilter.ItemType);
@@ -48,7 +48,7 @@ public class ProductRepository
         }
 
         var find = _collection.Find(filter);
-        
+
         if (productFilter?.SortBy is not null)
         {
             switch (productFilter.SortBy)
@@ -60,19 +60,19 @@ public class ProductRepository
                 case SortBy.Crystal:
                     break;
                 case SortBy.Price:
-                    find = productFilter.SortDirection == SortDirection.Ascending 
-                        ? find.SortBy(x => x.Object.Price.RawValue) 
+                    find = productFilter.SortDirection == SortDirection.Ascending
+                        ? find.SortBy(x => x.Object.Price.RawValue)
                         : find.SortByDescending(x => x.Object.Price.RawValue);
                     break;
                 case SortBy.UnitPrice:
                     // ProductDocument.UnitPrice is null
-                    if(productFilter.ProductType == ProductType.FungibleAssetValue)
+                    if (productFilter.ProductType == ProductType.FungibleAssetValue)
                     {
                         return SortFungibleAssetValueByUnitPrice(productFilter, filter);
                     }
-                    
-                    find = productFilter.SortDirection == SortDirection.Ascending 
-                        ? find.SortBy(x => x.UnitPrice)               
+
+                    find = productFilter.SortDirection == SortDirection.Ascending
+                        ? find.SortBy(x => x.UnitPrice)
                         : find.SortByDescending(x => x.UnitPrice);
                     break;
                 case null:
@@ -83,27 +83,6 @@ public class ProductRepository
         }
 
         return find.AsExecutable();
-    }
-
-    private IExecutable<ProductDocument> SortFungibleAssetValueByUnitPrice(ProductFilter productFilter, FilterDefinition<ProductDocument> filter)
-    {
-        var convertStage = new BsonDocument("$addFields", new BsonDocument
-        {
-            { "convertedPrice", new BsonDocument("$toDecimal", "$Object.Price.RawValue") },
-            { "convertedQty", new BsonDocument("$toDecimal", "$Object.Asset.RawValue") },
-        });
-        var calcStage = new BsonDocument("$addFields", new BsonDocument
-        {
-            { "calcUnitPrice", new BsonDocument("$divide", new BsonArray { "$convertedPrice", "$convertedQty" }) },
-        });
-        var sortStage = new BsonDocument("$sort", new BsonDocument("calcUnitPrice", 
-            productFilter.SortDirection == SortDirection.Ascending ? 1 : -1));
-        
-        return _collection.Aggregate().Match(filter)
-            .AppendStage<ProductDocument>(convertStage)
-            .AppendStage<ProductDocument>(calcStage)
-            .AppendStage<ProductDocument>(sortStage)
-            .AsExecutable();
     }
 
     public async Task<ProductDocument> GetByProductIdAsync(Guid productId)
@@ -136,5 +115,27 @@ public class ProductRepository
         Crystal,
         Price,
         UnitPrice
+    }
+
+
+    private IExecutable<ProductDocument> SortFungibleAssetValueByUnitPrice(ProductFilter productFilter, FilterDefinition<ProductDocument> filter)
+    {
+        var convertStage = new BsonDocument("$addFields", new BsonDocument
+        {
+            { "convertedPrice", new BsonDocument("$toDecimal", "$Object.Price.RawValue") },
+            { "convertedQty", new BsonDocument("$toDecimal", "$Object.Asset.RawValue") },
+        });
+        var calcStage = new BsonDocument("$addFields", new BsonDocument
+        {
+            { "calcUnitPrice", new BsonDocument("$divide", new BsonArray { "$convertedPrice", "$convertedQty" }) },
+        });
+        var sortStage = new BsonDocument("$sort", new BsonDocument("calcUnitPrice",
+            productFilter.SortDirection == SortDirection.Ascending ? 1 : -1));
+
+        return _collection.Aggregate().Match(filter)
+            .AppendStage<ProductDocument>(convertStage)
+            .AppendStage<ProductDocument>(calcStage)
+            .AppendStage<ProductDocument>(sortStage)
+            .AsExecutable();
     }
 }

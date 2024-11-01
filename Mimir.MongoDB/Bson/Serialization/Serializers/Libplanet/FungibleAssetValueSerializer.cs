@@ -32,7 +32,7 @@ public class FungibleAssetValueSerializer : StructSerializerBase<FungibleAssetVa
         return Deserialize(doc);
     }
 
-    public bool TryGetMemberSerializationInfo(string memberName, [UnscopedRef] out BsonSerializationInfo serializationInfo)
+    public bool TryGetMemberSerializationInfo(string memberName, [UnscopedRef] out BsonSerializationInfo? serializationInfo)
     {
         switch (memberName)
         {
