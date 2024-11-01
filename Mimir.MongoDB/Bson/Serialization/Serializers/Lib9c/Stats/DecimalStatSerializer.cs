@@ -13,8 +13,8 @@ public class DecimalStatSerializer : ClassSerializerBase<DecimalStat>
     public static DecimalStat Deserialize(BsonDocument doc) => new()
     {
         StatType = doc["StatType"].ToEnum<Nekoyume.Model.Stat.StatType>(),
-        BaseValue = (decimal)doc["BaseValue"].AsDouble,
-        AdditionalValue = (decimal)doc["AdditionalValue"].AsDouble,
+        BaseValue = doc["BaseValue"].ToDecimal(),
+        AdditionalValue = doc["AdditionalValue"].ToDecimal(),
     };
 
     public override DecimalStat Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

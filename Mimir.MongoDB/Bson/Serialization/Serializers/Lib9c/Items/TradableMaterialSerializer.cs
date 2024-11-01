@@ -40,7 +40,7 @@ public class TradableMaterialSerializer : ClassSerializerBase<TradableMaterial>
             ItemSubType = itemSubType,
             ElementalType = doc["ElementalType"].ToEnum<Nekoyume.Model.Elemental.ElementalType>(),
             ItemId = HashDigest<SHA256>.FromString(doc["ItemId"].AsString),
-            RequiredBlockIndex = doc["RequiredBlockIndex"].AsInt64,
+            RequiredBlockIndex = doc["RequiredBlockIndex"].ToLong(),
         };
     }
 

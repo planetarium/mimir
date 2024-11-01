@@ -143,45 +143,67 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         Product product)
     {
         var productAddress = Nekoyume.Model.Market.Product.DeriveAddress(product.ProductId);
-        if (product is ItemProduct itemProduct)
+        switch (product)
         {
-            var unitPrice = CalculateUnitPrice(itemProduct);
-            // var combatPoint = await CalculateCombatPointAsync(itemProduct);
-            // var (crystal, crystalPerPrice) = await CalculateCrystalMetricsAsync(itemProduct);
+            case ItemProduct itemProduct:
+            {
+                var unitPrice = CalculateUnitPrice(itemProduct);
+                // var combatPoint = await CalculateCombatPointAsync(itemProduct);
+                // var (crystal, crystalPerPrice) = await CalculateCrystalMetricsAsync(itemProduct);
 
-            // return new ProductDocument(
-            //     productAddress,
-            //     avatarAddress,
-            //     productsStateAddress,
-            //     product,
-            //     unitPrice,
-            //     combatPoint,
-            //     crystal,
-            //     crystalPerPrice
-            // );
-            return new ProductDocument(
-                productAddress,
-                avatarAddress,
-                productsStateAddress,
-                product,
-                unitPrice,
-                null,
-                null,
-                null);
+                // return new ProductDocument(
+                //     productAddress,
+                //     avatarAddress,
+                //     productsStateAddress,
+                //     product,
+                //     unitPrice,
+                //     combatPoint,
+                //     crystal,
+                //     crystalPerPrice
+                // );
+                return new ProductDocument(
+                    productAddress,
+                    avatarAddress,
+                    productsStateAddress,
+                    product,
+                    unitPrice,
+                    null,
+                    null,
+                    null);
+            }
+            case FavProduct favProduct:
+            {
+                var unitPrice = CalculateUnitPrice(favProduct);
+
+                return new ProductDocument(
+                    productAddress,
+                    avatarAddress,
+                    productsStateAddress,
+                    product,
+                    unitPrice,
+                    null,
+                    null,
+                    null);
+            }
+            default:
+                return new ProductDocument(
+                    productAddress,
+                    avatarAddress,
+                    productsStateAddress,
+                    product);
         }
-
-        return new ProductDocument(
-            productAddress,
-            avatarAddress,
-            productsStateAddress,
-            product);
     }
 
     private static decimal CalculateUnitPrice(ItemProduct itemProduct)
     {
         return decimal.Parse(itemProduct.Price.GetQuantityString()) / itemProduct.ItemCount;
     }
-
+    
+    private static decimal CalculateUnitPrice(FavProduct itemProduct)
+    {
+        return decimal.Parse(itemProduct.Price.GetQuantityString()) / decimal.Parse(itemProduct.Asset.GetQuantityString());
+    }
+    
     // private async Task<int?> CalculateCombatPointAsync(ItemProduct itemProduct)
     // {
     //     try

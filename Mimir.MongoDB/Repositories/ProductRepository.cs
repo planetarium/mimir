@@ -6,6 +6,8 @@ using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using Nekoyume.Model.Item;
+using Nekoyume.Model.Market;
 
 namespace Mimir.MongoDB.Repositories;
 
@@ -23,9 +25,58 @@ public class ProductRepository
         _gridFsBucket = dbService.GetGridFs();
     }
 
-    public IExecutable<ProductDocument> GetAll() => _collection
-        .Find(Builders<ProductDocument>.Filter.Empty)
-        .AsExecutable();
+    public IExecutable<ProductDocument> Get(ProductFilter? productFilter)
+    {
+        var builder = Builders<ProductDocument>.Filter;
+        
+        var filter = builder.Empty;
+
+        if (productFilter?.ProductType is not null)
+        {
+            filter &= builder.Eq(x => x.Object.ProductType, productFilter.ProductType);
+        }
+        
+        if (productFilter?.ItemType is not null)
+        {
+            filter &= builder.Eq("Object.TradableItem.ItemType", productFilter.ItemType);
+        }
+
+        if (productFilter?.ItemSubType is not null)
+        {
+            filter &= builder.Eq("Object.TradableItem.ItemSubType", productFilter.ItemSubType);
+        }
+
+        var find = _collection.Find(filter);
+        
+        if (productFilter?.SortBy is not null)
+        {
+            switch (productFilter.SortBy)
+            {
+                case SortBy.Class:
+                    break;
+                case SortBy.Cp:
+                    break;
+                case SortBy.Crystal:
+                    break;
+                case SortBy.Price:
+                    find = productFilter.SortDirection == SortDirection.Ascending 
+                        ? find.SortBy(x => x.Object.Price.RawValue) 
+                        : find.SortByDescending(x => x.Object.Price.RawValue);
+                    break;
+                case SortBy.UnitPrice:
+                    find = productFilter.SortDirection == SortDirection.Ascending 
+                        ? find.SortBy(x => x.UnitPrice)               
+                        : find.SortByDescending(x => x.UnitPrice);    
+                    break;
+                case null:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        return find.AsExecutable();
+    }
 
     public async Task<ProductDocument> GetByProductIdAsync(Guid productId)
     {
@@ -39,5 +90,23 @@ public class ProductRepository
         }
 
         return productDocument;
+    }
+
+    public class ProductFilter
+    {
+        public ProductType? ProductType { get; set; }
+        public ItemType? ItemType { get; set; }
+        public ItemSubType? ItemSubType { get; set; }
+        public SortBy? SortBy { get; set; }
+        public SortDirection? SortDirection { get; set; } = new SortDirection?(0);
+    }
+
+    public enum SortBy
+    {
+        Class,
+        Cp,
+        Crystal,
+        Price,
+        UnitPrice
     }
 }
