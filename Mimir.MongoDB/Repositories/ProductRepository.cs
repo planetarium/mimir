@@ -29,23 +29,24 @@ public class ProductRepository
 
     public IExecutable<ProductDocument> Get(ProductFilter? productFilter)
     {
-        var builder = Builders<ProductDocument>.Filter;
+        var filterBuilder = Builders<ProductDocument>.Filter;
+        var sortBuilder = Builders<ProductDocument>.Sort;
 
-        var filter = builder.Empty;
+        var filter = filterBuilder.Empty;
 
         if (productFilter?.ProductType is not null)
         {
-            filter &= builder.Eq(x => x.Object.ProductType, productFilter.ProductType);
+            filter &= filterBuilder.Eq(x => x.Object.ProductType, productFilter.ProductType);
         }
 
         if (productFilter?.ItemType is not null)
         {
-            filter &= builder.Eq("Object.TradableItem.ItemType", productFilter.ItemType);
+            filter &= filterBuilder.Eq("Object.TradableItem.ItemType", productFilter.ItemType);
         }
 
         if (productFilter?.ItemSubType is not null)
         {
-            filter &= builder.Eq("Object.TradableItem.ItemSubType", productFilter.ItemSubType);
+            filter &= filterBuilder.Eq("Object.TradableItem.ItemSubType", productFilter.ItemSubType);
         }
 
         var find = _collection.Find(filter);
@@ -54,11 +55,14 @@ public class ProductRepository
         {
             switch (productFilter.SortBy)
             {
-                case SortBy.Class:
-                    break;
                 case SortBy.Cp:
                     break;
                 case SortBy.Crystal:
+                    break;
+                case SortBy.Grade:
+                    find = productFilter.SortDirection == SortDirection.Ascending
+                        ? find.Sort(sortBuilder.Ascending("Object.TradableItem.Grade"))
+                        : find.Sort(sortBuilder.Descending("Object.TradableItem.Grade"));
                     break;
                 case SortBy.Price:
                     return SortByPrice(filter, productFilter);
@@ -108,9 +112,9 @@ public class ProductRepository
 
     public enum SortBy
     {
-        Class,
         Cp,
         Crystal,
+        Grade,
         Price,
         UnitPrice
     }
