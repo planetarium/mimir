@@ -162,43 +162,6 @@ public class StateGetter
         return new ItemSlotState(state);
     }
 
-    public async Task<List<RuneState>> GetRuneStates(
-        Address avatarAddress,
-        BattleType battleType,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var runeSlotAddress = Nekoyume.Model.State.RuneSlotState.DeriveAddress(
-            avatarAddress,
-            battleType
-        );
-        var state = await _service.GetState(runeSlotAddress, stoppingToken);
-
-        if (state is null)
-        {
-            throw new StateNotFoundException(runeSlotAddress, typeof(RuneState));
-        }
-
-        var runeSlotState = new RuneSlotState(state);
-
-        var runes = new List<RuneState>();
-        foreach (
-            var runeStateAddress in runeSlotState
-                .Slots.Where(slot => !slot.IsLock && slot.RuneId.HasValue)
-                .Select(slot =>
-                    Nekoyume.Model.State.RuneState.DeriveAddress(avatarAddress, slot.RuneId.Value)
-                )
-        )
-        {
-            if (await _service.GetState(runeStateAddress, stoppingToken) is List list)
-            {
-                runes.Add(new RuneState(list));
-            }
-        }
-
-        return runes;
-    }
-
     public async Task<ProductsState> GetProductsState(
         Address avatarAddress,
         CancellationToken stoppingToken = default)

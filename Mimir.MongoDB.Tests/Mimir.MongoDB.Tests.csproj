@@ -34,14 +34,6 @@
       <ParentFile>PetStateDocumentTest</ParentFile>
       <DependentUpon>QuestListDocumentTest.cs</DependentUpon>
     </None>
-    <None Update="Bson\RuneSlotDocumentTest.JsonSnapshot.verified.txt">
-      <ParentFile>RaiderStateDocumentTest</ParentFile>
-      <DependentUpon>RuneSlotDocumentTest.cs</DependentUpon>
-    </None>
-    <None Update="Bson\StakeDocumentTest.JsonSnapshot.verified.txt">
-      <ParentFile>RuneSlotDocumentTest</ParentFile>
-      <DependentUpon>StakeDocumentTest.cs</DependentUpon>
-    </None>
     <None Update="Bson\WorldBossStateDocumentTest.JsonSnapshot.verified.txt">
       <ParentFile>StakeDocumentTest</ParentFile>
       <DependentUpon>WorldBossDocumentTest.cs</DependentUpon>

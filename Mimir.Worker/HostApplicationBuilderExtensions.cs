@@ -22,7 +22,6 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<ProductsStateHandler>();
             builder.Services.AddBackgroundService<ProductStateHandler>();
             builder.Services.AddBackgroundService<RaiderStateHandler>();
-            builder.Services.AddBackgroundService<RuneSlotStateHandler>();
             builder.Services.AddBackgroundService<StakeStateHandler>();
             builder.Services.AddBackgroundService<TableSheetStateHandler>();
             builder.Services.AddBackgroundService<WorldBossKillRewardRecordStateHandler>();
