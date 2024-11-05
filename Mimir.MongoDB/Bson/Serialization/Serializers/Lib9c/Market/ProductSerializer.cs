@@ -47,7 +47,7 @@ public class ProductSerializer : ClassSerializerBase<Product>, IBsonDocumentSeri
             }
             case nameof(Product.ProductType):
             {
-                serializationInfo = new BsonSerializationInfo(memberName, new EnumSerializer<Nekoyume.Model.Market.ProductType>(), typeof(Nekoyume.Model.Market.ProductType));
+                serializationInfo = new BsonSerializationInfo(memberName, new EnumSerializer<Nekoyume.Model.Market.ProductType>(BsonType.String), typeof(Nekoyume.Model.Market.ProductType));
                 return true;
             }
             default:
