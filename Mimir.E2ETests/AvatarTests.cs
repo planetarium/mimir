@@ -26,6 +26,10 @@ public class AvatarTests : IClassFixture<GraphQLClientFixture>
         var avatarDataFromHeadless = await GetHeadlessAvatarData(new Address(address));
 
         Assert.Equal(avatarDataFromMimir.Address, avatarDataFromHeadless.Address.ToString());
+        Assert.Equal(avatarDataFromMimir.Name, avatarDataFromHeadless.Name);
+        Assert.Equal(avatarDataFromMimir.Level, avatarDataFromHeadless.Level);
+        Assert.Equal(avatarDataFromMimir.AgentAddress, avatarDataFromHeadless.AgentAddress.ToString());
+        
     }
 
     public async Task<IGetAvatar_Avatar> GetMimirAvatarData(Address address)

@@ -26,6 +26,21 @@ public class AgentTests : IClassFixture<GraphQLClientFixture>
         var agentDataFromHeadless = await GetHeadlessAgentData(new Address(address));
 
         Assert.Equal(agentDataFromMimir.Address, agentDataFromHeadless.Address.ToString());
+        Assert.Equal(agentDataFromMimir.MonsterCollectionRound, agentDataFromHeadless.MonsterCollectionRound);
+
+        var mimirAvatarAddresses = agentDataFromMimir.AvatarAddresses;
+        var headlessAvatarAddresses = agentDataFromHeadless.AvatarAddresses;
+        foreach (var mimirAddress in mimirAvatarAddresses)
+        {
+            if (headlessAvatarAddresses.TryGetValue(mimirAddress.Key, out var headlessValue))
+            {
+                Assert.Equal(mimirAddress.Value, headlessValue.ToString());
+            }
+            else
+            {
+                Assert.Fail();
+            }
+        }
     }
 
     public async Task<IGetAgent_Agent> GetMimirAgentData(Address address)
@@ -44,5 +59,55 @@ public class AgentTests : IClassFixture<GraphQLClientFixture>
         );
         var result = CodecUtil.DecodeState(stateResponse.Data.State);
         return new AgentState(result);
+    }
+
+    public async Task<WorldInformationState> GetHeadlessWorldInformationData(Address address)
+    {
+        var stateResponse = await headlessClient.GetState.ExecuteAsync(
+            Addresses.WorldInformation.ToString(),
+            address.ToString()
+        );
+        var result = CodecUtil.DecodeState(stateResponse.Data.State);
+        return new WorldInformationState(result);
+    }
+
+    public async Task<IGetWorldInformation_WorldInformation> GetMimirWorldInformationData(Address address)
+    {
+        var agentResponse = await mimirClient.GetWorldInformation.ExecuteAsync(address.ToString());
+        return agentResponse.Data.WorldInformation;
+    }
+    
+    
+    [Theory]
+    [InlineData("4AB43b2d1d0e41DdF99449086dC70dC79513B0F1")]
+    public async Task CompareWorldInformationDataFromDifferentServices_ShouldMatch(string address)
+    {
+        var agentDataFromMimir = (await GetMimirWorldInformationData(new Address(address))).WorldDictionary;
+        var agentDataFromHeadless = (await GetHeadlessWorldInformationData(new Address(address))).WorldDictionary;
+
+        foreach (var dictionary in agentDataFromMimir)
+        {
+            var mimirKey = dictionary.Key;
+            var mimirValue = dictionary.Value;
+
+            if (agentDataFromHeadless.TryGetValue(mimirKey, out var headlessValue
+                ))
+            {
+                // FIXME mimir에서 가져오는 id 값 부정확.
+                // Assert.Equal(mimirValue.Id, headlessValue.Id);
+                Assert.Equal(mimirValue.Name, headlessValue.Name);
+                Assert.Equal(mimirValue.IsUnlocked, headlessValue.IsUnlocked);
+                Assert.Equal(mimirValue.StageBegin, headlessValue.StageBegin);
+                Assert.Equal(mimirValue.StageEnd, headlessValue.StageEnd);
+                Assert.Equal(mimirValue.IsStageCleared, headlessValue.IsStageCleared);
+                Assert.Equal(mimirValue.StageClearedId, headlessValue.StageClearedId);
+                Assert.Equal(mimirValue.UnlockedBlockIndex, headlessValue.UnlockedBlockIndex);
+                Assert.Equal(mimirValue.StageClearedBlockIndex, headlessValue.StageClearedBlockIndex);
+            }
+            else
+            {
+                Assert.Fail();
+            }
+        }
     }
 }
