@@ -26,6 +26,21 @@ public class AgentTests : IClassFixture<GraphQLClientFixture>
         var agentDataFromHeadless = await GetHeadlessAgentData(new Address(address));
 
         Assert.Equal(agentDataFromMimir.Address, agentDataFromHeadless.Address.ToString());
+        Assert.Equal(agentDataFromMimir.MonsterCollectionRound, agentDataFromHeadless.MonsterCollectionRound);
+
+        var mimirAvatarAddresses = agentDataFromMimir.AvatarAddresses;
+        var headlessAvatarAddresses = agentDataFromHeadless.AvatarAddresses;
+        foreach (var mimirAddress in mimirAvatarAddresses)
+        {
+            if (headlessAvatarAddresses.TryGetValue(mimirAddress.Key, out var headlessValue))
+            {
+                Assert.Equal(mimirAddress.Value, headlessValue.ToString());
+            }
+            else
+            {
+                Assert.Fail();
+            }
+        }
     }
 
     public async Task<IGetAgent_Agent> GetMimirAgentData(Address address)
