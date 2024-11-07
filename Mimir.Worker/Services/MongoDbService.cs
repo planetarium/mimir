@@ -227,13 +227,13 @@ public class MongoDbService
     {
         var json = document.ToJson();
         var bsonDocument = BsonDocument.Parse(json);
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Id.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
-            document.Address.ToHex(),
+            document.Id.ToHex(),
             collectionName);
 
         return upsertOne;
@@ -253,12 +253,11 @@ public class MongoDbService
 
         var json = MimirBsonDocumentExtensions.ToJson(document);
         var bsonDocument = BsonDocument.Parse(json);
-        var stateBsonDocument = bsonDocument.AsBsonDocument;
-        stateBsonDocument.Remove("RawState");
-        stateBsonDocument.Add("RawStateFileId", rawStateId);
+        bsonDocument.Remove("RawState");
+        bsonDocument.Add("RawStateFileId", rawStateId);
 
         var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Address.ToHex());
-        var update = new BsonDocument("$set", stateBsonDocument);
+        var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(

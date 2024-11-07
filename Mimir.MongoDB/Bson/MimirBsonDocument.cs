@@ -1,6 +1,6 @@
 using Libplanet.Crypto;
-using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson;
 
-public record MimirBsonDocument([property: BsonId] Address Address, DocumentMetadata metadata);
+public record MimirBsonDocument([property: JsonIgnore] Address Id, DocumentMetadata metadata);

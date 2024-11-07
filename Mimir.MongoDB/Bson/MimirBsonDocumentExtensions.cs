@@ -12,7 +12,7 @@ public static class MimirBsonDocumentExtensions
     {
         var json = document.ToJson();
         var bsonDocument = BsonDocument.Parse(json);
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Id.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
