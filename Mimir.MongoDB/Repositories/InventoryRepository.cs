@@ -12,7 +12,7 @@ public class InventoryRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<InventoryDocument>();
         var collection = dbService.GetCollection<InventoryDocument>(collectionName);
-        var filter = Builders<InventoryDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<InventoryDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

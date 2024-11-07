@@ -12,7 +12,7 @@ public class WorldBossRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
         var collection = dbService.GetCollection<WorldBossStateDocument>(collectionName);
-        var filter = Builders<WorldBossStateDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<WorldBossStateDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

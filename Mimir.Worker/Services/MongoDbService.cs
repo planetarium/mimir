@@ -257,7 +257,7 @@ public class MongoDbService
         stateBsonDocument.Remove("RawState");
         stateBsonDocument.Add("RawStateFileId", rawStateId);
 
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", document.Address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Address.ToHex());
         var update = new BsonDocument("$set", stateBsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 

@@ -12,7 +12,7 @@ public class WorldBossRaiderRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<RaiderStateDocument>();
         var collection = dbService.GetCollection<RaiderStateDocument>(collectionName);
-        var filter = Builders<RaiderStateDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<RaiderStateDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

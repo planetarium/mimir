@@ -12,7 +12,7 @@ public class PledgeRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<PledgeDocument>();
         var collection = dbService.GetCollection<PledgeDocument>(collectionName);
-        var filter = Builders<PledgeDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<PledgeDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

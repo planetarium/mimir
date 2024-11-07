@@ -12,7 +12,7 @@ public class AllRuneRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<AllRuneDocument>();
         var collection = dbService.GetCollection<AllRuneDocument>(collectionName);
-        var filter = Builders<AllRuneDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<AllRuneDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

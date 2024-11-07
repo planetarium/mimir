@@ -13,7 +13,7 @@ public class WorldInformationRepository(MongoDbService dbService)
         var collectionName = CollectionNames.GetCollectionName<WorldInformationDocument>();
         var collection = dbService.GetCollection<WorldInformationDocument>(collectionName);
         var filter = Builders<WorldInformationDocument>.Filter.Eq(
-            "Address",
+            "_id",
             address.ToHex()
         );
         var document = await collection.Find(filter).FirstOrDefaultAsync();

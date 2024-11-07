@@ -12,7 +12,7 @@ public class AgentRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<AgentDocument>();
         var collection = dbService.GetCollection<AgentDocument>(collectionName);
-        var filter = Builders<AgentDocument>.Filter.Eq("Address", agentAddress.ToHex());
+        var filter = Builders<AgentDocument>.Filter.Eq("_id", agentAddress.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

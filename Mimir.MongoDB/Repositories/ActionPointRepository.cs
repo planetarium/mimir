@@ -12,7 +12,7 @@ public class ActionPointRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<ActionPointDocument>();
         var collection = dbService.GetCollection<ActionPointDocument>(collectionName);
-        var filter = Builders<ActionPointDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<ActionPointDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

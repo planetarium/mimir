@@ -12,7 +12,7 @@ public class DailyRewardRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<DailyRewardDocument>();
         var collection = dbService.GetCollection<DailyRewardDocument>(collectionName);
-        var filter = Builders<DailyRewardDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<DailyRewardDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

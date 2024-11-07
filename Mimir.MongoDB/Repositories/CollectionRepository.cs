@@ -12,7 +12,7 @@ public class CollectionRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<CollectionDocument>();
         var collection = dbService.GetCollection<CollectionDocument>(collectionName);
-        var filter = Builders<CollectionDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<CollectionDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

@@ -12,7 +12,7 @@ public class AvatarRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<AvatarDocument>();
         var collection = dbService.GetCollection<AvatarDocument>(collectionName);
-        var filter = Builders<AvatarDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<AvatarDocument>.Filter.Eq("_id", address.ToHex());
         var doc = await collection.Find(filter).FirstOrDefaultAsync();
         if (doc is null)
         {
