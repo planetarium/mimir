@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Libplanet.Types.Assets;
 using MongoDB.Bson;
@@ -6,7 +7,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace Mimir.MongoDB.Bson.Serialization.Serializers.Libplanet;
 
-public class FungibleAssetValueSerializer : StructSerializerBase<FungibleAssetValue>
+public class FungibleAssetValueSerializer : StructSerializerBase<FungibleAssetValue>, IBsonDocumentSerializer
 {
     private static class ElementNames
     {
@@ -29,6 +30,23 @@ public class FungibleAssetValueSerializer : StructSerializerBase<FungibleAssetVa
     {
         var doc = BsonDocumentSerializer.Instance.Deserialize(context, args);
         return Deserialize(doc);
+    }
+
+    public bool TryGetMemberSerializationInfo(string memberName, [UnscopedRef] out BsonSerializationInfo? serializationInfo)
+    {
+        switch (memberName)
+        {
+            case nameof(FungibleAssetValue.RawValue):
+            {
+                serializationInfo = new BsonSerializationInfo(memberName, Int64Serializer.Instance, typeof(long));
+                return true;
+            }
+            default:
+            {
+                serializationInfo = null;
+                return false;
+            }
+        }
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.

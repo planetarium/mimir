@@ -1,12 +1,15 @@
+using System.Diagnostics.CodeAnalysis;
 using Lib9c.Models.Market;
+using Libplanet.Types.Assets;
 using Mimir.MongoDB.Bson.Extensions;
+using Mimir.MongoDB.Bson.Serialization.Serializers.Libplanet;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace Mimir.MongoDB.Bson.Serialization.Serializers.Lib9c.Market;
 
-public class ProductSerializer : ClassSerializerBase<Product>
+public class ProductSerializer : ClassSerializerBase<Product>, IBsonDocumentSerializer
 {
     public static readonly ProductSerializer Instance = new();
 
@@ -31,6 +34,28 @@ public class ProductSerializer : ClassSerializerBase<Product>
     {
         var doc = BsonDocumentSerializer.Instance.Deserialize(context, args);
         return Deserialize(doc);
+    }
+
+    public bool TryGetMemberSerializationInfo(string memberName, [UnscopedRef] out BsonSerializationInfo? serializationInfo)
+    {
+        switch (memberName)
+        {
+            case nameof(Product.Price):
+            {
+                serializationInfo = new BsonSerializationInfo(memberName, FungibleAssetValueSerializer.Instance, typeof(FungibleAssetValue));
+                return true;
+            }
+            case nameof(Product.ProductType):
+            {
+                serializationInfo = new BsonSerializationInfo(memberName, new EnumSerializer<Nekoyume.Model.Market.ProductType>(BsonType.String), typeof(Nekoyume.Model.Market.ProductType));
+                return true;
+            }
+            default:
+            {
+                serializationInfo = null;
+                return false;
+            }
+        }
     }
 
     // DO NOT OVERRIDE Serialize METHOD: Currently objects will be serialized to Json first.
