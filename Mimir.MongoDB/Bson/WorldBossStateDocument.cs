@@ -6,7 +6,8 @@ namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record WorldBossStateDocument(
+    long StoredBlockIndex,
     Address Address,
     int RaidId,
-    WorldBossState Object)
-    : MimirBsonDocument(Address);
+    WorldBossState Object
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

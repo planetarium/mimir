@@ -6,7 +6,6 @@ using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
-using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -15,14 +14,20 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
-    BaseActionHandler<ProductDocument>(
+public class ProductStateHandler(
+    IStateService stateService,
+    MongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager
+)
+    : BaseActionHandler<ProductDocument>(
         stateService,
         store,
         headlessGqlClient,
         initializerManager,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductStateHandler>())
+        Log.ForContext<ProductStateHandler>()
+    )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
@@ -31,27 +36,35 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind);
+                actionPlainValueInternal?.Kind
+            );
         }
 
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
         var ops = new List<WriteModel<BsonDocument>>();
         foreach (var avatarAddress in avatarAddresses)
         {
-            var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
+            var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(
+                avatarAddress
+            );
             var productsState = await StateGetter.GetProductsState(avatarAddress, stoppingToken);
-            ops.AddRange(await SyncWrappedProductsStateAsync(
-                avatarAddress,
-                productsStateAddress,
-                productsState,
-                session,
-                stoppingToken));
+            ops.AddRange(
+                await SyncWrappedProductsStateAsync(
+                    blockIndex,
+                    avatarAddress,
+                    productsStateAddress,
+                    productsState,
+                    session,
+                    stoppingToken
+                )
+            );
         }
 
         return ops;
@@ -82,35 +95,56 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
     }
 
     public async Task<IEnumerable<WriteModel<BsonDocument>>> SyncWrappedProductsStateAsync(
+        long blockIndex,
         Address avatarAddress,
         Address productsStateAddress,
         ProductsState productsState,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var productIds = productsState.ProductIds.Select(id => Guid.Parse(id.ToString())).ToList();
         var existingProductIds = await GetExistingProductIds(productsStateAddress);
         var productsToAdd = productIds.Except(existingProductIds).ToList();
         var productsToRemove = existingProductIds.Except(productIds).ToList();
 
-        return (await AddNewProductsAsync(avatarAddress, productsStateAddress, productsToAdd, session, stoppingToken))
-            .Concat(RemoveOldProducts(productsToRemove));
+        return (
+            await AddNewProductsAsync(
+                blockIndex,
+                avatarAddress,
+                productsStateAddress,
+                productsToAdd,
+                session,
+                stoppingToken
+            )
+        ).Concat(RemoveOldProducts(productsToRemove));
     }
 
     private async Task<List<Guid>> GetExistingProductIds(Address productsStateAddress)
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("Object.ProductsStateAddress", productsStateAddress.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq(
+            "Object.ProductsStateAddress",
+            productsStateAddress.ToHex()
+        );
         var projection = Builders<BsonDocument>.Projection.Include("Object.ProductId");
-        var documents = await Store.GetCollection<ProductDocument>().Find<BsonDocument>(filter).Project(projection).ToListAsync();
-        return documents is null ? [] : documents.Select(doc => Guid.Parse(doc["Object"]["ProductId"].AsString)).ToList();
+        var documents = await Store
+            .GetCollection<ProductDocument>()
+            .Find<BsonDocument>(filter)
+            .Project(projection)
+            .ToListAsync();
+        return documents is null
+            ? []
+            : documents.Select(doc => Guid.Parse(doc["Object"]["ProductId"].AsString)).ToList();
     }
 
     private async Task<IEnumerable<WriteModel<BsonDocument>>> AddNewProductsAsync(
+        long blockIndex,
         Address avatarAddress,
         Address productsStateAddress,
         List<Guid> productsToAdd,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var documents = new List<MimirBsonDocument>();
         foreach (var productId in productsToAdd)
@@ -119,9 +153,11 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
             {
                 var product = await StateGetter.GetProductState(productId, stoppingToken);
                 var document = CreateProductDocumentAsync(
+                    blockIndex,
                     avatarAddress,
                     productsStateAddress,
-                    product);
+                    product
+                );
                 documents.Add(document);
             }
             catch (StateIsNullException e)
@@ -130,7 +166,8 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
                     e,
                     "{AvatarAddress} Product[{ProductID}] is exists but state is `Bencodex Null`",
                     avatarAddress,
-                    productId);
+                    productId
+                );
             }
         }
 
@@ -138,9 +175,11 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
     }
 
     private ProductDocument CreateProductDocumentAsync(
+        long blockIndex,
         Address avatarAddress,
         Address productsStateAddress,
-        Product product)
+        Product product
+    )
     {
         var productAddress = Nekoyume.Model.Market.Product.DeriveAddress(product.ProductId);
         switch (product)
@@ -162,6 +201,7 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
                 //     crystalPerPrice
                 // );
                 return new ProductDocument(
+                    blockIndex,
                     productAddress,
                     avatarAddress,
                     productsStateAddress,
@@ -169,13 +209,15 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
                     unitPrice,
                     null,
                     null,
-                    null);
+                    null
+                );
             }
             case FavProduct favProduct:
             {
                 var unitPrice = CalculateUnitPrice(favProduct);
 
                 return new ProductDocument(
+                    blockIndex,
                     productAddress,
                     avatarAddress,
                     productsStateAddress,
@@ -183,14 +225,17 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
                     unitPrice,
                     null,
                     null,
-                    null);
+                    null
+                );
             }
             default:
                 return new ProductDocument(
+                    blockIndex,
                     productAddress,
                     avatarAddress,
                     productsStateAddress,
-                    product);
+                    product
+                );
         }
     }
 
@@ -198,12 +243,13 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
     {
         return decimal.Parse(itemProduct.Price.GetQuantityString()) / itemProduct.ItemCount;
     }
-    
+
     private static decimal CalculateUnitPrice(FavProduct favProduct)
     {
-        return decimal.Parse(favProduct.Price.GetQuantityString()) / decimal.Parse(favProduct.Asset.GetQuantityString());
+        return decimal.Parse(favProduct.Price.GetQuantityString())
+            / decimal.Parse(favProduct.Asset.GetQuantityString());
     }
-    
+
     // private async Task<int?> CalculateCombatPointAsync(ItemProduct itemProduct)
     // {
     //     try
@@ -286,7 +332,8 @@ public class ProductStateHandler(IStateService stateService, MongoDbService stor
         {
             var productFilter = Builders<BsonDocument>.Filter.Eq(
                 "Object.TradableItem.TradableId",
-                productId.ToString());
+                productId.ToString()
+            );
             ops.Add(new DeleteOneModel<BsonDocument>(productFilter));
         }
 

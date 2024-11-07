@@ -14,14 +14,20 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class ProductsStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
-    BaseActionHandler<ProductsStateDocument>(
+public class ProductsStateHandler(
+    IStateService stateService,
+    MongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager
+)
+    : BaseActionHandler<ProductsStateDocument>(
         stateService,
         store,
         headlessGqlClient,
         initializerManager,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductsStateHandler>())
+        Log.ForContext<ProductsStateHandler>()
+    )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
@@ -30,25 +36,33 @@ public class ProductsStateHandler(IStateService stateService, MongoDbService sto
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind);
+                actionPlainValueInternal?.Kind
+            );
         }
 
         var avatarAddresses = GetAvatarAddresses(actionType, actionValues);
         var ops = new List<WriteModel<BsonDocument>>();
         foreach (var avatarAddress in avatarAddresses)
         {
-            var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
+            var productsStateAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(
+                avatarAddress
+            );
             var productsState = await StateGetter.GetProductsState(avatarAddress, stoppingToken);
-            ops.AddRange(SyncWrappedProductsStateAsync(
-                avatarAddress,
-                productsStateAddress,
-                productsState));
+            ops.AddRange(
+                SyncWrappedProductsStateAsync(
+                    blockIndex,
+                    avatarAddress,
+                    productsStateAddress,
+                    productsState
+                )
+            );
         }
 
         return ops;
@@ -79,10 +93,20 @@ public class ProductsStateHandler(IStateService stateService, MongoDbService sto
     }
 
     public IEnumerable<WriteModel<BsonDocument>> SyncWrappedProductsStateAsync(
+        long blockIndex,
         Address avatarAddress,
         Address productsStateAddress,
-        ProductsState productsState)
+        ProductsState productsState
+    )
     {
-        return [new ProductsStateDocument(productsStateAddress, productsState, avatarAddress).ToUpdateOneModel()];
+        return
+        [
+            new ProductsStateDocument(
+                blockIndex,
+                productsStateAddress,
+                productsState,
+                avatarAddress
+            ).ToUpdateOneModel()
+        ];
     }
 }

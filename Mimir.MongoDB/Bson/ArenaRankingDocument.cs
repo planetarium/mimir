@@ -7,12 +7,14 @@ namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record ArenaRankingDocument(
+    long StoredBlockIndex,
     Address Address,
     int ChampionshipId,
     int Round,
     ArenaInformation ArenaInformation,
     ArenaScore ArenaScore,
-    SimplifiedAvatarState SimpleAvatar)
+    SimplifiedAvatarState SimpleAvatar
+)
 {
     public int Rank { get; set; }
 }

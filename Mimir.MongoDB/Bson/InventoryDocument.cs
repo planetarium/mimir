@@ -5,4 +5,5 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
-public record InventoryDocument(Address Address, Inventory Object) : MimirBsonDocument(Address);
+public record InventoryDocument(long StoredBlockIndex, Address Address, Inventory Object)
+    : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

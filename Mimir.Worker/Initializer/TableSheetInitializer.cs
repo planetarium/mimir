@@ -26,13 +26,18 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
 
             // using (var session = await _store.GetMongoClient().StartSessionAsync())
             // {
-                // session.StartTransaction();
+            // session.StartTransaction();
 
-                await SyncSheetStateAsync(
-                    Log.ForContext<TableSheetInitializer>().ForContext<TableSheetStateHandler>(), _stateService, _store,
-                    sheetType.Name, sheetType);
-                // session.CommitTransaction();
-                // }
+            await SyncSheetStateAsync(
+                Log.ForContext<TableSheetInitializer>().ForContext<TableSheetStateHandler>(),
+                _stateService,
+                _store,
+                1,
+                sheetType.Name,
+                sheetType
+            );
+            // session.CommitTransaction();
+            // }
         }
     }
 
@@ -51,9 +56,11 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         ILogger logger,
         IStateService stateService,
         MongoDbService mongoDbService,
+        long blockIndex,
         string sheetName,
         Type sheetType,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
         {
@@ -61,11 +68,14 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
             return;
         }
 
-        if (sheetType == typeof(WorldBossKillRewardSheet) ||
-            sheetType == typeof(WorldBossBattleRewardSheet))
+        if (
+            sheetType == typeof(WorldBossKillRewardSheet)
+            || sheetType == typeof(WorldBossBattleRewardSheet)
+        )
         {
             logger.Information(
-                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
+                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later"
+            );
             return;
         }
 
@@ -86,7 +96,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
 
         await mongoDbService.UpsertSheetDocumentAsync(
             CollectionNames.GetCollectionName<SheetDocument>(),
-            [new SheetDocument(sheetAddress, sheet, sheetName, sheetState)],
+            [new SheetDocument(blockIndex, sheetAddress, sheet, sheetName, sheetState)],
             null,
             stoppingToken
         );

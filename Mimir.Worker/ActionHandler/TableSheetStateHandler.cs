@@ -17,14 +17,20 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class TableSheetStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager) :
-    BaseActionHandler<SheetDocument>(
+public class TableSheetStateHandler(
+    IStateService stateService,
+    MongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager
+)
+    : BaseActionHandler<SheetDocument>(
         stateService,
         store,
         headlessGqlClient,
         initializerManager,
         "^patch_table_sheet[0-9]*$",
-        Log.ForContext<TableSheetStateHandler>())
+        Log.ForContext<TableSheetStateHandler>()
+    )
 {
     private static readonly ImmutableArray<Type> SheetTypes =
     [
@@ -34,7 +40,8 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
                 type.Namespace is { } @namespace
                 && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
                 && !type.IsAbstract
-                && typeof(ISheet).IsAssignableFrom(type))
+                && typeof(ISheet).IsAssignableFrom(type)
+            )
     ];
 
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
@@ -44,13 +51,15 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind);
+                actionPlainValueInternal?.Kind
+            );
         }
 
         var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
@@ -65,16 +74,19 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
         if (sheetType == null)
         {
             throw new TypeLoadException(
-                $"Unable to find a class type matching the table name '{tableName}' in the specified namespace.");
+                $"Unable to find a class type matching the table name '{tableName}' in the specified namespace."
+            );
         }
 
-        return await SyncSheetStateAsync(tableName, sheetType, stoppingToken);
+        return await SyncSheetStateAsync(blockIndex, tableName, sheetType, stoppingToken);
     }
 
     public async Task<IEnumerable<WriteModel<BsonDocument>>> SyncSheetStateAsync(
+        long blockIndex,
         string sheetName,
         Type sheetType,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (sheetType == typeof(ItemSheet) || sheetType == typeof(QuestSheet))
         {
@@ -82,11 +94,14 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
             return [];
         }
 
-        if (sheetType == typeof(WorldBossKillRewardSheet) ||
-            sheetType == typeof(WorldBossBattleRewardSheet))
+        if (
+            sheetType == typeof(WorldBossKillRewardSheet)
+            || sheetType == typeof(WorldBossBattleRewardSheet)
+        )
         {
             Logger.Information(
-                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later");
+                "WorldBossKillRewardSheet, WorldBossBattleRewardSheet will handling later"
+            );
             return [];
         }
 
@@ -105,6 +120,15 @@ public class TableSheetStateHandler(IStateService stateService, MongoDbService s
 
         sheet.Set(sheetValue.Value);
 
-        return [new SheetDocument(sheetAddress, sheet, sheetName, sheetState).ToUpdateOneModel()];
+        return
+        [
+            new SheetDocument(
+                blockIndex,
+                sheetAddress,
+                sheet,
+                sheetName,
+                sheetState
+            ).ToUpdateOneModel()
+        ];
     }
 }

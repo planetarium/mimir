@@ -9,4 +9,5 @@ namespace Mimir.MongoDB.Bson;
 /// </summary>
 /// <param name="Object"></param>
 [BsonIgnoreExtraElements]
-public record CollectionDocument(Address Address, CollectionState Object) : MimirBsonDocument(Address);
+public record CollectionDocument(long StoredBlockIndex, Address Address, CollectionState Object)
+    : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

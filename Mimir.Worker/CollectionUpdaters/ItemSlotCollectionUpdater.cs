@@ -13,6 +13,7 @@ public static class ItemSlotCollectionUpdater
 {
     public static async Task<IEnumerable<WriteModel<BsonDocument>>> UpdateAsync(
         IStateService stateService,
+        long blockIndex,
         BattleType battleType,
         Address avatarAddress,
         CancellationToken stoppingToken = default
@@ -28,7 +29,7 @@ public static class ItemSlotCollectionUpdater
         }
 
         var itemSlotState = new ItemSlotState(serialized);
-        var itemSlotDocument = new ItemSlotDocument(itemSlotAddress, itemSlotState);
+        var itemSlotDocument = new ItemSlotDocument(blockIndex, itemSlotAddress, itemSlotState);
         return [itemSlotDocument.ToUpdateOneModel()];
     }
 }

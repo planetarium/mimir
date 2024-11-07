@@ -7,6 +7,10 @@ public class CollectionStateDocumentConverter : IStateDocumentConverter
 {
     public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
-        return new CollectionDocument(context.Address, new CollectionState(context.RawState));
+        return new CollectionDocument(
+            context.BlockIndex,
+            context.Address,
+            new CollectionState(context.RawState)
+        );
     }
 }

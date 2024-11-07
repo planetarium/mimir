@@ -11,6 +11,7 @@ public class AvatarDocumentTest
     {
         var docs = new AvatarDocument(
             default,
+            default,
             new AvatarState(TestDataHelpers.LoadState("Avatar.bin"))
         );
         return Verify(docs.ToJson());

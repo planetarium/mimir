@@ -5,4 +5,9 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
-public record PetStateDocument(Address Address, Address AvatarAddress, PetState Object) : MimirBsonDocument(Address);
+public record PetStateDocument(
+    long StoredBlockIndex,
+    Address Address,
+    Address AvatarAddress,
+    PetState Object
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

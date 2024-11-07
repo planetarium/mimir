@@ -3,6 +3,6 @@
 
 // namespace Mimir.MongoDB.Bson.AdventureBoss;
 
-// public record ExploreBoardDocument(Address Address, ExploreBoard Object) : IMimirBsonDocument(Address)
+// public record ExploreBoardDocument(Address Address, ExploreBoard Object) : IMimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex))
 // {
 // }

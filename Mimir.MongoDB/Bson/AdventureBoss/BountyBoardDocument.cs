@@ -4,4 +4,4 @@
 // namespace Mimir.MongoDB.Bson.AdventureBoss;
 
 // public record BountyBoardDocument(Address Address, BountyBoard Object)
-//     : IMimirBsonDocument(Address) { }
+//     : IMimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex)) { }

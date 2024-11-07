@@ -8,6 +8,7 @@ public class WorldInformationStateDocumentConverter : IStateDocumentConverter
     public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
         return new WorldInformationDocument(
+            context.BlockIndex,
             context.Address,
             new WorldInformationState(context.RawState)
         );

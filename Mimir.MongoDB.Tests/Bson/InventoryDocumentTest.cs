@@ -11,6 +11,7 @@ public class InventoryDocumentTest
     {
         var docs = new InventoryDocument(
             default,
+            default,
             new Inventory(TestDataHelpers.LoadState("Inventory.bin"))
         );
         return Verify(docs.ToJson());

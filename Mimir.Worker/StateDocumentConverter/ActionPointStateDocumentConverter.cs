@@ -12,6 +12,6 @@ public class ActionPointStateDocumentConverter : IStateDocumentConverter
                 $"{nameof(context.RawState)} Invalid state type. Expected {nameof(Integer)}, got {context.RawState.GetType().Name}."
             );
 
-        return new ActionPointDocument(context.Address, value);
+        return new ActionPointDocument(context.BlockIndex, context.Address, value);
     }
 }

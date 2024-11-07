@@ -11,6 +11,7 @@ public class ProductsStateDocumentTest
     {
         var docs = new ProductsStateDocument(
             default,
+            default,
             new ProductsState(TestDataHelpers.LoadState("ProductsState.bin")),
             default);
         return Verify(docs.ToJson());

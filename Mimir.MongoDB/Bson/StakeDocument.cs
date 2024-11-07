@@ -6,4 +6,10 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
-public record StakeDocument(Address Address, Address AgentAddress, StakeState? Object, BigInteger Amount) : MimirBsonDocument(Address);
+public record StakeDocument(
+    long StoredBlockIndex,
+    Address Address,
+    Address AgentAddress,
+    StakeState? Object,
+    BigInteger Amount
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

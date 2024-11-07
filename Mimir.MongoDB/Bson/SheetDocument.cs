@@ -7,8 +7,9 @@ namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record SheetDocument(
+    long StoredBlockIndex,
     Address Address,
     ISheet Object,
     string Name,
-    IValue RawState)
-    : MimirBsonDocument(Address);
+    IValue RawState
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

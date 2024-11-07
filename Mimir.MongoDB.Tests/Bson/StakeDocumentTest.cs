@@ -12,6 +12,7 @@ public class StakeDocumentTest
         var docs = new StakeDocument(
             default,
             default,
+            default,
             new StakeState(TestDataHelpers.LoadState("StakeState.bin")),
             0);
         return Verify(docs.ToJson());

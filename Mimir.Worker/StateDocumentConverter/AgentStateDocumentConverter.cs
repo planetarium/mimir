@@ -13,9 +13,10 @@ public class AgentStateDocumentConverter : IStateDocumentConverter
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(context.RawState),
                 new[] { ValueKind.List },
-                context.RawState.Kind);
+                context.RawState.Kind
+            );
 
         var agentState = new AgentState(l);
-        return new AgentDocument(context.Address, agentState);
+        return new AgentDocument(context.BlockIndex, context.Address, agentState);
     }
 }

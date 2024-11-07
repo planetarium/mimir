@@ -62,6 +62,7 @@ public class WorldBossKillRewardRecordStateHandler(IStateService stateService, M
         return
         [
             new WorldBossKillRewardRecordDocument(
+                blockIndex,
                 worldBossKillRewardRecordAddress,
                 avatarAddress,
                 worldBossKillRewardRecordState).ToUpdateOneModel()

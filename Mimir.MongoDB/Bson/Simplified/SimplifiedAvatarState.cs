@@ -138,7 +138,8 @@ public record SimplifiedAvatarState : State
         int ear,
         int tail,
         List<Address> combinationSlotAddresses,
-        Address rankingMapAddress)
+        Address rankingMapAddress
+    )
         : base(new List(address.Bencoded))
     {
         Version = version;
@@ -161,7 +162,7 @@ public record SimplifiedAvatarState : State
         Ear = ear;
         Tail = tail;
         CombinationSlotAddresses = combinationSlotAddresses;
-        RankingMapAddress = rankingMapAddress;        
+        RankingMapAddress = rankingMapAddress;
     }
 
     public static SimplifiedAvatarState FromAvatarState(AvatarState avatarState)

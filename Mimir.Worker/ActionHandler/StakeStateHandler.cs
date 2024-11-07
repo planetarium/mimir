@@ -33,6 +33,7 @@ public class StakeStateHandler(IStateService stateService, MongoDbService store,
 
         return await StakeCollectionUpdater.UpdateAsync(
             StateService,
+            blockIndex,
             signer,
             (Integer)dictionary[amountKey],
             stoppingToken);

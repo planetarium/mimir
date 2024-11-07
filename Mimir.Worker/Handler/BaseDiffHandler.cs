@@ -119,6 +119,7 @@ public abstract class BaseDiffHandler(
         await ProcessStateDiff(
             stateDocumentConverter,
             diffContext.DiffResponse,
+            diffContext.TargetBlockIndex,
             stoppingToken
         );
 
@@ -137,6 +138,7 @@ public abstract class BaseDiffHandler(
     private async Task ProcessStateDiff(
         IStateDocumentConverter converter,
         GetAccountDiffsResponse diffResponse,
+        long blockIndex,
         CancellationToken stoppingToken
     )
     {

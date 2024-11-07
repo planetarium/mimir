@@ -6,7 +6,8 @@ namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record WorldBossKillRewardRecordDocument(
+    long StoredBlockIndex,
     Address Address,
     Address AvatarAddress,
-    WorldBossKillRewardRecord Object)
-    : MimirBsonDocument(Address);
+    WorldBossKillRewardRecord Object
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

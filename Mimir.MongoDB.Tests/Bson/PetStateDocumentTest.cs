@@ -12,6 +12,7 @@ public class PetStateDocumentTest
         var docs = new PetStateDocument(
             default,
             default,
+            default,
             new PetState(TestDataHelpers.LoadState("PetState.bin")));
         return Verify(docs.ToJson());
     }

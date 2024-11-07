@@ -14,6 +14,7 @@ public class ProductDocumentTest
             default,
             default,
             default,
+            default,
             new FavProduct(TestDataHelpers.LoadState("FavProduct.bin")));
         return Verify(docs.ToJson());
     }
@@ -22,6 +23,7 @@ public class ProductDocumentTest
     public Task JsonSnapshot_WithItemProduct()
     {
         var docs = new ProductDocument(
+            default,
             default,
             default,
             default,

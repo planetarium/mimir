@@ -7,6 +7,10 @@ public class AvatarStateDocumentConverter : IStateDocumentConverter
 {
     public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
-        return new AvatarDocument(context.Address, new AvatarState(context.RawState));
+        return new AvatarDocument(
+            context.BlockIndex,
+            context.Address,
+            new AvatarState(context.RawState)
+        );
     }
 }

@@ -5,5 +5,8 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
-public record WorldInformationDocument(Address Address, WorldInformationState Object)
-    : MimirBsonDocument(Address);
+public record WorldInformationDocument(
+    long StoredBlockIndex,
+    Address Address,
+    WorldInformationState Object
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
