@@ -1,1 +1,1 @@
-﻿{"Object":"0.00","Address":"0000000000000000000000000000000000000000"}
+﻿{"StoredBlockIndex":0,"Address":"0000000000000000000000000000000000000000","Object":"0.00","metadata":{"SchemaVersion":1,"StoredBlockIndex":0}}
