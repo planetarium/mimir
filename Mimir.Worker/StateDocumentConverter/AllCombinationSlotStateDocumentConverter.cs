@@ -7,6 +7,10 @@ public class AllCombinationSlotStateDocumentConverter : IStateDocumentConverter
 {
     public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
-        return new AllCombinationSlotStateDocument(context.Address, new AllCombinationSlotState(context.RawState));
+        return new AllCombinationSlotStateDocument(
+            context.BlockIndex,
+            context.Address,
+            new AllCombinationSlotState(context.RawState)
+        );
     }
 }

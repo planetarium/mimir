@@ -1,6 +1,6 @@
-using Mimir.MongoDB.Bson;
 using Lib9c.Models.States;
 using Mimir.MongoDB;
+using Mimir.MongoDB.Bson;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
@@ -10,8 +10,11 @@ using Serilog;
 
 namespace Mimir.Worker.Initializer;
 
-public class ArenaInitializer(IStateService stateService, MongoDbService dbService, TableSheetInitializer tableSheetInitializer)
-    : BaseInitializer(stateService, dbService, Log.ForContext<ArenaInitializer>())
+public class ArenaInitializer(
+    IStateService stateService,
+    MongoDbService dbService,
+    TableSheetInitializer tableSheetInitializer
+) : BaseInitializer(stateService, dbService, Log.ForContext<ArenaInitializer>())
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
     {
@@ -54,6 +57,7 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
                 CollectionNames.GetCollectionName<ArenaDocument>(),
                 [
                     ArenaCollectionUpdater.UpsertAsync(
+                        blockIndex,
                         simpleAvatarState,
                         arenaScore,
                         arenaInfo,
@@ -67,7 +71,7 @@ public class ArenaInitializer(IStateService stateService, MongoDbService dbServi
             );
             await _store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<AvatarDocument>(),
-                [AvatarCollectionUpdater.UpsertAsync(avatarState)],
+                [AvatarCollectionUpdater.UpsertAsync(blockIndex, avatarState)],
                 null,
                 stoppingToken
             );

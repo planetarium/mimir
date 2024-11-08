@@ -16,10 +16,13 @@ public record ProductDocument : MimirBsonDocument
     public int? CrystalPerPrice { get; init; }
 
     public ProductDocument(
+        long StoredBlockIndex,
         Address address,
         Address avatarAddress,
         Address productsStateAddress,
-        Product product) : base(address)
+        Product product
+    )
+        : base(address, new DocumentMetadata(1, StoredBlockIndex))
     {
         Object = product;
         AvatarAddress = avatarAddress;
@@ -27,6 +30,7 @@ public record ProductDocument : MimirBsonDocument
     }
 
     public ProductDocument(
+        long StoredBlockIndex,
         Address address,
         Address avatarAddress,
         Address productsStateAddress,
@@ -34,7 +38,9 @@ public record ProductDocument : MimirBsonDocument
         decimal unitPrice,
         int? combatPoint,
         int? crystal,
-        int? crystalPerPrice) : base(address)
+        int? crystalPerPrice
+    )
+        : base(address, new DocumentMetadata(1, StoredBlockIndex))
     {
         Object = product;
         AvatarAddress = avatarAddress;

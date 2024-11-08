@@ -7,10 +7,8 @@ namespace Mimir.Worker.CollectionUpdaters;
 
 public static class AvatarCollectionUpdater
 {
-    public static WriteModel<BsonDocument> UpsertAsync(
-        AvatarState avatarState
-    )
+    public static WriteModel<BsonDocument> UpsertAsync(long blockIndex, AvatarState avatarState)
     {
-        return new AvatarDocument(avatarState.Address, avatarState).ToUpdateOneModel();
+        return new AvatarDocument(blockIndex, avatarState.Address, avatarState).ToUpdateOneModel();
     }
 }

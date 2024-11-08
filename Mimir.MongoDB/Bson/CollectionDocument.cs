@@ -1,6 +1,7 @@
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson;
 
@@ -9,4 +10,8 @@ namespace Mimir.MongoDB.Bson;
 /// </summary>
 /// <param name="Object"></param>
 [BsonIgnoreExtraElements]
-public record CollectionDocument(Address Address, CollectionState Object) : MimirBsonDocument(Address);
+public record CollectionDocument(
+    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore] Address Address,
+    CollectionState Object
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

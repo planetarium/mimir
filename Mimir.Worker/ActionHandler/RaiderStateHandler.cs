@@ -52,6 +52,6 @@ public class RaiderStateHandler(IStateService stateService, MongoDbService store
         var raidId = row.Id;
         var raiderAddress = Addresses.GetRaiderAddress(avatarAddress, raidId);
         var raiderState = await StateGetter.GetRaiderStateAsync(raiderAddress, stoppingToken);
-        return [new RaiderStateDocument(raiderAddress, raiderState).ToUpdateOneModel()];
+        return [new RaiderStateDocument(blockIndex, raiderAddress, raiderState).ToUpdateOneModel()];
     }
 }

@@ -11,6 +11,7 @@ public class CollectionDocumentTest
     {
         var docs = new CollectionDocument(
             default,
+            default,
             new CollectionState(TestDataHelpers.LoadState("Collection.bin"))
         );
         return Verify(docs.ToJson());

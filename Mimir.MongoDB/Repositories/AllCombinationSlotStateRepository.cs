@@ -12,7 +12,7 @@ public class AllCombinationSlotStateRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<AllCombinationSlotStateDocument>();
         var collection = dbService.GetCollection<AllCombinationSlotStateDocument>(collectionName);
-        var filter = Builders<AllCombinationSlotStateDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<AllCombinationSlotStateDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

@@ -2,13 +2,15 @@ using Bencodex.Types;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.TableData;
+using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record SheetDocument(
-    Address Address,
+    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore] Address Address,
     ISheet Object,
     string Name,
-    IValue RawState)
-    : MimirBsonDocument(Address);
+    IValue RawState
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));

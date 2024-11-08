@@ -1,1 +1,1 @@
-﻿{"Object":{"Runes":{"10001":{"RuneId":10001,"Level":1},"10002":{"RuneId":10002,"Level":50},"10003":{"RuneId":10003,"Level":11},"10011":{"RuneId":10011,"Level":50},"10012":{"RuneId":10012,"Level":50},"30001":{"RuneId":30001,"Level":2}}},"Address":"0000000000000000000000000000000000000000"}
+﻿{"Object":{"Runes":{"10001":{"RuneId":10001,"Level":1},"10002":{"RuneId":10002,"Level":50},"10003":{"RuneId":10003,"Level":11},"10011":{"RuneId":10011,"Level":50},"10012":{"RuneId":10012,"Level":50},"30001":{"RuneId":30001,"Level":2}}},"Metadata":{"SchemaVersion":1,"StoredBlockIndex":0}}

@@ -14,6 +14,7 @@ public record BalanceStateDocumentConverter(Currency Currency) : IStateDocumentC
                 $"Expected {nameof(Integer)}, got {context.RawState.GetType().Name}.");
 
         return new BalanceDocument(
+            context.BlockIndex,
             context.Address,
             FungibleAssetValue.FromRawValue(Currency, value).GetQuantityString());
     }

@@ -16,7 +16,7 @@ public class ItemSlotRepository(MongoDbService dbService)
             battleType);
         var collectionName = CollectionNames.GetCollectionName<ItemSlotDocument>();
         var collection = dbService.GetCollection<ItemSlotDocument>(collectionName);
-        var filter = Builders<ItemSlotDocument>.Filter.Eq("Address", itemSlotAddress.ToHex());
+        var filter = Builders<ItemSlotDocument>.Filter.Eq("_id", itemSlotAddress.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

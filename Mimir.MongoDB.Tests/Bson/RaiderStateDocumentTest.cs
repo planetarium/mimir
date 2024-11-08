@@ -11,6 +11,7 @@ public class RaiderStateDocumentTest
     {
         var docs = new RaiderStateDocument(
             default,
+            default,
             new RaiderState(TestDataHelpers.LoadState("RaiderState.bin")));
         return Verify(docs.ToJson());
     }

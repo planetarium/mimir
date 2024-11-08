@@ -5,4 +5,4 @@
 // namespace Mimir.MongoDB.Bson;
 
 // [BsonIgnoreExtraElements]
-// public record QuestListDocument(Address Address, QuestList Object) : IMimirBsonDocument(Address) { }
+// public record QuestListDocument(Address Address, QuestList Object) : IMimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex)) { }

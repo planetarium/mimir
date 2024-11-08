@@ -10,6 +10,7 @@ namespace Mimir.Worker.CollectionUpdaters;
 public static class ArenaCollectionUpdater
 {
     public static WriteModel<BsonDocument> UpsertAsync(
+        long blockIndex,
         SimplifiedAvatarState simpleAvatar,
         ArenaScore arenaScore,
         ArenaInformation arenaInfo,
@@ -18,7 +19,14 @@ public static class ArenaCollectionUpdater
         int round
     )
     {
-        return new ArenaDocument(avatarAddress, championshipId, round, arenaInfo, arenaScore, simpleAvatar)
-            .ToUpdateOneModel();
+        return new ArenaDocument(
+            blockIndex,
+            avatarAddress,
+            championshipId,
+            round,
+            arenaInfo,
+            arenaScore,
+            simpleAvatar
+        ).ToUpdateOneModel();
     }
 }

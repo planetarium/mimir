@@ -12,7 +12,7 @@ public class WorldBossKillRewardRecordRepository(MongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<WorldBossKillRewardRecordDocument>();
         var collection = dbService.GetCollection<WorldBossKillRewardRecordDocument>(collectionName);
-        var filter = Builders<WorldBossKillRewardRecordDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<WorldBossKillRewardRecordDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

@@ -11,6 +11,7 @@ public class AllRuneDocumentTest
     {
         var docs = new AllRuneDocument(
             default,
+            default,
             new AllRuneState(TestDataHelpers.LoadState("AllRuneState.bin"))
         );
         return Verify(docs.ToJson());

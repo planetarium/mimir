@@ -15,8 +15,20 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class WorldBossStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
-    : BaseActionHandler<WorldBossStateDocument>(stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<WorldBossStateHandler>())
+public class WorldBossStateHandler(
+    IStateService stateService,
+    MongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
+    IInitializerManager initializerManager
+)
+    : BaseActionHandler<WorldBossStateDocument>(
+        stateService,
+        store,
+        headlessGqlClient,
+        initializerManager,
+        "^raid[0-9]*$",
+        Log.ForContext<WorldBossStateHandler>()
+    )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
@@ -25,7 +37,8 @@ public class WorldBossStateHandler(IStateService stateService, MongoDbService st
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (actionPlainValueInternal is null)
         {
@@ -37,22 +50,33 @@ public class WorldBossStateHandler(IStateService stateService, MongoDbService st
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(actionPlainValueInternal),
                 [ValueKind.Dictionary],
-                actionPlainValueInternal.Kind);
+                actionPlainValueInternal.Kind
+            );
         }
 
         var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>(stoppingToken);
         if (worldBossListSheet is null)
         {
-            throw new InvalidOperationException($"{nameof(WorldBossKillRewardRecordStateHandler)} requires ${nameof(WorldBossListSheet)}");
+            throw new InvalidOperationException(
+                $"{nameof(WorldBossKillRewardRecordStateHandler)} requires ${nameof(WorldBossListSheet)}"
+            );
         }
 
         var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
         var raidId = row.Id;
         var worldBossAddress = Addresses.GetWorldBossAddress(raidId);
-        var worldBossState = await StateGetter.GetWorldBossStateAsync(worldBossAddress, stoppingToken);
+        var worldBossState = await StateGetter.GetWorldBossStateAsync(
+            worldBossAddress,
+            stoppingToken
+        );
         return
         [
-            new WorldBossStateDocument(worldBossAddress, raidId, worldBossState).ToUpdateOneModel(),
+            new WorldBossStateDocument(
+                blockIndex,
+                worldBossAddress,
+                raidId,
+                worldBossState
+            ).ToUpdateOneModel(),
         ];
     }
 }

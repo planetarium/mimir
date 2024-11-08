@@ -9,6 +9,7 @@ public class BalanceDocumentTest
     {
         var docs = new BalanceDocument(
             default,
+            default,
             "0.00"
         );
         return Verify(docs.ToJson());

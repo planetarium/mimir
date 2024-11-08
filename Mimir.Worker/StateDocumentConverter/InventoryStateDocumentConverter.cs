@@ -7,6 +7,10 @@ public class InventoryStateDocumentConverter : IStateDocumentConverter
 {
     public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
-        return new InventoryDocument(context.Address, new Inventory(context.RawState));
+        return new InventoryDocument(
+            context.BlockIndex,
+            context.Address,
+            new Inventory(context.RawState)
+        );
     }
 }

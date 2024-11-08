@@ -17,14 +17,16 @@ public class PetStateHandler(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager) :
-    BaseActionHandler<PetStateDocument>(
+    IInitializerManager initializerManager
+)
+    : BaseActionHandler<PetStateDocument>(
         stateService,
         store,
         headlessGqlClient,
         initializerManager,
         "^pet_enhancement[0-9]*$|^combination_equipment[0-9]*$|^rapid_combination[0-9]*$",
-        Log.ForContext<PetStateHandler>())
+        Log.ForContext<PetStateHandler>()
+    )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
@@ -33,13 +35,15 @@ public class PetStateHandler(
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (actionPlainValueInternal is not Dictionary actionValues)
         {
             throw new InvalidTypeOfActionPlainValueInternalException(
                 [ValueKind.Dictionary],
-                actionPlainValueInternal?.Kind);
+                actionPlainValueInternal?.Kind
+            );
         }
 
         Address avatarAddress;
@@ -70,12 +74,20 @@ public class PetStateHandler(
                 : [actionValues["slotIndex"].ToInteger()];
             var allCombinationSlotState = await StateGetter.GetAllCombinationSlotStateAsync(
                 avatarAddress,
-                stoppingToken);
+                stoppingToken
+            );
             foreach (var slotIndex in slotIndexes)
             {
-                if (!allCombinationSlotState.CombinationSlots.TryGetValue(slotIndex, out var combinationSlotState))
+                if (
+                    !allCombinationSlotState.CombinationSlots.TryGetValue(
+                        slotIndex,
+                        out var combinationSlotState
+                    )
+                )
                 {
-                    throw new InvalidOperationException($"CombinationSlotState not found for slotIndex: {slotIndex}");
+                    throw new InvalidOperationException(
+                        $"CombinationSlotState not found for slotIndex: {slotIndex}"
+                    );
                 }
 
                 if (combinationSlotState.PetId is null)
@@ -95,9 +107,19 @@ public class PetStateHandler(
         var petStateAddresses = petIds
             .Select(e => Nekoyume.Model.State.PetState.DeriveAddress(avatarAddress, e))
             .ToArray();
-        var petStates = (await StateGetter.GetPetStates(petStateAddresses, stoppingToken)).ToArray();
+        var petStates = (
+            await StateGetter.GetPetStates(petStateAddresses, stoppingToken)
+        ).ToArray();
         return petStateAddresses
-            .Select((e, i) => new PetStateDocument(e, avatarAddress, petStates[i]).ToUpdateOneModel())
+            .Select(
+                (e, i) =>
+                    new PetStateDocument(
+                        blockIndex,
+                        e,
+                        avatarAddress,
+                        petStates[i]
+                    ).ToUpdateOneModel()
+            )
             .ToArray();
     }
 }

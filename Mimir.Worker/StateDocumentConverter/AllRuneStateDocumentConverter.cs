@@ -8,6 +8,6 @@ public class AllRuneStateDocumentConverter : IStateDocumentConverter
     public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
         var allRuneState = new AllRuneState(context.RawState);
-        return new AllRuneDocument(context.Address, allRuneState);
+        return new AllRuneDocument(context.BlockIndex, context.Address, allRuneState);
     }
 }

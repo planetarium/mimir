@@ -12,6 +12,7 @@ public class WorldBossStateDocumentTest
         var docs = new WorldBossStateDocument(
             default,
             default,
+            default,
             new WorldBossState(TestDataHelpers.LoadState("WorldBossState.bin")));
         return Verify(docs.ToJson());
     }

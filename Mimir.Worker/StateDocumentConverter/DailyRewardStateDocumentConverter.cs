@@ -13,6 +13,6 @@ public class DailyRewardStateDocumentConverter : IStateDocumentConverter
                 nameof(context.RawState)
             );
 
-        return new DailyRewardDocument(context.Address, value);
+        return new DailyRewardDocument(context.BlockIndex, context.Address, value);
     }
 }

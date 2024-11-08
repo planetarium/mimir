@@ -14,7 +14,7 @@ public class BalanceRepository(MongoDbService dbService)
         var accountAddress = new Address(currency.Hash.ToByteArray());
         var collectionName = CollectionNames.GetCollectionName(accountAddress);
         var collection = dbService.GetCollection<BalanceDocument>(collectionName);
-        var filter = Builders<BalanceDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<BalanceDocument>.Filter.Eq("_id", address.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

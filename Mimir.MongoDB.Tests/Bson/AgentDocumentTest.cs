@@ -11,6 +11,7 @@ public class AgentDocumentTest
     {
         var docs = new AgentDocument(
             default,
+            default,
             new AgentState(TestDataHelpers.LoadState("Agent.bin"))
         );
         return Verify(docs.ToJson());

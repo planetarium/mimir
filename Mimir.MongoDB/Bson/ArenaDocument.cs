@@ -10,13 +10,14 @@ namespace Mimir.MongoDB.Bson;
 /// <param name="Address">Avatar address</param>
 [BsonIgnoreExtraElements]
 public record ArenaDocument(
-    Address Address,
+    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore] Address Address,
     int ChampionshipId,
     int Round,
     ArenaInformation ArenaInformation,
     ArenaScore ArenaScore,
-    SimplifiedAvatarState SimpleAvatar)
-    : MimirBsonDocument(Address)
+    SimplifiedAvatarState SimpleAvatar
+) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex))
 {
     [BsonIgnore, JsonIgnore]
     public Address AvatarAddress => Address;

@@ -1,1 +1,1 @@
-﻿{"RaidId":0,"Object":{"Id":900001,"Level":47,"CurrentHp":"2428093","StartedBlockIndex":12038501,"EndedBlockIndex":12189700},"Address":"0000000000000000000000000000000000000000"}
+﻿{"RaidId":0,"Object":{"Id":900001,"Level":47,"CurrentHp":"2428093","StartedBlockIndex":12038501,"EndedBlockIndex":12189700},"Metadata":{"SchemaVersion":1,"StoredBlockIndex":0}}

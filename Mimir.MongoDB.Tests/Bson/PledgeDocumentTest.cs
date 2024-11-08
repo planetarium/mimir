@@ -10,6 +10,7 @@ public class PledgeDocumentTest
         var docs = new PledgeDocument(
             default,
             default,
+            default,
             false,
             4);
         return Verify(docs.ToJson());

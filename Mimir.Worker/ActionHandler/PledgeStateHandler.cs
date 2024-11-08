@@ -53,6 +53,7 @@ public class PledgeStateHandler(IStateService stateService, MongoDbService store
             return
             [
                 PledgeCollectionUpdater.UpsertAsync(
+                    blockIndex,
                     action.AgentAddress.GetPledgeAddress(),
                     signer,
                     false,

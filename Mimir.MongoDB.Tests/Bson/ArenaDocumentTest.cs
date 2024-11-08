@@ -12,6 +12,7 @@ public class ArenaDocumentTest
     {
         var docs = new ArenaDocument(
             default,
+            default,
             0,
             0,
             new ArenaInformation(TestDataHelpers.LoadState("ArenaInformation.bin")),
