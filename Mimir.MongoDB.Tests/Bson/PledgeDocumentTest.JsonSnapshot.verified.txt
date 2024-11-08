@@ -1,1 +1,1 @@
-﻿{"StoredBlockIndex":0,"Address":"0000000000000000000000000000000000000000","ContractAddress":"0000000000000000000000000000000000000000","Contracted":false,"RefillMead":4,"metadata":{"SchemaVersion":1,"StoredBlockIndex":0}}
+﻿{"ContractAddress":"0000000000000000000000000000000000000000","Contracted":false,"RefillMead":4,"Metadata":{"SchemaVersion":1,"StoredBlockIndex":0}}
