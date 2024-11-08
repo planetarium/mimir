@@ -16,7 +16,7 @@
 //     {
 //         var address = new Address(AdventureBossHelper.GetSeasonAsAddressForm(number));
 //         var collection = dbService.GetCollection<BsonDocument>("adventure_boss_season_info");
-//         var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
+//         var filter = Builders<BsonDocument>.Filter.Eq("_id", address.ToHex());
 //         var document = collection.Find(filter).FirstOrDefault();
 //         if (document is null)
 //         {

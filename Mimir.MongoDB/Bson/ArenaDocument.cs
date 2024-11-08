@@ -10,8 +10,8 @@ namespace Mimir.MongoDB.Bson;
 /// <param name="Address">Avatar address</param>
 [BsonIgnoreExtraElements]
 public record ArenaDocument(
-    long StoredBlockIndex,
-    Address Address,
+    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore] Address Address,
     int ChampionshipId,
     int Round,
     ArenaInformation ArenaInformation,

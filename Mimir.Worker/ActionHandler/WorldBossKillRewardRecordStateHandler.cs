@@ -47,7 +47,7 @@ public class WorldBossKillRewardRecordStateHandler(IStateService stateService, M
         var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>(stoppingToken);
         if (worldBossListSheet is null)
         {
-            throw new InvalidOperationException($"{nameof(WorldBossKillRewardRecordStateHandler)} requires ${nameof(WorldBossListSheet)}");
+            throw new InvalidOperationException($"{nameof(WorldBossKillRewardRecordStateHandler)} requires {nameof(WorldBossListSheet)}");
         }
 
         var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);

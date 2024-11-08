@@ -157,7 +157,7 @@ public class MongoDbService
         where T : ISheet, new()
     {
         var address = Addresses.GetSheetAddress<T>();
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", address.ToHex());
         var document = await GetCollection<SheetDocument>()
             .Find(filter)
             .FirstOrDefaultAsync(cancellationToken);

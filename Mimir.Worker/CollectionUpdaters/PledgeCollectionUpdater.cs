@@ -26,14 +26,14 @@ public static class PledgeCollectionUpdater
 
     public static UpdateOneModel<BsonDocument> ApproveAsync(Address address)
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToString());
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", address.ToString());
         var update = Builders<BsonDocument>.Update.Set("Contracted", true);
         return new UpdateOneModel<BsonDocument>(filter, update);
     }
 
     public static DeleteOneModel<BsonDocument> DeleteAsync(Address address)
     {
-        var filter = Builders<BsonDocument>.Filter.Eq("Address", address.ToString());
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", address.ToString());
         return new DeleteOneModel<BsonDocument>(filter);
     }
 }
