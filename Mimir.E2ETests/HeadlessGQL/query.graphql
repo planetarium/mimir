@@ -1,3 +1,0 @@
-query GetState($accountAddress: Address! $address: Address!) {
-    state(accountAddress: $accountAddress, address: $address)
-}
