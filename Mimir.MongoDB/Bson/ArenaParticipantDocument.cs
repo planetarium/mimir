@@ -1,7 +1,7 @@
-using System.Text.Json.Serialization;
 using Lib9c.Models.Arena;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson;
 

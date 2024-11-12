@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Bencodex.Types;
 using HotChocolate;
 using Lib9c.Models.Exceptions;
@@ -7,6 +6,7 @@ using Lib9c.Models.Mails;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model;
+using Newtonsoft.Json;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
