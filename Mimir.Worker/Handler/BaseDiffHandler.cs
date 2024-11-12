@@ -19,8 +19,8 @@ public abstract class BaseDiffHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    ILogger logger)
-    : BackgroundService
+    ILogger logger
+) : BackgroundService
 {
     private readonly Address _accountAddress = accountAddress;
     private readonly Codec _codec = new();
@@ -34,7 +34,29 @@ public abstract class BaseDiffHandler(
         {
             try
             {
-                var diffContext = await ProduceByAccount(stoppingToken);
+                var (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference) =
+                    await CalculateCurrentAndTargetIndexes(stoppingToken);
+
+                if (currentBaseIndex >= currentTargetIndex)
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
+                    continue;
+                }
+
+                Logger.Information(
+                    "{CollectionName} Request diff data, current: {CurrentBlockIndex}, gap: {IndexDiff}, base: {CurrentBaseIndex} target: {CurrentTargetIndex}",
+                    collectionName,
+                    currentIndexOnChain,
+                    indexDifference,
+                    currentBaseIndex,
+                    currentTargetIndex
+                );
+
+                var diffContext = await ProduceByAccount(
+                    stoppingToken,
+                    currentBaseIndex,
+                    currentTargetIndex
+                );
                 await ConsumeAsync(diffContext, stoppingToken);
             }
             catch (Exception e)
@@ -44,7 +66,7 @@ public abstract class BaseDiffHandler(
         }
     }
 
-    private async Task<DiffContext> ProduceByAccount(
+    private async Task<(long, long, long, long)> CalculateCurrentAndTargetIndexes(
         CancellationToken stoppingToken
     )
     {
@@ -56,10 +78,7 @@ public abstract class BaseDiffHandler(
             syncedIndex
         );
 
-        var currentIndexOnChain = await stateService.GetLatestIndex(
-            stoppingToken,
-            _accountAddress
-        );
+        var currentIndexOnChain = await stateService.GetLatestIndex(stoppingToken, _accountAddress);
 
         var indexDifference = currentIndexOnChain - currentBaseIndex;
         var limit =
@@ -70,17 +89,15 @@ public abstract class BaseDiffHandler(
         var currentTargetIndex =
             currentBaseIndex + (indexDifference > limit ? limit : indexDifference);
 
-        if (currentBaseIndex >= currentTargetIndex) await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
+        return (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference);
+    }
 
-        Logger.Information(
-            "{CollectionName} Request diff data, current: {CurrentBlockIndex}, gap: {IndexDiff}, base: {CurrentBaseIndex} target: {CurrentTargetIndex}",
-            collectionName,
-            currentIndexOnChain,
-            indexDifference,
-            currentBaseIndex,
-            currentTargetIndex
-        );
-
+    private async Task<DiffContext> ProduceByAccount(
+        CancellationToken stoppingToken,
+        long currentBaseIndex,
+        long currentTargetIndex
+    )
+    {
         var result = await headlessGqlClient.GetAccountDiffsAsync(
             currentBaseIndex,
             currentTargetIndex,
@@ -97,10 +114,7 @@ public abstract class BaseDiffHandler(
         };
     }
 
-    private async Task ConsumeAsync(
-        DiffContext diffContext,
-        CancellationToken stoppingToken
-    )
+    private async Task ConsumeAsync(DiffContext diffContext, CancellationToken stoppingToken)
     {
         if (!diffContext.DiffResponse.AccountDiffs.Any())
         {
@@ -151,6 +165,7 @@ public abstract class BaseDiffHandler(
                 var document = converter.ConvertToDocument(
                     new AddressStatePair
                     {
+                        BlockIndex = blockIndex,
                         Address = address,
                         RawState = _codec.Decode(Convert.FromHexString(diff.ChangedState))
                     }
@@ -175,9 +190,7 @@ public abstract class BaseDiffHandler(
             );
     }
 
-    private async Task<long> GetSyncedBlockIndex(
-        CancellationToken stoppingToken
-    )
+    private async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
     {
         try
         {
