@@ -33,6 +33,7 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<AgentStateHandler>();
             builder.Services.AddBackgroundService<AllCombinationSlotStateHandler>();
             builder.Services.AddBackgroundService<AllRuneStateHandler>();
+            builder.Services.AddBackgroundService<ArenaParticipantHandler>();
             builder.Services.AddBackgroundService<AvatarStateHandler>();
             builder.Services.AddBackgroundService<CollectionStateHandler>();
             builder.Services.AddBackgroundService<DailyRewardStateHandler>();

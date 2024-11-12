@@ -21,9 +21,9 @@ public abstract class BaseDiffHandler(
     ILogger logger
 ) : BackgroundService
 {
-    private const string PollerType = "DiffPoller";
+    protected const string PollerType = "DiffPoller";
     
-    private readonly Codec _codec = new();
+    protected readonly Codec Codec = new();
     protected ILogger Logger { get; } = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -66,7 +66,7 @@ public abstract class BaseDiffHandler(
         }
     }
 
-    private async Task<(long, long, long, long)> CalculateCurrentAndTargetIndexes(
+    protected virtual async Task<(long, long, long, long)> CalculateCurrentAndTargetIndexes(
         CancellationToken stoppingToken
     )
     {
@@ -91,7 +91,7 @@ public abstract class BaseDiffHandler(
         return (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference);
     }
 
-    private async Task<DiffContext> ProduceByAccount(
+    protected virtual async Task<DiffContext> ProduceByAccount(
         CancellationToken stoppingToken,
         long currentBaseIndex,
         long currentTargetIndex
@@ -148,7 +148,7 @@ public abstract class BaseDiffHandler(
         );
     }
 
-    private async Task ProcessStateDiff(
+    protected virtual async Task ProcessStateDiff(
         IStateDocumentConverter converter,
         GetAccountDiffsResponse diffResponse,
         long blockIndex,
@@ -166,7 +166,7 @@ public abstract class BaseDiffHandler(
                     {
                         BlockIndex = blockIndex,
                         Address = address,
-                        RawState = _codec.Decode(Convert.FromHexString(diff.ChangedState))
+                        RawState = Codec.Decode(Convert.FromHexString(diff.ChangedState))
                     }
                 );
 
@@ -188,7 +188,7 @@ public abstract class BaseDiffHandler(
             );
     }
 
-    private async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
+    protected virtual async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
     {
         try
         {
