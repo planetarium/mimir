@@ -1,0 +1,1 @@
+﻿{"StoredBlockIndex":0,"Address":"0000000000000000000000000000000000000000","Object":{"AvatarAddr":"Dc61990d14ed397dE08901004d5FC11f83366275","Name":"nice","PortraitId":10254001,"Level":348,"Cp":623168,"Score":2253,"Ticket":6,"TicketResetCount":9,"PurchasedTicketCount":0,"Win":74,"Lose":0,"LastBattleBlockIndex":12412490},"Metadata":{"SchemaVersion":1,"StoredBlockIndex":0}}

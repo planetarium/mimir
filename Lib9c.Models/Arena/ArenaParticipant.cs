@@ -12,7 +12,7 @@ namespace Lib9c.Models.Arena;
 [BsonIgnoreExtraElements]
 public record ArenaParticipant : IBencodable
 {
-    private const int StateVersion = 1;
+    public const int StateVersion = 1;
 
     public Address AvatarAddr { get; init; }
 
