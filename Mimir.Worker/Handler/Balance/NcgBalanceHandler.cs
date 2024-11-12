@@ -3,7 +3,6 @@ using Libplanet.Types.Assets;
 using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
-using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Serilog;
