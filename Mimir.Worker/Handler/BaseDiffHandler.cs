@@ -22,9 +22,10 @@ public abstract class BaseDiffHandler(
 ) : BackgroundService
 {
     protected const string PollerType = "DiffPoller";
-    
+
     protected readonly Codec Codec = new();
-    protected ILogger Logger { get; } = logger;
+    protected readonly IStateDocumentConverter StateDocumentConverter = stateDocumentConverter;
+    protected readonly ILogger Logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -113,7 +114,7 @@ public abstract class BaseDiffHandler(
         };
     }
 
-    private async Task ConsumeAsync(DiffContext diffContext, CancellationToken stoppingToken)
+    protected virtual async Task ConsumeAsync(DiffContext diffContext, CancellationToken stoppingToken)
     {
         if (!diffContext.DiffResponse.AccountDiffs.Any())
         {
@@ -130,7 +131,7 @@ public abstract class BaseDiffHandler(
         }
 
         await ProcessStateDiff(
-            stateDocumentConverter,
+            StateDocumentConverter,
             diffContext.DiffResponse,
             diffContext.TargetBlockIndex,
             stoppingToken

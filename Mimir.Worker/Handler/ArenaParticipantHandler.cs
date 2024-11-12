@@ -86,6 +86,41 @@ public sealed class ArenaParticipantHandler(
         return (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference);
     }
 
+    protected override async Task ConsumeAsync(DiffContext diffContext, CancellationToken stoppingToken)
+    {
+        if (!diffContext.DiffResponse.AccountDiffs.Any())
+        {
+            Logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
+            await dbService.UpdateLatestBlockIndexAsync(
+                new MetadataDocument
+                {
+                    PollerType = PollerType,
+                    CollectionName = MetadataCollectionName,
+                    LatestBlockIndex = diffContext.TargetBlockIndex
+                }
+            );
+            return;
+        }
+
+        await ProcessStateDiff(
+            StateDocumentConverter,
+            diffContext.DiffResponse,
+            diffContext.TargetBlockIndex,
+            stoppingToken
+        );
+
+        await dbService.UpdateLatestBlockIndexAsync(
+            new MetadataDocument
+            {
+                PollerType = PollerType,
+                CollectionName = MetadataCollectionName,
+                LatestBlockIndex = diffContext.TargetBlockIndex
+            },
+            null,
+            stoppingToken
+        );
+    }
+
     protected override async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
     {
         try
