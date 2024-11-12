@@ -21,7 +21,8 @@ public abstract class BaseDiffHandler(
     ILogger logger
 ) : BackgroundService
 {
-    private readonly Address _accountAddress = accountAddress;
+    private const string PollerType = "DiffPoller";
+    
     private readonly Codec _codec = new();
     protected ILogger Logger { get; } = logger;
 
@@ -77,8 +78,7 @@ public abstract class BaseDiffHandler(
             syncedIndex
         );
 
-        var currentIndexOnChain = await stateService.GetLatestIndex(stoppingToken, _accountAddress);
-
+        var currentIndexOnChain = await stateService.GetLatestIndex(stoppingToken, accountAddress);
         var indexDifference = currentIndexOnChain - currentBaseIndex;
         var limit =
             collectionName == CollectionNames.GetCollectionName<InventoryDocument>()
@@ -100,13 +100,13 @@ public abstract class BaseDiffHandler(
         var result = await headlessGqlClient.GetAccountDiffsAsync(
             currentBaseIndex,
             currentTargetIndex,
-            _accountAddress,
+            accountAddress,
             stoppingToken
         );
 
         return new DiffContext
         {
-            AccountAddress = _accountAddress,
+            AccountAddress = accountAddress,
             CollectionName = collectionName,
             DiffResponse = result,
             TargetBlockIndex = currentTargetIndex
@@ -121,7 +121,7 @@ public abstract class BaseDiffHandler(
             await dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
-                    PollerType = "DiffPoller",
+                    PollerType = PollerType,
                     CollectionName = diffContext.CollectionName,
                     LatestBlockIndex = diffContext.TargetBlockIndex
                 }
@@ -139,7 +139,7 @@ public abstract class BaseDiffHandler(
         await dbService.UpdateLatestBlockIndexAsync(
             new MetadataDocument
             {
-                PollerType = "DiffPoller",
+                PollerType = PollerType,
                 CollectionName = diffContext.CollectionName,
                 LatestBlockIndex = diffContext.TargetBlockIndex
             },
@@ -194,7 +194,7 @@ public abstract class BaseDiffHandler(
         try
         {
             var syncedBlockIndex = await dbService.GetLatestBlockIndexAsync(
-                "DiffPoller",
+                PollerType,
                 collectionName,
                 stoppingToken
             );
@@ -204,7 +204,7 @@ public abstract class BaseDiffHandler(
         {
             var currentBlockIndex = await stateService.GetLatestIndex(
                 stoppingToken,
-                _accountAddress
+                accountAddress
             );
             Logger.Information(
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
@@ -213,7 +213,7 @@ public abstract class BaseDiffHandler(
             await dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
-                    PollerType = "DiffPoller",
+                    PollerType = PollerType,
                     CollectionName = collectionName,
                     LatestBlockIndex = currentBlockIndex - 1
                 },
