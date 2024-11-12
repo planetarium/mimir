@@ -225,8 +225,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
             await Store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<TMimirBsonDocument>(),
                 documents,
-                null,
-                cancellationToken);   
+                cancellationToken: cancellationToken);   
         }
         
         await Store.UpdateLatestBlockIndexAsync(

@@ -66,14 +66,12 @@ public class ArenaInitializer(
                         roundData.Round
                     )
                 ],
-                null,
-                stoppingToken
+                cancellationToken: stoppingToken
             );
             await _store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<AvatarDocument>(),
                 [AvatarCollectionUpdater.UpsertAsync(blockIndex, avatarState)],
-                null,
-                stoppingToken
+                cancellationToken: stoppingToken
             );
         }
     }

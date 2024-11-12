@@ -184,8 +184,7 @@ public abstract class BaseDiffHandler(
             await dbService.UpsertStateDataManyAsync(
                 collectionName,
                 documents,
-                null,
-                stoppingToken
+                cancellationToken: stoppingToken
             );
     }
 
