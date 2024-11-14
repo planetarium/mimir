@@ -1,4 +1,5 @@
 using Bencodex;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
@@ -157,21 +158,18 @@ public abstract class BaseDiffHandler(
     {
         var documents = new List<MimirBsonDocument>();
         foreach (var diff in diffResponse.AccountDiffs)
+        {
             if (diff.ChangedState is not null)
             {
                 var address = new Address(diff.Path);
-
-                var document = converter.ConvertToDocument(
-                    new AddressStatePair
-                    {
-                        BlockIndex = blockIndex,
-                        Address = address,
-                        RawState = Codec.Decode(Convert.FromHexString(diff.ChangedState))
-                    }
-                );
-
+                var document = await CreateDocumentAsync(
+                    converter,
+                    blockIndex,
+                    address,
+                    Codec.Decode(Convert.FromHexString(diff.ChangedState)));
                 documents.Add(document);
             }
+        }
 
         Logger.Information(
             "{DiffCount} Handle in {Handler} Converted {Count} States",
@@ -220,5 +218,20 @@ public abstract class BaseDiffHandler(
             );
             return currentBlockIndex - 1;
         }
+    }
+
+    protected virtual async Task<MimirBsonDocument> CreateDocumentAsync(
+        IStateDocumentConverter converter,
+        long blockIndex,
+        Address address,
+        IValue rawState)
+    {
+        var pair = new AddressStatePair
+        {
+            BlockIndex = blockIndex,
+            Address = address,
+            RawState = rawState,
+        };
+        return converter.ConvertToDocument(pair);
     }
 }
