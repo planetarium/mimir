@@ -75,7 +75,7 @@ public class ArenaStateHandler(
             battleArena.round,
             stoppingToken
         );
-        var myAvatarState = await StateGetter.GetAvatarState(
+        var myAvatarState = await StateGetter.GetAvatarStateAsync(
             battleArena.myAvatarAddress,
             stoppingToken
         );
@@ -93,7 +93,7 @@ public class ArenaStateHandler(
             battleArena.round,
             stoppingToken
         );
-        var enemyAvatarState = await StateGetter.GetAvatarState(
+        var enemyAvatarState = await StateGetter.GetAvatarStateAsync(
             battleArena.enemyAvatarAddress,
             stoppingToken
         );
@@ -140,7 +140,7 @@ public class ArenaStateHandler(
             joinArena.round,
             stoppingToken
         );
-        var avatarState = await StateGetter.GetAvatarState(joinArena.avatarAddress, stoppingToken);
+        var avatarState = await StateGetter.GetAvatarStateAsync(joinArena.avatarAddress, stoppingToken);
         var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
         return
         [

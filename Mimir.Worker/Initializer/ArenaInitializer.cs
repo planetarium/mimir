@@ -49,7 +49,7 @@ public class ArenaInitializer(
                 stoppingToken
             );
 
-            var avatarState = await stateGetter.GetAvatarState(avatarAddress, stoppingToken);
+            var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress, stoppingToken);
             var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
 
             _logger.Information("Init arena, address: {AvatarAddress}", avatarAddress);
