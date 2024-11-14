@@ -1,4 +1,5 @@
 using Lib9c.Models.Arena;
+using Lib9c.Models.States;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
@@ -10,5 +11,8 @@ namespace Mimir.MongoDB.Bson;
 public record ArenaParticipantDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address Address,
-    ArenaParticipant Object
+    ArenaParticipant Object,
+    int ChampionshipId,
+    int Round,
+    SimplifiedAvatarState SimpleAvatar
 ) : MimirBsonDocument(Address, new DocumentMetadata(ArenaParticipant.StateVersion, StoredBlockIndex));

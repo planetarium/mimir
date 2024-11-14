@@ -4,6 +4,9 @@ using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Mails;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model;
 using Newtonsoft.Json;
@@ -191,5 +194,11 @@ public record SimplifiedAvatarState : State
             avatarState.CombinationSlotAddresses,
             avatarState.RankingMapAddress
         );
+    }
+
+    public static SimplifiedAvatarState FromAvatarDocument(BsonValue bsonValue)
+    {
+        var avatarDoc = BsonSerializer.Deserialize<AvatarDocument>(bsonValue.AsBsonDocument);
+        return FromAvatarState(avatarDoc.Object);
     }
 }

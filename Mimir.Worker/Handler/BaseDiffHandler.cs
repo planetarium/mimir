@@ -7,6 +7,7 @@ using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
+using Mimir.Worker.Util;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Handler;
@@ -25,6 +26,7 @@ public abstract class BaseDiffHandler(
     protected const string PollerType = "DiffPoller";
     private static readonly Codec Codec = new();
 
+    protected readonly StateGetter StateGetter = stateService.At();
     protected readonly ILogger Logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

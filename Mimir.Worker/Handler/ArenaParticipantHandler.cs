@@ -1,3 +1,5 @@
+using Bencodex.Types;
+using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
@@ -5,6 +7,8 @@ using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Nekoyume;
 using Nekoyume.TableData;
 using Serilog;
@@ -27,7 +31,7 @@ public sealed class ArenaParticipantHandler(
         Log.ForContext<ArenaParticipantHandler>())
 {
     private const string CollectionName = "arena_participant";
-    
+
     private readonly MongoDbService _dbService = dbService;
     private readonly IStateService _stateService = stateService;
     private readonly IHeadlessGQLClient _headlessGqlClient = headlessGqlClient;
@@ -136,6 +140,38 @@ public sealed class ArenaParticipantHandler(
             DiffResponse = result,
             TargetBlockIndex = currentTargetIndex
         };
+    }
+
+    protected override async Task<MimirBsonDocument> CreateDocumentAsync(
+        IStateDocumentConverter converter,
+        long blockIndex,
+        Address address,
+        IValue rawState)
+    {
+        var pair = new AddressStatePair
+        {
+            BlockIndex = blockIndex,
+            Address = address,
+            RawState = rawState,
+        };
+        var roundData = ArenaSheet.GetRoundByBlockIndex(blockIndex);
+        var collection = _dbService.GetCollection<AvatarDocument>();
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", address.ToHex());
+        var doc = await collection.Find(filter).FirstOrDefaultAsync();
+        var simplifiedAvatar = doc is null
+            ? SimplifiedAvatarState.FromAvatarState(await StateGetter.GetAvatarStateAsync(address))
+            : SimplifiedAvatarState.FromAvatarDocument(doc);
+        if (converter is not ArenaParticipantDocumentConverter c)
+        {
+            throw new InvalidOperationException(
+                "Converter is not of type ArenaParticipantDocumentConverter.");
+        }
+
+        return c.ConvertToDocument(
+            pair,
+            roundData.ChampionshipId,
+            roundData.Round,
+            simplifiedAvatar);
     }
 
     private Address GetAccountAddress(long blockIndex)
