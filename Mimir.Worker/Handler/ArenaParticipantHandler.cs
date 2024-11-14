@@ -17,8 +17,8 @@ public sealed class ArenaParticipantHandler(
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager)
     : BaseDiffHandler(
-        "arena_participant_0_0",
-        Addresses.GetArenaParticipantAccountAddress(0, 0),
+        CollectionName,
+        Addresses.GetArenaParticipantAccountAddress(1, 1),
         new ArenaParticipantDocumentConverter(),
         dbService,
         stateService,
@@ -26,8 +26,8 @@ public sealed class ArenaParticipantHandler(
         initializerManager,
         Log.ForContext<ArenaParticipantHandler>())
 {
-    private const string MetadataCollectionName = "arena_participant";
-
+    private const string CollectionName = "arena_participant";
+    
     private readonly MongoDbService _dbService = dbService;
     private readonly IStateService _stateService = stateService;
     private readonly IHeadlessGQLClient _headlessGqlClient = headlessGqlClient;
@@ -57,16 +57,16 @@ public sealed class ArenaParticipantHandler(
         var syncedIndex = await GetSyncedBlockIndex(stoppingToken);
         var currentBaseIndex = syncedIndex;
 
-        var (accountAddress, collectionName) = GetArenaParticipantInfo(syncedIndex);
+        var accountAddress = GetAccountAddress(syncedIndex);
         Logger.Information(
             "{CollectionName} Synced BlockIndex: {SyncedBlockIndex}",
-            collectionName,
+            CollectionName,
             syncedIndex);
 
         var currentIndexOnChain = await _stateService.GetLatestIndex(stoppingToken, accountAddress);
         var indexDifference = currentIndexOnChain - currentBaseIndex;
-        var limit = collectionName == CollectionNames.GetCollectionName<InventoryDocument>() ||
-                    collectionName == CollectionNames.GetCollectionName<AvatarDocument>()
+        var limit = CollectionName == CollectionNames.GetCollectionName<InventoryDocument>() ||
+                    CollectionName == CollectionNames.GetCollectionName<AvatarDocument>()
             ? 1
             : 15;
         var currentTargetIndex = currentBaseIndex + (indexDifference > limit ? limit : indexDifference);
@@ -77,7 +77,7 @@ public sealed class ArenaParticipantHandler(
 
         Logger.Information(
             "{CollectionName} Request diff data, current: {CurrentBlockIndex}, gap: {IndexDiff}, base: {CurrentBaseIndex} target: {CurrentTargetIndex}",
-            collectionName,
+            CollectionName,
             currentIndexOnChain,
             indexDifference,
             currentBaseIndex,
@@ -86,48 +86,13 @@ public sealed class ArenaParticipantHandler(
         return (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference);
     }
 
-    protected override async Task ConsumeAsync(DiffContext diffContext, CancellationToken stoppingToken)
-    {
-        if (!diffContext.DiffResponse.AccountDiffs.Any())
-        {
-            Logger.Information("{CollectionName}: No diffs", diffContext.CollectionName);
-            await dbService.UpdateLatestBlockIndexAsync(
-                new MetadataDocument
-                {
-                    PollerType = PollerType,
-                    CollectionName = MetadataCollectionName,
-                    LatestBlockIndex = diffContext.TargetBlockIndex
-                }
-            );
-            return;
-        }
-
-        await ProcessStateDiff(
-            StateDocumentConverter,
-            diffContext.DiffResponse,
-            diffContext.TargetBlockIndex,
-            stoppingToken
-        );
-
-        await dbService.UpdateLatestBlockIndexAsync(
-            new MetadataDocument
-            {
-                PollerType = PollerType,
-                CollectionName = MetadataCollectionName,
-                LatestBlockIndex = diffContext.TargetBlockIndex
-            },
-            null,
-            stoppingToken
-        );
-    }
-
     protected override async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
     {
         try
         {
             var syncedBlockIndex = await _dbService.GetLatestBlockIndexAsync(
                 PollerType,
-                MetadataCollectionName,
+                CollectionName,
                 stoppingToken);
             return syncedBlockIndex;
         }
@@ -143,7 +108,7 @@ public sealed class ArenaParticipantHandler(
                 new MetadataDocument
                 {
                     PollerType = PollerType,
-                    CollectionName = MetadataCollectionName,
+                    CollectionName = CollectionName,
                     LatestBlockIndex = currentBlockIndex - 1
                 },
                 cancellationToken: stoppingToken
@@ -152,48 +117,12 @@ public sealed class ArenaParticipantHandler(
         }
     }
 
-    protected override async Task ProcessStateDiff(
-        IStateDocumentConverter converter,
-        GetAccountDiffsResponse diffResponse,
-        long blockIndex,
-        CancellationToken stoppingToken)
-    {
-        var documents = new List<MimirBsonDocument>();
-        foreach (var diff in diffResponse.AccountDiffs)
-            if (diff.ChangedState is not null)
-            {
-                var address = new Address(diff.Path);
-                var pair = new AddressStatePair
-                {
-                    Address = address,
-                    RawState = Codec.Decode(Convert.FromHexString(diff.ChangedState))
-                };
-                var document = converter.ConvertToDocument(pair);
-                documents.Add(document);
-            }
-
-        Logger.Information(
-            "{DiffCount} Handle in {Handler} Converted {Count} States",
-            diffResponse.AccountDiffs.Count,
-            converter.GetType().Name,
-            documents.Count);
-
-        if (documents.Count > 0)
-        {
-            await _dbService.UpsertStateDataManyAsync(
-                GetCollectionName(blockIndex),
-                documents,
-                createCollectionIfNotExists: true,
-                cancellationToken: stoppingToken);
-        }
-    }
-
     protected override async Task<DiffContext> ProduceByAccount(
         CancellationToken stoppingToken,
         long currentBaseIndex,
         long currentTargetIndex)
     {
-        var (accountAddress, collectionName) = GetArenaParticipantInfo(currentBaseIndex);
+        var accountAddress = GetAccountAddress(currentBaseIndex);
         var result = await _headlessGqlClient.GetAccountDiffsAsync(
             currentBaseIndex,
             currentTargetIndex,
@@ -203,23 +132,15 @@ public sealed class ArenaParticipantHandler(
         return new DiffContext
         {
             AccountAddress = accountAddress,
-            CollectionName = collectionName,
+            CollectionName = CollectionName,
             DiffResponse = result,
             TargetBlockIndex = currentTargetIndex
         };
     }
 
-    private string GetCollectionName(long blockIndex)
+    private Address GetAccountAddress(long blockIndex)
     {
         var roundData = ArenaSheet.GetRoundByBlockIndex(blockIndex);
-        return $"arena_participant_{roundData.ChampionshipId}_{roundData.Round}";
-    }
-
-    private (Address accountAddress, string collectionName) GetArenaParticipantInfo(long blockIndex)
-    {
-        var roundData = ArenaSheet.GetRoundByBlockIndex(blockIndex);
-        var accountAddress = Addresses.GetArenaParticipantAccountAddress(roundData.ChampionshipId, roundData.Round);
-        var collectionName = GetCollectionName(blockIndex);
-        return (accountAddress, collectionName);
+        return Addresses.GetArenaParticipantAccountAddress(roundData.ChampionshipId, roundData.Round);
     }
 }

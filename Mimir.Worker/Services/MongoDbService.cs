@@ -91,28 +91,20 @@ public class MongoDbService
         return mappings;
     }
 
-    public IMongoCollection<BsonDocument> GetCollection(string collectionName, bool createIfNotExists = false)
+    public IMongoCollection<BsonDocument> GetCollection(string collectionName)
     {
         if (_stateCollectionMappings.TryGetValue(collectionName, out var collection))
         {
             return collection;
         }
 
-        if (createIfNotExists)
-        {
-            _database.CreateCollection(collectionName);
-            collection = _database.GetCollection<BsonDocument>(collectionName);
-            _stateCollectionMappings[collectionName] = collection;
-            return collection;
-        }
-
         throw new InvalidOperationException($"No collection mapping found for name: {collectionName}");
     }
 
-    public IMongoCollection<BsonDocument> GetCollection<T>(bool createIfNotExists = false)
+    public IMongoCollection<BsonDocument> GetCollection<T>()
     {
         var collectionName = CollectionNames.GetCollectionName<T>();
-        return GetCollection(collectionName, createIfNotExists);
+        return GetCollection(collectionName);
     }
 
     public async Task<UpdateResult> UpdateLatestBlockIndexAsync(
@@ -183,7 +175,6 @@ public class MongoDbService
     public Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<MimirBsonDocument> documents,
-        bool createCollectionIfNotExists = false,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default)
     {
@@ -197,7 +188,6 @@ public class MongoDbService
         return UpsertStateDataManyAsync(
             collectionName,
             bulkOps,
-            createCollectionIfNotExists,
             session,
             cancellationToken);
     }
@@ -205,21 +195,19 @@ public class MongoDbService
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<WriteModel<BsonDocument>> bulkOps,
-        bool createCollectionIfNotExists = false,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default)
     {
         return session is null
-            ? await GetCollection(collectionName, createCollectionIfNotExists)
+            ? await GetCollection(collectionName)
                 .BulkWriteAsync(bulkOps, null, cancellationToken)
-            : await GetCollection(collectionName, createCollectionIfNotExists)
+            : await GetCollection(collectionName)
                 .BulkWriteAsync(session, bulkOps, null, cancellationToken);
     }
 
     public async Task<BulkWriteResult> UpsertSheetDocumentAsync(
         string collectionName,
         List<SheetDocument> documents,
-        bool createCollectionIfNotExists = false,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default)
     {
@@ -231,9 +219,9 @@ public class MongoDbService
         }
 
         return session is null
-            ? await GetCollection(collectionName, createCollectionIfNotExists)
+            ? await GetCollection(collectionName)
                 .BulkWriteAsync(bulkOps, null, cancellationToken)
-            : await GetCollection(collectionName, createCollectionIfNotExists)
+            : await GetCollection(collectionName)
                 .BulkWriteAsync(session, bulkOps, null, cancellationToken);
     }
 
