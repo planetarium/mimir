@@ -22,10 +22,17 @@ public class ArenaParticipantDocumentConverterTests
             Address = address,
             RawState = bencoded,
         };
-        var doc = _converter.ConvertToDocument(context);
+        var doc = _converter.ConvertToDocument(
+            context,
+            1,
+            1,
+            null);
         Assert.IsType<ArenaParticipantDocument>(doc);
         var arenaParticipantDoc = (ArenaParticipantDocument)doc;
         Assert.Equal(address, arenaParticipantDoc.Address);
         Assert.Equal(bencoded, arenaParticipantDoc.Object.Bencoded);
+        Assert.Equal(1, arenaParticipantDoc.ChampionshipId);
+        Assert.Equal(1, arenaParticipantDoc.Round);
+        Assert.Null(arenaParticipantDoc.SimpleAvatar);
     }
 }

@@ -6,6 +6,7 @@ namespace Mimir.Worker.StateDocumentConverter;
 
 public class ArenaParticipantDocumentConverter : IStateDocumentConverter
 {
+    [Obsolete("Use ConvertToDocument(AddressStatePair, int, int, SimplifiedAvatarState) instead.")]
     public MimirBsonDocument ConvertToDocument(AddressStatePair context)
     {
         throw new InvalidOperationException(
