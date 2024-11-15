@@ -16,13 +16,14 @@ public record ArenaParticipant : IBencodable
 
     public Address AvatarAddr { get; init; }
 
-    /// <summary>
+    /// <summary>The name of avatar</summary>
+    /// <remarks>
     /// If you need to know <see cref="Nekoyume.Model.State.AvatarState.NameWithHash"/>, check
     /// <see cref="Nekoyume.Model.State.AvatarState.PostConstructor"/> method of the
     /// <see cref="Nekoyume.Model.State.AvatarState"/> class and you can find the relevant information there. It
     /// provides a formatted string that includes the avatar's <see cref="Nekoyume.Model.State.AvatarState.name"/>
     /// and a shortened version of their address.
-    /// </summary>
+    /// </remarks>
     /// <example>
     /// <code>
     /// $"{name} &lt;size=80%&gt;&lt;color=#A68F7E&gt;#{address.ToHex().Substring(0, 4)}&lt;/color&gt;&lt;/size&gt;";
