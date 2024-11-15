@@ -24,7 +24,7 @@ public abstract class BaseDiffHandler(
 ) : BackgroundService
 {
     protected const string PollerType = "DiffPoller";
-    private static readonly Codec Codec = new();
+    protected static readonly Codec Codec = new();
 
     protected readonly StateGetter StateGetter = stateService.At();
     protected readonly ILogger Logger = logger;
@@ -151,7 +151,7 @@ public abstract class BaseDiffHandler(
         );
     }
 
-    private async Task ProcessStateDiff(
+    protected virtual async Task ProcessStateDiff(
         IStateDocumentConverter converter,
         GetAccountDiffsResponse diffResponse,
         long blockIndex,

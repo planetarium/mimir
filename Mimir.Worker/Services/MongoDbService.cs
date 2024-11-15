@@ -175,13 +175,17 @@ public class MongoDbService
     public Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<MimirBsonDocument> documents,
+        bool createInsertionData = false,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default)
     {
         List<WriteModel<BsonDocument>> bulkOps = [];
         foreach (var document in documents)
         {
-            var stateUpdateModel = GetMimirDocumentUpdateModel(collectionName, document);
+            var stateUpdateModel = GetMimirDocumentUpdateModel(
+                collectionName,
+                document,
+                createInsertionData);
             bulkOps.Add(stateUpdateModel);
         }
 
@@ -227,10 +231,16 @@ public class MongoDbService
 
     private UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(
         string collectionName,
-        MimirBsonDocument document)
+        MimirBsonDocument document,
+        bool createInsertionData = false)
     {
         var json = document.ToJson();
         var bsonDocument = BsonDocument.Parse(json);
+        if (createInsertionData)
+        {
+            bsonDocument["InsertionDate"] = DateTime.UtcNow;    
+        }
+
         var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Id.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };

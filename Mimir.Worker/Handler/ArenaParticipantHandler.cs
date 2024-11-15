@@ -90,6 +90,33 @@ public sealed class ArenaParticipantHandler(
         return (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference);
     }
 
+    protected override async Task<MimirBsonDocument> CreateDocumentAsync(
+        IStateDocumentConverter converter,
+        long blockIndex,
+        Address address,
+        IValue rawState)
+    {
+        var pair = new AddressStatePair
+        {
+            BlockIndex = blockIndex,
+            Address = address,
+            RawState = rawState,
+        };
+        var roundData = ArenaSheet.GetRoundByBlockIndex(blockIndex);
+        var collection = _dbService.GetCollection<AvatarDocument>();
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", address.ToHex());
+        var doc = await collection.Find(filter).FirstOrDefaultAsync();
+        var simplifiedAvatar = doc is null
+            ? SimplifiedAvatarState.FromAvatarState(await StateGetter.GetAvatarStateAsync(address))
+            : SimplifiedAvatarState.FromAvatarDocument(doc);
+
+        return ArenaParticipantDocumentConverter.ConvertToDocument(
+            pair,
+            roundData.ChampionshipId,
+            roundData.Round,
+            simplifiedAvatar);
+    }
+
     protected override async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
     {
         try
@@ -121,6 +148,43 @@ public sealed class ArenaParticipantHandler(
         }
     }
 
+    protected override async Task ProcessStateDiff(
+        IStateDocumentConverter converter,
+        GetAccountDiffsResponse diffResponse,
+        long blockIndex,
+        CancellationToken stoppingToken)
+    {
+        var documents = new List<MimirBsonDocument>();
+        foreach (var diff in diffResponse.AccountDiffs)
+        {
+            if (diff.ChangedState is not null)
+            {
+                var address = new Address(diff.Path);
+                var document = await CreateDocumentAsync(
+                    converter,
+                    blockIndex,
+                    address,
+                    Codec.Decode(Convert.FromHexString(diff.ChangedState)));
+                documents.Add(document);
+            }
+        }
+
+        Logger.Information(
+            "{DiffCount} Handle in {Handler} Converted {Count} States",
+            diffResponse.AccountDiffs.Count(),
+            converter.GetType().Name,
+            documents.Count);
+
+        if (documents.Count > 0)
+        {
+            await dbService.UpsertStateDataManyAsync(
+                CollectionName,
+                documents,
+                createInsertionData: true,
+                cancellationToken: stoppingToken);
+        }
+    }
+
     protected override async Task<DiffContext> ProduceByAccount(
         CancellationToken stoppingToken,
         long currentBaseIndex,
@@ -140,38 +204,6 @@ public sealed class ArenaParticipantHandler(
             DiffResponse = result,
             TargetBlockIndex = currentTargetIndex
         };
-    }
-
-    protected override async Task<MimirBsonDocument> CreateDocumentAsync(
-        IStateDocumentConverter converter,
-        long blockIndex,
-        Address address,
-        IValue rawState)
-    {
-        var pair = new AddressStatePair
-        {
-            BlockIndex = blockIndex,
-            Address = address,
-            RawState = rawState,
-        };
-        var roundData = ArenaSheet.GetRoundByBlockIndex(blockIndex);
-        var collection = _dbService.GetCollection<AvatarDocument>();
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", address.ToHex());
-        var doc = await collection.Find(filter).FirstOrDefaultAsync();
-        var simplifiedAvatar = doc is null
-            ? SimplifiedAvatarState.FromAvatarState(await StateGetter.GetAvatarStateAsync(address))
-            : SimplifiedAvatarState.FromAvatarDocument(doc);
-        if (converter is not ArenaParticipantDocumentConverter c)
-        {
-            throw new InvalidOperationException(
-                "Converter is not of type ArenaParticipantDocumentConverter.");
-        }
-
-        return c.ConvertToDocument(
-            pair,
-            roundData.ChampionshipId,
-            roundData.Round,
-            simplifiedAvatar);
     }
 
     private Address GetAccountAddress(long blockIndex)
