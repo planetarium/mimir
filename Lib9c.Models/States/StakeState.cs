@@ -15,7 +15,7 @@ namespace Lib9c.Models.States;
 public record StakeState : IBencodable
 {
     public const string StateTypeName = "stake_state";
-    public const int StateTypeVersion = 2;
+    public const int StateTypeVersion = 3;
     public Contract Contract { get; init; }
     public long StartedBlockIndex { get; init; }
     public long ReceivedBlockIndex { get; init; }
