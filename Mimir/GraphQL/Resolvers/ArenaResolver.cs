@@ -20,18 +20,18 @@ public class ArenaResolver
             return arenaRound;
         }
 
-        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var collectionName = CollectionNames.GetCollectionName<ArenaParticipantDocument>();
         var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound = tableSheetsRepo.GetArenaRound(metadataDocument.LatestBlockIndex);
         context.ScopedContextData = context.ScopedContextData.Add("arenaRound", arenaRound);
         return arenaRound;
     }
 
-    public static async Task<List<ArenaRankingDocument>> GetLeaderboardAsync(
+    public static async Task<List<ArenaParticipantDocument>> GetLeaderboardAsync(
         IResolverContext context,
         int ranking,
         int length,
-        [Service] ArenaRepository arenaRankingRepo,
+        [Service] ArenaParticipantRepository arenaParticipantRepository,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
@@ -58,10 +58,10 @@ public class ArenaResolver
                 );
         }
 
-        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var collectionName = CollectionNames.GetCollectionName<ArenaParticipantDocument>();
         var metadata = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
-        return await arenaRankingRepo.GetLeaderboardAsync(
+        return await arenaParticipantRepository.GetLeaderboardAsync(
             metadata.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
@@ -72,33 +72,33 @@ public class ArenaResolver
     public static async Task<int?> GetRankingAsync(
         IResolverContext context,
         Address avatarAddress,
-        [Service] ArenaRepository arenaRankingRepo,
+        [Service] ArenaParticipantRepository arenaParticipantRepository,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var collectionName = CollectionNames.GetCollectionName<ArenaParticipantDocument>();
         var metadata = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
-        return await arenaRankingRepo.GetRankingByAvatarAddressAsync(
+        return await arenaParticipantRepository.GetRankingByAddressAsync(
             metadata.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
             avatarAddress);
     }
 
-    public static async Task<List<ArenaRankingDocument>> GetLeaderboardByAvatarAddressAsync(
+    public static async Task<List<ArenaParticipantDocument>> GetLeaderboardByAvatarAddressAsync(
         IResolverContext context,
         Address avatarAddress,
-        [Service] ArenaRepository arenaRankingRepo,
+        [Service] ArenaParticipantRepository arenaParticipantRepository,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
         [ScopedState("arenaRound")] ArenaSheet.RoundData? arenaRound)
     {
-        var collectionName = CollectionNames.GetCollectionName<ArenaDocument>();
+        var collectionName = CollectionNames.GetCollectionName<ArenaParticipantDocument>();
         var metadata = await metadataRepo.GetByCollectionAsync(collectionName);
         arenaRound ??= await GetRoundAsync(context, metadataRepo, tableSheetsRepo, arenaRound);
-        return await arenaRankingRepo.GetLeaderboardByAvatarAddressAsync(
+        return await arenaParticipantRepository.GetLeaderboardByAvatarAddressAsync(
             metadata.LatestBlockIndex,
             arenaRound.ChampionshipId,
             arenaRound.Round,
