@@ -17,13 +17,8 @@ public static class StateReader
 
     public static IValue ReadState(string fileName)
     {
-        var file = GetFile(fileName);
-        return Codec.Decode(ByteUtil.ParseHex(file));
-    }
-
-    private static string GetFile(string fileName)
-    {
         var path = Path.Combine(StatesFullPath, fileName);
-        return File.ReadAllText(path).Trim();
+        var text = File.ReadAllText(path).Trim();
+        return Codec.Decode(ByteUtil.ParseHex(text));
     }
 }
