@@ -6,8 +6,6 @@ namespace Mimir.Worker.Tests.StateDocumentConverter;
 
 public class ArenaParticipantDocumentConverterTests
 {
-    private readonly ArenaParticipantDocumentConverter _converter = new();
-
     [Fact]
     public void ConvertToStateData()
     {
@@ -22,7 +20,7 @@ public class ArenaParticipantDocumentConverterTests
             Address = address,
             RawState = bencoded,
         };
-        var doc = _converter.ConvertToDocument(
+        var doc = ArenaParticipantDocumentConverter.ConvertToDocument(
             context,
             1,
             1,

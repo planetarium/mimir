@@ -13,7 +13,7 @@ public class ArenaParticipantDocumentConverter : IStateDocumentConverter
             "ConvertToDocument method is not implemented for the given parameters.");
     }
 
-    public MimirBsonDocument ConvertToDocument(
+    public static MimirBsonDocument ConvertToDocument(
         AddressStatePair context,
         int championshipId,
         int round,
