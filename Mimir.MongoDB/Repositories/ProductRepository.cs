@@ -5,12 +5,13 @@ using HotChocolate.Data.MongoDb;
 using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Enums;
+using Mimir.MongoDB.Models;
 using Mimir.MongoDB.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using Nekoyume.Model.Item;
 using Nekoyume.Model.Market;
+using SortDirection = Mimir.MongoDB.Enums.SortDirection;
 
 namespace Mimir.MongoDB.Repositories;
 
@@ -55,16 +56,7 @@ public class ProductRepository
 
         return productDocument;
     }
-
-    public class ProductFilter
-    {
-        public ProductType? ProductType { get; set; }
-        public ItemType? ItemType { get; set; }
-        public ItemSubType? ItemSubType { get; set; }
-        public ProductSortBy? SortBy { get; set; }
-        public Enums.SortDirection? SortDirection { get; set; } = Enums.SortDirection.Ascending;
-    }
-
+    
     private static FilterDefinition<ProductDocument> BuildFilter(ProductFilter? productFilter)
     {
         var filterBuilder = Builders<ProductDocument>.Filter;
@@ -91,30 +83,26 @@ public class ProductRepository
     private IExecutable<ProductDocument> ApplySorting(ProductFilter productFilter, FilterDefinition<ProductDocument> filter,
         IFindFluent<ProductDocument, ProductDocument> find)
     {
-        productFilter.SortDirection ??= Enums.SortDirection.Ascending;
+        productFilter.SortDirection ??= SortDirection.Ascending;
 
         switch (productFilter.SortBy)
         {
-            case ProductSortBy.Cp:
-                break;
-            case ProductSortBy.Crystal:
-                break;
             case ProductSortBy.Grade:
-                return SortByGrade(productFilter, find);
+                return SortByGrade(productFilter.SortDirection.Value, find);
             case ProductSortBy.Price:
-                return SortByPrice(filter, productFilter);
+                return SortByPrice(filter, productFilter.SortDirection.Value);
             case ProductSortBy.UnitPrice:
-                return SortByUnitPrice(productFilter, filter, find);
+                return SortByUnitPrice(productFilter.ProductType, productFilter.SortDirection.Value, filter, find);
         }
 
         return find.AsExecutable();
     }
 
-    private static MongoDbFindFluentExecutable<ProductDocument> SortByGrade(ProductFilter productFilter,
+    private static MongoDbFindFluentExecutable<ProductDocument> SortByGrade(SortDirection sortDirection,
         IFindFluent<ProductDocument, ProductDocument> find)
     {
         var sortBuilder = Builders<ProductDocument>.Sort;
-        find = productFilter.SortDirection == Enums.SortDirection.Ascending
+        find = sortDirection == SortDirection.Ascending
             ? find.Sort(sortBuilder.Ascending("Object.TradableItem.Grade"))
             : find.Sort(sortBuilder.Descending("Object.TradableItem.Grade"));
 
@@ -122,14 +110,14 @@ public class ProductRepository
     }
 
     private MongoDbAggregateFluentExecutable<ProductDocument> SortByPrice(FilterDefinition<ProductDocument> filter,
-        ProductFilter productFilter)
+        SortDirection sortDirection)
     {
         var convertStage = new BsonDocument("$addFields", new BsonDocument
         {
             { "convertedPrice", new BsonDocument("$toLong", "$Object.Price.MajorUnit") },
         });
         var sortStage = new BsonDocument("$sort", new BsonDocument("convertedPrice",
-            productFilter.SortDirection == Enums.SortDirection.Ascending ? 1 : -1));
+            sortDirection == SortDirection.Ascending ? 1 : -1));
 
         return _collection.Aggregate()
             .Match(filter)
@@ -138,22 +126,23 @@ public class ProductRepository
             .AsExecutable();
     }
 
-    private IExecutable<ProductDocument> SortByUnitPrice(ProductFilter productFilter, FilterDefinition<ProductDocument> filter, IFindFluent<ProductDocument, ProductDocument> find)
+    private IExecutable<ProductDocument> SortByUnitPrice(ProductType? productType, SortDirection sortDirection,
+        FilterDefinition<ProductDocument> filter, IFindFluent<ProductDocument, ProductDocument> find)
     {
         // ProductDocument.UnitPrice is null for FungibleAssetValue
-        if (productFilter.ProductType == ProductType.FungibleAssetValue)
+        if (productType == ProductType.FungibleAssetValue)
         {
-            return SortFungibleAssetValueByUnitPrice(productFilter, filter);
+            return SortFungibleAssetValueByUnitPrice(sortDirection, filter);
         }
 
-        find = productFilter.SortDirection == Enums.SortDirection.Ascending
+        find = sortDirection == SortDirection.Ascending
             ? find.SortBy(x => x.UnitPrice)
             : find.SortByDescending(x => x.UnitPrice);
 
         return find.AsExecutable();
     }
 
-    private MongoDbAggregateFluentExecutable<ProductDocument> SortFungibleAssetValueByUnitPrice(ProductFilter productFilter,
+    private MongoDbAggregateFluentExecutable<ProductDocument> SortFungibleAssetValueByUnitPrice(SortDirection sortDirection,
         FilterDefinition<ProductDocument> filter)
     {
         var convertStage = new BsonDocument("$addFields", new BsonDocument
@@ -166,7 +155,7 @@ public class ProductRepository
             { "calcUnitPrice", new BsonDocument("$divide", new BsonArray { "$convertedPrice", "$convertedQty" }) },
         });
         var sortStage = new BsonDocument("$sort", new BsonDocument("calcUnitPrice",
-            productFilter.SortDirection == Enums.SortDirection.Ascending ? 1 : -1));
+            sortDirection == SortDirection.Ascending ? 1 : -1));
 
         return _collection.Aggregate()
             .Match(filter)
