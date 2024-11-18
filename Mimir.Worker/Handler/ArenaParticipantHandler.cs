@@ -180,7 +180,7 @@ public sealed class ArenaParticipantHandler(
             await dbService.UpsertStateDataManyAsync(
                 CollectionName,
                 documents,
-                createInsertionData: true,
+                createInsertionDate: true,
                 cancellationToken: stoppingToken);
         }
     }

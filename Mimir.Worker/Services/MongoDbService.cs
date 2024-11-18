@@ -175,7 +175,7 @@ public class MongoDbService
     public Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<MimirBsonDocument> documents,
-        bool createInsertionData = false,
+        bool createInsertionDate = false,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default)
     {
@@ -185,7 +185,7 @@ public class MongoDbService
             var stateUpdateModel = GetMimirDocumentUpdateModel(
                 collectionName,
                 document,
-                createInsertionData);
+                createInsertionDate);
             bulkOps.Add(stateUpdateModel);
         }
 
@@ -232,11 +232,11 @@ public class MongoDbService
     private UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(
         string collectionName,
         MimirBsonDocument document,
-        bool createInsertionData = false)
+        bool createInsertionDate = false)
     {
         var json = document.ToJson();
         var bsonDocument = BsonDocument.Parse(json);
-        if (createInsertionData)
+        if (createInsertionDate)
         {
             bsonDocument["InsertionDate"] = DateTime.UtcNow;    
         }
