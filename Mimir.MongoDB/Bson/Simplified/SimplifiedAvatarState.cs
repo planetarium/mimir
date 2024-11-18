@@ -22,6 +22,7 @@ public record SimplifiedAvatarState : State
 {
     public int Version { get; init; }
     public string Name { get; init; }
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public int CharacterId { get; init; }
     public int Level { get; init; }
     public long Exp { get; init; }
@@ -30,6 +31,7 @@ public record SimplifiedAvatarState : State
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public MailBox MailBox { get; init; }
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public long BlockIndex { get; init; }
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
@@ -54,6 +56,7 @@ public record SimplifiedAvatarState : State
     public int Ear { get; init; }
     public int Tail { get; init; }
     public List<Address> CombinationSlotAddresses { get; init; }
+    [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public Address RankingMapAddress { get; init; }
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
