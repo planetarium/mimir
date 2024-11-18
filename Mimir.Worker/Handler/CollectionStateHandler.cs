@@ -1,11 +1,9 @@
 using Mimir.Worker.Client;
-using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
 using Nekoyume;
 using Serilog;
-using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Handler;
 

@@ -93,12 +93,12 @@ public class MongoDbService
 
     public IMongoCollection<BsonDocument> GetCollection(string collectionName)
     {
-        if (!_stateCollectionMappings.TryGetValue(collectionName, out var collection))
+        if (_stateCollectionMappings.TryGetValue(collectionName, out var collection))
         {
-            throw new InvalidOperationException($"No collection mapping found for name: {collectionName}");
+            return collection;
         }
 
-        return collection;
+        throw new InvalidOperationException($"No collection mapping found for name: {collectionName}");
     }
 
     public IMongoCollection<BsonDocument> GetCollection<T>()
@@ -175,17 +175,25 @@ public class MongoDbService
     public Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<MimirBsonDocument> documents,
+        bool createInsertionDate = false,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default)
     {
         List<WriteModel<BsonDocument>> bulkOps = [];
         foreach (var document in documents)
         {
-            var stateUpdateModel = GetMimirDocumentUpdateModel(collectionName, document);
+            var stateUpdateModel = GetMimirDocumentUpdateModel(
+                collectionName,
+                document,
+                createInsertionDate);
             bulkOps.Add(stateUpdateModel);
         }
 
-        return UpsertStateDataManyAsync(collectionName, bulkOps, session, cancellationToken);
+        return UpsertStateDataManyAsync(
+            collectionName,
+            bulkOps,
+            session,
+            cancellationToken);
     }
 
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
@@ -223,10 +231,16 @@ public class MongoDbService
 
     private UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(
         string collectionName,
-        MimirBsonDocument document)
+        MimirBsonDocument document,
+        bool createInsertionDate = false)
     {
         var json = document.ToJson();
         var bsonDocument = BsonDocument.Parse(json);
+        if (createInsertionDate)
+        {
+            bsonDocument["InsertionDate"] = DateTime.UtcNow;    
+        }
+
         var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Id.ToHex());
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };

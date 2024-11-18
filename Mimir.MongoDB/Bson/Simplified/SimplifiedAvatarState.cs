@@ -1,12 +1,15 @@
-using System.Text.Json.Serialization;
 using Bencodex.Types;
 using HotChocolate;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Mails;
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model;
+using Newtonsoft.Json;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.States;
@@ -191,5 +194,11 @@ public record SimplifiedAvatarState : State
             avatarState.CombinationSlotAddresses,
             avatarState.RankingMapAddress
         );
+    }
+
+    public static SimplifiedAvatarState FromAvatarDocument(BsonValue bsonValue)
+    {
+        var avatarDoc = BsonSerializer.Deserialize<AvatarDocument>(bsonValue.AsBsonDocument);
+        return FromAvatarState(avatarDoc.Object);
     }
 }
