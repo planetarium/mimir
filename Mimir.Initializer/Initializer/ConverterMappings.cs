@@ -11,7 +11,7 @@ public static class ConverterMappings
     static ConverterMappings()
     {
         pairs.Add(Addresses.Agent, new AgentStateDocumentConverter());
-        pairs.Add(Addresses.Avatar, new AgentStateDocumentConverter());
+        pairs.Add(Addresses.Avatar, new AvatarStateDocumentConverter());
     }
 
     public static IStateDocumentConverter GetConverter(Address accountAddress)

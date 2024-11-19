@@ -26,6 +26,19 @@
       "env": {
         "WORKER_CONFIG_FILE": "appsettings.local.json"
       }
+    },
+    {
+      "name": "Debug Mimir.Initializer",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/Mimir.Initializer/bin/Debug/net8.0/Mimir.Initializer.dll",
+      "cwd": "${workspaceFolder}/Mimir.Initializer",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "preLaunchTask": "build-initializer",
+      "env": {
+        "INITIALIZER_CONFIG_FILE": "appsettings.local.json"
+      }
     }
   ]
 }
