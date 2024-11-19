@@ -11,7 +11,7 @@ using Libplanet.Store.Trie;
 using Libplanet.Types.Blocks;
 using Serilog;
 
-namespace Mimir.Worker.Util;
+namespace Mimir.Initializer.Util;
 
 // Copy From Census
 public static class ChainUtil

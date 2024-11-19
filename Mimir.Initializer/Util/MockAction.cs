@@ -2,7 +2,7 @@ using Bencodex.Types;
 using Libplanet.Action;
 using Libplanet.Action.State;
 
-namespace Mimir.Worker.Util;
+namespace Mimir.Initializer.Util;
 
 /// <summary>
 /// A mock <see cref="IAction"/>.
