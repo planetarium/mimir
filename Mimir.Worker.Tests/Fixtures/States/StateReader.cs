@@ -2,9 +2,9 @@ using Bencodex;
 using Bencodex.Types;
 using Libplanet.Common;
 
-namespace Lib9c.Models.Tests.Fixtures.States;
+namespace Mimir.Worker.Tests.Fixtures.States;
 
-public static class StateWriter
+public static class StateReader
 {
     private static readonly string StatesFullPath = Path.GetFullPath(
         Path.Combine(
@@ -15,15 +15,10 @@ public static class StateWriter
 
     private static readonly Codec Codec = new();
 
-    public static void WriteState(string fileName, IValue bencoded)
-    {
-        var hex = ByteUtil.Hex(Codec.Encode(bencoded));
-        WriteFile(fileName, hex);
-    }
-
-    private static void WriteFile(string fileName, string hex)
+    public static IValue ReadState(string fileName)
     {
         var path = Path.Combine(StatesFullPath, fileName);
-        File.WriteAllText(path, hex);
+        var text = File.ReadAllText(path).Trim();
+        return Codec.Decode(ByteUtil.ParseHex(text));
     }
 }

@@ -1,14 +1,12 @@
 using Mimir.GraphQL.Queries;
 using Mimir.GraphQL.Types.MimirBsonDocuments;
+using Mimir.MongoDB.Models;
 using Mimir.MongoDB.Repositories;
 
 namespace Mimir.GraphQL.Types;
 
 public class QueryType : ObjectType<Query>
 {
-    
-    public class ProductFilterInputType : InputObjectType<ProductRepository.ProductFilter>;
-
     protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
     {
         descriptor
@@ -18,7 +16,7 @@ public class QueryType : ObjectType<Query>
             .UseOffsetPaging<ProductDocumentType>()
             .Resolve(context =>
             {
-                var productFilter = context.ArgumentValue<ProductRepository.ProductFilter?>("filter");
+                var productFilter = context.ArgumentValue<ProductFilter?>("filter");
                 return context.Service<ProductRepository>().Get(productFilter);
             });
     }

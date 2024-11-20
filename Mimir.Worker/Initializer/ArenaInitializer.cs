@@ -49,7 +49,7 @@ public class ArenaInitializer(
                 stoppingToken
             );
 
-            var avatarState = await stateGetter.GetAvatarState(avatarAddress, stoppingToken);
+            var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress, stoppingToken);
             var simpleAvatarState = SimplifiedAvatarState.FromAvatarState(avatarState);
 
             _logger.Information("Init arena, address: {AvatarAddress}", avatarAddress);
@@ -66,14 +66,12 @@ public class ArenaInitializer(
                         roundData.Round
                     )
                 ],
-                null,
-                stoppingToken
+                cancellationToken: stoppingToken
             );
             await _store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<AvatarDocument>(),
                 [AvatarCollectionUpdater.UpsertAsync(blockIndex, avatarState)],
-                null,
-                stoppingToken
+                cancellationToken: stoppingToken
             );
         }
     }

@@ -1,12 +1,13 @@
 using Bencodex;
+using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
-using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
+using Mimir.Worker.Util;
 using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Handler;
@@ -22,9 +23,11 @@ public abstract class BaseDiffHandler(
     ILogger logger
 ) : BackgroundService
 {
-    private readonly Address _accountAddress = accountAddress;
-    private readonly Codec _codec = new();
-    protected ILogger Logger { get; } = logger;
+    protected const string PollerType = "DiffPoller";
+    protected static readonly Codec Codec = new();
+
+    protected readonly StateGetter StateGetter = stateService.At();
+    protected readonly ILogger Logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -66,7 +69,7 @@ public abstract class BaseDiffHandler(
         }
     }
 
-    private async Task<(long, long, long, long)> CalculateCurrentAndTargetIndexes(
+    protected virtual async Task<(long, long, long, long)> CalculateCurrentAndTargetIndexes(
         CancellationToken stoppingToken
     )
     {
@@ -78,8 +81,7 @@ public abstract class BaseDiffHandler(
             syncedIndex
         );
 
-        var currentIndexOnChain = await stateService.GetLatestIndex(stoppingToken, _accountAddress);
-
+        var currentIndexOnChain = await stateService.GetLatestIndex(stoppingToken, accountAddress);
         var indexDifference = currentIndexOnChain - currentBaseIndex;
         var limit =
             collectionName == CollectionNames.GetCollectionName<InventoryDocument>()
@@ -92,7 +94,7 @@ public abstract class BaseDiffHandler(
         return (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference);
     }
 
-    private async Task<DiffContext> ProduceByAccount(
+    protected virtual async Task<DiffContext> ProduceByAccount(
         CancellationToken stoppingToken,
         long currentBaseIndex,
         long currentTargetIndex
@@ -101,13 +103,13 @@ public abstract class BaseDiffHandler(
         var (result, _) = await headlessGqlClient.GetAccountDiffsAsync(
             currentBaseIndex,
             currentTargetIndex,
-            _accountAddress,
+            accountAddress,
             stoppingToken
         );
 
         return new DiffContext
         {
-            AccountAddress = _accountAddress,
+            AccountAddress = accountAddress,
             CollectionName = collectionName,
             DiffResponse = result,
             TargetBlockIndex = currentTargetIndex
@@ -122,7 +124,7 @@ public abstract class BaseDiffHandler(
             await dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
-                    PollerType = "DiffPoller",
+                    PollerType = PollerType,
                     CollectionName = diffContext.CollectionName,
                     LatestBlockIndex = diffContext.TargetBlockIndex
                 }
@@ -140,7 +142,7 @@ public abstract class BaseDiffHandler(
         await dbService.UpdateLatestBlockIndexAsync(
             new MetadataDocument
             {
-                PollerType = "DiffPoller",
+                PollerType = PollerType,
                 CollectionName = diffContext.CollectionName,
                 LatestBlockIndex = diffContext.TargetBlockIndex
             },
@@ -149,7 +151,7 @@ public abstract class BaseDiffHandler(
         );
     }
 
-    private async Task ProcessStateDiff(
+    protected virtual async Task ProcessStateDiff(
         IStateDocumentConverter converter,
         GetAccountDiffsResponse diffResponse,
         long blockIndex,
@@ -158,21 +160,18 @@ public abstract class BaseDiffHandler(
     {
         var documents = new List<MimirBsonDocument>();
         foreach (var diff in diffResponse.AccountDiffs)
+        {
             if (diff.ChangedState is not null)
             {
                 var address = new Address(diff.Path);
-
-                var document = converter.ConvertToDocument(
-                    new AddressStatePair
-                    {
-                        BlockIndex = blockIndex,
-                        Address = address,
-                        RawState = _codec.Decode(Convert.FromHexString(diff.ChangedState))
-                    }
-                );
-
+                var document = await CreateDocumentAsync(
+                    converter,
+                    blockIndex,
+                    address,
+                    Codec.Decode(Convert.FromHexString(diff.ChangedState)));
                 documents.Add(document);
             }
+        }
 
         Logger.Information(
             "{DiffCount} Handle in {Handler} Converted {Count} States",
@@ -185,17 +184,16 @@ public abstract class BaseDiffHandler(
             await dbService.UpsertStateDataManyAsync(
                 collectionName,
                 documents,
-                null,
-                stoppingToken
+                cancellationToken: stoppingToken
             );
     }
 
-    private async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
+    protected virtual async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
     {
         try
         {
             var syncedBlockIndex = await dbService.GetLatestBlockIndexAsync(
-                "DiffPoller",
+                PollerType,
                 collectionName,
                 stoppingToken
             );
@@ -205,7 +203,7 @@ public abstract class BaseDiffHandler(
         {
             var currentBlockIndex = await stateService.GetLatestIndex(
                 stoppingToken,
-                _accountAddress
+                accountAddress
             );
             Logger.Information(
                 "Metadata collection is not found, set block index to {BlockIndex} - 1",
@@ -214,7 +212,7 @@ public abstract class BaseDiffHandler(
             await dbService.UpdateLatestBlockIndexAsync(
                 new MetadataDocument
                 {
-                    PollerType = "DiffPoller",
+                    PollerType = PollerType,
                     CollectionName = collectionName,
                     LatestBlockIndex = currentBlockIndex - 1
                 },
@@ -222,5 +220,20 @@ public abstract class BaseDiffHandler(
             );
             return currentBlockIndex - 1;
         }
+    }
+
+    protected virtual async Task<MimirBsonDocument> CreateDocumentAsync(
+        IStateDocumentConverter converter,
+        long blockIndex,
+        Address address,
+        IValue rawState)
+    {
+        var pair = new AddressStatePair
+        {
+            BlockIndex = blockIndex,
+            Address = address,
+            RawState = rawState,
+        };
+        return converter.ConvertToDocument(pair);
     }
 }

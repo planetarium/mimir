@@ -101,7 +101,7 @@ public class StateGetter
         };
     }
 
-    public async Task<Lib9c.Models.States.AvatarState> GetAvatarState(
+    public async Task<AvatarState> GetAvatarStateAsync(
         Address avatarAddress,
         CancellationToken stoppingToken = default
     )
@@ -112,11 +112,11 @@ public class StateGetter
         {
             throw new StateNotFoundException(
                 avatarAddress,
-                typeof(Lib9c.Models.States.AvatarState)
+                typeof(AvatarState)
             );
         }
 
-        var avatarState = new Lib9c.Models.States.AvatarState(state);
+        var avatarState = new AvatarState(state);
 
         return avatarState;
     }
