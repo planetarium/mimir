@@ -79,12 +79,15 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            // 'currentBlockIndex' means the tip block index of the network.
+            long? currentBlockIndex = null;
+            // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections.
+            long? syncedBlockIndex = null;
+            long? indexDifference = null;
             try
             {
-                // 'currentBlockIndex' means the tip block index of the network.
-                var currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
-                // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
-                var syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
+                currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
+                syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
 
                 Logger.Information(
                     "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
@@ -105,7 +108,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
                     continue;
                 }
 
-                var indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
+                indexDifference = Math.Abs(currentBlockIndex.Value - syncedBlockIndex.Value);
 
                 Logger.Information(
                     "Process block, synced&tip: {SyncedBlockIndex}&{TipBlockIndex}, index-diff: {IndexDiff}",
@@ -113,11 +116,17 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
                     currentBlockIndex,
                     indexDifference);
 
-                await ProcessBlocksAsync(targetBlockIndex, stoppingToken);
+                await ProcessBlocksAsync(targetBlockIndex.Value, stoppingToken);
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Unexpected error.");
+                Logger.Error(
+                    e,
+                    "Unexpected error, synced&tip: {SyncedBlockIndex}&{TipBlockIndex}, index-diff: {IndexDiff}",
+                    syncedBlockIndex ?? -1,
+                    currentBlockIndex ?? -1,
+                    indexDifference ?? -1);
+                await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
             }
         }
 

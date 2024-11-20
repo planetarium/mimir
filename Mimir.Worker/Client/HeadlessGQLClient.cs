@@ -229,7 +229,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                 if (response.Transaction?.NCTransactions is null ||
                     response.Transaction.NCTransactions.Any(t => t is null || t.Actions.Any(a => a is null)))
                 {
-                    throw new InvalidOperationException("Invalid transactions response.");
+                    throw new InvalidOperationException($"Invalid transactions response. blockIndex: {index}");
                 }
 
                 return response;
