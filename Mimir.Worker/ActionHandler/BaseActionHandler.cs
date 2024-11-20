@@ -6,7 +6,6 @@ using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
-using Mimir.Worker.Initializer;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
@@ -79,28 +78,54 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            // 'currentBlockIndex' means the tip block index of the network.
+            long? currentBlockIndex = null;
+            // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections.
+            long? syncedBlockIndex = null;
+            long? indexDifference = null;
             try
             {
-                var currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
-                // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
-                var syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
+                currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
+                syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
 
                 Logger.Information(
                     "Check BlockIndex synced: {SyncedBlockIndex}, current: {CurrentBlockIndex}",
                     syncedBlockIndex,
                     currentBlockIndex);
 
-                if (syncedBlockIndex >= currentBlockIndex)
+                // Because of Libplanet's sloth feature, we can fetch blocks up to tip - 1.
+                // So 'maxFetchableBlockIndex' means the maximum block index that can be fetched.
+                var maxFetchableBlockIndex = currentBlockIndex - 1;
+
+                // 'targetBlockIndex' means the block index to fetch.
+                // In other words, the next block index of the 'syncedBlockIndex'.
+                var targetBlockIndex = syncedBlockIndex + 1;
+
+                if (targetBlockIndex > maxFetchableBlockIndex)
                 {
                     await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
                     continue;
                 }
 
-                await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
+                indexDifference = Math.Abs(currentBlockIndex.Value - syncedBlockIndex.Value);
+
+                Logger.Information(
+                    "Process block, synced&tip: {SyncedBlockIndex}&{TipBlockIndex}, index-diff: {IndexDiff}",
+                    syncedBlockIndex,
+                    currentBlockIndex,
+                    indexDifference);
+
+                await ProcessBlocksAsync(targetBlockIndex.Value, stoppingToken);
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Unexpected error.");
+                Logger.Error(
+                    e,
+                    "Unexpected error, synced&tip: {SyncedBlockIndex}&{TipBlockIndex}, index-diff: {IndexDiff}",
+                    syncedBlockIndex ?? -1,
+                    currentBlockIndex ?? -1,
+                    indexDifference ?? -1);
+                await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
             }
         }
 
@@ -110,33 +135,25 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
             DateTime.UtcNow.Subtract(started).Minutes);
     }
     
+    /// <summary>
+    /// Process block at the given <see cref="blockIndex"/>.
+    /// </summary>
+    /// <param name="blockIndex">The block index to process.</param>
+    /// <param name="stoppingToken"></param>
     private async Task ProcessBlocksAsync(
-        long syncedBlockIndex,
-        long targetBlockIndex,
+        long blockIndex,
         CancellationToken stoppingToken
     )
     {
-        var indexDifference = Math.Abs(targetBlockIndex - syncedBlockIndex);
-        const int limit = 1;
-
-        Logger.Information(
-            "Process block, target&sync: {TargetBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",
-            targetBlockIndex,
-            syncedBlockIndex,
-            indexDifference,
-            limit);
-
-        await ProcessTransactions(syncedBlockIndex, limit, stoppingToken);
+        await ProcessTransactions(blockIndex, stoppingToken);
     }
 
     private async Task ProcessTransactions(
-        long syncedBlockIndex,
-        int limit,
+        long blockIndex,
         CancellationToken cancellationToken)
     {
-        var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
+        var txsResponse = await FetchTransactionsAsync(blockIndex, cancellationToken);
 
-        var blockIndex = syncedBlockIndex + limit;
         Logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
         await HandleTransactionsAsync(
             blockIndex,
@@ -146,12 +163,10 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
 
     private async Task<TransactionResponse> FetchTransactionsAsync(
         long syncedBlockIndex,
-        int limit,
         CancellationToken cancellationToken)
     {
         var result = await headlessGqlClient.GetTransactionsAsync(
             syncedBlockIndex,
-            limit,
             cancellationToken);
         return result.Transaction;
     }
@@ -226,8 +241,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
             await Store.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<TMimirBsonDocument>(),
                 documents,
-                null,
-                cancellationToken);   
+                cancellationToken: cancellationToken);   
         }
         
         await Store.UpdateLatestBlockIndexAsync(

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Market;

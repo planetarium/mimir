@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using Mimir.Worker;
 using Mimir.Worker.Client;
-using Mimir.Worker.Constants;
 using Mimir.Worker.Services;
 using Serilog;
 

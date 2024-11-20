@@ -97,8 +97,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         await mongoDbService.UpsertSheetDocumentAsync(
             CollectionNames.GetCollectionName<SheetDocument>(),
             [new SheetDocument(blockIndex, sheetAddress, sheet, sheetName, sheetState)],
-            null,
-            stoppingToken
+            cancellationToken: stoppingToken
         );
     }
 }
