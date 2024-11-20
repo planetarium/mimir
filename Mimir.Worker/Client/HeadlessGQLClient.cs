@@ -212,7 +212,6 @@ public class HeadlessGQLClient : IHeadlessGQLClient
 
     public async Task<GetTransactionsResponse> GetTransactionsAsync(
         long blockIndex,
-        long limit,
         CancellationToken stoppingToken = default
     )
     {
@@ -222,7 +221,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             {
                 var response = await PostGraphQLRequestAsync<GetTransactionsResponse>(
                     GraphQLQueries.GetTransactions,
-                    new { blockIndex = index, limit },
+                    new { blockIndex = index },
                     stoppingToken
                 );
 

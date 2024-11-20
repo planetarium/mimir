@@ -30,9 +30,9 @@ public static class GraphQLQueries
 
     public const string GetTransactions =
         @"
-            query GetTransactions($blockIndex: Long!, $limit: Long!) {
+            query GetTransactions($blockIndex: Long!) {
                 transaction {
-                    ncTransactions(startingBlockIndex: $blockIndex, limit: $limit, actionType: ""^.*$"", txStatusFilter: [SUCCESS]) {
+                    ncTransactions(startingBlockIndex: $blockIndex, limit: 1, actionType: ""^.*$"", txStatusFilter: [SUCCESS]) {
                         signer
                         id
                         serializedPayload

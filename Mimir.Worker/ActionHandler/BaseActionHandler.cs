@@ -134,7 +134,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         int limit,
         CancellationToken cancellationToken)
     {
-        var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
+        var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, cancellationToken);
 
         var blockIndex = syncedBlockIndex + limit;
         Logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
@@ -146,12 +146,10 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
 
     private async Task<TransactionResponse> FetchTransactionsAsync(
         long syncedBlockIndex,
-        int limit,
         CancellationToken cancellationToken)
     {
         var result = await headlessGqlClient.GetTransactionsAsync(
             syncedBlockIndex,
-            limit,
             cancellationToken);
         return result.Transaction;
     }
