@@ -18,7 +18,6 @@ public interface IHeadlessGQLClient
     );
     Task<GetTransactionsResponse> GetTransactionsAsync(
         long blockIndex,
-        long limit,
         CancellationToken stoppingToken
     );
 }

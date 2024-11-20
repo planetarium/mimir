@@ -81,6 +81,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
         {
             try
             {
+                // 'currentBlockIndex' means the tip block index of the network.
                 var currentBlockIndex = await StateService.GetLatestIndex(stoppingToken);
                 // Retrieve ArenaScore Block Index. Ensure BlockPoller saves the same block index for all collections
                 var syncedBlockIndex = await GetSyncedBlockIndex(collectionName, stoppingToken);
@@ -90,13 +91,29 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
                     syncedBlockIndex,
                     currentBlockIndex);
 
-                if (syncedBlockIndex >= currentBlockIndex)
+                // Because of Libplanet's sloth feature, we can fetch blocks up to tip - 1.
+                // So 'maxFetchableBlockIndex' means the maximum block index that can be fetched.
+                var maxFetchableBlockIndex = currentBlockIndex - 1;
+
+                // 'targetBlockIndex' means the block index to fetch.
+                // In other words, the next block index of the 'syncedBlockIndex'.
+                var targetBlockIndex = syncedBlockIndex + 1;
+
+                if (targetBlockIndex > maxFetchableBlockIndex)
                 {
                     await Task.Delay(TimeSpan.FromMilliseconds(1000), stoppingToken);
                     continue;
                 }
 
-                await ProcessBlocksAsync(syncedBlockIndex, currentBlockIndex, stoppingToken);
+                var indexDifference = Math.Abs(currentBlockIndex - syncedBlockIndex);
+
+                Logger.Information(
+                    "Process block, synced&tip: {SyncedBlockIndex}&{TipBlockIndex}, index-diff: {IndexDiff}",
+                    syncedBlockIndex,
+                    currentBlockIndex,
+                    indexDifference);
+
+                await ProcessBlocksAsync(targetBlockIndex, stoppingToken);
             }
             catch (Exception e)
             {
@@ -110,33 +127,25 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
             DateTime.UtcNow.Subtract(started).Minutes);
     }
     
+    /// <summary>
+    /// Process block at the given <see cref="blockIndex"/>.
+    /// </summary>
+    /// <param name="blockIndex">The block index to process.</param>
+    /// <param name="stoppingToken"></param>
     private async Task ProcessBlocksAsync(
-        long syncedBlockIndex,
-        long targetBlockIndex,
+        long blockIndex,
         CancellationToken stoppingToken
     )
     {
-        var indexDifference = Math.Abs(targetBlockIndex - syncedBlockIndex);
-        const int limit = 1;
-
-        Logger.Information(
-            "Process block, target&sync: {TargetBlockIndex}&{SyncedBlockIndex}, index-diff: {IndexDiff}, limit: {Limit}",
-            targetBlockIndex,
-            syncedBlockIndex,
-            indexDifference,
-            limit);
-
-        await ProcessTransactions(syncedBlockIndex, limit, stoppingToken);
+        await ProcessTransactions(blockIndex, stoppingToken);
     }
 
     private async Task ProcessTransactions(
-        long syncedBlockIndex,
-        int limit,
+        long blockIndex,
         CancellationToken cancellationToken)
     {
-        var txsResponse = await FetchTransactionsAsync(syncedBlockIndex, limit, cancellationToken);
+        var txsResponse = await FetchTransactionsAsync(blockIndex, cancellationToken);
 
-        var blockIndex = syncedBlockIndex + limit;
         Logger.Information("GetTransaction Success, tx-count: {TxCount}", txsResponse.NCTransactions.Count);
         await HandleTransactionsAsync(
             blockIndex,
@@ -146,12 +155,10 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
 
     private async Task<TransactionResponse> FetchTransactionsAsync(
         long syncedBlockIndex,
-        int limit,
         CancellationToken cancellationToken)
     {
         var result = await headlessGqlClient.GetTransactionsAsync(
             syncedBlockIndex,
-            limit,
             cancellationToken);
         return result.Transaction;
     }
