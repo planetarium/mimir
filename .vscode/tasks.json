@@ -72,6 +72,42 @@
                 "${workspaceFolder}/Mimir.Worker/Mimir.Worker.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-initializer",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Mimir.Initializer/Mimir.Initializer.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish-initializer",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/Mimir.Initializer/Mimir.Initializer.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch-initializer",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/Mimir.Initializer/Mimir.Initializer.csproj"
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }
