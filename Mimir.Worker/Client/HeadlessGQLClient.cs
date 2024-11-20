@@ -54,7 +54,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private async Task<T> PostGraphQLRequestAsync<T>(
+    private async Task<(T response, string jsonResponse)> PostGraphQLRequestAsync<T>(
         string query,
         object? variables,
         CancellationToken stoppingToken = default,
@@ -113,7 +113,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         attempt + 1
                     );
 
-                    return graphQLResponse.Data;
+                    return (graphQLResponse.Data, jsonResponse);
                 }
                 catch (HttpRequestException ex)
                 {
@@ -156,7 +156,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         throw new HttpRequestException("All attempts to request the GraphQL endpoint failed.");
     }
 
-    public async Task<GetAccountDiffsResponse> GetAccountDiffsAsync(
+    public async Task<(GetAccountDiffsResponse response, string jsonResponse)> GetAccountDiffsAsync(
         long baseIndex,
         long changedIndex,
         Address accountAddress,
@@ -178,7 +178,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public async Task<GetTipResponse> GetTipAsync(
+    public async Task<(GetTipResponse response, string jsonResponse)> GetTipAsync(
         CancellationToken stoppingToken = default,
         Address? accountAddress = null
     )
@@ -197,7 +197,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public async Task<GetStateResponse> GetStateAsync(
+    public async Task<(GetStateResponse response, string jsonResponse)> GetStateAsync(
         Address accountAddress,
         Address address,
         CancellationToken stoppingToken = default
@@ -217,9 +217,9 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     {
         return await _transactionCache.GetOrAddAsync(
             blockIndex,
-            async (index) =>
+            async index =>
             {
-                var response = await PostGraphQLRequestAsync<GetTransactionsResponse>(
+                var (response, jsonResponse) = await PostGraphQLRequestAsync<GetTransactionsResponse>(
                     GraphQLQueries.GetTransactions,
                     new { blockIndex = index },
                     stoppingToken
@@ -229,7 +229,9 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                 if (response.Transaction?.NCTransactions is null ||
                     response.Transaction.NCTransactions.Any(t => t is null || t.Actions.Any(a => a is null)))
                 {
-                    throw new InvalidOperationException("Invalid transactions response.");
+                    throw new InvalidOperationException("Invalid transactions response." +
+                                                        $" blockIndex: {index}" +
+                                                        $" response: {jsonResponse}");
                 }
 
                 return response;

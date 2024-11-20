@@ -191,7 +191,7 @@ public sealed class ArenaParticipantHandler(
         long currentTargetIndex)
     {
         var accountAddress = GetAccountAddress(currentBaseIndex);
-        var result = await _headlessGqlClient.GetAccountDiffsAsync(
+        var (result, _) = await _headlessGqlClient.GetAccountDiffsAsync(
             currentBaseIndex,
             currentTargetIndex,
             accountAddress,
