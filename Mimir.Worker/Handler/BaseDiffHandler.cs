@@ -98,7 +98,7 @@ public abstract class BaseDiffHandler(
         long currentTargetIndex
     )
     {
-        var result = await headlessGqlClient.GetAccountDiffsAsync(
+        var (result, _) = await headlessGqlClient.GetAccountDiffsAsync(
             currentBaseIndex,
             currentTargetIndex,
             _accountAddress,

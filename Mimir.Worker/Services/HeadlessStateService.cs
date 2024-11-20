@@ -40,7 +40,7 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
         CancellationToken stoppingToken = default
     )
     {
-        var result = await client.GetStateAsync(
+        var (result, _) = await client.GetStateAsync(
             accountAddress,
             address,
             stoppingToken
@@ -52,7 +52,7 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 
     public async Task<long> GetLatestIndex(CancellationToken stoppingToken = default, Address? accountAddress = null)
     {
-        var result = await client.GetTipAsync(stoppingToken, accountAddress);
+        var (result, _) = await client.GetTipAsync(stoppingToken, accountAddress);
         return result.NodeStatus.Tip.Index;
     }
 }
