@@ -133,7 +133,7 @@ public class SnapshotInitializer
         documents.Add(document);
 
         if (documents.Count > 0)
-            await _dbService.UpsertStateDataManyAsync(collectionName, documents, null, default);
+            await _dbService.UpsertStateDataManyAsync(collectionName, documents, false, null, default);
 
         _logger.Information(
             "{DocumentCount} Handled, {CollectionName} - {Address}",

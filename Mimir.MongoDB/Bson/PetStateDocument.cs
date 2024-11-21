@@ -11,4 +11,4 @@ public record PetStateDocument(
     [property: BsonIgnore, JsonIgnore] Address Address,
     Address AvatarAddress,
     PetState Object
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

@@ -3,4 +3,4 @@ using Newtonsoft.Json;
 
 namespace Mimir.MongoDB.Bson;
 
-public record MimirBsonDocument([property: JsonIgnore] Address Id, DocumentMetadata Metadata);
+public record MimirBsonDocument([property: JsonIgnore] string Id, DocumentMetadata Metadata);

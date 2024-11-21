@@ -241,13 +241,13 @@ public class MongoDbService
             bsonDocument["InsertionDate"] = DateTime.UtcNow;    
         }
 
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Id.ToHex());
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Id);
         var update = new BsonDocument("$set", bsonDocument);
         var upsertOne = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
 
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
-            document.Id.ToHex(),
+            document.Id,
             collectionName);
 
         return upsertOne;

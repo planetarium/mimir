@@ -13,4 +13,4 @@ public record SheetDocument(
     ISheet Object,
     string Name,
     IValue RawState
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

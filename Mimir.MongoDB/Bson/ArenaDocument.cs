@@ -17,7 +17,7 @@ public record ArenaDocument(
     ArenaInformation ArenaInformation,
     ArenaScore ArenaScore,
     SimplifiedAvatarState SimpleAvatar
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex))
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex))
 {
     [BsonIgnore, JsonIgnore]
     public Address AvatarAddress => Address;
