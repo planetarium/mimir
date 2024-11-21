@@ -10,4 +10,4 @@ public record AgentDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address Address,
     AgentState Object
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

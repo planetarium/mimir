@@ -10,4 +10,4 @@ public record AllRuneDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address Address,
     AllRuneState Object
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

@@ -11,4 +11,4 @@ public record ProductsStateDocument(
     [property: BsonIgnore, JsonIgnore] Address Address,
     ProductsState Object,
     Address AvatarAddress
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

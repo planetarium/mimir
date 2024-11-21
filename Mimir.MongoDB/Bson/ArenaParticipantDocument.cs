@@ -15,4 +15,8 @@ public record ArenaParticipantDocument(
     int ChampionshipId,
     int Round,
     SimplifiedAvatarState SimpleAvatar
-) : MimirBsonDocument(Address, new DocumentMetadata(ArenaParticipant.StateVersion, StoredBlockIndex));
+)
+    : MimirBsonDocument(
+        $"{Address.ToHex()}_{ChampionshipId}_{Round}",
+        new DocumentMetadata(ArenaParticipant.StateVersion, StoredBlockIndex)
+    );

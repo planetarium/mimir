@@ -11,4 +11,4 @@ public record PledgeDocument(
     Address ContractAddress,
     bool Contracted,
     int RefillMead
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex)) { }
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex)) { }

@@ -22,7 +22,7 @@ public record ProductDocument : MimirBsonDocument
         Address productsStateAddress,
         Product product
     )
-        : base(address, new DocumentMetadata(1, StoredBlockIndex))
+        : base(address.ToHex(), new DocumentMetadata(1, StoredBlockIndex))
     {
         Object = product;
         AvatarAddress = avatarAddress;
@@ -40,7 +40,7 @@ public record ProductDocument : MimirBsonDocument
         int? crystal,
         int? crystalPerPrice
     )
-        : base(address, new DocumentMetadata(1, StoredBlockIndex))
+        : base(address.ToHex(), new DocumentMetadata(1, StoredBlockIndex))
     {
         Object = product;
         AvatarAddress = avatarAddress;

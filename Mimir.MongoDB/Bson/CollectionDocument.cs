@@ -14,4 +14,4 @@ public record CollectionDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address Address,
     CollectionState Object
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

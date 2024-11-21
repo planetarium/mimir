@@ -9,4 +9,4 @@ public record DailyRewardDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address Address,
     long Object
-) : MimirBsonDocument(Address, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));
