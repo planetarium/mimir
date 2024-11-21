@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.MongoDB.Tests", "Mimi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Initializer", "Mimir.Initializer\Mimir.Initializer.csproj", "{53A4A7FD-CD63-425E-9FFB-4C023AFDFC59}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib9c.GraphQL.Tests", "Lib9c.GraphQL.Tests\Lib9c.GraphQL.Tests.csproj", "{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,5 +72,9 @@ Global
 		{53A4A7FD-CD63-425E-9FFB-4C023AFDFC59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53A4A7FD-CD63-425E-9FFB-4C023AFDFC59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53A4A7FD-CD63-425E-9FFB-4C023AFDFC59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
