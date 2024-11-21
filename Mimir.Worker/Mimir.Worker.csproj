@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lib9c" Version="1.19.0" />
+    <PackageReference Include="Lib9c" Version="1.20.0-dev.57ec7358fd3b6f0f515cb42d162d206080cf46b3" />
     <PackageReference Include="Lib9c.Abstractions" Version="1.19.0" />
     <PackageReference Include="Libplanet.RocksDBStore" Version="5.3.2-alpha.1" />
     <PackageReference Include="Libplanet" Version="5.3.2-alpha.1" />
