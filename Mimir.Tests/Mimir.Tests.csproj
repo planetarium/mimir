@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Mimir.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2"/>
+    <PackageReference Include="Verify" Version="26.6.0" />
+    <PackageReference Include="Verify.Xunit" Version="26.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <Using Include="Xunit"/>
+  </ItemGroup>
+  
+  <ItemGroup>
+      <ProjectReference Include="..\Mimir\Mimir.csproj" />
+  </ItemGroup>
+
+</Project>

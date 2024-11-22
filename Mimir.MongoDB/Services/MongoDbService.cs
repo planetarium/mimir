@@ -8,7 +8,7 @@ using MongoDB.Driver.GridFS;
 
 namespace Mimir.MongoDB.Services;
 
-public class MongoDbService
+public class MongoDbService : IMongoDbService
 {
     private readonly IMongoDatabase _database;
     private readonly GridFSBucket _gridFs;

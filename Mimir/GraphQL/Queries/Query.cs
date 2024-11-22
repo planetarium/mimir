@@ -24,7 +24,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The action point.</returns>
-    public async Task<int> GetActionPointAsync(Address address, [Service] ActionPointRepository repo) =>
+    public async Task<int> GetActionPointAsync(Address address, [Service] IActionPointRepository repo) =>
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>

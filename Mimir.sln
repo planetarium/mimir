@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Initializer", "Mimir.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib9c.GraphQL.Tests", "Lib9c.GraphQL.Tests\Lib9c.GraphQL.Tests.csproj", "{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mimir.Tests", "Mimir.Tests\Mimir.Tests.csproj", "{1D638128-16C1-42ED-936A-9FA026399B90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,5 +78,9 @@ Global
 		{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3469548-C247-4F21-8AD5-94F2FB2B5E5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D638128-16C1-42ED-936A-9FA026399B90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D638128-16C1-42ED-936A-9FA026399B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D638128-16C1-42ED-936A-9FA026399B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D638128-16C1-42ED-936A-9FA026399B90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -33,9 +33,9 @@ builder.WebHost.UseSentry();
 
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSingleton<MongoDbService>();
+builder.Services.AddSingleton<IMongoDbService>();
 // NOTE: MongoDB repositories. Sort in alphabetical order.
-builder.Services.AddSingleton<ActionPointRepository>();
+builder.Services.AddSingleton<IActionPointRepository>();
 builder.Services.AddSingleton<AgentRepository>();
 builder.Services.AddSingleton<AllCombinationSlotStateRepository>();
 builder.Services.AddSingleton<AllRuneRepository>();
