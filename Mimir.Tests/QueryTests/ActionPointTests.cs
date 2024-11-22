@@ -1,4 +1,7 @@
 using Libplanet.Crypto;
+using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Repositories;
+using Moq;
 
 namespace Mimir.Tests.QueryTests;
 
@@ -7,13 +10,21 @@ public class ActionPointTests
     [Fact]
     public async Task GetActionPoint_Returns_CorrectValue()
     {
-        // var query =
-        //     @"
-        // query($address: Address!) {
-        //     actionPoint(address: $address)
-        // }";
-        var query = "query { actionPoint(address: \"0x0000000000000000000000000000000000000000\")}";
-        var result = await TestServices.ExecuteRequestAsync(b => b.SetQuery(query));
+        var actionPointMock = new Mock<IActionPointRepository>();
+        actionPointMock
+            .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
+            .ReturnsAsync(new ActionPointDocument(1, new Address(), 120));
+
+        var serviceProvider = TestServices.CreateServices(
+            actionPointRepositoryMock: actionPointMock
+        );
+
+        var query =
+            "query { actionPoint(address: \"0x0000000000000000000000000000000000000000\") }";
+        var result = await TestServices.ExecuteRequestAsync(
+            serviceProvider,
+            b => b.SetQuery(query)
+        );
 
         await Verify(result);
     }

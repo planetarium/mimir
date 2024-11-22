@@ -16,10 +16,11 @@ namespace Mimir.Tests;
 
 public static class TestServices
 {
-    public static readonly IServiceProvider Services;
-    public static readonly RequestExecutorProxy Executor;
-
-    static TestServices()
+    public static IServiceProvider CreateServices(
+        Action<IServiceCollection>? configure = null,
+        Mock<IMongoDbService>? mongoDbServiceMock = null,
+        Mock<IActionPointRepository>? actionPointRepositoryMock = null
+    )
     {
         var serviceCollection = new ServiceCollection();
 
@@ -29,40 +30,58 @@ public static class TestServices
             .AddMimirGraphQLTypes()
             .BindRuntimeType(typeof(Address), typeof(AddressType))
             .BindRuntimeType(typeof(BigInteger), typeof(BigIntegerType))
-            .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
-            .Services.AddSingleton(sp => new RequestExecutorProxy(
-                sp.GetRequiredService<IRequestExecutorResolver>(),
-                Schema.DefaultName
-            ));
+            .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type));
 
-        var mockMongoDbService = new Mock<IMongoDbService>();
-        serviceCollection.AddSingleton(mockMongoDbService.Object);
+        serviceCollection.AddSingleton(
+            mongoDbServiceMock?.Object ?? CreateDefaultMongoDbMock().Object
+        );
+        serviceCollection.AddSingleton(
+            actionPointRepositoryMock?.Object ?? CreateDefaultActionPointRepositoryMock().Object
+        );
         serviceCollection.AddSingleton<ActionPointRepository>();
 
-        var mockRepo = new Mock<IActionPointRepository>();
-        mockRepo
-            .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
-            .ReturnsAsync(new ActionPointDocument(1, new Address(), 120));
-        serviceCollection.AddSingleton(mockRepo.Object);
+        configure?.Invoke(serviceCollection);
 
-        Services = serviceCollection.BuildServiceProvider();
-        Executor = Services.GetRequiredService<RequestExecutorProxy>();
+        return serviceCollection.BuildServiceProvider();
     }
 
     public static async Task<string> ExecuteRequestAsync(
+        IServiceProvider serviceProvider,
         Action<IQueryRequestBuilder> configureRequest,
         CancellationToken cancellationToken = default
     )
     {
-        await using var scope = Services.CreateAsyncScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
 
         var requestBuilder = new QueryRequestBuilder();
         requestBuilder.SetServices(scope.ServiceProvider);
         configureRequest(requestBuilder);
         var request = requestBuilder.Create();
 
-        await using var result = await Executor.ExecuteAsync(request, cancellationToken);
+        var executor = scope
+            .ServiceProvider.GetRequiredService<IRequestExecutorResolver>()
+            .GetRequestExecutorAsync()
+            .GetAwaiter()
+            .GetResult();
+
+        await using var result = await executor.ExecuteAsync(request, cancellationToken);
         result.ExpectQueryResult();
         return result.ToJson();
+    }
+
+    private static Mock<IMongoDbService> CreateDefaultMongoDbMock()
+    {
+        var mock = new Mock<IMongoDbService>();
+        mock.Setup(m => m.GetCollection<ActionPointDocument>(It.IsAny<string>()))
+            .Returns(Mock.Of<IMongoCollection<ActionPointDocument>>());
+        return mock;
+    }
+
+    private static Mock<IActionPointRepository> CreateDefaultActionPointRepositoryMock()
+    {
+        var mock = new Mock<IActionPointRepository>();
+        mock.Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
+            .ReturnsAsync(new ActionPointDocument(1, new Address(), 120));
+        return mock;
     }
 }
