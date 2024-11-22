@@ -6,30 +6,23 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Mimir.Tests</RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
-    <!--
-    To enable the Microsoft Testing Platform 'dotnet test' experience, add property:
-      <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-
-    To enable the Microsoft Testing Platform native command line experience, add property:
-      <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-
-    For more information on Microsoft Testing Platform support in xUnit.net, please visit:
-      https://xunit.net/docs/getting-started/v3/microsoft-testing-platform
-    -->
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2"/>
+    <PackageReference Include="Verify" Version="26.6.0" />
+    <PackageReference Include="Verify.Xunit" Version="26.6.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+      <Using Include="Xunit"/>
   </ItemGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <PackageReference Include="xunit.v3" Version="0.6.0-pre.7" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.49" />
+      <ProjectReference Include="..\Mimir\Mimir.csproj" />
   </ItemGroup>
 
 </Project>
