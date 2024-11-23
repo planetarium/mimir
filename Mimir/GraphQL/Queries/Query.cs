@@ -90,7 +90,7 @@ public class Query
     /// <returns>Combination slot states for the specified avatar address.</returns>
     public async Task<Dictionary<int, CombinationSlotState>> GetCombinationSlotsAsync(
         Address avatarAddress,
-        [Service] AllCombinationSlotStateRepository repo) =>
+        [Service] IAllCombinationSlotStateRepository repo) =>
         (await repo.GetByAddressAsync(avatarAddress)).Object.CombinationSlots;
 
     /// <summary>

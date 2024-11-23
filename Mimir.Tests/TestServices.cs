@@ -21,7 +21,8 @@ public static class TestServices
         Action<IServiceCollection>? configure = null,
         Mock<IMongoDbService>? mongoDbServiceMock = null,
         Mock<IActionPointRepository>? actionPointRepositoryMock = null,
-        Mock<IAgentRepository>? agentRepositoryMock = null
+        Mock<IAgentRepository>? agentRepositoryMock = null,
+        Mock<IAllCombinationSlotStateRepository>? allCombinationSlotStateRepositoryMock = null
     )
     {
         var serviceCollection = new ServiceCollection();
@@ -40,9 +41,11 @@ public static class TestServices
         serviceCollection.AddSingleton(
             actionPointRepositoryMock?.Object ?? CreateDefaultActionPointRepositoryMock().Object
         );
-
         serviceCollection.AddSingleton(
             agentRepositoryMock?.Object ?? CreateDefaultAgentRepositoryMock().Object
+        );
+        serviceCollection.AddSingleton(
+            allCombinationSlotStateRepositoryMock?.Object ?? CreateDefaultAllCombinationSlotStateRepositoryMock().Object
         );
 
         serviceCollection.AddSingleton<ActionPointRepository>();
@@ -85,6 +88,8 @@ public static class TestServices
             .Returns(Mock.Of<IMongoCollection<ActionPointDocument>>());
         mock.Setup(m => m.GetCollection<AgentDocument>(It.IsAny<string>()))
             .Returns(Mock.Of<IMongoCollection<AgentDocument>>());
+        mock.Setup(m => m.GetCollection<AllCombinationSlotStateDocument>(It.IsAny<string>()))
+            .Returns(Mock.Of<IMongoCollection<AllCombinationSlotStateDocument>>());
         return mock;
     }
 
@@ -120,5 +125,23 @@ public static class TestServices
             .ReturnsAsync(new AgentDocument(1, agentAddress, agentState));
 
         return mockRepo;
+    }
+
+    private static Mock<IAllCombinationSlotStateRepository> CreateDefaultAllCombinationSlotStateRepositoryMock()
+    {
+        var mock = new Mock<IAllCombinationSlotStateRepository>();
+        mock.Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
+            .ReturnsAsync(new AllCombinationSlotStateDocument(
+                1,
+                new Address("0x0000000001000000000200000000030000000004"),
+                new AllCombinationSlotState
+                {
+                    CombinationSlots = new Dictionary<int, CombinationSlotState>
+                    {
+                        { 0, new CombinationSlotState { Index = 0 } },
+                        { 1, new CombinationSlotState { Index = 1 } },
+                    }
+                }));
+        return mock;
     }
 }

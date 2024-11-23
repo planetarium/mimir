@@ -1,0 +1,30 @@
+﻿{
+  "data": {
+    "combinationSlots": [
+      {
+        "key": 0,
+        "value": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "index": 0,
+          "isUnlocked": true,
+          "petId": null,
+          "startBlockIndex": 0,
+          "unlockBlockIndex": 0,
+          "result": null
+        }
+      },
+      {
+        "key": 1,
+        "value": {
+          "address": "0x0000000000000000000000000000000000000000",
+          "index": 1,
+          "isUnlocked": true,
+          "petId": null,
+          "startBlockIndex": 0,
+          "unlockBlockIndex": 0,
+          "result": null
+        }
+      }
+    ]
+  }
+}
