@@ -26,13 +26,13 @@ public class Query
     /// <returns>The action point.</returns>
     public async Task<int> GetActionPointAsync(Address address, [Service] IActionPointRepository repo) =>
         (await repo.GetByAddressAsync(address)).Object;
-
+    
     /// <summary>
     /// Get an agent state by address.
     /// </summary>
     /// <param name="address">The address of the agent.</param>
     /// <returns>The agent state</returns>
-    public async Task<AgentState> GetAgentAsync(Address address, [Service] AgentRepository repo) =>
+    public async Task<AgentState> GetAgentAsync(Address address, [Service] IAgentRepository repo) =>
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>

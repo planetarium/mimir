@@ -6,9 +6,14 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class AgentRepository(MongoDbService dbService)
+public interface IAgentRepository
 {
-    public async Task<AgentDocument> GetByAddressAsync(Address agentAddress)
+    Task<AgentDocument> GetByAddressAsync(Address address);
+}
+
+public class AgentRepository(MongoDbService dbService) : IAgentRepository
+{
+    public virtual async Task<AgentDocument> GetByAddressAsync(Address agentAddress)
     {
         var collectionName = CollectionNames.GetCollectionName<AgentDocument>();
         var collection = dbService.GetCollection<AgentDocument>(collectionName);
