@@ -6,7 +6,12 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class AllCombinationSlotStateRepository(MongoDbService dbService)
+public interface IAllCombinationSlotStateRepository
+{
+    Task<AllCombinationSlotStateDocument> GetByAddressAsync(Address address);
+}
+
+public class AllCombinationSlotStateRepository(MongoDbService dbService) : IAllCombinationSlotStateRepository
 {
     public async Task<AllCombinationSlotStateDocument> GetByAddressAsync(Address address)
     {
