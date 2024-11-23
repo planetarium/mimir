@@ -69,9 +69,12 @@ public abstract class BaseDiffHandler(
         }
     }
 
-    protected virtual async Task<(long, long, long, long)> CalculateCurrentAndTargetIndexes(
-        CancellationToken stoppingToken
-    )
+    protected virtual async Task<(
+        long CurrentBaseIndex,
+        long CurrentTargetIndex,
+        long CurrentIndexOnChain,
+        long IndexDifference
+    )> CalculateCurrentAndTargetIndexes(CancellationToken stoppingToken)
     {
         var syncedIndex = await GetSyncedBlockIndex(stoppingToken);
         var currentBaseIndex = syncedIndex;
