@@ -101,4 +101,9 @@ public record AvatarState : State
             new[] { ValueKind.List },
             bencoded.Kind);
     }
+
+    public AvatarState()
+    {
+        
+    }
 }

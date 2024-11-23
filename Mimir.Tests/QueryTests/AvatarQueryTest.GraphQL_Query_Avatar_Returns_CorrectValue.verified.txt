@@ -1,0 +1,46 @@
+﻿{
+  "data": {
+    "avatar": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "agentAddress": "0x0000000000000000000000000000000000000001",
+      "blockIndex": 0,
+      "characterId": 1,
+      "name": "TestAvatar",
+      "level": 0,
+      "eventMap": [
+        {
+          "key": 1,
+          "value": 1
+        }
+      ],
+      "itemMap": [
+        {
+          "key": 1,
+          "value": 1
+        }
+      ],
+      "mailBox": {
+        "mails": [
+          {
+            "blockIndex": 0,
+            "id": "a9320f02-7794-4c3b-8071-701d501f9529",
+            "requiredBlockIndex": 0,
+            "typeId": "A"
+          }
+        ]
+      },
+      "monsterMap": [
+        {
+          "key": 1,
+          "value": 1
+        }
+      ],
+      "stageMap": [
+        {
+          "key": 1,
+          "value": 1
+        }
+      ]
+    }
+  }
+}

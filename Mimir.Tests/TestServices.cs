@@ -21,7 +21,8 @@ public static class TestServices
         Action<IServiceCollection>? configure = null,
         Mock<IMongoDbService>? mongoDbServiceMock = null,
         Mock<IActionPointRepository>? actionPointRepositoryMock = null,
-        Mock<IAgentRepository>? agentRepositoryMock = null
+        Mock<IAgentRepository>? agentRepositoryMock = null,
+        Mock<IAvatarRepository>? avatarRepositoryMock = null
     )
     {
         var serviceCollection = new ServiceCollection();
@@ -48,6 +49,11 @@ public static class TestServices
         serviceCollection.AddSingleton<ActionPointRepository>();
 
         serviceCollection.AddSingleton<AgentRepository>();
+
+        if (avatarRepositoryMock is not null)
+        {
+            serviceCollection.AddSingleton<IAvatarRepository>(avatarRepositoryMock.Object);
+        }
 
         configure?.Invoke(serviceCollection);
 

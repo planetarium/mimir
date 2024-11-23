@@ -35,4 +35,9 @@ public record MailBox : IBencodable
             .Select(MailFactory.Create)
             .ToList();
     }
+
+    public MailBox()
+    {
+        
+    }
 }

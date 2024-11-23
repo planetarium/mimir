@@ -41,4 +41,9 @@ public record Mail : IBencodable
         BlockIndex = d["blockIndex"].ToLong();
         RequiredBlockIndex = d["requiredBlockIndex"].ToLong();
     }
+
+    public Mail()
+    {
+        
+    }
 }
