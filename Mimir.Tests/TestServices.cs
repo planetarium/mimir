@@ -22,7 +22,8 @@ public static class TestServices
         Mock<IMongoDbService>? mongoDbServiceMock = null,
         Mock<IActionPointRepository>? actionPointRepositoryMock = null,
         Mock<IAgentRepository>? agentRepositoryMock = null,
-        Mock<IAllCombinationSlotStateRepository>? allCombinationSlotStateRepositoryMock = null
+        Mock<IAllCombinationSlotStateRepository>? allCombinationSlotStateRepositoryMock = null,
+        Mock<IDailyRewardRepository>? dailyRewardRepositoryMock = null
     )
     {
         var serviceCollection = new ServiceCollection();
@@ -41,16 +42,23 @@ public static class TestServices
         serviceCollection.AddSingleton(
             actionPointRepositoryMock?.Object ?? CreateDefaultActionPointRepositoryMock().Object
         );
+
         serviceCollection.AddSingleton(
             agentRepositoryMock?.Object ?? CreateDefaultAgentRepositoryMock().Object
         );
         serviceCollection.AddSingleton(
             allCombinationSlotStateRepositoryMock?.Object ?? CreateDefaultAllCombinationSlotStateRepositoryMock().Object
         );
+        
+        serviceCollection.AddSingleton(
+            dailyRewardRepositoryMock?.Object ?? CreateDefaultDailyRewardRepositoryMock().Object
+        );
 
         serviceCollection.AddSingleton<ActionPointRepository>();
 
         serviceCollection.AddSingleton<AgentRepository>();
+        
+        serviceCollection.AddSingleton<DailyRewardDocument>();
 
         configure?.Invoke(serviceCollection);
 
@@ -144,4 +152,17 @@ public static class TestServices
                 }));
         return mock;
     }
+    
+    private static Mock<IDailyRewardRepository> CreateDefaultDailyRewardRepositoryMock()
+    {
+        var mockAddress = new Address("0x0000000000000000000000000000000000000000");
+
+        var mockRepo = new Mock<IDailyRewardRepository>();
+        mockRepo
+            .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
+            .ReturnsAsync(new DailyRewardDocument(0, mockAddress, 0));
+
+        return mockRepo;
+    }
+    
 }
