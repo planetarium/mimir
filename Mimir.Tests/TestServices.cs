@@ -21,6 +21,7 @@ public static class TestServices
         Action<IServiceCollection>? configure = null,
         Mock<IMongoDbService>? mongoDbServiceMock = null,
         Mock<IActionPointRepository>? actionPointRepositoryMock = null,
+        Mock<IAgentRepository>? agentRepositoryMock = null,
         Mock<IAllCombinationSlotStateRepository>? allCombinationSlotStateRepositoryMock = null
     )
     {
@@ -41,9 +42,15 @@ public static class TestServices
             actionPointRepositoryMock?.Object ?? CreateDefaultActionPointRepositoryMock().Object
         );
         serviceCollection.AddSingleton(
+            agentRepositoryMock?.Object ?? CreateDefaultAgentRepositoryMock().Object
+        );
+        serviceCollection.AddSingleton(
             allCombinationSlotStateRepositoryMock?.Object ?? CreateDefaultAllCombinationSlotStateRepositoryMock().Object
         );
+
         serviceCollection.AddSingleton<ActionPointRepository>();
+
+        serviceCollection.AddSingleton<AgentRepository>();
 
         configure?.Invoke(serviceCollection);
 
@@ -79,6 +86,8 @@ public static class TestServices
         var mock = new Mock<IMongoDbService>();
         mock.Setup(m => m.GetCollection<ActionPointDocument>(It.IsAny<string>()))
             .Returns(Mock.Of<IMongoCollection<ActionPointDocument>>());
+        mock.Setup(m => m.GetCollection<AgentDocument>(It.IsAny<string>()))
+            .Returns(Mock.Of<IMongoCollection<AgentDocument>>());
         mock.Setup(m => m.GetCollection<AllCombinationSlotStateDocument>(It.IsAny<string>()))
             .Returns(Mock.Of<IMongoCollection<AllCombinationSlotStateDocument>>());
         return mock;
@@ -90,6 +99,32 @@ public static class TestServices
         mock.Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
             .ReturnsAsync(new ActionPointDocument(1, new Address(), 120));
         return mock;
+    }
+
+    private static Mock<IAgentRepository> CreateDefaultAgentRepositoryMock()
+    {
+        var agentAddress = new Address("0x0000000031000000000200000000030000000004");
+        var avatarAddress1 = new Address("0x0000005001000000000200000000030000000004");
+        var avatarAddress2 = new Address("0x0000008001000000000200000000030000000004");
+        var avatarAddress3 = new Address("0x0000001001000000000200000000030000000004");
+        var agentState = new AgentState
+        {
+            Address = agentAddress,
+            AvatarAddresses = new Dictionary<int, Address>
+            {
+                { 0, avatarAddress1 },
+                { 1, avatarAddress2 },
+                { 2, avatarAddress3 }
+            },
+            MonsterCollectionRound = 3,
+            Version = 4,
+        };
+        var mockRepo = new Mock<IAgentRepository>();
+        mockRepo
+            .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
+            .ReturnsAsync(new AgentDocument(1, agentAddress, agentState));
+
+        return mockRepo;
     }
 
     private static Mock<IAllCombinationSlotStateRepository> CreateDefaultAllCombinationSlotStateRepositoryMock()
