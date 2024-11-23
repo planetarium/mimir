@@ -3,10 +3,16 @@ using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
 using MongoDB.Driver;
+using Nekoyume.Action;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class DailyRewardRepository(MongoDbService dbService)
+public interface IDailyRewardRepository
+{
+    Task<DailyRewardDocument> GetByAddressAsync(Address address);
+}
+
+public class DailyRewardRepository(MongoDbService dbService) : IDailyRewardRepository
 {
     public async Task<DailyRewardDocument> GetByAddressAsync(Address address)
     {
