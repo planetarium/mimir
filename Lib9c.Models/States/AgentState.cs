@@ -31,6 +31,11 @@ public record AgentState : State
         new List(Array.Empty<IValue>()),
         MonsterCollectionRound.Serialize());
 
+    public AgentState()
+    {
+        
+    }
+    
     public AgentState(IValue bencoded) : base(((List)bencoded)[0])
     {
         if (bencoded is not List l)
