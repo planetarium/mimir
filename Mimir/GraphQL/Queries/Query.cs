@@ -90,7 +90,7 @@ public class Query
     /// <returns>Combination slot states for the specified avatar address.</returns>
     public async Task<Dictionary<int, CombinationSlotState>> GetCombinationSlotsAsync(
         Address avatarAddress,
-        [Service] AllCombinationSlotStateRepository repo) =>
+        [Service] IAllCombinationSlotStateRepository repo) =>
         (await repo.GetByAddressAsync(avatarAddress)).Object.CombinationSlots;
 
     /// <summary>
@@ -98,7 +98,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The daily reward received block index.</returns>
-    public async Task<long> GetDailyRewardReceivedBlockIndexAsync(Address address, [Service] DailyRewardRepository repo)
+    public async Task<long> GetDailyRewardReceivedBlockIndexAsync(Address address, [Service] IDailyRewardRepository repo)
         => (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>

@@ -22,7 +22,9 @@ public static class TestServices
         Mock<IMongoDbService>? mongoDbServiceMock = null,
         Mock<IActionPointRepository>? actionPointRepositoryMock = null,
         Mock<IAgentRepository>? agentRepositoryMock = null,
-        Mock<IAvatarRepository>? avatarRepositoryMock = null
+        Mock<IAvatarRepository>? avatarRepositoryMock = null,
+        Mock<IAllCombinationSlotStateRepository>? allCombinationSlotStateRepositoryMock = null,
+        Mock<IDailyRewardRepository>? dailyRewardRepositoryMock = null
     )
     {
         var serviceCollection = new ServiceCollection();
@@ -45,10 +47,19 @@ public static class TestServices
         serviceCollection.AddSingleton(
             agentRepositoryMock?.Object ?? CreateDefaultAgentRepositoryMock().Object
         );
+        serviceCollection.AddSingleton(
+            allCombinationSlotStateRepositoryMock?.Object ?? CreateDefaultAllCombinationSlotStateRepositoryMock().Object
+        );
+        
+        serviceCollection.AddSingleton(
+            dailyRewardRepositoryMock?.Object ?? CreateDefaultDailyRewardRepositoryMock().Object
+        );
 
         serviceCollection.AddSingleton<ActionPointRepository>();
 
         serviceCollection.AddSingleton<AgentRepository>();
+        
+        serviceCollection.AddSingleton<DailyRewardDocument>();
 
         if (avatarRepositoryMock is not null)
         {
@@ -91,6 +102,8 @@ public static class TestServices
             .Returns(Mock.Of<IMongoCollection<ActionPointDocument>>());
         mock.Setup(m => m.GetCollection<AgentDocument>(It.IsAny<string>()))
             .Returns(Mock.Of<IMongoCollection<AgentDocument>>());
+        mock.Setup(m => m.GetCollection<AllCombinationSlotStateDocument>(It.IsAny<string>()))
+            .Returns(Mock.Of<IMongoCollection<AllCombinationSlotStateDocument>>());
         return mock;
     }
 
@@ -127,4 +140,35 @@ public static class TestServices
 
         return mockRepo;
     }
+
+    private static Mock<IAllCombinationSlotStateRepository> CreateDefaultAllCombinationSlotStateRepositoryMock()
+    {
+        var mock = new Mock<IAllCombinationSlotStateRepository>();
+        mock.Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
+            .ReturnsAsync(new AllCombinationSlotStateDocument(
+                1,
+                new Address("0x0000000001000000000200000000030000000004"),
+                new AllCombinationSlotState
+                {
+                    CombinationSlots = new Dictionary<int, CombinationSlotState>
+                    {
+                        { 0, new CombinationSlotState { Index = 0 } },
+                        { 1, new CombinationSlotState { Index = 1 } },
+                    }
+                }));
+        return mock;
+    }
+    
+    private static Mock<IDailyRewardRepository> CreateDefaultDailyRewardRepositoryMock()
+    {
+        var mockAddress = new Address("0x0000000000000000000000000000000000000000");
+
+        var mockRepo = new Mock<IDailyRewardRepository>();
+        mockRepo
+            .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
+            .ReturnsAsync(new DailyRewardDocument(0, mockAddress, 0));
+
+        return mockRepo;
+    }
+    
 }
