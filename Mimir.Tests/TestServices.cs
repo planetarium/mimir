@@ -22,6 +22,7 @@ public static class TestServices
         Mock<IMongoDbService>? mongoDbServiceMock = null,
         Mock<IActionPointRepository>? actionPointRepositoryMock = null,
         Mock<IAgentRepository>? agentRepositoryMock = null,
+        Mock<IAvatarRepository>? avatarRepositoryMock = null,
         Mock<IAllCombinationSlotStateRepository>? allCombinationSlotStateRepositoryMock = null,
         Mock<IDailyRewardRepository>? dailyRewardRepositoryMock = null
     )
@@ -59,6 +60,11 @@ public static class TestServices
         serviceCollection.AddSingleton<AgentRepository>();
         
         serviceCollection.AddSingleton<DailyRewardDocument>();
+
+        if (avatarRepositoryMock is not null)
+        {
+            serviceCollection.AddSingleton<IAvatarRepository>(avatarRepositoryMock.Object);
+        }
 
         configure?.Invoke(serviceCollection);
 

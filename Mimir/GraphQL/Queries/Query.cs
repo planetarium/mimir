@@ -45,7 +45,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The avatar state</returns>
-    public async Task<AvatarState> GetAvatarAsync(Address address, [Service] AvatarRepository repo) =>
+    public async Task<AvatarState> GetAvatarAsync(Address address, [Service] IAvatarRepository repo) =>
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
