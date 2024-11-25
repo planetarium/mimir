@@ -25,62 +25,59 @@ public class CombinationSlotsTest
             .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
             .ReturnsAsync(new AllCombinationSlotStateDocument(1, allCombinationSlotAddress, allCombinationSlotState));
 
-        var serviceProvider = TestServices.CreateServices(
-            allCombinationSlotStateRepositoryMock : mockRepo
-        );
+        var serviceProvider = new TestServices.ServiceProviderBuilder()
+            .With(mockRepo.Object)
+            .Build();
 
-    var query = $$"""
-                      query {
-                        combinationSlots(avatarAddress: "{{allCombinationSlotAddress}}") {
-                          key
-                          value {
-                            address
-                            index
-                            isUnlocked
-                            petId
-                            startBlockIndex
-                            unlockBlockIndex
-                            result {
-                              tradableFungibleItemCount
-                              typeId
-                              costume {
-                                elementalType
-                                equipped
-                                grade
-                                id
-                                itemId
-                                itemSubType
-                                itemType
-                                requiredBlockIndex
-                                spineResourcePath
-                              }
-                              itemUsable {
-                                elementalType
-                                grade
-                                id
-                                itemId
-                                itemSubType
-                                itemType
-                                requiredBlockIndex
-                              }
-                              tradableFungibleItem {
-                                elementalType
-                                grade
-                                id
-                                itemId
-                                itemSubType
-                                itemType
-                                requiredBlockIndex
+        var query = $$"""
+                        query {
+                          combinationSlots(avatarAddress: "{{allCombinationSlotAddress}}") {
+                            key
+                            value {
+                              address
+                              index
+                              isUnlocked
+                              petId
+                              startBlockIndex
+                              unlockBlockIndex
+                              result {
+                                tradableFungibleItemCount
+                                typeId
+                                costume {
+                                  elementalType
+                                  equipped
+                                  grade
+                                  id
+                                  itemId
+                                  itemSubType
+                                  itemType
+                                  requiredBlockIndex
+                                  spineResourcePath
+                                }
+                                itemUsable {
+                                  elementalType
+                                  grade
+                                  id
+                                  itemId
+                                  itemSubType
+                                  itemType
+                                  requiredBlockIndex
+                                }
+                                tradableFungibleItem {
+                                  elementalType
+                                  grade
+                                  id
+                                  itemId
+                                  itemSubType
+                                  itemType
+                                  requiredBlockIndex
+                                }
                               }
                             }
                           }
-                        }
-                      }                 
-                    """;
-        var result = TestServices.ExecuteRequestAsync(
-            serviceProvider,
-            b => b.SetQuery(query)
-        );
+                        }                 
+                      """;
+        var result = TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetQuery(query));
 
         await Verify(result);
     }
