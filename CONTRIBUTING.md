@@ -68,3 +68,25 @@ Now, run Mimir with the environment variable pointing to the appsettings file yo
 ```sh
 ASPNETCORE_ENVIRONMENT=local dotnet run --project Mimir
 ```
+
+## Bump Lib9c
+
+Mimir is using [`Lib9c`][lib9c] to use their models. So you may need to bump `Lib9c` dependency to use new models in new release of it.
+
+Then you can update `<Lib9cVersion>` property in `Directory.Build.props`, with the `Lib9c` release version you want.
+
+## Bump Libplanet
+
+Mimir is using [`Libplanet`][libplanet] to use crypto-related types (e.g., `Address`), to iterate trie when initializing database from snapshots. So you may need to bump `Libplanet` and `Libplanet.*` dependencies to follow `Lib9c`'s `Libplanet` version.
+
+Then you can update `<LibplanetVersion>` property in `Directory.Build.props`, with the `Libplanet` release version you want.
+
+You can see the `Libplanet` version used by `Lib9c`, in NuGet's dependencies view.
+
+```
+# 'lib9c-version' may be like 1.20.0
+https://www.nuget.org/packages/Lib9c/<lib9c-version>#dependencies-body-tab
+```
+
+[lib9c]: https://github.com/planetarium/lib9c
+[libplanet]: https://github.com/planetarium/libplanet
