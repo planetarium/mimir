@@ -17,7 +17,7 @@ public class DailyRewardQueryTest
             .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
             .ReturnsAsync(new DailyRewardDocument(0, mockAddress, 0));
 
-        var serviceProvider = new TestServices.ServiceProviderBuilder()
+        var serviceProvider = TestServices.Builder
             .With(mockRepo.Object)
             .Build();
         var query = $$"""

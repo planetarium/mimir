@@ -53,6 +53,8 @@ public static class TestServices
         }
     }
 
+    public static ServiceProviderBuilder Builder => new();
+
     public static async Task<string> ExecuteRequestAsync(
         IServiceProvider serviceProvider,
         Action<IQueryRequestBuilder> configureRequest,

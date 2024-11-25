@@ -15,7 +15,7 @@ public class ActionPointTests
             .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
             .ReturnsAsync(new ActionPointDocument(1, new Address(), 120));
 
-        var serviceProvider = new TestServices.ServiceProviderBuilder()
+        var serviceProvider = TestServices.Builder
             .With(actionPointMock.Object)
             .Build();
         const string query = "query { actionPoint(address: \"0x0000000000000000000000000000000000000000\") }";

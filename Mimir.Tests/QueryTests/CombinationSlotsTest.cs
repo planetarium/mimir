@@ -25,7 +25,7 @@ public class CombinationSlotsTest
             .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
             .ReturnsAsync(new AllCombinationSlotStateDocument(1, allCombinationSlotAddress, allCombinationSlotState));
 
-        var serviceProvider = new TestServices.ServiceProviderBuilder()
+        var serviceProvider = TestServices.Builder
             .With(mockRepo.Object)
             .Build();
 
