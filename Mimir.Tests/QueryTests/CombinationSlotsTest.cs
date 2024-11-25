@@ -77,7 +77,7 @@ public class CombinationSlotsTest
                           }
                         }                 
                       """;
-        var result = TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetQuery(query));
+        var result = TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
 
         await Verify(result);
     }

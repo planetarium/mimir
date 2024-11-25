@@ -7,15 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="HotChocolate.Abstractions" Version="13.9.12" />
-        <PackageReference Include="HotChocolate.Data.MongoDb" Version="13.9.12" />
-        <PackageReference Include="Lib9c" Version="1.19.0"/>
+        <PackageReference Include="HotChocolate.Abstractions" Version="14.1.0" />
+        <PackageReference Include="HotChocolate.Data.MongoDb" Version="14.1.0" />
+        <PackageReference Include="Lib9c" Version="1.19.0" />
         <PackageReference Include="Libplanet" Version="5.4.0" />
-        <PackageReference Include="MongoDB.Bson" Version="2.27.0" />
-        <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
-        <PackageReference Include="MongoDB.Driver.GridFS" Version="2.27.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-    </ItemGroup>
+        <PackageReference Include="MongoDB.Bson" Version="3.0.0" />
+        <PackageReference Include="MongoDB.Driver" Version="3.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+	</ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Lib9c.GraphQL\Lib9c.GraphQL.csproj" />
