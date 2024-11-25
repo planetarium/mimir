@@ -33,7 +33,7 @@ public class ArenaType : ObjectType<ArenaObject>
                 .Description("The number of avatars. default is 10. This must be greater than or equal to 1 and less than or equal to 100.")
                 .Type<NonNullType<IntType>>()
                 .DefaultValue(10))
-            .Type<ListType<ObjectType<ArenaRankingDocument>>>()
+            .Type<ListType<ObjectType<ArenaParticipantDocument>>>()
             .ResolveWith<ArenaResolver>(_ =>
                 ArenaResolver.GetLeaderboardAsync(
                     default!, default!, default!, default!, default!, default!, default!));
@@ -41,7 +41,7 @@ public class ArenaType : ObjectType<ArenaObject>
             .Field("leaderboardByAvatarAddress")
             .Description("The leaderboard of the arena filtered by the avatar's address.")
             .Argument("avatarAddress", a => a.Type<NonNullType<AddressType>>())
-            .Type<ListType<ObjectType<ArenaRankingDocument>>>()
+            .Type<ListType<ObjectType<ArenaParticipantDocument>>>()
             .ResolveWith<ArenaResolver>(_ =>
                 ArenaResolver.GetLeaderboardByAvatarAddressAsync(
                     default!, default!, default!, default!, default!, default!));

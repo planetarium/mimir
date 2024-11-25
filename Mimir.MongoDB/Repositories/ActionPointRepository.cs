@@ -11,7 +11,7 @@ public interface IActionPointRepository
     Task<ActionPointDocument> GetByAddressAsync(Address address);
 }
 
-public class ActionPointRepository(IMongoDbService dbService)
+public class ActionPointRepository(IMongoDbService dbService) : IActionPointRepository
 {
     public virtual async Task<ActionPointDocument> GetByAddressAsync(Address address)
     {
