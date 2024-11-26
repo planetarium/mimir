@@ -19,8 +19,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Lib9c" Version="1.19.0" />
-    <PackageReference Include="Libplanet" Version="5.4.0" />
+    <PackageReference Include="Lib9c" Version="$(Lib9cVersion)" />
+    <PackageReference Include="Libplanet" Version="$(LibplanetVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.3.1" />
     <PackageReference Include="Sentry" Version="4.12.1" />
