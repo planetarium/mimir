@@ -11,7 +11,7 @@ public interface IAllCombinationSlotStateRepository
     Task<AllCombinationSlotStateDocument> GetByAddressAsync(Address address);
 }
 
-public class AllCombinationSlotStateRepository(MongoDbService dbService) : IAllCombinationSlotStateRepository
+public class AllCombinationSlotStateRepository(IMongoDbService dbService) : IAllCombinationSlotStateRepository
 {
     public async Task<AllCombinationSlotStateDocument> GetByAddressAsync(Address address)
     {

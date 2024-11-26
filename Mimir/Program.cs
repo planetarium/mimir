@@ -41,7 +41,6 @@ builder.Services.AddSingleton<AllCombinationSlotStateRepository>();
 builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<ArenaParticipantRepository>();
-builder.Services.AddSingleton<AvatarRepository>();
 builder.Services.AddSingleton<IAvatarRepository, AvatarRepository>();
 builder.Services.AddSingleton<BalanceRepository>();
 builder.Services.AddSingleton<CollectionRepository>();

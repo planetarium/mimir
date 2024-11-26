@@ -10,7 +10,7 @@ using Nekoyume.Model.EnumType;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class ArenaRepository(MongoDbService dbService)
+public class ArenaRepository(IMongoDbService dbService)
 {
     private static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions()
         .SetPriority(CacheItemPriority.High)

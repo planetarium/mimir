@@ -12,7 +12,7 @@ public interface IDailyRewardRepository
     Task<DailyRewardDocument> GetByAddressAsync(Address address);
 }
 
-public class DailyRewardRepository(MongoDbService dbService) : IDailyRewardRepository
+public class DailyRewardRepository(IMongoDbService dbService) : IDailyRewardRepository
 {
     public async Task<DailyRewardDocument> GetByAddressAsync(Address address)
     {

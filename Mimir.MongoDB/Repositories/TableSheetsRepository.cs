@@ -15,7 +15,7 @@ using Nekoyume.TableData;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class TableSheetsRepository(MongoDbService dbService)
+public class TableSheetsRepository(IMongoDbService dbService)
 {
     private static readonly Codec Codec = new();
 

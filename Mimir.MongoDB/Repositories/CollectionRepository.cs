@@ -6,7 +6,7 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class CollectionRepository(MongoDbService dbService)
+public class CollectionRepository(IMongoDbService dbService)
 {
     public async Task<CollectionDocument> GetByAddressAsync(Address address)
     {
