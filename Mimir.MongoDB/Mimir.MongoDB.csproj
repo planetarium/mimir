@@ -1,24 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="HotChocolate.Abstractions" Version="14.1.0" />
-        <PackageReference Include="HotChocolate.Data.MongoDb" Version="14.1.0" />
-        <PackageReference Include="Lib9c" Version="1.19.0" />
-        <PackageReference Include="Libplanet" Version="5.4.0" />
-        <PackageReference Include="MongoDB.Bson" Version="3.0.0" />
-        <PackageReference Include="MongoDB.Driver" Version="3.0.0" />
+	<ItemGroup>
+		<PackageReference Include="HotChocolate.Abstractions" Version="14.1.0" />
+		<PackageReference Include="HotChocolate.Data.MongoDb" Version="14.1.0" />
+		<PackageReference Include="Lib9c" Version="1.19.0" />
+		<PackageReference Include="Libplanet" Version="5.4.0" />
+		<PackageReference Include="MongoDB.Bson" Version="3.0.0" />
+		<PackageReference Include="MongoDB.Driver" Version="3.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
 	</ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Lib9c.GraphQL\Lib9c.GraphQL.csproj" />
-        <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj"/>
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Lib9c.GraphQL\Lib9c.GraphQL.csproj" />
+		<ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj"/>
+	</ItemGroup>
 
 </Project>
