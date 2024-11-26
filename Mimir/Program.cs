@@ -36,8 +36,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<IMongoDbService, MongoDbService>();
 // NOTE: MongoDB repositories. Sort in alphabetical order.
 builder.Services.AddSingleton<IActionPointRepository, ActionPointRepository>();
-builder.Services.AddSingleton<AgentRepository>();
-builder.Services.AddSingleton<AllCombinationSlotStateRepository>();
+builder.Services.AddSingleton<IAgentRepository, AgentRepository>();
+builder.Services.AddSingleton<IAllCombinationSlotStateRepository, AllCombinationSlotStateRepository>();
 builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<ArenaParticipantRepository>();
