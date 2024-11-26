@@ -7,7 +7,7 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class BalanceRepository(MongoDbService dbService)
+public class BalanceRepository(IMongoDbService dbService)
 {
     public async Task<BalanceDocument> GetByAddressAsync(Currency currency, Address address)
     {

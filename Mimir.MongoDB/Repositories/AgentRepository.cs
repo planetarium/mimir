@@ -11,7 +11,7 @@ public interface IAgentRepository
     Task<AgentDocument> GetByAddressAsync(Address address);
 }
 
-public class AgentRepository(MongoDbService dbService) : IAgentRepository
+public class AgentRepository(IMongoDbService dbService) : IAgentRepository
 {
     public virtual async Task<AgentDocument> GetByAddressAsync(Address agentAddress)
     {

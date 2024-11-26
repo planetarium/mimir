@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class MetadataRepository(MongoDbService dbService)
+public class MetadataRepository(IMongoDbService dbService)
 {
     public async Task<MetadataDocument> GetByCollectionAsync(string collectionName)
     {

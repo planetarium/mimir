@@ -22,7 +22,7 @@ public class ProductRepository
     private readonly IMongoCollection<ProductDocument> _collection;
     private readonly GridFSBucket _gridFsBucket;
 
-    public ProductRepository(MongoDbService dbService)
+    public ProductRepository(IMongoDbService dbService)
     {
         var collectionName = CollectionNames.GetCollectionName<ProductDocument>();
         _collection = dbService.GetCollection<ProductDocument>(collectionName);

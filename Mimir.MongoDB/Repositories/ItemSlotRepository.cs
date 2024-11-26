@@ -7,7 +7,7 @@ using Nekoyume.Model.EnumType;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class ItemSlotRepository(MongoDbService dbService)
+public class ItemSlotRepository(IMongoDbService dbService)
 {
     public async Task<ItemSlotDocument> GetByAddressAsync(Address avatarAddress, BattleType battleType)
     {

@@ -11,7 +11,7 @@ using Nekoyume.Model.EnumType;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class ArenaParticipantRepository(MongoDbService dbService)
+public class ArenaParticipantRepository(IMongoDbService dbService)
 {
     private static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions()
         .SetPriority(CacheItemPriority.High)

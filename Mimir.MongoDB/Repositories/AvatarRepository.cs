@@ -6,7 +6,7 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class AvatarRepository(MongoDbService dbService) : IAvatarRepository
+public class AvatarRepository(IMongoDbService dbService) : IAvatarRepository
 {
     public virtual async Task<AvatarDocument> GetByAddressAsync(Address address)
     {
