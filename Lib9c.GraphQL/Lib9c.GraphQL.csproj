@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.12" />
-        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.12">
+        <PackageReference Include="HotChocolate.AspNetCore" Version="14.1.0" />
+        <PackageReference Include="HotChocolate.Types.Analyzers" Version="14.1.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

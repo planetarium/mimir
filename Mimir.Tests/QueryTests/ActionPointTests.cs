@@ -21,7 +21,7 @@ public class ActionPointTests
         const string query = "query { actionPoint(address: \"0x0000000000000000000000000000000000000000\") }";
         var result = await TestServices.ExecuteRequestAsync(
             serviceProvider,
-            b => b.SetQuery(query));
+            b => b.SetDocument(query));
 
         await Verify(result);
     }

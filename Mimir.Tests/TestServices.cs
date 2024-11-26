@@ -57,21 +57,21 @@ public static class TestServices
 
     public static async Task<string> ExecuteRequestAsync(
         IServiceProvider serviceProvider,
-        Action<IQueryRequestBuilder> configureRequest,
+        Action<OperationRequestBuilder> configureRequest,
         CancellationToken cancellationToken = default)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
 
-        var requestBuilder = new QueryRequestBuilder();
+        var requestBuilder = new OperationRequestBuilder();
         requestBuilder.SetServices(scope.ServiceProvider);
         configureRequest(requestBuilder);
-        var request = requestBuilder.Create();
+        var request = requestBuilder.Build();
 
         var executor = await scope.ServiceProvider
             .GetRequiredService<IRequestExecutorResolver>()
             .GetRequestExecutorAsync(cancellationToken: cancellationToken);
         await using var result = await executor.ExecuteAsync(request, cancellationToken);
-        result.ExpectQueryResult();
+        result.ExpectOperationResult();
         return result.ToJson();
     }
 }
