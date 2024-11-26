@@ -25,7 +25,7 @@ public class DailyRewardQueryTest
                         dailyRewardReceivedBlockIndex(address: "{{mockAddress}}")
                       }
                       """;
-        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetQuery(query));
+        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
 
         await Verify(result);
     }

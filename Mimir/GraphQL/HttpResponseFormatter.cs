@@ -7,7 +7,7 @@ namespace Mimir.GraphQL;
 public class HttpResponseFormatter : DefaultHttpResponseFormatter
 {
     protected override HttpStatusCode OnDetermineStatusCode(
-        IQueryResult result,
+        IOperationResult result,
         FormatInfo format,
         HttpStatusCode? proposedStatusCode)
     {

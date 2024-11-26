@@ -6,6 +6,7 @@ using Lib9c.Models.Extensions;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Stat;
 using ValueKind = Bencodex.Types.ValueKind;
+using KeyNotFoundException = System.Collections.Generic.KeyNotFoundException;
 
 namespace Lib9c.Models.Stats;
 
