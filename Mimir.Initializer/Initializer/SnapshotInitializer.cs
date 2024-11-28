@@ -23,7 +23,7 @@ public class SnapshotInitializer
     private Address[] _targetAccounts;
 
     public SnapshotInitializer(
-        IMongoDbService dbService,
+        MongoDbService dbService,
         string chainStorePath,
         Address[] targetAccounts
     )
