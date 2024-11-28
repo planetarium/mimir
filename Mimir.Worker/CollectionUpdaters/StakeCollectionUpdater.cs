@@ -19,7 +19,7 @@ public static class StakeCollectionUpdater
         CancellationToken stoppingToken = default
     )
     {
-        var stakeAddress = Nekoyume.Model.Stake.StakeStateV2.DeriveAddress(agentAddress);
+        var stakeAddress = Nekoyume.Model.Stake.StakeState.DeriveAddress(agentAddress);
         var stakeState = await stateService.GetState(stakeAddress, stoppingToken);
         StakeDocument document;
         if (stakeState is null ||
