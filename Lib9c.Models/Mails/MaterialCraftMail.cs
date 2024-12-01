@@ -10,7 +10,7 @@ namespace Lib9c.Models.Mails;
 /// <see cref="Nekoyume.Model.Mail.MaterialCraftMail"/>
 /// </summary>
 [BsonIgnoreExtraElements]
-public record MaterialCraftMail : AttachmentMail
+public record MaterialCraftMail : Mail
 {
     public int ItemCount { get; init; }
     public int ItemId { get; init; }
