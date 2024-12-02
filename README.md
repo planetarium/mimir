@@ -58,7 +58,7 @@ query {
 
 ## Applications
 
-Check out an example of a website created using Mimir: https://nine-chronicles.dev/modding/guide/avatar-information-dapp-guide
+Check out an example of a website created using Mimir: https://nine-chronicles.dev/tutorials/modding/avatar-information-dapp-guide
 Create various applications using Mimir!
 
 ## Limitations
