@@ -89,7 +89,8 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         var sheetState = await stateService.GetState(sheetAddress, stoppingToken);
         if (sheetState is not Text sheetValue)
         {
-            throw new InvalidCastException($"Expected sheet state to be of type 'Text'.");
+            logger.Error("Expected sheet state of {SheetTypeName} to be of type {TextType}", sheetType.Name, typeof(Text));
+            return;
         }
 
         sheet.Set(sheetValue.Value);
