@@ -18,6 +18,8 @@ public class CollectionState : IBencodable
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => List.Empty.Add(new List(Ids));
 
+    public CollectionState() { }
+    
     public CollectionState(IValue bencoded)
     {
         if (bencoded is not List l)
