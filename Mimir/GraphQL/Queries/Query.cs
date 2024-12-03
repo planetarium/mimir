@@ -80,7 +80,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The collection state for the specified avatar address.</returns>
-    public async Task<CollectionState> GetCollectionAsync(Address address, [Service] CollectionRepository repo) =>
+    public async Task<CollectionState> GetCollectionAsync(Address address, [Service] ICollectionRepository repo) =>
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>

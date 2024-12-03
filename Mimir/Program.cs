@@ -43,7 +43,7 @@ builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<ArenaParticipantRepository>();
 builder.Services.AddSingleton<IAvatarRepository, AvatarRepository>();
 builder.Services.AddSingleton<BalanceRepository>();
-builder.Services.AddSingleton<CollectionRepository>();
+builder.Services.AddSingleton<ICollectionRepository,CollectionRepository>();
 builder.Services.AddSingleton<IDailyRewardRepository, DailyRewardRepository>();
 builder.Services.AddSingleton<InventoryRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
