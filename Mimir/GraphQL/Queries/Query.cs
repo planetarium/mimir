@@ -12,6 +12,7 @@ using Mimir.MongoDB.Repositories;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.Extensions;
+using Lib9c.Models.States;
 using Nekoyume.TableData;
 
 namespace Mimir.GraphQL.Queries;
@@ -253,6 +254,6 @@ public class Query
     /// <returns>The world information state.</returns>
     public async Task<WorldInformationState> GetWorldInformationAsync(
         Address address,
-        [Service] WorldInformationRepository repo) =>
+        [Service] IWorldInformationRepository repo) => 
         (await repo.GetByAddressAsync(address)).Object;
 }

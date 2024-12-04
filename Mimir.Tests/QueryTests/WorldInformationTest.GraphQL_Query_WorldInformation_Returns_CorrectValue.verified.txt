@@ -1,0 +1,22 @@
+﻿{
+  "data": {
+    "worldInformation": {
+      "worldDictionary": [
+        {
+          "key": 1,
+          "value": {
+            "id": 1,
+            "isStageCleared": true,
+            "isUnlocked": true,
+            "name": "kim",
+            "stageBegin": 2,
+            "stageClearedBlockIndex": 1,
+            "stageClearedId": 2,
+            "stageEnd": 3,
+            "unlockedBlockIndex": 2
+          }
+        }
+      ]
+    }
+  }
+}
