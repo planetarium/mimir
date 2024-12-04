@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Bencodex;
 using Bencodex.Types;
+using HotChocolate;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using MongoDB.Bson.Serialization.Attributes;
@@ -17,6 +18,8 @@ public class PetState : IBencodable
     public int PetId { get; init; }
     public int Level { get; init; }
     public long UnlockedBlockIndex { get; init; }
+
+    public PetState(){}
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => List.Empty

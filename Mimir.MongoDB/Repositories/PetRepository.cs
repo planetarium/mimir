@@ -6,7 +6,10 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class PetRepository(IMongoDbService dbService)
+public interface IPetRepository{
+    Task<PetStateDocument> GetByAvatarAddressAsync(Address avatarAddress);
+}
+public class PetRepository(IMongoDbService dbService) : IPetRepository
 {
     public async Task<PetStateDocument> GetByAvatarAddressAsync(Address avatarAddress)
     {

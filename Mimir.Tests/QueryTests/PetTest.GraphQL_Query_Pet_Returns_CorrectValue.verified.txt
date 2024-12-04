@@ -1,0 +1,22 @@
+﻿{
+  "errors": [
+    {
+      "message": "The field `UnlockedBlockIndex` does not exist on the type `PetState`.",
+      "locations": [
+        {
+          "line": 5,
+          "column": 5
+        }
+      ],
+      "path": [
+        "pet"
+      ],
+      "extensions": {
+        "type": "PetState",
+        "field": "UnlockedBlockIndex",
+        "responseName": "UnlockedBlockIndex",
+        "specifiedBy": "https://spec.graphql.org/October2021/#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types"
+      }
+    }
+  ]
+}
