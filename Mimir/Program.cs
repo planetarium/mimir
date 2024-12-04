@@ -10,6 +10,7 @@ using Mimir.GraphQL;
 using Mimir.MongoDB.Repositories;
 using Mimir.Options;
 using Mimir.MongoDB.Services;
+using BalanceRepository = Mimir.MongoDB.Repositories.BalanceRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,7 @@ builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<ArenaParticipantRepository>();
 builder.Services.AddSingleton<IAvatarRepository, AvatarRepository>();
-builder.Services.AddSingleton<BalanceRepository>();
+builder.Services.AddSingleton<IBalanceRepository, BalanceRepository>();
 builder.Services.AddSingleton<ICollectionRepository,CollectionRepository>();
 builder.Services.AddSingleton<IDailyRewardRepository, DailyRewardRepository>();
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();

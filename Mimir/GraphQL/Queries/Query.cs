@@ -60,7 +60,7 @@ public class Query
         CurrencyInput? currency,
         string? currencyTicker,
         Address address,
-        [Service] BalanceRepository repo)
+        [Service] IBalanceRepository repo)
     {
         if (currency is not null)
         {
