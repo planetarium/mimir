@@ -14,7 +14,14 @@ public class ProductIdsTest
         var mockRepo = new Mock<IProductsRepository>();
         mockRepo
             .Setup(repo => repo.GetByAvatarAddressAsync(It.IsAny<Address>()))
-            .ReturnsAsync(new ProductsStateDocument(0, default, new ProductsState(), default));
+            .ReturnsAsync(new ProductsStateDocument(
+                0,
+                default,
+                new ProductsState()
+                {
+                    ProductIds = new List<Guid>() {default}
+                },
+                default));
 
         var serviceProvider = TestServices.Builder
             .With(mockRepo.Object)
