@@ -6,7 +6,11 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class ProductsRepository(IMongoDbService dbService)
+public interface IProductsRepository{
+    Task<ProductsStateDocument> GetByAvatarAddressAsync(Address avatarAddress);
+}
+
+public class ProductsRepository(IMongoDbService dbService):IProductsRepository
 {
     public async Task<ProductsStateDocument> GetByAvatarAddressAsync(Address avatarAddress)
     {

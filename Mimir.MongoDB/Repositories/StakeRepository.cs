@@ -6,7 +6,12 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class StakeRepository(IMongoDbService dbService)
+public interface IStakeRepository
+{
+    Task<StakeDocument> GetByAgentAddressAsync(Address agentAddress);
+}
+
+public class StakeRepository(IMongoDbService dbService) : IStakeRepository
 {
     public async Task<StakeDocument> GetByAgentAddressAsync(Address agentAddress)
     {
