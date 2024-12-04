@@ -1,13 +1,18 @@
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
-using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class BalanceRepository(IMongoDbService dbService)
+public interface IBalanceRepository
+{
+    Task<BalanceDocument> GetByAddressAsync(Currency currency, Address address);
+}
+
+public class BalanceRepository(IMongoDbService dbService) : IBalanceRepository
 {
     public async Task<BalanceDocument> GetByAddressAsync(Currency currency, Address address)
     {
