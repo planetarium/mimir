@@ -3,10 +3,16 @@ using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Services;
 using MongoDB.Driver;
+using Lib9c.Models.States;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class WorldInformationRepository(IMongoDbService dbService)
+public interface IWorldInformationRepository
+{
+    Task<WorldInformationDocument> GetByAddressAsync(Address address);
+}
+
+public class WorldInformationRepository(IMongoDbService dbService) : IWorldInformationRepository
 {
     public async Task<WorldInformationDocument> GetByAddressAsync(Address address)
     {

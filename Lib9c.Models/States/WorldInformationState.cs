@@ -25,6 +25,8 @@ public record WorldInformationState : IBencodable
             .Add(kv.Key.Serialize())
             .Add(kv.Value.Bencoded)));
 
+    public WorldInformationState(){}
+
     public WorldInformationState(IValue bencoded)
     {
         if (bencoded is not Dictionary d)
