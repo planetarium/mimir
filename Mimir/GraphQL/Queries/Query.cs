@@ -128,7 +128,7 @@ public class Query
     /// <summary>
     /// Get the pledge state for a given agent address.
     /// </summary>
-    public async Task<PledgeDocument> GetPledgeAsync(Address agentAddress, [Service] PledgeRepository repo) =>
+    public async Task<PledgeDocument> GetPledgeAsync(Address agentAddress, [Service] IPledgeRepository repo) =>
         await repo.GetByAddressAsync(agentAddress.GetPledgeAddress());
 
     /// <summary>
