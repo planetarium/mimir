@@ -61,7 +61,7 @@ public class Query
         CurrencyInput? currency,
         string? currencyTicker,
         Address address,
-        [Service] BalanceRepository repo)
+        [Service] IBalanceRepository repo)
     {
         if (currency is not null)
         {
@@ -107,7 +107,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The inventory state for the specified avatar address.</returns>
-    public async Task<Inventory> GetInventoryAsync(Address address, [Service] InventoryRepository repo) =>
+    public async Task<Inventory> GetInventoryAsync(Address address, [Service] IInventoryRepository repo) =>
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
@@ -115,7 +115,7 @@ public class Query
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <returns>The metadata</returns>
-    public async Task<MetadataDocument> GetMetadataAsync(string collectionName, [Service] MetadataRepository repo) =>
+    public async Task<MetadataDocument> GetMetadataAsync(string collectionName, [Service] IMetadataRepository repo) =>
         await repo.GetByCollectionAsync(collectionName);
 
     /// <summary>
@@ -123,13 +123,13 @@ public class Query
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>
     /// <returns>The agent state</returns>
-    public async Task<PetState> GetPetAsync(Address avatarAddress, [Service] PetRepository repo) =>
+    public async Task<PetState> GetPetAsync(Address avatarAddress, [Service] IPetRepository repo) =>
         (await repo.GetByAvatarAddressAsync(avatarAddress)).Object;
 
     /// <summary>
     /// Get the pledge state for a given agent address.
     /// </summary>
-    public async Task<PledgeDocument> GetPledgeAsync(Address agentAddress, [Service] PledgeRepository repo) =>
+    public async Task<PledgeDocument> GetPledgeAsync(Address agentAddress, [Service] IPledgeRepository repo) =>
         await repo.GetByAddressAsync(agentAddress.GetPledgeAddress());
 
     /// <summary>
@@ -137,7 +137,7 @@ public class Query
     /// </summary>
     /// <param name="productId">The product ID</param>
     /// <returns>The product.</returns>
-    public async Task<Product> GetProductAsync(Guid productId, [Service] ProductRepository repo) =>
+    public async Task<Product> GetProductAsync(Guid productId, [Service] IProductRepository repo) =>
         (await repo.GetByProductIdAsync(productId)).Object;
 
     /// <summary>
@@ -145,7 +145,7 @@ public class Query
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>
     /// <returns>The product ids that contained in the products state for the specified avatar address.</returns>
-    public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] ProductsRepository repo) =>
+    public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] IProductsRepository repo) =>
         (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
 
     /// <summary>
@@ -161,7 +161,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the agent.</param>
     /// <returns>The stake state.</returns>
-    public async Task<StakeState?> GetStakeAsync(Address address, [Service] StakeRepository repo) =>
+    public async Task<StakeState?> GetStakeAsync(Address address, [Service] IStakeRepository repo) =>
         (await repo.GetByAgentAddressAsync(address)).Object;
 
     /// <summary>
