@@ -26,5 +26,11 @@
   <ItemGroup>
       <ProjectReference Include="..\Mimir\Mimir.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="QueryTests\InventoryTest.GraphQL_Query_Inventory_Returns_CorrectValue.received.txt">
+      <DependentUpon>InventoryTest.cs</DependentUpon>
+    </None>
+  </ItemGroup>
 
 </Project>
