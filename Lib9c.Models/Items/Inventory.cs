@@ -14,7 +14,9 @@ namespace Lib9c.Models.Items;
 public record Inventory : IBencodable
 {
     public List<InventoryItem> Items { get; init; }
-
+    
+    public Inventory() { }
+    
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => new List(Items
         .OrderBy(i => i.Item.Id)

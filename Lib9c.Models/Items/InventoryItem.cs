@@ -19,7 +19,9 @@ public record InventoryItem : IBencodable
     public ItemBase Item { get; init; }
     public int Count { get; init; }
     public ILock? Lock { get; init; }
-
+    
+    public InventoryItem() { }
+    
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded
     {
