@@ -1,0 +1,17 @@
+﻿{
+  "errors": [
+    {
+      "message": "Either currency or currencyTicker must be provided.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 7
+        }
+      ],
+      "path": [
+        "balance"
+      ]
+    }
+  ],
+  "data": null
+}
