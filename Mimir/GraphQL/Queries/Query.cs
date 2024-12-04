@@ -106,7 +106,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The inventory state for the specified avatar address.</returns>
-    public async Task<Inventory> GetInventoryAsync(Address address, [Service] InventoryRepository repo) =>
+    public async Task<Inventory> GetInventoryAsync(Address address, [Service] IInventoryRepository repo) =>
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
