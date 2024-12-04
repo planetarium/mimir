@@ -114,7 +114,7 @@ public class Query
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <returns>The metadata</returns>
-    public async Task<MetadataDocument> GetMetadataAsync(string collectionName, [Service] MetadataRepository repo) =>
+    public async Task<MetadataDocument> GetMetadataAsync(string collectionName, [Service] IMetadataRepository repo) =>
         await repo.GetByCollectionAsync(collectionName);
 
     /// <summary>
@@ -144,7 +144,7 @@ public class Query
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>
     /// <returns>The product ids that contained in the products state for the specified avatar address.</returns>
-    public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] ProductsRepository repo) =>
+    public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] IProductsRepository repo) =>
         (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
 
     /// <summary>
