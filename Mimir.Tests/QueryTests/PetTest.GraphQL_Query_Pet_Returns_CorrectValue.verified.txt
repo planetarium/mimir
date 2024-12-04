@@ -1,0 +1,9 @@
+﻿{
+  "data": {
+    "pet": {
+      "level": 1,
+      "petId": 1,
+      "unlockedBlockIndex": 0
+    }
+  }
+}
