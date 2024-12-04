@@ -5,8 +5,13 @@ using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
+public interface IPledgeRepository
+{
+    Task<PledgeDocument> GetByAddressAsync(Address address);
+}
 
-public class PledgeRepository(IMongoDbService dbService)
+
+public class PledgeRepository(IMongoDbService dbService) : IPledgeRepository
 {
     public async Task<PledgeDocument> GetByAddressAsync(Address address)
     {
