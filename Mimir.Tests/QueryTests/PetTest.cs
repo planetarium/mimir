@@ -23,7 +23,7 @@ public class PetTest
                 new PetState() {
                     PetId = 1,
                     Level = 1,
-                    UnlockedBlockIndex = 1
+                    UnlockedBlockIndex = default
                 }
             ));
 
@@ -36,7 +36,7 @@ public class PetTest
                     pet(avatarAddress: "{{address}}") {
                         level
                         petId
-                        UnlockedBlockIndex
+                        unlockedBlockIndex
                     }
                     }
                     """;

@@ -20,7 +20,6 @@ public class PetState : IBencodable
     public long UnlockedBlockIndex { get; init; }
 
     public PetState(){}
-
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded => List.Empty
         .Add(PetId.Serialize())
