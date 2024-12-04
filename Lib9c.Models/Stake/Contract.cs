@@ -25,6 +25,8 @@ public record Contract : IBencodable
     public long RewardInterval { get; init; }
     public long LockupInterval { get; init; }
 
+    public Contract(){}
+
     public Contract(IValue bencoded)
     {
         if (bencoded is not List l)
