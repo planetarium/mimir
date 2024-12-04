@@ -1,0 +1,9 @@
+﻿{
+  "data": {
+    "metadata": {
+      "collectionName": "collection",
+      "latestBlockIndex": 0,
+      "pollerType": "poller-type"
+    }
+  }
+}

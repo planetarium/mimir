@@ -4,8 +4,13 @@ using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
-
-public class MetadataRepository(IMongoDbService dbService)
+public interface IMetadataRepository{
+    Task<MetadataDocument> GetByCollectionAsync(string collectionName);
+    Task<MetadataDocument> GetByCollectionAndTypeAsync(
+        string pollerType,
+        string collectionName);
+}
+public class MetadataRepository(IMongoDbService dbService):IMetadataRepository
 {
     public async Task<MetadataDocument> GetByCollectionAsync(string collectionName)
     {
