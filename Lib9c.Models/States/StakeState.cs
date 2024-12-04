@@ -19,6 +19,8 @@ public record StakeState : IBencodable
     public Contract Contract { get; init; }
     public long StartedBlockIndex { get; init; }
     public long ReceivedBlockIndex { get; init; }
+    
+    public StakeState() {}
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
