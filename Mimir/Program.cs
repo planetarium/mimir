@@ -51,7 +51,7 @@ builder.Services.AddSingleton<IMetadataRepository,MetadataRepository>();
 builder.Services.AddSingleton<PetRepository>();
 builder.Services.AddSingleton<PledgeRepository>();
 builder.Services.AddSingleton<ProductRepository>();
-builder.Services.AddSingleton<ProductsRepository>();
+builder.Services.AddSingleton<IProductsRepository, ProductsRepository>();
 builder.Services.AddSingleton<IStakeRepository, StakeRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
