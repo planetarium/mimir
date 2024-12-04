@@ -136,7 +136,7 @@ public class Query
     /// </summary>
     /// <param name="productId">The product ID</param>
     /// <returns>The product.</returns>
-    public async Task<Product> GetProductAsync(Guid productId, [Service] ProductRepository repo) =>
+    public async Task<Product> GetProductAsync(Guid productId, [Service] IProductRepository repo) =>
         (await repo.GetByProductIdAsync(productId)).Object;
 
     /// <summary>
