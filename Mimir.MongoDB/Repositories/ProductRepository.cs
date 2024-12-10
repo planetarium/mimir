@@ -15,7 +15,12 @@ using SortDirection = Mimir.MongoDB.Enums.SortDirection;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class ProductRepository
+public interface IProductRepository
+{
+    Task<ProductDocument> GetByProductIdAsync(Guid productId);
+} 
+
+public class ProductRepository : IProductRepository
 {
     private static readonly Codec Codec = new();
 

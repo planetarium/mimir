@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.TableData;
+using Nekoyume.TableData.Summon;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -47,7 +48,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
 
         var collection = _store.GetCollection(CollectionNames.GetCollectionName<SheetDocument>());
         var count = await collection.CountDocumentsAsync(new BsonDocument());
-        var sheetTypesCount = sheetTypes.Count() - 4;
+        var sheetTypesCount = sheetTypes.Count() - 7;
 
         return count >= sheetTypesCount;
     }
@@ -71,6 +72,9 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
         if (
             sheetType == typeof(WorldBossKillRewardSheet)
             || sheetType == typeof(WorldBossBattleRewardSheet)
+            || sheetType == typeof(CostumeSummonSheet)
+            || sheetType == typeof(EquipmentSummonSheet)
+            || sheetType == typeof(RuneSummonSheet)
         )
         {
             logger.Information(

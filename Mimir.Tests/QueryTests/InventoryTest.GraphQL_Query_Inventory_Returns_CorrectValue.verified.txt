@@ -1,0 +1,28 @@
+﻿{
+  "data": {
+    "inventory": {
+      "items": [
+        {
+          "count": 1,
+          "item": {
+            "elementalType": "NORMAL",
+            "grade": 1,
+            "id": 1,
+            "itemSubType": "ARMOR",
+            "itemType": "EQUIPMENT"
+          }
+        },
+        {
+          "count": 2,
+          "item": {
+            "elementalType": "FIRE",
+            "grade": 2,
+            "id": 2,
+            "itemSubType": "FOOD",
+            "itemType": "MATERIAL"
+          }
+        }
+      ]
+    }
+  }
+}

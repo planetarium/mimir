@@ -10,6 +10,7 @@ using Mimir.GraphQL;
 using Mimir.MongoDB.Repositories;
 using Mimir.Options;
 using Mimir.MongoDB.Services;
+using BalanceRepository = Mimir.MongoDB.Repositories.BalanceRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,22 +43,23 @@ builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<ArenaParticipantRepository>();
 builder.Services.AddSingleton<IAvatarRepository, AvatarRepository>();
-builder.Services.AddSingleton<BalanceRepository>();
-builder.Services.AddSingleton<CollectionRepository>();
+builder.Services.AddSingleton<IBalanceRepository, BalanceRepository>();
+builder.Services.AddSingleton<ICollectionRepository,CollectionRepository>();
 builder.Services.AddSingleton<IDailyRewardRepository, DailyRewardRepository>();
-builder.Services.AddSingleton<InventoryRepository>();
+builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
-builder.Services.AddSingleton<MetadataRepository>();
-builder.Services.AddSingleton<PetRepository>();
-builder.Services.AddSingleton<PledgeRepository>();
-builder.Services.AddSingleton<ProductRepository>();
-builder.Services.AddSingleton<ProductsRepository>();
-builder.Services.AddSingleton<StakeRepository>();
+builder.Services.AddSingleton<IPetRepository, PetRepository>();
+builder.Services.AddSingleton<IMetadataRepository,MetadataRepository>();
+builder.Services.AddSingleton<IProductRepository, ProductRepository>();
+builder.Services.AddSingleton<IPledgeRepository, PledgeRepository>();
+builder.Services.AddSingleton<IProductsRepository, ProductsRepository>();
+builder.Services.AddSingleton<IStakeRepository, StakeRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
 builder.Services.AddSingleton<WorldBossRaiderRepository>();
 builder.Services.AddSingleton<WorldBossRepository>();
-builder.Services.AddSingleton<WorldInformationRepository>();
+builder.Services.AddSingleton<IWorldInformationRepository, WorldInformationRepository>();
+
 // ~MongoDB repositories.
 builder.Services.AddCors();
 builder.Services.AddHttpClient();

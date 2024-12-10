@@ -1,0 +1,14 @@
+﻿{
+  "data": {
+    "stake": {
+      "receivedBlockIndex": 1,
+      "startedBlockIndex": 2,
+      "contract": {
+        "lockupInterval": 1,
+        "rewardInterval": 1,
+        "stakeRegularFixedRewardSheetTableName": "a",
+        "stakeRegularRewardSheetTableName": "a"
+      }
+    }
+  }
+}
