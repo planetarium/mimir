@@ -23,7 +23,8 @@ public class ProductStateHandler(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager
+    IInitializerManager initializerManager,
+    IItemProductCalculationService itemProductCalculationService
 )
     : BaseActionHandler<ProductDocument>(
         stateService,
@@ -192,8 +193,8 @@ public class ProductStateHandler(
             case ItemProduct itemProduct:
             {
                 var unitPrice = CalculateUnitPrice(itemProduct);
-                var combatPoint = await CalculateCombatPointAsync(itemProduct);
-                var (crystal, crystalPerPrice) = await CalculateCrystalMetricsAsync(itemProduct);
+                var combatPoint = await itemProductCalculationService.CalculateCombatPointAsync(itemProduct);
+                var (crystal, crystalPerPrice) = await itemProductCalculationService.CalculateCrystalMetricsAsync(itemProduct);
                 
                 return new ProductDocument(
                     blockIndex,
@@ -243,79 +244,6 @@ public class ProductStateHandler(
     {
         return decimal.Parse(favProduct.Price.GetQuantityString())
             / decimal.Parse(favProduct.Asset.GetQuantityString());
-    }
-
-    private async Task<int?> CalculateCombatPointAsync(ItemProduct itemProduct)
-    {
-        try
-        {
-            var costumeStatSheet = await Store.GetSheetAsync<CostumeStatSheet>();
-
-            if (costumeStatSheet != null)
-            {
-                int? cp = itemProduct.TradableItem switch
-                {
-                    ItemUsable itemUsable
-                        => CPHelper.GetCP(
-                            (Nekoyume.Model.Item.ItemUsable)
-                                Nekoyume.Model.Item.ItemFactory.Deserialize(
-                                    (Dictionary)itemUsable.Bencoded
-                                )
-                        ),
-                    Costume costume => CPHelper.GetCP(new Nekoyume.Model.Item.Costume((Dictionary)costume.Bencoded), costumeStatSheet),
-                    _ => null
-                };
-                return cp;
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Error("Error calculating combat point for itemProduct {ItemProductProductId}: {ExMessage}",
-                itemProduct.ProductId, ex.Message);
-        }
-
-        return null;
-    }
-
-    private async Task<(int? crystal, int? crystalPerPrice)> CalculateCrystalMetricsAsync(
-        ItemProduct itemProduct
-    )
-    {
-        try
-        {
-            var crystalEquipmentGrindingSheet =
-                await Store.GetSheetAsync<CrystalEquipmentGrindingSheet>();
-            var crystalMonsterCollectionMultiplierSheet =
-                await Store.GetSheetAsync<CrystalMonsterCollectionMultiplierSheet>();
-
-            if (
-                crystalEquipmentGrindingSheet != null
-                && crystalMonsterCollectionMultiplierSheet != null
-                && itemProduct.TradableItem is Equipment equipment
-            )
-            {
-                var rawCrystal = CrystalCalculator.CalculateCrystal(
-                    [equipment.ToNekoyumeEquipment()],
-                    false,
-                    crystalEquipmentGrindingSheet,
-                    crystalMonsterCollectionMultiplierSheet,
-                    0
-                );
-
-                int crystal = (int)rawCrystal.MajorUnit;
-                int crystalPerPrice = (int)
-                    rawCrystal.DivRem(itemProduct.Price.MajorUnit).Quotient.MajorUnit;
-
-                return (crystal, crystalPerPrice);
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Error("Error calculating crystal metrics for itemProduct {ItemProductProductId}: {ExMessage}",
-                itemProduct.ProductId, ex.Message);
-        }
-
-        return (null, null);
     }
     
     private IEnumerable<WriteModel<BsonDocument>> RemoveOldProducts(List<Guid> productsToRemove)

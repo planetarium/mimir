@@ -4,10 +4,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Mimir.Initializer;
 using Mimir.Initializer.Initializer;
+using Mimir.Initializer.Migrators;
 using Mimir.Worker.Services;
 using Serilog;
 
-var builder = Host.CreateDefaultBuilder(args)
+var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(
         (hostingContext, config) =>
         {
@@ -44,6 +45,9 @@ var builder = Host.CreateDefaultBuilder(args)
                 var targetAccounts = config.GetTargetAddresses();
                 return new SnapshotInitializer(dbService, config.ChainStorePath, targetAccounts);
             });
+            
+            services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>();
+            services.AddSingleton<ProductMigrator>();
         }
     )
     .UseSerilog(
@@ -54,9 +58,13 @@ var builder = Host.CreateDefaultBuilder(args)
     )
     .Build();
 
-using var scope = builder.Services.CreateScope();
-var initializer = scope.ServiceProvider.GetRequiredService<SnapshotInitializer>();
+var config = host.Services.GetRequiredService<IOptions<Configuration>>().Value;
 
-var stoppingToken = new CancellationTokenSource().Token;
-
-await initializer.RunAsync(stoppingToken);
+if(config.RunOptions.HasFlag(RunOptions.SnapShotInitializer))
+{
+    await host.RunSnapShotInitializerAsync();
+}
+if(config.RunOptions.HasFlag(RunOptions.ProductMigrator))
+{
+    await host.RunProductMigratorAsync();
+}
