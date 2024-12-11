@@ -40,12 +40,7 @@ builder.Services.AddSingleton(serviceProvider =>
     );
 });
 
-builder.Services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>(serviceProvider =>
-{
-    var logger = Log.ForContext<ItemProductCalculationService>();
-    var dbService = serviceProvider.GetRequiredService<MongoDbService>();
-    return new ItemProductCalculationService(dbService, logger);
-});
+builder.Services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>();
 
 builder.ConfigureInitializers();
 builder.ConfigureHandlers();

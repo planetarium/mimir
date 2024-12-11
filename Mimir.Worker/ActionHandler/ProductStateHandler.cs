@@ -193,8 +193,29 @@ public class ProductStateHandler(
             case ItemProduct itemProduct:
             {
                 var unitPrice = CalculateUnitPrice(itemProduct);
-                var combatPoint = await itemProductCalculationService.CalculateCombatPointAsync(itemProduct);
-                var (crystal, crystalPerPrice) = await itemProductCalculationService.CalculateCrystalMetricsAsync(itemProduct);
+                
+                int? crystal = null;
+                int? crystalPerPrice = null;
+                int? combatPoint = null;
+                try
+                {
+                    (crystal, crystalPerPrice) = await itemProductCalculationService.CalculateCrystalMetricsAsync(itemProduct);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Error calculating crystal metrics for itemProduct {ItemProductProductId}: {ExMessage}",
+                        itemProduct.ProductId, ex.Message);
+                }
+
+                try
+                {
+                    combatPoint = await itemProductCalculationService.CalculateCombatPointAsync(itemProduct);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Error calculating combat point for itemProduct {ItemProductProductId}: {ExMessage}",
+                        itemProduct.ProductId, ex.Message);
+                }
                 
                 return new ProductDocument(
                     blockIndex,

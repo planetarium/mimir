@@ -60,10 +60,31 @@ public class ProductMigrator : IExecutor
                 continue;
             }
 
-            var (crystal, crystalPerPrice) = await _itemProductCalculationService.CalculateCrystalMetricsAsync(itemProduct);
-            var cp = await _itemProductCalculationService.CalculateCombatPointAsync(itemProduct);
+            int? crystal = null;
+            int? crystalPerPrice = null;
+            int? combatPoint = null;
+            try
+            {
+                (crystal, crystalPerPrice) = await _itemProductCalculationService.CalculateCrystalMetricsAsync(itemProduct);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Error calculating crystal metrics for itemProduct {ItemProductProductId}: {ExMessage}",
+                    itemProduct.ProductId, ex.Message);
+            }
 
-            var newProductDocument = productDocument with { Crystal = crystal, CrystalPerPrice = crystalPerPrice, CombatPoint = cp };
+            try
+            {
+                combatPoint = await _itemProductCalculationService.CalculateCombatPointAsync(itemProduct);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Error calculating combat point for itemProduct {ItemProductProductId}: {ExMessage}",
+                    itemProduct.ProductId, ex.Message);
+            }
+
+
+            var newProductDocument = productDocument with { Crystal = crystal, CrystalPerPrice = crystalPerPrice, CombatPoint = combatPoint };
             updateDocuments.Add(newProductDocument.ToUpdateOneModel());
 
             _logger.Debug("\rUpdated of {Index} of {BsonDocsCount}", index + 1, bsonDocs.Count);
