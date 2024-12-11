@@ -5,6 +5,7 @@ using Libplanet.Common;
 using Libplanet.Crypto;
 using Libplanet.Store;
 using Libplanet.Store.Trie;
+using Microsoft.Extensions.Options;
 using Mimir.Initializer.Util;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
@@ -15,24 +16,27 @@ using ILogger = Serilog.ILogger;
 
 namespace Mimir.Initializer.Initializer;
 
-public class SnapshotInitializer
+public class SnapshotInitializer : IExecutor
 {
     private readonly MongoDbService _dbService;
     private readonly ILogger _logger;
     private readonly string _chainStorePath;
-    private Address[] _targetAccounts;
+    private readonly bool _shouldRun;
+    private readonly Address[] _targetAccounts;
 
     public SnapshotInitializer(
-        MongoDbService dbService,
-        string chainStorePath,
-        Address[] targetAccounts
+        IOptions<Configuration> configuration,
+        MongoDbService dbService
     )
     {
         _dbService = dbService;
-        _chainStorePath = chainStorePath;
-        _targetAccounts = targetAccounts;
+        _chainStorePath = configuration.Value.ChainStorePath;
+        _targetAccounts = configuration.Value.GetTargetAddresses();
+        _shouldRun = configuration.Value.RunOptions.HasFlag(RunOptions.SnapShotInitializer);
         _logger = Log.ForContext<SnapshotInitializer>();
     }
+
+    public bool ShouldRun() => _shouldRun;
 
     public async Task RunAsync(CancellationToken stoppingToken)
     {

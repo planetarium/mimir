@@ -37,17 +37,12 @@ var host = Host.CreateDefaultBuilder(args)
                     config.MongoDbCAFile
                 );
             });
-
-            services.AddTransient<SnapshotInitializer>(serviceProvider =>
-            {
-                var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-                var dbService = serviceProvider.GetRequiredService<MongoDbService>();
-                var targetAccounts = config.GetTargetAddresses();
-                return new SnapshotInitializer(dbService, config.ChainStorePath, targetAccounts);
-            });
             
             services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>();
-            services.AddSingleton<ProductMigrator>();
+            
+            services.AddSingleton<ExecuteManager>();
+            services.AddSingleton<IExecutor, SnapshotInitializer>();
+            services.AddSingleton<IExecutor, ProductMigrator>();
         }
     )
     .UseSerilog(
@@ -58,13 +53,9 @@ var host = Host.CreateDefaultBuilder(args)
     )
     .Build();
 
-var config = host.Services.GetRequiredService<IOptions<Configuration>>().Value;
+using var scope = host.Services.CreateScope();
+var executeManager = scope.ServiceProvider.GetRequiredService<ExecuteManager>();
 
-if(config.RunOptions.HasFlag(RunOptions.SnapShotInitializer))
-{
-    await host.RunSnapShotInitializerAsync();
-}
-if(config.RunOptions.HasFlag(RunOptions.ProductMigrator))
-{
-    await host.RunProductMigratorAsync();
-}
+var stoppingToken = new CancellationTokenSource().Token;
+
+await executeManager.ExecuteAsync(stoppingToken);

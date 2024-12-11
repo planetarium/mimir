@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
@@ -10,20 +11,28 @@ using ItemProduct = Lib9c.Models.Market.ItemProduct;
 
 namespace Mimir.Initializer.Migrators;
 
-public class ProductMigrator
+public class ProductMigrator : IExecutor
 {
+    private readonly IOptions<Configuration> _configuration;
     private readonly MongoDbService _dbService;
     private readonly IItemProductCalculationService _itemProductCalculationService;
     private readonly ILogger _logger;
 
-    public ProductMigrator(MongoDbService dbService, IItemProductCalculationService itemProductCalculationService, ILogger logger)
+    public ProductMigrator(IOptions<Configuration> configuration, MongoDbService dbService,
+        IItemProductCalculationService itemProductCalculationService, ILogger logger)
     {
+        _configuration = configuration;
         _dbService = dbService;
         _itemProductCalculationService = itemProductCalculationService;
         _logger = logger;
     }
 
-    public async Task AddCpAndCrystalsToProduct(CancellationToken cancellationToken)
+    public bool ShouldRun()
+    {
+        return _configuration.Value.RunOptions.HasFlag(RunOptions.ProductMigrator);
+    }
+
+    public async Task RunAsync(CancellationToken stoppingToken)
     {
         var collectionName = CollectionNames.GetCollectionName<ProductDocument>();
         var collection = _dbService.GetCollection(collectionName);
@@ -33,18 +42,18 @@ public class ProductMigrator
         filter |= builder.Not(builder.Exists(nameof(ProductDocument.CombatPoint)));
         filter = builder.And(filter, builder.Eq("Object.ProductType", Enum.GetName(ProductType.NonFungible)));
 
-        var asyncCursor = await collection.FindAsync(filter, cancellationToken: cancellationToken);
-        var bsonDocs = await asyncCursor.ToListAsync(cancellationToken: cancellationToken);
+        var asyncCursor = await collection.FindAsync(filter, cancellationToken: stoppingToken);
+        var bsonDocs = await asyncCursor.ToListAsync(cancellationToken: stoppingToken);
 
         var updateDocuments = new List<WriteModel<BsonDocument>>();
         _logger.Information("Updating {BsonDocsCount} ProductDocuments with CombatPoints and Crystals", bsonDocs.Count);
         for (var index = 0; index < bsonDocs.Count; index++)
         {
-            if (cancellationToken.IsCancellationRequested)
+            if (stoppingToken.IsCancellationRequested)
             {
                 return;
             }
-            
+
             var productDocument = BsonSerializer.Deserialize<ProductDocument>(bsonDocs[index]);
             if (productDocument?.Object is not ItemProduct itemProduct)
             {
@@ -65,6 +74,6 @@ public class ProductMigrator
         await _dbService.UpsertStateDataManyAsync(
             collectionName,
             updateDocuments,
-            cancellationToken: cancellationToken);
+            cancellationToken: stoppingToken);
     }
 }
