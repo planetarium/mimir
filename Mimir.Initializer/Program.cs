@@ -4,10 +4,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Mimir.Initializer;
 using Mimir.Initializer.Initializer;
+using Mimir.Initializer.Migrators;
 using Mimir.Worker.Services;
 using Serilog;
 
-var builder = Host.CreateDefaultBuilder(args)
+var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(
         (hostingContext, config) =>
         {
@@ -36,14 +37,12 @@ var builder = Host.CreateDefaultBuilder(args)
                     config.MongoDbCAFile
                 );
             });
-
-            services.AddTransient<SnapshotInitializer>(serviceProvider =>
-            {
-                var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-                var dbService = serviceProvider.GetRequiredService<MongoDbService>();
-                var targetAccounts = config.GetTargetAddresses();
-                return new SnapshotInitializer(dbService, config.ChainStorePath, targetAccounts);
-            });
+            
+            services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>();
+            
+            services.AddSingleton<ExecuteManager>();
+            services.AddSingleton<IExecutor, SnapshotInitializer>();
+            services.AddSingleton<IExecutor, ProductMigrator>();
         }
     )
     .UseSerilog(
@@ -54,9 +53,9 @@ var builder = Host.CreateDefaultBuilder(args)
     )
     .Build();
 
-using var scope = builder.Services.CreateScope();
-var initializer = scope.ServiceProvider.GetRequiredService<SnapshotInitializer>();
+using var scope = host.Services.CreateScope();
+var executeManager = scope.ServiceProvider.GetRequiredService<ExecuteManager>();
 
 var stoppingToken = new CancellationTokenSource().Token;
 
-await initializer.RunAsync(stoppingToken);
+await executeManager.ExecuteAsync(stoppingToken);
