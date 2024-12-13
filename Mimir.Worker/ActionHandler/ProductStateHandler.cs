@@ -269,10 +269,10 @@ public class ProductStateHandler(
     
     private IEnumerable<WriteModel<BsonDocument>> RemoveOldProducts(List<Guid> productsToRemove)
     {
-            var productFilter = Builders<BsonDocument>.Filter.In(
-                "Object.ProductId",
-                productsToRemove.Select(x=>x.ToString())
+        var productFilter = Builders<BsonDocument>.Filter.In(
+            "Object.ProductId",
+            productsToRemove.Select(x=>x.ToString())
             );
-            yield return new DeleteManyModel<BsonDocument>(productFilter);
+        yield return new DeleteManyModel<BsonDocument>(productFilter);
     }
 }
