@@ -10,6 +10,7 @@ public class Configuration
     public string? MongoDbCAFile { get; init; }
     public string ChainStorePath { get; init; }
     public string[] TargetAccounts { get; init; }
+    public RunOptions RunOptions { get; init; }
 
     public Address[] GetTargetAddresses() =>
         TargetAccounts.Select(adr => new Address(adr)).ToArray();

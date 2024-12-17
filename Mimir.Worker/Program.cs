@@ -40,6 +40,8 @@ builder.Services.AddSingleton(serviceProvider =>
     );
 });
 
+builder.Services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>();
+
 builder.ConfigureInitializers();
 builder.ConfigureHandlers();
 
