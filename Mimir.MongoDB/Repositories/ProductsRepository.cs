@@ -10,7 +10,7 @@ public interface IProductsRepository{
     Task<ProductsStateDocument> GetByAvatarAddressAsync(Address avatarAddress);
 }
 
-public class ProductsRepository(IMongoDbService dbService):IProductsRepository
+public class ProductsRepository(IMongoDbService dbService) : IProductsRepository
 {
     public async Task<ProductsStateDocument> GetByAvatarAddressAsync(Address avatarAddress)
     {

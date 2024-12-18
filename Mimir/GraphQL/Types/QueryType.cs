@@ -17,7 +17,7 @@ public class QueryType : ObjectType<Query>
             .Resolve(context =>
             {
                 var productFilter = context.ArgumentValue<ProductFilter?>("filter");
-                return context.Service<ProductRepository>().Get(productFilter);
+                return context.Service<IProductRepository>().Get(productFilter);
             });
     }
 }
