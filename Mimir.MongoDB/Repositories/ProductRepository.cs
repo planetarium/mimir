@@ -17,6 +17,7 @@ namespace Mimir.MongoDB.Repositories;
 
 public interface IProductRepository
 {
+    IExecutable<ProductDocument> Get(ProductFilter? productFilter);
     Task<ProductDocument> GetByProductIdAsync(Guid productId);
 } 
 
