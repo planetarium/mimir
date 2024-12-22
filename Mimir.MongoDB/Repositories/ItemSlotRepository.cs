@@ -1,19 +1,28 @@
 using Libplanet.Crypto;
-using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 using Nekoyume.Model.EnumType;
 
 namespace Mimir.MongoDB.Repositories;
 
+public interface IItemSlotRepository
+{
+    Task<ItemSlotDocument> GetByAddressAsync(Address avatarAddress, BattleType battleType);
+}
+
 public class ItemSlotRepository(IMongoDbService dbService)
 {
-    public async Task<ItemSlotDocument> GetByAddressAsync(Address avatarAddress, BattleType battleType)
+    public async Task<ItemSlotDocument> GetByAddressAsync(
+        Address avatarAddress,
+        BattleType battleType
+    )
     {
         var itemSlotAddress = Nekoyume.Model.State.ItemSlotState.DeriveAddress(
             avatarAddress,
-            battleType);
+            battleType
+        );
         var collectionName = CollectionNames.GetCollectionName<ItemSlotDocument>();
         var collection = dbService.GetCollection<ItemSlotDocument>(collectionName);
         var filter = Builders<ItemSlotDocument>.Filter.Eq("_id", itemSlotAddress.ToHex());
@@ -22,7 +31,8 @@ public class ItemSlotRepository(IMongoDbService dbService)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{itemSlotAddress.ToHex()}'");
+                $"'Address' equals to '{itemSlotAddress.ToHex()}'"
+            );
         }
 
         return document;

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project: [Mimir.Worker.Tests, Lib9c.Models.Tests, Mimir.MongoDB.Tests]
+        project: [Mimir.Worker.Tests, Lib9c.Models.Tests, Mimir.MongoDB.Tests, Mimir.Tests]
     steps:
       -
         name: Checkout

@@ -4,6 +4,7 @@ using Lib9c.GraphQL.InputObjects;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
+using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
 using Mimir.MongoDB;
@@ -12,7 +13,7 @@ using Mimir.MongoDB.Repositories;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.Extensions;
-using Lib9c.Models.States;
+using Nekoyume.Model.EnumType;
 using Nekoyume.TableData;
 
 namespace Mimir.GraphQL.Queries;
@@ -25,9 +26,11 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The action point.</returns>
-    public async Task<int> GetActionPointAsync(Address address, [Service] IActionPointRepository repo) =>
-        (await repo.GetByAddressAsync(address)).Object;
-    
+    public async Task<int> GetActionPointAsync(
+        Address address,
+        [Service] IActionPointRepository repo
+    ) => (await repo.GetByAddressAsync(address)).Object;
+
     /// <summary>
     /// Get an agent state by address.
     /// </summary>
@@ -46,8 +49,10 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The avatar state</returns>
-    public async Task<AvatarState> GetAvatarAsync(Address address, [Service] IAvatarRepository repo) =>
-        (await repo.GetByAddressAsync(address)).Object;
+    public async Task<AvatarState> GetAvatarAsync(
+        Address address,
+        [Service] IAvatarRepository repo
+    ) => (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
     /// Get the balance of a specific currency for a given address.
@@ -61,7 +66,8 @@ public class Query
         CurrencyInput? currency,
         string? currencyTicker,
         Address address,
-        [Service] IBalanceRepository repo)
+        [Service] IBalanceRepository repo
+    )
     {
         if (currency is not null)
         {
@@ -81,8 +87,10 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The collection state for the specified avatar address.</returns>
-    public async Task<CollectionState> GetCollectionAsync(Address address, [Service] ICollectionRepository repo) =>
-        (await repo.GetByAddressAsync(address)).Object;
+    public async Task<CollectionState> GetCollectionAsync(
+        Address address,
+        [Service] ICollectionRepository repo
+    ) => (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
     /// Get combination slot states for a specific avatar address.
@@ -91,32 +99,38 @@ public class Query
     /// <returns>Combination slot states for the specified avatar address.</returns>
     public async Task<Dictionary<int, CombinationSlotState>> GetCombinationSlotsAsync(
         Address avatarAddress,
-        [Service] IAllCombinationSlotStateRepository repo) =>
-        (await repo.GetByAddressAsync(avatarAddress)).Object.CombinationSlots;
+        [Service] IAllCombinationSlotStateRepository repo
+    ) => (await repo.GetByAddressAsync(avatarAddress)).Object.CombinationSlots;
 
     /// <summary>
     /// Get the daily reward received block index by address.
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The daily reward received block index.</returns>
-    public async Task<long> GetDailyRewardReceivedBlockIndexAsync(Address address, [Service] IDailyRewardRepository repo)
-        => (await repo.GetByAddressAsync(address)).Object;
+    public async Task<long> GetDailyRewardReceivedBlockIndexAsync(
+        Address address,
+        [Service] IDailyRewardRepository repo
+    ) => (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
     /// Get the inventory state by avatar address.
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The inventory state for the specified avatar address.</returns>
-    public async Task<Inventory> GetInventoryAsync(Address address, [Service] IInventoryRepository repo) =>
-        (await repo.GetByAddressAsync(address)).Object;
+    public async Task<Inventory> GetInventoryAsync(
+        Address address,
+        [Service] IInventoryRepository repo
+    ) => (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
     /// Get metadata by collection name.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <returns>The metadata</returns>
-    public async Task<MetadataDocument> GetMetadataAsync(string collectionName, [Service] IMetadataRepository repo) =>
-        await repo.GetByCollectionAsync(collectionName);
+    public async Task<MetadataDocument> GetMetadataAsync(
+        string collectionName,
+        [Service] IMetadataRepository repo
+    ) => await repo.GetByCollectionAsync(collectionName);
 
     /// <summary>
     /// Get an pet state by avatar address.
@@ -129,8 +143,10 @@ public class Query
     /// <summary>
     /// Get the pledge state for a given agent address.
     /// </summary>
-    public async Task<PledgeDocument> GetPledgeAsync(Address agentAddress, [Service] IPledgeRepository repo) =>
-        await repo.GetByAddressAsync(agentAddress.GetPledgeAddress());
+    public async Task<PledgeDocument> GetPledgeAsync(
+        Address agentAddress,
+        [Service] IPledgeRepository repo
+    ) => await repo.GetByAddressAsync(agentAddress.GetPledgeAddress());
 
     /// <summary>
     /// Get the product by product ID.
@@ -145,24 +161,42 @@ public class Query
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>
     /// <returns>The product ids that contained in the products state for the specified avatar address.</returns>
-    public async Task<List<Guid>> GetProductIdsAsync(Address avatarAddress, [Service] IProductsRepository repo) =>
-        (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
+    public async Task<List<Guid>> GetProductIdsAsync(
+        Address avatarAddress,
+        [Service] IProductsRepository repo
+    ) => (await repo.GetByAvatarAddressAsync(avatarAddress)).Object.ProductIds;
 
     /// <summary>
     /// Get the runes for a specific avatar address.
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>
     /// <returns>The runes for a specific avatar address.</returns>
-    public async Task<RuneState[]> GetRunesAsync(Address avatarAddress, [Service] AllRuneRepository repo) =>
-        (await repo.GetByAddressAsync(avatarAddress)).Object.Runes.Values.ToArray();
+    public async Task<RuneState[]> GetRunesAsync(
+        Address avatarAddress,
+        [Service] AllRuneRepository repo
+    ) => (await repo.GetByAddressAsync(avatarAddress)).Object.Runes.Values.ToArray();
 
     /// <summary>
     /// Get a stake state by agent address.
     /// </summary>
     /// <param name="address">The address of the agent.</param>
     /// <returns>The stake state.</returns>
-    public async Task<StakeState?> GetStakeAsync(Address address, [Service] IStakeRepository repo) =>
-        (await repo.GetByAgentAddressAsync(address)).Object;
+    public async Task<StakeState?> GetStakeAsync(
+        Address address,
+        [Service] IStakeRepository repo
+    ) => (await repo.GetByAgentAddressAsync(address)).Object;
+
+    /// <summary>
+    /// Get a itemSlot state by avatar address.
+    /// </summary>
+    /// <param name="address">The address of the avatar.</param>
+    /// <param name="battleType">The battleType.</param>
+    /// <returns>The stake state.</returns>
+    public async Task<ItemSlotState?> GetItemSlotAsync(
+        Address address,
+        BattleType battleType,
+        [Service] IItemSlotRepository repo
+    ) => (await repo.GetByAddressAsync(address, battleType)).Object;
 
     /// <summary>
     /// Get the world boss.
@@ -170,7 +204,8 @@ public class Query
     public async Task<WorldBossState> GetWorldBossAsync(
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [Service] WorldBossRepository worldBossRepo)
+        [Service] WorldBossRepository worldBossRepo
+    )
     {
         var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
         var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
@@ -183,7 +218,9 @@ public class Query
         }
         catch (InvalidOperationException)
         {
-            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+            throw new GraphQLException(
+                $"Failed to find the world boss row by block index, {blockIndex}"
+            );
         }
 
         var raidId = row.Id;
@@ -198,7 +235,8 @@ public class Query
         Address avatarAddress,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [Service] WorldBossKillRewardRecordRepository worldBossKillRewardRecordRepo)
+        [Service] WorldBossKillRewardRecordRepository worldBossKillRewardRecordRepo
+    )
     {
         var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
         var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
@@ -211,12 +249,19 @@ public class Query
         }
         catch (InvalidOperationException)
         {
-            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+            throw new GraphQLException(
+                $"Failed to find the world boss row by block index, {blockIndex}"
+            );
         }
 
         var raidId = row.Id;
-        var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(avatarAddress, raidId);
-        return (await worldBossKillRewardRecordRepo.GetByAddressAsync(worldBossKillRewardRecordAddress)).Object;
+        var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(
+            avatarAddress,
+            raidId
+        );
+        return (
+            await worldBossKillRewardRecordRepo.GetByAddressAsync(worldBossKillRewardRecordAddress)
+        ).Object;
     }
 
     /// <summary>
@@ -226,7 +271,8 @@ public class Query
         Address avatarAddress,
         [Service] MetadataRepository metadataRepo,
         [Service] TableSheetsRepository tableSheetsRepo,
-        [Service] WorldBossRaiderRepository worldBossRaiderRepo)
+        [Service] WorldBossRaiderRepository worldBossRaiderRepo
+    )
     {
         var collectionName = CollectionNames.GetCollectionName<WorldBossStateDocument>();
         var metadataDocument = await metadataRepo.GetByCollectionAsync(collectionName);
@@ -239,7 +285,9 @@ public class Query
         }
         catch (InvalidOperationException)
         {
-            throw new GraphQLException($"Failed to find the world boss row by block index, {blockIndex}");
+            throw new GraphQLException(
+                $"Failed to find the world boss row by block index, {blockIndex}"
+            );
         }
 
         var raidId = row.Id;
@@ -254,6 +302,6 @@ public class Query
     /// <returns>The world information state.</returns>
     public async Task<WorldInformationState> GetWorldInformationAsync(
         Address address,
-        [Service] IWorldInformationRepository repo) => 
-        (await repo.GetByAddressAsync(address)).Object;
+        [Service] IWorldInformationRepository repo
+    ) => (await repo.GetByAddressAsync(address)).Object;
 }
