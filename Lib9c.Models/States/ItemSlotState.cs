@@ -19,17 +19,14 @@ public record ItemSlotState : IBencodable
     public List<Guid> Costumes { get; init; }
     public List<Guid> Equipments { get; init; }
 
+    public ItemSlotState() { }
+
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
-    public IValue Bencoded => List.Empty
-        .Add(BattleType.Serialize())
-        .Add(Costumes
-            .OrderBy(x => x)
-            .Select(x => x.Serialize())
-            .Serialize())
-        .Add(Equipments
-            .OrderBy(x => x)
-            .Select(x => x.Serialize())
-            .Serialize());
+    public IValue Bencoded =>
+        List
+            .Empty.Add(BattleType.Serialize())
+            .Add(Costumes.OrderBy(x => x).Select(x => x.Serialize()).Serialize())
+            .Add(Equipments.OrderBy(x => x).Select(x => x.Serialize()).Serialize());
 
     public ItemSlotState(IValue bencoded)
     {
@@ -38,7 +35,8 @@ public record ItemSlotState : IBencodable
             throw new UnsupportedArgumentValueException<ValueKind>(
                 nameof(bencoded),
                 new[] { ValueKind.List },
-                bencoded.Kind);
+                bencoded.Kind
+            );
         }
 
         BattleType = l[0].ToEnum<BattleType>();
