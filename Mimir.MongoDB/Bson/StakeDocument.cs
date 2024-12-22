@@ -13,4 +13,4 @@ public record StakeDocument(
     Address AgentAddress,
     StakeState? Object,
     BigInteger Amount
-) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(2, StoredBlockIndex));

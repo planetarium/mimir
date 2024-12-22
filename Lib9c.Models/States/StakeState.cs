@@ -14,13 +14,13 @@ namespace Lib9c.Models.States;
 [BsonIgnoreExtraElements]
 public record StakeState : IBencodable
 {
-    public const string StateTypeName = "stake_state";
-    public const int StateTypeVersion = 3;
     public Contract Contract { get; init; }
+    public string StateTypeName;
+    public int StateTypeVersion;
     public long StartedBlockIndex { get; init; }
     public long ReceivedBlockIndex { get; init; }
-    
-    public StakeState() {}
+
+    public StakeState() { }
 
     [BsonIgnore, GraphQLIgnore, JsonIgnore]
     public IValue Bencoded =>
@@ -43,21 +43,10 @@ public record StakeState : IBencodable
             );
         }
 
-        if (
-            l[0] is not Text stateTypeNameValue
-            || stateTypeNameValue != StateTypeName
-            || l[1] is not Integer stateTypeVersionValue
-            || stateTypeVersionValue.Value != StateTypeVersion
-        )
-        {
-            throw new ArgumentException(
-                nameof(bencoded),
-                $"{nameof(bencoded)} doesn't have valid header."
-            );
-        }
-
         const int reservedCount = 2;
 
+        StateTypeName = (Text)l[0];
+        StateTypeVersion = (Integer)l[1];
         Contract = new Contract(l[reservedCount]);
         StartedBlockIndex = (Integer)l[reservedCount + 1];
         ReceivedBlockIndex = (Integer)l[reservedCount + 2];
