@@ -8,8 +8,8 @@ using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.GraphQL;
 using Mimir.MongoDB.Repositories;
-using Mimir.Options;
 using Mimir.MongoDB.Services;
+using Mimir.Options;
 using BalanceRepository = Mimir.MongoDB.Repositories.BalanceRepository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,22 +35,27 @@ builder.WebHost.UseSentry();
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<IMongoDbService, MongoDbService>();
+
 // NOTE: MongoDB repositories. Sort in alphabetical order.
 builder.Services.AddSingleton<IActionPointRepository, ActionPointRepository>();
 builder.Services.AddSingleton<IAgentRepository, AgentRepository>();
-builder.Services.AddSingleton<IAllCombinationSlotStateRepository, AllCombinationSlotStateRepository>();
+builder.Services.AddSingleton<
+    IAllCombinationSlotStateRepository,
+    AllCombinationSlotStateRepository
+>();
 builder.Services.AddSingleton<AllRuneRepository>();
 builder.Services.AddSingleton<ArenaRepository>();
 builder.Services.AddSingleton<ArenaParticipantRepository>();
 builder.Services.AddSingleton<IAvatarRepository, AvatarRepository>();
 builder.Services.AddSingleton<IBalanceRepository, BalanceRepository>();
-builder.Services.AddSingleton<ICollectionRepository,CollectionRepository>();
+builder.Services.AddSingleton<ICollectionRepository, CollectionRepository>();
 builder.Services.AddSingleton<IDailyRewardRepository, DailyRewardRepository>();
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<IPetRepository, PetRepository>();
-builder.Services.AddSingleton<IMetadataRepository,MetadataRepository>();
+builder.Services.AddSingleton<IMetadataRepository, MetadataRepository>();
 builder.Services.AddSingleton<IProductRepository, ProductRepository>();
+builder.Services.AddSingleton<IItemSlotRepository, ItemSlotRepository>();
 builder.Services.AddSingleton<IPledgeRepository, PledgeRepository>();
 builder.Services.AddSingleton<IProductsRepository, ProductsRepository>();
 builder.Services.AddSingleton<IStakeRepository, StakeRepository>();
@@ -63,8 +68,8 @@ builder.Services.AddSingleton<IWorldInformationRepository, WorldInformationRepos
 // ~MongoDB repositories.
 builder.Services.AddCors();
 builder.Services.AddHttpClient();
-builder.Services
-    .AddGraphQLServer()
+builder
+    .Services.AddGraphQLServer()
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
     .AddErrorFilter<ErrorFilter>()
@@ -72,7 +77,10 @@ builder.Services
     .BindRuntimeType(typeof(Address), typeof(AddressType))
     .BindRuntimeType(typeof(BigInteger), typeof(BigIntegerType))
     .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
-    .ModifyRequestOptions(requestExecutorOptions => { requestExecutorOptions.IncludeExceptionDetails = true; });
+    .ModifyRequestOptions(requestExecutorOptions =>
+    {
+        requestExecutorOptions.IncludeExceptionDetails = true;
+    });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();
 

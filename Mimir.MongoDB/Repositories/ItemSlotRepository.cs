@@ -12,7 +12,7 @@ public interface IItemSlotRepository
     Task<ItemSlotDocument> GetByAddressAsync(Address avatarAddress, BattleType battleType);
 }
 
-public class ItemSlotRepository(IMongoDbService dbService)
+public class ItemSlotRepository(IMongoDbService dbService) : IItemSlotRepository
 {
     public async Task<ItemSlotDocument> GetByAddressAsync(
         Address avatarAddress,
