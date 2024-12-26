@@ -26,7 +26,7 @@ public class ItemSlotTest
                     Nekoyume.Model.EnumType.BattleType.Adventure
                 )
             )
-            .ReturnsAsync(new ItemSlotDocument(1, address, state));
+            .ReturnsAsync(new ItemSlotDocument(1, address, address, state));
         var serviceProvider = TestServices.Builder.With(mockRepo.Object).Build();
         var query = $$"""
             query {
