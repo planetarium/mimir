@@ -12,7 +12,9 @@ public class ItemSlotDocumentTest
         var docs = new ItemSlotDocument(
             default,
             default,
-            new ItemSlotState(TestDataHelpers.LoadState("ItemSlotState.bin")));
+            default,
+            new ItemSlotState(TestDataHelpers.LoadState("ItemSlotState.bin"))
+        );
         return Verify(docs.ToJson());
     }
 }

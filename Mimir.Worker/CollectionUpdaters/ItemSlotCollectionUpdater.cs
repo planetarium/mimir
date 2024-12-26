@@ -29,7 +29,12 @@ public static class ItemSlotCollectionUpdater
         }
 
         var itemSlotState = new ItemSlotState(serialized);
-        var itemSlotDocument = new ItemSlotDocument(blockIndex, itemSlotAddress, itemSlotState);
+        var itemSlotDocument = new ItemSlotDocument(
+            blockIndex,
+            avatarAddress,
+            itemSlotAddress,
+            itemSlotState
+        );
         return [itemSlotDocument.ToUpdateOneModel()];
     }
 }
