@@ -9,10 +9,13 @@ namespace Mimir.Worker;
 
 public static class HostApplicationBuilderExtensions
 {
-    public static HostApplicationBuilder ConfigureHandlers(this  HostApplicationBuilder builder)
+    public static HostApplicationBuilder ConfigureHandlers(this HostApplicationBuilder builder)
     {
-        if (builder.Configuration.GetSection("Configuration").GetValue<PollerType>("PollerType") is { } pollerType &&
-            pollerType == PollerType.TxPoller)
+        if (
+            builder.Configuration.GetSection("Configuration").GetValue<PollerType>("PollerType")
+                is { } pollerType
+            && pollerType == PollerType.TxPoller
+        )
         {
             builder.Services.AddBackgroundService<ArenaStateHandler>();
             builder.Services.AddBackgroundService<ItemSlotStateHandler>();
@@ -23,13 +26,14 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<ProductStateHandler>();
             builder.Services.AddBackgroundService<RaiderStateHandler>();
             builder.Services.AddBackgroundService<StakeStateHandler>();
+            builder.Services.AddBackgroundService<RuneSlotStateHandler>();
             builder.Services.AddBackgroundService<TableSheetStateHandler>();
             builder.Services.AddBackgroundService<WorldBossKillRewardRecordStateHandler>();
             builder.Services.AddBackgroundService<WorldBossStateHandler>();
         }
         else
         {
-            builder.Services.AddBackgroundService<ActionPointStateHandler>();   
+            builder.Services.AddBackgroundService<ActionPointStateHandler>();
             builder.Services.AddBackgroundService<AgentStateHandler>();
             builder.Services.AddBackgroundService<AllCombinationSlotStateHandler>();
             builder.Services.AddBackgroundService<AllRuneStateHandler>();
@@ -39,7 +43,7 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<DailyRewardStateHandler>();
             // builder.Services.AddBackgroundService<InventoryStateHandler>();
             builder.Services.AddBackgroundService<WorldInformationStateHandler>();
-            
+
             // Balance Handlers
             builder.Services.AddBackgroundService<CrystalBalanceHandler>();
             builder.Services.AddBackgroundService<FreyaBlessingRuneBalanceHandler>();
@@ -54,19 +58,22 @@ public static class HostApplicationBuilderExtensions
 
         return builder;
     }
-    
-    public static HostApplicationBuilder ConfigureInitializers(this  HostApplicationBuilder builder)
+
+    public static HostApplicationBuilder ConfigureInitializers(this HostApplicationBuilder builder)
     {
-        if (builder.Configuration.GetSection("Configuration").GetValue<bool?>("EnableInitializing") is true)
+        if (
+            builder.Configuration.GetSection("Configuration").GetValue<bool?>("EnableInitializing")
+            is true
+        )
         {
             builder.Services.AddBackgroundService<TableSheetInitializer>();
             builder.Services.AddBackgroundService<ArenaInitializer>();
 
-            builder.Services.AddSingleton<IInitializerManager, DefaultInitializerManager>();   
+            builder.Services.AddSingleton<IInitializerManager, DefaultInitializerManager>();
         }
         else
         {
-            builder.Services.AddSingleton<IInitializerManager, BypassInitializerManager>();   
+            builder.Services.AddSingleton<IInitializerManager, BypassInitializerManager>();
         }
 
         return builder;

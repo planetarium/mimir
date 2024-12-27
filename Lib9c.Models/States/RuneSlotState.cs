@@ -24,6 +24,8 @@ public record RuneSlotState : IBencodable
     public IValue Bencoded =>
         List.Empty.Add(BattleType.Serialize()).Add(new List(Slots.Select(x => x.Bencoded)));
 
+    public RuneSlotState() { }
+
     public RuneSlotState(IValue bencoded)
     {
         if (bencoded is not List l)

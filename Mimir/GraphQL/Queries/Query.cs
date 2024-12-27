@@ -199,6 +199,18 @@ public class Query
     ) => (await repo.GetByAddressAsync(address, battleType)).Object;
 
     /// <summary>
+    /// Get a runeSlot state by avatar address.
+    /// </summary>
+    /// <param name="address">The address of the avatar.</param>
+    /// <param name="battleType">The battleType.</param>
+    /// <returns>The stake state.</returns>
+    public async Task<RuneSlotState?> GetRuneSlotAsync(
+        Address address,
+        BattleType battleType,
+        [Service] IRuneSlotRepository repo
+    ) => (await repo.GetByAddressAsync(address, battleType)).Object;
+
+    /// <summary>
     /// Get the world boss.
     /// </summary>
     public async Task<WorldBossState> GetWorldBossAsync(
