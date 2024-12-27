@@ -6,5 +6,6 @@ public enum ProductSortBy
     Crystal,
     Grade,
     Price,
-    UnitPrice
+    UnitPrice,
+    CrystalPerPrice,
 }
