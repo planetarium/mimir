@@ -31,8 +31,8 @@ public static class ItemSlotCollectionUpdater
         var itemSlotState = new ItemSlotState(serialized);
         var itemSlotDocument = new ItemSlotDocument(
             blockIndex,
-            avatarAddress,
             itemSlotAddress,
+            avatarAddress,
             itemSlotState
         );
         return [itemSlotDocument.ToUpdateOneModel()];

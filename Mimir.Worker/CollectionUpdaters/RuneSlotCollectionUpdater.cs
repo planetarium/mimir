@@ -32,8 +32,8 @@ public static class RuneSlotCollectionUpdater
         var runeSlotState = new RuneSlotState(serialized);
         var runeSlotDocument = new RuneSlotDocument(
             blockIndex,
-            avatarAddress,
             runeSlotAddress,
+            avatarAddress,
             runeSlotState
         );
         return [runeSlotDocument.ToUpdateOneModel()];
