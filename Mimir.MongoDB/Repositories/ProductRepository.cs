@@ -93,13 +93,49 @@ public class ProductRepository : IProductRepository
 
         switch (productFilter.SortBy)
         {
+            case ProductSortBy.Cp:
+                return SortByCp(productFilter.SortDirection.Value, find);
+            case ProductSortBy.Crystal:
+                return SortByCrystal(productFilter.SortDirection.Value, find);
             case ProductSortBy.Grade:
                 return SortByGrade(productFilter.SortDirection.Value, find);
             case ProductSortBy.Price:
                 return SortByPrice(filter, productFilter.SortDirection.Value);
             case ProductSortBy.UnitPrice:
                 return SortByUnitPrice(productFilter.ProductType, productFilter.SortDirection.Value, filter, find);
+            case ProductSortBy.CrystalPerPrice:
+                return SortByCrystalPerPrice(productFilter.SortDirection.Value, find);
         }
+
+        return find.AsExecutable();
+    }
+
+    private static MongoDbFindFluentExecutable<ProductDocument> SortByCp(SortDirection sortDirection, IFindFluent<ProductDocument, ProductDocument> find)
+    {
+        var sortBuilder = Builders<ProductDocument>.Sort;
+        find = sortDirection == SortDirection.Ascending
+            ? find.Sort(sortBuilder.Ascending(x => x.CombatPoint))
+            : find.Sort(sortBuilder.Descending(x => x.CombatPoint));
+
+        return find.AsExecutable();
+    }
+
+    private static MongoDbFindFluentExecutable<ProductDocument> SortByCrystal(SortDirection sortDirection, IFindFluent<ProductDocument, ProductDocument> find)
+    {
+        var sortBuilder = Builders<ProductDocument>.Sort;
+        find = sortDirection == SortDirection.Ascending
+            ? find.Sort(sortBuilder.Ascending(x => x.Crystal))
+            : find.Sort(sortBuilder.Descending(x => x.Crystal));
+
+        return find.AsExecutable();
+    }
+    
+    private static MongoDbFindFluentExecutable<ProductDocument> SortByCrystalPerPrice(SortDirection sortDirection, IFindFluent<ProductDocument, ProductDocument> find)
+    {
+        var sortBuilder = Builders<ProductDocument>.Sort;
+        find = sortDirection == SortDirection.Ascending
+            ? find.Sort(sortBuilder.Ascending(x => x.CrystalPerPrice))
+            : find.Sort(sortBuilder.Descending(x => x.CrystalPerPrice));
 
         return find.AsExecutable();
     }
