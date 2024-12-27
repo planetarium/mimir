@@ -57,7 +57,7 @@ public class ItemSlotStateHandler(
         {
             var action = new HackAndSlashSweep();
             action.LoadPlainValue(actionPlainValue);
-            await ItemSlotCollectionUpdater.UpdateAsync(
+            return await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
                 blockIndex,
                 BattleType.Adventure,
@@ -70,7 +70,7 @@ public class ItemSlotStateHandler(
         {
             var action = new BattleArena();
             action.LoadPlainValue(actionPlainValue);
-            await ItemSlotCollectionUpdater.UpdateAsync(
+            return await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
                 blockIndex,
                 BattleType.Arena,
@@ -83,7 +83,7 @@ public class ItemSlotStateHandler(
         {
             var action = new EventDungeonBattle();
             action.LoadPlainValue(actionPlainValue);
-            await ItemSlotCollectionUpdater.UpdateAsync(
+            return await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
                 blockIndex,
                 BattleType.Adventure,
@@ -96,7 +96,7 @@ public class ItemSlotStateHandler(
         {
             var action = new JoinArena();
             action.LoadPlainValue(actionPlainValue);
-            await ItemSlotCollectionUpdater.UpdateAsync(
+            return await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
                 blockIndex,
                 BattleType.Arena,
@@ -144,7 +144,7 @@ public class ItemSlotStateHandler(
                 .Cast<Binary>()
                 .Select(x => new Guid(x.ToByteArray()));
             var costumeIds = costumeIdsList.Cast<Binary>().Select(x => new Guid(x.ToByteArray()));
-            await ItemSlotCollectionUpdater.UpdateAsync(
+            return await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,
                 blockIndex,
                 BattleType.Raid,

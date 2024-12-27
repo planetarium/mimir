@@ -203,7 +203,7 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <param name="battleType">The battleType.</param>
-    /// <returns>The stake state.</returns>
+    /// <returns>The rune slot state.</returns>
     public async Task<RuneSlotState?> GetRuneSlotAsync(
         Address address,
         BattleType battleType,
