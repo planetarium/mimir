@@ -20,12 +20,14 @@ public record RuneSlot : IBencodable
     public bool IsLock { get; init; }
     public int? RuneId { get; init; }
 
+    public RuneSlot() { }
+
     public IValue Bencoded
     {
         get
         {
-            var l = List.Empty
-                .Add(Index.Serialize())
+            var l = List
+                .Empty.Add(Index.Serialize())
                 .Add(RuneSlotType.Serialize())
                 .Add(RuneType.Serialize())
                 .Add(IsLock.Serialize());
@@ -46,7 +48,8 @@ public record RuneSlot : IBencodable
             throw new UnsupportedArgumentValueException<ValueKind>(
                 nameof(bencoded),
                 new[] { ValueKind.List },
-                bencoded.Kind);
+                bencoded.Kind
+            );
         }
 
         Index = l[0].ToInteger();
@@ -64,7 +67,8 @@ public record RuneSlot : IBencodable
         RuneSlotType runeSlotType,
         RuneType runeType,
         bool isLock,
-        int? runeId = null)
+        int? runeId = null
+    )
     {
         Index = index;
         RuneSlotType = runeSlotType;

@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
-public record ItemSlotDocument(
+public record RuneSlotDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address AvatarAddress,
-    Address ItemSlotAddress,
-    ItemSlotState Object
-) : MimirBsonDocument(AvatarAddress.ToHex(), new DocumentMetadata(2, StoredBlockIndex));
+    Address RuneSlotAddress,
+    RuneSlotState Object
+) : MimirBsonDocument(AvatarAddress.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

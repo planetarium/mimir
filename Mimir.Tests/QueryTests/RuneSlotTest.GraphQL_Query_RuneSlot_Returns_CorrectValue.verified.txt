@@ -1,0 +1,16 @@
+﻿{
+  "data": {
+    "runeSlot": {
+      "battleType": "ADVENTURE",
+      "slots": [
+        {
+          "index": 1,
+          "runeSlotType": "DEFAULT",
+          "runeType": "STAT",
+          "isLock": false,
+          "runeId": 10
+        }
+      ]
+    }
+  }
+}

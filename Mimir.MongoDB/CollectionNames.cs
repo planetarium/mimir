@@ -115,6 +115,7 @@ namespace Mimir.MongoDB
             CollectionAndStateTypeMappings.Add(typeof(PledgeDocument), "pledge");
             CollectionAndStateTypeMappings.Add(typeof(ProductsStateDocument), "products");
             CollectionAndStateTypeMappings.Add(typeof(ProductDocument), "product");
+            CollectionAndStateTypeMappings.Add(typeof(RuneSlotDocument), "rune_slot");
             // CollectionAndStateTypeMappings.Add(typeof(QuestListDocument), "quest_list");
             CollectionAndStateTypeMappings.Add(typeof(RaiderStateDocument), "raider");
             CollectionAndStateTypeMappings.Add(typeof(SheetDocument), "table_sheet");

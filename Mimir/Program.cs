@@ -58,6 +58,7 @@ builder.Services.AddSingleton<IProductRepository, ProductRepository>();
 builder.Services.AddSingleton<IItemSlotRepository, ItemSlotRepository>();
 builder.Services.AddSingleton<IPledgeRepository, PledgeRepository>();
 builder.Services.AddSingleton<IProductsRepository, ProductsRepository>();
+builder.Services.AddSingleton<IRuneSlotRepository, RuneSlotRepository>();
 builder.Services.AddSingleton<IStakeRepository, StakeRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
