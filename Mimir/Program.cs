@@ -51,7 +51,6 @@ builder.Services.AddSingleton<IBalanceRepository, BalanceRepository>();
 builder.Services.AddSingleton<ICollectionRepository, CollectionRepository>();
 builder.Services.AddSingleton<IDailyRewardRepository, DailyRewardRepository>();
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
-builder.Services.AddSingleton<ItemSlotRepository>();
 builder.Services.AddSingleton<IPetRepository, PetRepository>();
 builder.Services.AddSingleton<IMetadataRepository, MetadataRepository>();
 builder.Services.AddSingleton<IProductRepository, ProductRepository>();

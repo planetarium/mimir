@@ -8,7 +8,7 @@ namespace Mimir.MongoDB.Bson;
 [BsonIgnoreExtraElements]
 public record ItemSlotDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
-    [property: BsonIgnore, JsonIgnore] Address AvatarAddress,
-    Address ItemSlotAddress,
+    [property: BsonIgnore, JsonIgnore] Address Address,
+    Address AvatarAddress,
     ItemSlotState Object
-) : MimirBsonDocument(AvatarAddress.ToHex(), new DocumentMetadata(2, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(2, StoredBlockIndex));
