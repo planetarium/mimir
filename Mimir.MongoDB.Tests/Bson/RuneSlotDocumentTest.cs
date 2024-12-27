@@ -12,6 +12,7 @@ public class RuneSlotDocumentTest
         var docs = new RuneSlotDocument(
             default,
             default,
+            default,
             new RuneSlotState(TestDataHelpers.LoadState("RuneSlotState.bin"))
         );
         return Verify(docs.ToJson());

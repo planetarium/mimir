@@ -13,6 +13,7 @@ namespace Mimir.Worker.CollectionUpdaters;
 public static class RuneSlotCollectionUpdater
 {
     public static async Task<IEnumerable<WriteModel<BsonDocument>>> UpdateAsync(
+        long blockIndex,
         IStateService stateService,
         BattleType battleType,
         Address avatarAddress,
@@ -29,7 +30,12 @@ public static class RuneSlotCollectionUpdater
         }
 
         var runeSlotState = new RuneSlotState(serialized);
-        var runeSlotDocument = new RuneSlotDocument(runeSlotAddress, runeSlotState);
+        var runeSlotDocument = new RuneSlotDocument(
+            blockIndex,
+            avatarAddress,
+            runeSlotAddress,
+            runeSlotState
+        );
         return [runeSlotDocument.ToUpdateOneModel()];
     }
 

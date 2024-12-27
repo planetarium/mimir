@@ -25,7 +25,7 @@ public class RuneSlotRepository(MongoDbService dbService) : IRuneSlotRepository
         );
         var collectionName = CollectionNames.GetCollectionName<RuneSlotDocument>();
         var collection = dbService.GetCollection<RuneSlotDocument>(collectionName);
-        var filter = Builders<RuneSlotDocument>.Filter.Eq("Address", runeSlotAddress.ToHex());
+        var filter = Builders<RuneSlotDocument>.Filter.Eq("_id", runeSlotAddress.ToHex());
         var document = await collection.Find(filter).FirstOrDefaultAsync();
         if (document is null)
         {

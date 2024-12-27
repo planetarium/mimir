@@ -36,7 +36,7 @@ public class RuneSlotTest
                     Nekoyume.Model.EnumType.BattleType.Adventure
                 )
             )
-            .ReturnsAsync(new RuneSlotDocument(1, address, state));
+            .ReturnsAsync(new RuneSlotDocument(1, address, address, state));
         var serviceProvider = TestServices.Builder.With(mockRepo.Object).Build();
         var query = $$"""
             query {
