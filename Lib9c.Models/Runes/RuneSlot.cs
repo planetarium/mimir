@@ -22,6 +22,7 @@ public record RuneSlot : IBencodable
 
     public RuneSlot() { }
 
+    [BsonIgnore, GraphQLIgnore]
     public IValue Bencoded
     {
         get

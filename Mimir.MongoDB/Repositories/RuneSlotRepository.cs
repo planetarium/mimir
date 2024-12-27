@@ -12,7 +12,7 @@ public interface IRuneSlotRepository
     Task<RuneSlotDocument> GetByAddressAsync(Address avatarAddress, BattleType battleType);
 }
 
-public class RuneSlotRepository(MongoDbService dbService) : IRuneSlotRepository
+public class RuneSlotRepository(IMongoDbService dbService) : IRuneSlotRepository
 {
     public async Task<RuneSlotDocument> GetByAddressAsync(
         Address avatarAddress,

@@ -118,12 +118,6 @@ public class RuneSlotStateHandler(
         CancellationToken stoppingToken = default
     )
     {
-        if (action.runeInfos is null)
-        {
-            // ignore
-            return [];
-        }
-
         return await RuneSlotCollectionUpdater.UpdateAsync(
             blockIndex,
             StateService,
@@ -139,12 +133,6 @@ public class RuneSlotStateHandler(
         CancellationToken stoppingToken = default
     )
     {
-        if (action.RuneInfos is null)
-        {
-            // ignore
-            return [];
-        }
-
         return await RuneSlotCollectionUpdater.UpdateAsync(
             blockIndex,
             StateService,
@@ -160,12 +148,6 @@ public class RuneSlotStateHandler(
         CancellationToken stoppingToken = default
     )
     {
-        if (action.RuneInfos is null)
-        {
-            // ignore
-            return [];
-        }
-
         return await RuneSlotCollectionUpdater.UpdateAsync(
             blockIndex,
             StateService,
@@ -181,12 +163,6 @@ public class RuneSlotStateHandler(
         CancellationToken stoppingToken = default
     )
     {
-        if (action.runeInfos is null)
-        {
-            // ignore
-            return [];
-        }
-
         return await RuneSlotCollectionUpdater.UpdateAsync(
             blockIndex,
             StateService,
@@ -202,12 +178,6 @@ public class RuneSlotStateHandler(
         CancellationToken stoppingToken = default
     )
     {
-        if (action.runeInfos is null)
-        {
-            // ignore
-            return [];
-        }
-
         return await RuneSlotCollectionUpdater.UpdateAsync(
             blockIndex,
             StateService,
@@ -223,12 +193,6 @@ public class RuneSlotStateHandler(
         CancellationToken stoppingToken = default
     )
     {
-        if (action.RuneInfos is null)
-        {
-            // ignore
-            return [];
-        }
-
         return await RuneSlotCollectionUpdater.UpdateAsync(
             blockIndex,
             StateService,
