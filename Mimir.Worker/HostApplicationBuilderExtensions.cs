@@ -21,7 +21,6 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<ItemSlotStateHandler>();
             builder.Services.AddBackgroundService<PetStateHandler>();
             builder.Services.AddBackgroundService<PledgeStateHandler>();
-            builder.Services.AddBackgroundService<PledgeStateHandler>();
             builder.Services.AddBackgroundService<ProductsStateHandler>();
             builder.Services.AddBackgroundService<ProductStateHandler>();
             builder.Services.AddBackgroundService<RaiderStateHandler>();
