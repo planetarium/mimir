@@ -17,19 +17,18 @@ public static class HostApplicationBuilderExtensions
             && pollerType == PollerType.TxPoller
         )
         {
-            // builder.Services.AddBackgroundService<ArenaStateHandler>();
+            builder.Services.AddBackgroundService<ArenaStateHandler>();
             builder.Services.AddBackgroundService<ItemSlotStateHandler>();
-            // builder.Services.AddBackgroundService<PetStateHandler>();
-            // builder.Services.AddBackgroundService<PledgeStateHandler>();
-            // builder.Services.AddBackgroundService<PledgeStateHandler>();
-            // builder.Services.AddBackgroundService<ProductsStateHandler>();
-            // builder.Services.AddBackgroundService<ProductStateHandler>();
-            // builder.Services.AddBackgroundService<RaiderStateHandler>();
-            // builder.Services.AddBackgroundService<StakeStateHandler>();
+            builder.Services.AddBackgroundService<PetStateHandler>();
+            builder.Services.AddBackgroundService<PledgeStateHandler>();
+            builder.Services.AddBackgroundService<ProductsStateHandler>();
+            builder.Services.AddBackgroundService<ProductStateHandler>();
+            builder.Services.AddBackgroundService<RaiderStateHandler>();
+            builder.Services.AddBackgroundService<StakeStateHandler>();
             builder.Services.AddBackgroundService<RuneSlotStateHandler>();
-            // builder.Services.AddBackgroundService<TableSheetStateHandler>();
-            // builder.Services.AddBackgroundService<WorldBossKillRewardRecordStateHandler>();
-            // builder.Services.AddBackgroundService<WorldBossStateHandler>();
+            builder.Services.AddBackgroundService<TableSheetStateHandler>();
+            builder.Services.AddBackgroundService<WorldBossKillRewardRecordStateHandler>();
+            builder.Services.AddBackgroundService<WorldBossStateHandler>();
         }
         else
         {
