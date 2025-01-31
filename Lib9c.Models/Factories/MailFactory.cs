@@ -41,6 +41,7 @@ public static class MailFactory
             "sellCancel" => new SellCancelMail(d),
             "seller" => new SellerMail(d),
             nameof(UnloadFromMyGaragesRecipientMail) => new UnloadFromMyGaragesRecipientMail(d),
+            nameof(PatrolRewardMail) => new PatrolRewardMail(d),
             _ => throw new UnsupportedArgumentValueException<string>("typeId", typeId),
         };
     }
