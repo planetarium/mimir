@@ -17,7 +17,6 @@ public static class HostApplicationBuilderExtensions
             && pollerType == PollerType.TxPoller
         )
         {
-            builder.Services.AddBackgroundService<ArenaStateHandler>();
             builder.Services.AddBackgroundService<ItemSlotStateHandler>();
             builder.Services.AddBackgroundService<PetStateHandler>();
             builder.Services.AddBackgroundService<PledgeStateHandler>();
@@ -36,7 +35,6 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<AgentStateHandler>();
             builder.Services.AddBackgroundService<AllCombinationSlotStateHandler>();
             builder.Services.AddBackgroundService<AllRuneStateHandler>();
-            builder.Services.AddBackgroundService<ArenaParticipantHandler>();
             builder.Services.AddBackgroundService<AvatarStateHandler>();
             builder.Services.AddBackgroundService<CollectionStateHandler>();
             builder.Services.AddBackgroundService<DailyRewardStateHandler>();
@@ -66,7 +64,6 @@ public static class HostApplicationBuilderExtensions
         )
         {
             builder.Services.AddBackgroundService<TableSheetInitializer>();
-            builder.Services.AddBackgroundService<ArenaInitializer>();
 
             builder.Services.AddSingleton<IInitializerManager, DefaultInitializerManager>();
         }

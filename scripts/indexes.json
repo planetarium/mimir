@@ -1,14 +1,4 @@
 {
-    "arena": [
-        {
-            "key": {
-                "ChampionshipId": 1,
-                "Round": 1,
-                "ArenaScore.Score": -1
-            },
-            "name": "arena_ranking"
-        }
-    ],
     "avatar": [
         {
             "key": {
