@@ -1,5 +1,4 @@
 using Bencodex.Types;
-using Lib9c.Models.Arena;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
@@ -37,68 +36,6 @@ public class StateGetter
         var sheet = new T();
         sheet.Set(sheetValue.Value);
         return sheet;
-    }
-
-    public async Task<Nekoyume.Model.Arena.ArenaParticipants> GetArenaParticipantsState(
-        int championshipId,
-        int roundId,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var arenaParticipantsAddress = Nekoyume.Model.Arena.ArenaParticipants.DeriveAddress(
-            championshipId,
-            roundId
-        );
-        var state = await _service.GetState(arenaParticipantsAddress, stoppingToken);
-        return state switch
-        {
-            List list => new Nekoyume.Model.Arena.ArenaParticipants(list),
-            _
-                => throw new StateNotFoundException(
-                    arenaParticipantsAddress,
-                    typeof(Nekoyume.Model.Arena.ArenaParticipants)
-                )
-        };
-    }
-
-    public async Task<ArenaInformation> GetArenaInformationAsync(
-        Address avatarAddress,
-        int championshipId,
-        int roundId,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var arenaInfoAddress = Nekoyume.Model.Arena.ArenaInformation.DeriveAddress(
-            avatarAddress,
-            championshipId,
-            roundId
-        );
-        var state = await _service.GetState(arenaInfoAddress, stoppingToken);
-        return state switch
-        {
-            List list => new ArenaInformation(list),
-            _ => throw new StateNotFoundException(arenaInfoAddress, typeof(ArenaInformation))
-        };
-    }
-
-    public async Task<ArenaScore> GetArenaScoreAsync(
-        Address avatarAddress,
-        int championshipId,
-        int roundId,
-        CancellationToken stoppingToken = default
-    )
-    {
-        var arenaScoreAddress = Nekoyume.Model.Arena.ArenaScore.DeriveAddress(
-            avatarAddress,
-            championshipId,
-            roundId
-        );
-        var state = await _service.GetState(arenaScoreAddress, stoppingToken);
-        return state switch
-        {
-            List list => new ArenaScore(list),
-            _ => throw new StateNotFoundException(arenaScoreAddress, typeof(ArenaScore))
-        };
     }
 
     public async Task<AvatarState> GetAvatarStateAsync(

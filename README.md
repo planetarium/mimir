@@ -50,7 +50,7 @@ Due to this, there may be differences between the actual chain and the stored da
 
 ```graphql
 query {
-    metadata(collectionName: "arena") {
+    metadata(collectionName: "avatar") {
         latestBlockIndex
     }
 }

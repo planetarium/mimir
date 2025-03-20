@@ -40,11 +40,6 @@ public class Query
         (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
-    /// Get arena sub-fields.
-    /// </summary>
-    public ArenaObject GetArena() => new();
-
-    /// <summary>
     /// Get an avatar state by address.
     /// </summary>
     /// <param name="address">The address of the avatar.</param>

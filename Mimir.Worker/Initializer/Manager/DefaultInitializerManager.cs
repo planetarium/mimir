@@ -4,12 +4,11 @@ public class DefaultInitializerManager : IInitializerManager
 {
     private readonly List<BaseInitializer> _initializers;
 
-    public DefaultInitializerManager(TableSheetInitializer tableSheetInitializer, ArenaInitializer arenaInitializer)
+    public DefaultInitializerManager(TableSheetInitializer tableSheetInitializer)
     {
         _initializers =
         [
-            tableSheetInitializer,
-            arenaInitializer
+            tableSheetInitializer
         ];
     }
 
