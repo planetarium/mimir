@@ -1,6 +1,17 @@
 services:
   mongo:
     image: mongo:latest
-    restart: unless-stopped
+    hostname: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rootuser
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
     ports:
       - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongo_config:/data/configdb
+
+volumes:
+  mongodb_data:
+  mongo_config:

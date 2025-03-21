@@ -311,4 +311,14 @@ public class Query
         Address address,
         [Service] IWorldInformationRepository repo
     ) => (await repo.GetByAddressAsync(address)).Object;
+
+    /// <summary>
+    /// Get the rank of a user in the world information ranking.
+    /// </summary>
+    /// <param name="address">The address of the avatar.</param>
+    /// <returns>The rank in the world information ranking.</returns>
+    public async Task<int> GetWorldInformationRankAsync(
+        Address address,
+        [Service] IWorldInformationRankingRepository repo
+    ) => await repo.GetRankByAddressAsync(address);
 }

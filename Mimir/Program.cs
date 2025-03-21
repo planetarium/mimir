@@ -62,6 +62,7 @@ builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
 builder.Services.AddSingleton<WorldBossRaiderRepository>();
 builder.Services.AddSingleton<WorldBossRepository>();
 builder.Services.AddSingleton<IWorldInformationRepository, WorldInformationRepository>();
+builder.Services.AddSingleton<IWorldInformationRankingRepository, WorldInformationRankingRepository>();
 
 // ~MongoDB repositories.
 builder.Services.AddCors();
