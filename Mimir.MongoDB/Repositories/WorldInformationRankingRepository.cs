@@ -1,3 +1,4 @@
+using HotChocolate;
 using HotChocolate.Data;
 using HotChocolate.Data.MongoDb;
 using Libplanet.Crypto;
@@ -27,11 +28,10 @@ public class WorldInformationRankingRepository : IWorldInformationRankingReposit
     {
         var find = _collection.Find(Builders<WorldInformationDocument>.Filter.Empty);
         
-        // Get the max ID from each WorldDictionary, then sort by its StageClearedId in descending order
-        var sortBuilder = Builders<WorldInformationDocument>.Sort;
-        var sortDefinition = sortBuilder.Descending("Object.WorldDictionary.$[-1].StageClearedId");
+        // var sortBuilder = Builders<WorldInformationDocument>.Sort;
+        // var sortDefinition = sortBuilder.Descending("Object.WorldDictionary.$[-1].StageClearedId");
 
-        return find.Sort(sortDefinition).AsExecutable();
+        return find.AsExecutable();
     }
 
     public async Task<int> GetRankByAddressAsync(Address address)

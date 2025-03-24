@@ -42,7 +42,7 @@ public abstract class BaseDiffHandler(
 
                 if (currentBaseIndex >= currentTargetIndex)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
+                    await Task.Delay(TimeSpan.FromSeconds(8), stoppingToken);
                     continue;
                 }
 

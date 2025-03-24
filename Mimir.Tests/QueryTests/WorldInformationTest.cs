@@ -21,6 +21,7 @@ public class WorldInformationTest
             .ReturnsAsync(new WorldInformationDocument(
                 0,
                 default,
+                100,
                 new WorldInformationState()
                 {
                     WorldDictionary = new Dictionary<int, World>()
