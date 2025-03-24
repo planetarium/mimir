@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Lib9c" Version="$(Lib9cVersion)" />
-    <PackageReference Include="Lib9c.Abstractions" Version="1.20.1-dev.fa7c58ff1072e2d81526c4f414c5e54a265f283f" />
+    <PackageReference Include="Lib9c.Abstractions" Version="$(Lib9cVersion)" />
     <PackageReference Include="Libplanet.RocksDBStore" Version="$(LibplanetVersion)" />
     <PackageReference Include="Libplanet" Version="$(LibplanetVersion)" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
