@@ -9,5 +9,6 @@ namespace Mimir.MongoDB.Bson;
 public record WorldInformationDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address Address,
+    int LastStageClearedId,
     WorldInformationState Object
-) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(2, StoredBlockIndex));

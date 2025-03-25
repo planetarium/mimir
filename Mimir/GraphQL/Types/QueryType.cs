@@ -19,5 +19,14 @@ public class QueryType : ObjectType<Query>
                 var productFilter = context.ArgumentValue<ProductFilter?>("filter");
                 return context.Service<IProductRepository>().Get(productFilter);
             });
+
+        // descriptor
+        //     .Field("worldInformationRanking")
+        //     .Description("Retrieves a ranking of users based on their highest StageClearedId in the last world.")
+        //     .UseOffsetPaging<WorldInformationDocumentType>()
+        //     .Resolve(context => 
+        //     {
+        //         return context.Service<IWorldInformationRankingRepository>().GetRanking();
+        //     });
     }
 }

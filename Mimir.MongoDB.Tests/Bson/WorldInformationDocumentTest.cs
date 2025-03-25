@@ -12,6 +12,7 @@ public class WorldInformationDocumentTest
         var docs = new WorldInformationDocument(
             default,
             default,
+            297,
             new WorldInformationState(TestDataHelpers.LoadState("WorldInformation.bin")));
         return Verify(docs.ToJson());
     }

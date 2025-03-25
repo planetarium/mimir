@@ -9,6 +9,7 @@ using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.TableData;
 using Nekoyume.TableData.Summon;
+using Nekoyume.TableData.Swap;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -75,6 +76,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
             || sheetType == typeof(CostumeSummonSheet)
             || sheetType == typeof(EquipmentSummonSheet)
             || sheetType == typeof(RuneSummonSheet)
+            || sheetType == typeof(SwapRateSheet)
         )
         {
             logger.Information(
