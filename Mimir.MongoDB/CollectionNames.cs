@@ -105,6 +105,9 @@ namespace Mimir.MongoDB
             CollectionAndStateTypeMappings.Add(typeof(AllRuneDocument), "all_rune");
             CollectionAndStateTypeMappings.Add(typeof(AvatarDocument), "avatar");
             CollectionAndStateTypeMappings.Add(typeof(CollectionDocument), "collection");
+            CollectionAndStateTypeMappings.Add(typeof(AdventureCpDocument), "adventure_cp");
+            CollectionAndStateTypeMappings.Add(typeof(RaidCpDocument), "raid_cp");
+            CollectionAndStateTypeMappings.Add(typeof(ArenaCpDocument), "arena_cp");
             CollectionAndStateTypeMappings.Add(typeof(DailyRewardDocument), "daily_reward");
             CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
             CollectionAndStateTypeMappings.Add(typeof(InventoryDocument), "inventory");
