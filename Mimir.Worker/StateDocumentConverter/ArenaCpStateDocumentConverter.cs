@@ -2,6 +2,7 @@ using Bencodex.Types;
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Nekoyume.Model.EnumType;
+using Nekoyume.Model.State;
 
 namespace Mimir.Worker.StateDocumentConverter;
 
@@ -14,12 +15,8 @@ public class ArenaCpStateDocumentConverter : IStateDocumentConverter
                 $"{nameof(context.RawState)} Invalid state type. Expected {nameof(List)}, got {context.RawState.GetType().Name}."
             );
 
-        var cp = (int)((Integer)list[0]).Value;
-        
-        return new ArenaCpDocument(
-            context.BlockIndex, 
-            context.Address,
-            cp
-        );
+        var cp = list[0].ToInteger();
+
+        return new ArenaCpDocument(context.BlockIndex, context.Address, cp);
     }
-} 
+}
