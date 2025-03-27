@@ -7,6 +7,7 @@ using Libplanet.Common;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.GraphQL;
+using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Repositories;
 using Mimir.MongoDB.Services;
 using Mimir.Options;
@@ -62,7 +63,16 @@ builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
 builder.Services.AddSingleton<WorldBossRaiderRepository>();
 builder.Services.AddSingleton<WorldBossRepository>();
 builder.Services.AddSingleton<IWorldInformationRepository, WorldInformationRepository>();
-builder.Services.AddSingleton<IWorldInformationRankingRepository, WorldInformationRankingRepository>();
+builder.Services.AddSingleton<
+    IWorldInformationRankingRepository,
+    WorldInformationRankingRepository
+>();
+builder.Services.AddSingleton<
+    ICpRepository<AdventureCpDocument>,
+    CpRepository<AdventureCpDocument>
+>();
+builder.Services.AddSingleton<ICpRepository<ArenaCpDocument>, CpRepository<ArenaCpDocument>>();
+builder.Services.AddSingleton<ICpRepository<RaidCpDocument>, CpRepository<RaidCpDocument>>();
 
 // ~MongoDB repositories.
 builder.Services.AddCors();
