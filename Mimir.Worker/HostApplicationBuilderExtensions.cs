@@ -38,6 +38,9 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<AvatarStateHandler>();
             builder.Services.AddBackgroundService<CollectionStateHandler>();
             builder.Services.AddBackgroundService<DailyRewardStateHandler>();
+            builder.Services.AddBackgroundService<AdventureCpStateHandler>();
+            builder.Services.AddBackgroundService<ArenaCpStateHandler>();
+            builder.Services.AddBackgroundService<RaidCpStateHandler>();
             // builder.Services.AddBackgroundService<InventoryStateHandler>();
             builder.Services.AddBackgroundService<WorldInformationStateHandler>();
 
