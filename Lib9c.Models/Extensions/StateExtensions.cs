@@ -478,4 +478,22 @@ public static class StateExtensions
                 throw new ArgumentOutOfRangeException();
         }
     }
+
+    public static int? GetArmorId(this Lib9c.Models.Items.Inventory inventory)
+    {
+        var armor = inventory
+            .Items.Select(i => i.Item)
+            .OfType<Lib9c.Models.Items.Armor>()
+            .FirstOrDefault(e => e.Equipped);
+        return armor?.Id;
+    }
+
+    public static int? GetPortraitId(this Lib9c.Models.Items.Inventory inventory)
+    {
+        var fc = inventory
+            .Items.Select(item => item.Item)
+            .OfType<Lib9c.Models.Items.Costume>()
+            .FirstOrDefault(e => e.ItemSubType == ItemSubType.FullCostume);
+        return fc?.Id ?? GetArmorId(inventory);
+    }
 }

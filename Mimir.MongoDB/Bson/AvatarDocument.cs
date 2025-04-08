@@ -9,5 +9,7 @@ namespace Mimir.MongoDB.Bson;
 public record AvatarDocument(
     [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore] Address Address,
-    AvatarState Object
-) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));
+    AvatarState Object,
+    int? ArmorId,
+    int? PortraitId
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(2, StoredBlockIndex));
