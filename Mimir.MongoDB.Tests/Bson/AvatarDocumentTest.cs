@@ -12,7 +12,9 @@ public class AvatarDocumentTest
         var docs = new AvatarDocument(
             default,
             default,
-            new AvatarState(TestDataHelpers.LoadState("Avatar.bin"))
+            new AvatarState(TestDataHelpers.LoadState("Avatar.bin")),
+            default,
+            default
         );
         return Verify(docs.ToJson());
     }

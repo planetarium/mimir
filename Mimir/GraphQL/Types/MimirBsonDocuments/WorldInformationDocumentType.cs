@@ -13,7 +13,7 @@ public class WorldInformationDocumentType : ObjectType<WorldInformationDocument>
             .Type<ObjectType<AvatarDocument>>()
             .Resolve(async context =>
             {
-                var parent = context.Parent<RaidCpDocument>();
+                var parent = context.Parent<WorldInformationDocument>();
                 var avatarAddress = new Address(parent.Id);
                 var avatarRepository = context.Service<IAvatarRepository>();
 

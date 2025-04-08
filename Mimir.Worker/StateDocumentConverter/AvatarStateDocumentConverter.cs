@@ -10,7 +10,9 @@ public class AvatarStateDocumentConverter : IStateDocumentConverter
         return new AvatarDocument(
             context.BlockIndex,
             context.Address,
-            new AvatarState(context.RawState)
+            new AvatarState(context.RawState),
+            context.AdditionalData?.GetValueOrDefault("armorId") as int?,
+            context.AdditionalData?.GetValueOrDefault("portraitId") as int?
         );
     }
 }
