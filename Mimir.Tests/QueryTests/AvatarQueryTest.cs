@@ -70,7 +70,7 @@ public class AvatarQueryTest
         var mockRepo = new Mock<IAvatarRepository>();
         mockRepo
             .Setup(repo => repo.GetByAddressAsync(It.IsAny<Address>()))
-            .ReturnsAsync(new AvatarDocument(0, new Address(), avatar));
+            .ReturnsAsync(new AvatarDocument(0, new Address(), avatar, default, default));
 
         var serviceProvider = TestServices.Builder
             .With(mockRepo.Object)
