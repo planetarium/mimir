@@ -40,7 +40,7 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddBackgroundService<DailyRewardStateHandler>();
             builder.Services.AddBackgroundService<AdventureCpStateHandler>();
             builder.Services.AddBackgroundService<ArenaCpStateHandler>();
-            builder.Services.AddBackgroundService<RaidCpStateHandler>();
+            // builder.Services.AddBackgroundService<RaidCpStateHandler>();
             // builder.Services.AddBackgroundService<InventoryStateHandler>();
             builder.Services.AddBackgroundService<WorldInformationStateHandler>();
 
