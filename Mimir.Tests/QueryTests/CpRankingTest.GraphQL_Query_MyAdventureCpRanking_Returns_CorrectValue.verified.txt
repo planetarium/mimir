@@ -1,0 +1,10 @@
+﻿{
+  "data": {
+    "myAdventureCpRanking": {
+      "userDocument": {
+        "cp": 100
+      },
+      "rank": 10
+    }
+  }
+}

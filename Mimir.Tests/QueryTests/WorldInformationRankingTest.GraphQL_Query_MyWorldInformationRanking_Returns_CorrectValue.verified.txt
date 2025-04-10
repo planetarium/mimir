@@ -1,0 +1,10 @@
+﻿{
+  "data": {
+    "myWorldInformationRanking": {
+      "userDocument": {
+        "lastStageClearedId": 100
+      },
+      "rank": 10
+    }
+  }
+}

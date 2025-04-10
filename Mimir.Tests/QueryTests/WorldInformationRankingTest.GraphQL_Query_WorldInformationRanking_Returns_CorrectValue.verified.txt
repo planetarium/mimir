@@ -1,0 +1,14 @@
+﻿{
+  "data": {
+    "worldInformationRanking": {
+      "items": [
+        {
+          "lastStageClearedId": 100
+        },
+        {
+          "lastStageClearedId": 50
+        }
+      ]
+    }
+  }
+}
