@@ -83,6 +83,11 @@ builder
     .AddMimirGraphQLTypes()
     .AddErrorFilter<ErrorFilter>()
     .AddMongoDbPagingProviders(providerName: "MongoDB", defaultProvider: true)
+    .SetPagingOptions(new HotChocolate.Types.Pagination.PagingOptions
+    {
+        MaxPageSize = 300,
+        DefaultPageSize = 100
+    })
     .BindRuntimeType(typeof(Address), typeof(AddressType))
     .BindRuntimeType(typeof(BigInteger), typeof(BigIntegerType))
     .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
