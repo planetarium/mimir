@@ -1,3 +1,4 @@
+using Mimir.GraphQL.Models;
 using Mimir.GraphQL.Queries;
 using Mimir.GraphQL.Types.MimirBsonDocuments;
 using Mimir.MongoDB.Bson;
@@ -31,12 +32,54 @@ public class QueryType : ObjectType<Query>
             });
 
         descriptor
+            .Field("myWorldInformationRanking")
+            .Description("Get my world information ranking based on StageClearedId.")
+            .Argument("address", a => a.Type<NonNullType<StringType>>())
+            .Type<UserWorldInformationRankingType>()
+            .Resolve(async context =>
+            {
+                var address = context.ArgumentValue<string>("address");
+                var result = await context.Service<IWorldInformationRankingRepository>().GetUserWithRanking(address);
+                
+                if (result == null)
+                    return null;
+                    
+                var (userDocument, rank) = result.Value;
+                return new UserWorldInformationRanking 
+                { 
+                    UserDocument = userDocument, 
+                    Rank = rank 
+                };
+            });
+
+        descriptor
             .Field("adventureCpRanking")
             .Description("Cp ranking of users based on their adventure score.")
             .UseOffsetPaging<AdventureCpDocumentType>()
             .Resolve(context =>
             {
                 return context.Service<ICpRepository<AdventureCpDocument>>().GetRanking();
+            });
+
+        descriptor
+            .Field("myAdventureCpRanking")
+            .Description("Get my ranking based on adventure CP.")
+            .Argument("address", a => a.Type<NonNullType<StringType>>())
+            .Type<UserAdventureRankingType>()
+            .Resolve(async context =>
+            {
+                var address = context.ArgumentValue<string>("address");
+                var result = await context.Service<ICpRepository<AdventureCpDocument>>().GetUserWithRanking(address);
+                
+                if (result == null)
+                    return null;
+                    
+                var (userDocument, rank) = result.Value;
+                return new UserAdventureRanking
+                {
+                    UserDocument = userDocument,
+                    Rank = rank
+                };
             });
 
         descriptor
@@ -49,12 +92,54 @@ public class QueryType : ObjectType<Query>
             });
 
         descriptor
+            .Field("myArenaCpRanking")
+            .Description("Get my ranking based on arena CP.")
+            .Argument("address", a => a.Type<NonNullType<StringType>>())
+            .Type<UserArenaRankingType>()
+            .Resolve(async context =>
+            {
+                var address = context.ArgumentValue<string>("address");
+                var result = await context.Service<ICpRepository<ArenaCpDocument>>().GetUserWithRanking(address);
+                
+                if (result == null)
+                    return null;
+                    
+                var (userDocument, rank) = result.Value;
+                return new UserArenaRanking
+                {
+                    UserDocument = userDocument,
+                    Rank = rank
+                };
+            });
+
+        descriptor
             .Field("raidCpRanking")
             .Description("Cp ranking of users based on their raid score.")
             .UseOffsetPaging<RaidCpDocumentType>()
             .Resolve(context =>
             {
                 return context.Service<ICpRepository<RaidCpDocument>>().GetRanking();
+            });
+
+        descriptor
+            .Field("myRaidCpRanking")
+            .Description("Get my ranking based on raid CP.")
+            .Argument("address", a => a.Type<NonNullType<StringType>>())
+            .Type<UserRaidRankingType>()
+            .Resolve(async context =>
+            {
+                var address = context.ArgumentValue<string>("address");
+                var result = await context.Service<ICpRepository<RaidCpDocument>>().GetUserWithRanking(address);
+                
+                if (result == null)
+                    return null;
+                    
+                var (userDocument, rank) = result.Value;
+                return new UserRaidRanking
+                {
+                    UserDocument = userDocument,
+                    Rank = rank
+                };
             });
     }
 }

@@ -1,0 +1,14 @@
+﻿{
+  "data": {
+    "adventureCpRanking": {
+      "items": [
+        {
+          "cp": 100
+        },
+        {
+          "cp": 50
+        }
+      ]
+    }
+  }
+}
