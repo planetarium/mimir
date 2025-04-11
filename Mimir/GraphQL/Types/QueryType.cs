@@ -1,3 +1,5 @@
+using Lib9c.GraphQL.Types;
+using Libplanet.Crypto;
 using Mimir.GraphQL.Models;
 using Mimir.GraphQL.Queries;
 using Mimir.GraphQL.Types.MimirBsonDocuments;
@@ -34,11 +36,11 @@ public class QueryType : ObjectType<Query>
         descriptor
             .Field("myWorldInformationRanking")
             .Description("Get my world information ranking based on StageClearedId.")
-            .Argument("address", a => a.Type<NonNullType<StringType>>())
+            .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<UserWorldInformationRankingType>()
             .Resolve(async context =>
             {
-                var address = context.ArgumentValue<string>("address");
+                var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<IWorldInformationRankingRepository>().GetUserWithRanking(address);
                 
                 if (result == null)
@@ -64,11 +66,11 @@ public class QueryType : ObjectType<Query>
         descriptor
             .Field("myAdventureCpRanking")
             .Description("Get my ranking based on adventure CP.")
-            .Argument("address", a => a.Type<NonNullType<StringType>>())
+            .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<UserAdventureRankingType>()
             .Resolve(async context =>
             {
-                var address = context.ArgumentValue<string>("address");
+                var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<ICpRepository<AdventureCpDocument>>().GetUserWithRanking(address);
                 
                 if (result == null)
@@ -94,11 +96,11 @@ public class QueryType : ObjectType<Query>
         descriptor
             .Field("myArenaCpRanking")
             .Description("Get my ranking based on arena CP.")
-            .Argument("address", a => a.Type<NonNullType<StringType>>())
+            .Argument("address", a => a.Type<NonNullType<AddressType>>())
             .Type<UserArenaRankingType>()
             .Resolve(async context =>
             {
-                var address = context.ArgumentValue<string>("address");
+                var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<ICpRepository<ArenaCpDocument>>().GetUserWithRanking(address);
                 
                 if (result == null)
@@ -128,7 +130,7 @@ public class QueryType : ObjectType<Query>
             .Type<UserRaidRankingType>()
             .Resolve(async context =>
             {
-                var address = context.ArgumentValue<string>("address");
+                var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<ICpRepository<RaidCpDocument>>().GetUserWithRanking(address);
                 
                 if (result == null)

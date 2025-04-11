@@ -46,8 +46,8 @@ public class WorldInformationRankingTest
     [Fact]
     public async Task GraphQL_Query_MyWorldInformationRanking_Returns_CorrectValue()
     {
-        var address = "0x0000000000000000000000000000000000000000";
-        var userDoc = new WorldInformationDocument(0, new Address(address), 100, new WorldInformationState());
+        var address = new Address("0x0000000000000000000000000000000000000000");
+        var userDoc = new WorldInformationDocument(0, address, 100, new WorldInformationState());
         
         var mockRepo = new Mock<IWorldInformationRankingRepository>();
         mockRepo.Setup(repo => repo.GetUserWithRanking(address))
