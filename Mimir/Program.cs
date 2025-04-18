@@ -94,6 +94,10 @@ builder
     .ModifyRequestOptions(requestExecutorOptions =>
     {
         requestExecutorOptions.IncludeExceptionDetails = true;
+    })
+    .ModifyCostOptions(options =>
+    {
+        options.MaxFieldCost = 3_000;
     });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();
