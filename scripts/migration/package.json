@@ -15,5 +15,10 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "mongodb": "^6.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.4",
+    "node-fetch": "^2.6.7"
   }
 }
