@@ -5,25 +5,32 @@ const { createProgressTracker, chunkArray } = require('./utils/common');
 
 // 환경변수 확인
 const uri = process.env.MONGO_CONNECTION_STRING;
-const gqlUrl = process.env.HEADLESS_GQL_URL;
+const odinGqlUrl = process.env.ODIN_GQL_URL;
+const heimdallGqlUrl = process.env.HEIMDALL_GQL_URL;
 
 if (!uri) {
   console.error('MONGO_CONNECTION_STRING 환경변수가 설정되지 않았습니다.');
   process.exit(1);
 }
 
-if (!gqlUrl) {
-  console.error('HEADLESS_GQL_URL 환경변수가 설정되지 않았습니다.');
+if (!odinGqlUrl) {
+  console.error('ODIN_GQL_URL 환경변수가 설정되지 않았습니다.');
   process.exit(1);
 }
 
-const client = new MongoClient(uri, { useNewUrlParser: true });
-const gqlClient = new HeadlessGqlClient(gqlUrl, 500); // 0.5초 딜레이
+if (!heimdallGqlUrl) {
+  console.error('HEIMDALL_GQL_URL 환경변수가 설정되지 않았습니다.');
+  process.exit(1);
+}
 
-async function updateAvatarEquipment(dbName) {
-  console.log(`${dbName} 데이터베이스 업데이트 시작`);
+const client = new MongoClient(uri);
+
+async function updateAvatarEquipment(dbName, gqlUrl) {
+  console.log(`${dbName} 데이터베이스 업데이트 시작 (GQL: ${gqlUrl})`);
   let db;
   let collection;
+  
+  const gqlClient = new HeadlessGqlClient(gqlUrl, 0.5); // 0.5초 딜레이
   
   if (typeof dbName === 'string') {
     db = client.db(dbName);
@@ -35,7 +42,7 @@ async function updateAvatarEquipment(dbName) {
   
   // SchemaVersion이 1인 문서만 조회
   const cursor = collection.find({ 'Metadata.SchemaVersion': 1 });
-  const count = await cursor.countDocuments();
+  const count = await cursor.count();
   
   if (count === 0) {
     console.log(`${typeof dbName === 'string' ? dbName : 'DB'} 데이터베이스에 업데이트할 아바타 문서가 없습니다.`);
@@ -92,8 +99,8 @@ async function main() {
     await client.connect();
     console.log("MongoDB 연결 성공");
     
-    const odinCount = await updateAvatarEquipment('odin');
-    const heimdallCount = await updateAvatarEquipment('heimdall');
+    const odinCount = await updateAvatarEquipment('odin', odinGqlUrl);
+    const heimdallCount = await updateAvatarEquipment('heimdall', heimdallGqlUrl);
     
     console.log(`모든 업데이트 완료. 총 ${odinCount + heimdallCount}개 아바타 문서 업데이트됨.`);
   } catch (err) {

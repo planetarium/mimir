@@ -42,35 +42,28 @@ class HeadlessGqlClient {
     const query = `
       query GetAvatar($address: Address!) {
         stateQuery {
-          agent(address: $address) {
-            avatarStates {
-              address
-              inventory {
-                equipments {
-                  id
-                  itemSubType
-                  equipped
-                }
-                costumes {
-                  id
-                  itemSubType
-                  equipped
-                }
+          avatar(avatarAddress: $address) {
+            address
+            inventory {
+              equipments {
+                id
+                itemSubType
+                equipped
+              }
+              costumes {
+                id
+                itemSubType
+                equipped
               }
             }
           }
         }
-      }
+    }
     `;
 
     const result = await this.request(query, { address });
-    const avatarStates = result?.stateQuery?.agent?.avatarStates || [];
-    
-    if (avatarStates.length === 0) {
-      return null;
-    }
 
-    return avatarStates[0];
+    return result;
   }
 
   async getAvatarEquipment(address) {
@@ -80,14 +73,14 @@ class HeadlessGqlClient {
       return { armorId: null, portraitId: null };
     }
 
-    const inventory = avatar.inventory;
+    const inventory = avatar.stateQuery.avatar.inventory;
     
     // 방어구 ID 찾기
-    const armor = inventory?.equipments?.find(e => e.equipped && e.itemSubType === 'Armor');
+    const armor = inventory?.equipments?.find(e => e.equipped && e.itemSubType === 'ARMOR');
     const armorId = armor ? parseInt(armor.id, 10) : null;
     
     // 초상화 ID 찾기
-    const fullCostume = inventory?.costumes?.find(c => c.itemSubType === 'FullCostume' && c.equipped);
+    const fullCostume = inventory?.costumes?.find(c => c.itemSubType === 'FULL_COSTUME' && c.equipped);
     // 전신 코스튬이 없으면 방어구 ID를 사용
     const portraitId = fullCostume ? parseInt(fullCostume.id, 10) : armorId;
     
