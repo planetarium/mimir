@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json.Serialization;
 
 namespace Mimir.Initializer;
@@ -7,5 +8,8 @@ namespace Mimir.Initializer;
 public enum RunOptions
 {
     SnapShotInitializer = 1,
-    ProductMigrator = 2
+    ProductMigrator = 2,
+    AgentRefreshInitializer = 3,
+    AvatarRefreshInitializer = 4,
+    AdventureCpRefreshInitializer = 5,
 }

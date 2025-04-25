@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Mimir.Initializer;
 using Mimir.Initializer.Initializer;
 using Mimir.Initializer.Migrators;
+using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Serilog;
 
@@ -40,9 +41,16 @@ var host = Host.CreateDefaultBuilder(args)
             
             services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>();
             
+            services.AddSingleton<IStateService, HeadlessStateService>();
+            services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProvider =>
+            {
+                var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+                return new HeadlessGQLClient(config.HeadlessEndpoints, config.JwtIssuer, config.JwtSecretKey);
+            });
             services.AddSingleton<ExecuteManager>();
-            services.AddSingleton<IExecutor, SnapshotInitializer>();
-            services.AddSingleton<IExecutor, ProductMigrator>();
+            services.AddSingleton<IExecutor, AgentRefreshInitializer>();
+            services.AddSingleton<IExecutor, AvatarRefreshInitializer>();
+            services.AddSingleton<IExecutor, AdventureCpRefreshInitializer>();
         }
     )
     .UseSerilog(
