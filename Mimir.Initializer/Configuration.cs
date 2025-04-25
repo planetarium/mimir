@@ -11,6 +11,9 @@ public class Configuration
     public string ChainStorePath { get; init; }
     public string[] TargetAccounts { get; init; }
     public RunOptions RunOptions { get; init; }
+    public Uri[] HeadlessEndpoints { get; init; }
+    public string JwtIssuer { get; init; }
+    public string JwtSecretKey { get; init; }
 
     public Address[] GetTargetAddresses() =>
         TargetAccounts.Select(adr => new Address(adr)).ToArray();
