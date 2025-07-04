@@ -4,4 +4,5 @@ public enum PollerType
 {
     DiffPoller,
     TxPoller,
+    BlockPoller,
 }
