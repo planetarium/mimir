@@ -2,6 +2,32 @@ namespace Mimir.Worker.Client;
 
 public static class GraphQLQueries
 {
+    public const string GetBlocks =
+        @"
+            query getBlock($offset: Int!, $limit: Int!) {
+                blockQuery {
+                    blocks(offset: $offset, limit: $limit) {
+                    index
+                    hash
+                    miner
+                    stateRootHash
+                    timestamp
+                    transactions {
+                        actions {
+                        raw
+                        inspection
+                        }
+                        id
+                        nonce
+                        publicKey
+                        signature
+                        signer
+                        timestamp
+                        updatedAddresses
+                    }
+                    }
+                }
+            }";
     public const string GetAccountDiffs =
         @"
             query GetAccountDiffs($baseIndex: Long!, $changedIndex: Long!, $accountAddress: Address!) {

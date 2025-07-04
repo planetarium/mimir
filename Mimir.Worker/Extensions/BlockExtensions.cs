@@ -1,0 +1,49 @@
+using Lib9c.Models.Block;
+using Mimir.Worker.Client;
+
+namespace Mimir.Worker.Extensions;
+
+public static class BlockExtensions
+{
+    public static Lib9c.Models.Block.Block ToBlockModel(this Client.Block apiBlock)
+    {
+        return new Lib9c.Models.Block.Block
+        {
+            Index = apiBlock.Index,
+            Hash = apiBlock.Hash,
+            Miner = apiBlock.Miner,
+            StateRootHash = apiBlock.StateRootHash,
+            Timestamp = apiBlock.Timestamp,
+            Transactions = apiBlock.Transactions?.Select(tx => tx.ToTransactionModel()).ToList() ?? new List<Lib9c.Models.Block.Transaction>()
+        };
+    }
+
+    public static Lib9c.Models.Block.Transaction ToTransactionModel(this BlockTransaction apiTransaction)
+    {
+        return new Lib9c.Models.Block.Transaction
+        {
+            Actions = apiTransaction.Actions?.Select(action => action.ToActionModel()).ToList() ?? new List<Lib9c.Models.Block.Action>(),
+            Id = apiTransaction.Id,
+            Nonce = apiTransaction.Nonce,
+            PublicKey = apiTransaction.PublicKey,
+            Signature = apiTransaction.Signature,
+            Signer = apiTransaction.Signer,
+            Timestamp = apiTransaction.Timestamp,
+            UpdatedAddresses = apiTransaction.UpdatedAddresses ?? new List<string>()
+        };
+    }
+
+    public static Lib9c.Models.Block.Action ToActionModel(this BlockAction apiAction)
+    {
+        return new Lib9c.Models.Block.Action
+        {
+            Raw = apiAction.Raw,
+            Inspection = apiAction.Inspection
+        };
+    }
+
+    public static List<Lib9c.Models.Block.Block> ToBlockModels(this GetBlocksResponse apiResponse)
+    {
+        return apiResponse.BlockQuery?.Blocks?.Select(block => block.ToBlockModel()).ToList() ?? new List<Lib9c.Models.Block.Block>();
+    }
+} 

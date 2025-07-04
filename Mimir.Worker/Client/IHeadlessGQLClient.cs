@@ -10,6 +10,10 @@ public interface IHeadlessGQLClient
         Address accountAddress,
         CancellationToken stoppingToken
     );
+    Task<(GetBlocksResponse response, string jsonResponse)> GetBlocksAsync(
+        int offset,
+        int limit,
+        CancellationToken stoppingToken);
     Task<(GetTipResponse response, string jsonResponse)> GetTipAsync(
         CancellationToken stoppingToken,
         Address? accountAddress);

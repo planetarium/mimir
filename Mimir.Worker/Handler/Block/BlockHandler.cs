@@ -4,6 +4,7 @@ using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
+using Mimir.Worker.Extensions;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
@@ -21,7 +22,7 @@ public class BlockHandler(MongoDbService dbService, IHeadlessGQLClient headlessG
     private static readonly Codec Codec = new();
     private const int LIMIT = 15;
 
-    private readonly ILogger Logger = Log.ForContext<DailyRewardStateHandler>();
+    private readonly ILogger Logger = Log.ForContext<BlockHandler>();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -39,12 +40,44 @@ public class BlockHandler(MongoDbService dbService, IHeadlessGQLClient headlessG
                 }
 
                 Logger.Information(
-                    "{CollectionName} Request diff data, current: {CurrentBlockIndex}, gap: {IndexDiff}, base: {CurrentBaseIndex} target: {CurrentTargetIndex}",
+                    "{CollectionName} Request block data, current: {CurrentBlockIndex}, gap: {IndexDiff}, base: {CurrentBaseIndex} target: {CurrentTargetIndex}",
                     collectionName,
                     currentIndexOnChain,
                     indexDifference,
                     currentBaseIndex,
                     currentTargetIndex
+                );
+
+                var (blockResponse, _) = await headlessGqlClient.GetBlocksAsync(
+                    (int)currentTargetIndex,
+                    LIMIT,
+                    stoppingToken
+                );
+
+                var documents = new List<BlockDocument>();
+                foreach (var block in blockResponse.BlockQuery.Blocks)
+                {
+                    var blockModel = block.ToBlockModel();
+                    var document = new BlockDocument(
+                        currentTargetIndex,
+                        blockModel.Hash,
+                        blockModel
+                    );
+                    documents.Add(document);
+                }
+
+                if (documents.Count > 0)
+                    await dbService.InsertBlocksManyAsync(documents);
+
+                await dbService.UpdateLatestBlockIndexAsync(
+                    new MetadataDocument
+                    {
+                        PollerType = PollerType,
+                        CollectionName = "block",
+                        LatestBlockIndex = currentTargetIndex,
+                    },
+                    null,
+                    stoppingToken
                 );
             }
             catch (Exception e)
