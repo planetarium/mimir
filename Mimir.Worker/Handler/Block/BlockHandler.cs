@@ -1,14 +1,8 @@
 using Bencodex;
-using Bencodex.Types;
-using Libplanet.Crypto;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Extensions;
-using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
-using Mimir.Worker.StateDocumentConverter;
-using Mimir.Worker.Util;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -73,7 +67,7 @@ public class BlockHandler(MongoDbService dbService, IHeadlessGQLClient headlessG
                     new MetadataDocument
                     {
                         PollerType = PollerType,
-                        CollectionName = "block",
+                        CollectionName = collectionName,
                         LatestBlockIndex = currentTargetIndex,
                     },
                     null,

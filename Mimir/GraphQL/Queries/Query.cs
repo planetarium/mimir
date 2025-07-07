@@ -128,6 +128,16 @@ public class Query
     ) => await repo.GetByCollectionAsync(collectionName);
 
     /// <summary>
+    /// Get metadata by collection name.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <returns>The metadata</returns>
+    public async Task<BlockDocument> GetBlockAsync(
+        string collectionName,
+        [Service] IBlockepository repo
+    ) => await repo.GetByCollectionAsync(collectionName);
+
+    /// <summary>
     /// Get an pet state by avatar address.
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>
