@@ -7,38 +7,33 @@ namespace Mimir.MongoDB.Repositories;
 
 public interface IBlockRepository
 {
-    Task<MetadataDocument> GetByIndexAsync(long index);
+    Task<BlockDocument> GetByIndexAsync(long index);
 }
 
 public class BlockRepository(IMongoDbService dbService) : IBlockRepository
 {
-    public async Task<MetadataDocument> GetByCollectionAsync(string collectionName)
+    public async Task<BlockDocument> GetByIndexAsync(long index)
     {
-        var collection = dbService.GetCollection<MetadataDocument>(
-            CollectionNames.GetCollectionName<MetadataDocument>()
+        var collection = dbService.GetCollection<BlockDocument>(
+            CollectionNames.GetCollectionName<BlockDocument>()
         );
-        return await GetLatestBlockIndexAsync(collection, collectionName, null);
+        return await GetBlockInfoAsync(collection, index);
     }
 
-    private static async Task<MetadataDocument> GetLatestBlockIndexAsync(
-        IMongoCollection<MetadataDocument> collection,
-        string collectionName,
-        string? pollerType
+    private static async Task<BlockDocument> GetBlockInfoAsync(
+        IMongoCollection<BlockDocument> collection,
+        long index
     )
     {
-        var builder = Builders<MetadataDocument>.Filter;
-        var filter = builder.Eq("CollectionName", collectionName);
-        if (pollerType is not null)
-        {
-            filter &= builder.Eq("PollerType", pollerType);
-        }
+        var builder = Builders<BlockDocument>.Filter;
+        var filter = builder.Eq("Object.Index", (int)index);
 
         var doc = await collection.Find(filter).FirstOrDefaultAsync();
         if (doc is null)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'PollerType' equals to '{pollerType}'"
+                $"'index' equals to '{index}'"
             );
         }
 
