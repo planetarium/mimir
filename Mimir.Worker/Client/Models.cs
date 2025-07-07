@@ -26,6 +26,75 @@ public class GetAccountDiffsResponse
     public List<AccountDiff> AccountDiffs { get; set; }
 }
 
+public class GetBlocksResponse
+{
+    [JsonPropertyName("blockQuery")]
+    public BlockQuery BlockQuery { get; set; }
+}
+
+public class BlockQuery
+{
+    [JsonPropertyName("blocks")]
+    public List<Block> Blocks { get; set; }
+}
+
+public class Block
+{
+    [JsonPropertyName("index")]
+    public long Index { get; set; }
+
+    [JsonPropertyName("hash")]
+    public string Hash { get; set; }
+
+    [JsonPropertyName("miner")]
+    public string Miner { get; set; }
+
+    [JsonPropertyName("stateRootHash")]
+    public string StateRootHash { get; set; }
+
+    [JsonPropertyName("timestamp")]
+    public string Timestamp { get; set; }
+
+    [JsonPropertyName("transactions")]
+    public List<BlockTransaction> Transactions { get; set; }
+}
+
+public class BlockTransaction
+{
+    [JsonPropertyName("actions")]
+    public List<BlockAction> Actions { get; set; }
+
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("nonce")]
+    public long Nonce { get; set; }
+
+    [JsonPropertyName("publicKey")]
+    public string PublicKey { get; set; }
+
+    [JsonPropertyName("signature")]
+    public string Signature { get; set; }
+
+    [JsonPropertyName("signer")]
+    public string Signer { get; set; }
+
+    [JsonPropertyName("timestamp")]
+    public string Timestamp { get; set; }
+
+    [JsonPropertyName("updatedAddresses")]
+    public List<string> UpdatedAddresses { get; set; }
+}
+
+public class BlockAction
+{
+    [JsonPropertyName("raw")]
+    public string Raw { get; set; }
+
+    [JsonPropertyName("inspection")]
+    public string Inspection { get; set; }
+}
+
 public class AccountDiff
 {
     [JsonPropertyName("path")]

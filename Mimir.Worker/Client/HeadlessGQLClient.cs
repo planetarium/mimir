@@ -58,15 +58,22 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         string query,
         object? variables,
         CancellationToken stoppingToken = default,
-        ILogger? contextualLogger = null
+        ILogger? contextualLogger = null,
+        bool useExplorer = false
     )
     {
         var logger = contextualLogger is null ? _logger : contextualLogger;
 
         for (int attempt = 0; attempt < RetryAttempts; attempt++)
         {
-            foreach (var url in _urls)
+            foreach (var _url in _urls)
             {
+                Uri url = _url;
+                if (useExplorer)
+                {
+                    url = new Uri(_url, "graphql/explorer");
+                }
+
                 try
                 {
                     logger.Debug(
@@ -81,7 +88,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
 
                     using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
                     {
-                        Content = content
+                        Content = content,
                     };
 
                     if (_secret is not null && _issuer is not null)
@@ -101,7 +108,11 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         jsonResponse
                     );
 
-                    if (graphQLResponse is null || graphQLResponse.Data is null || graphQLResponse.Errors is not null)
+                    if (
+                        graphQLResponse is null
+                        || graphQLResponse.Data is null
+                        || graphQLResponse.Errors is not null
+                    )
                     {
                         throw new HttpRequestException("Response data is null.");
                     }
@@ -171,7 +182,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             {
                 baseIndex,
                 changedIndex,
-                accountAddress
+                accountAddress,
             },
             stoppingToken,
             contextualLogger
@@ -219,22 +230,45 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             blockIndex,
             async index =>
             {
-                var (response, jsonResponse) = await PostGraphQLRequestAsync<GetTransactionsResponse>(
-                    GraphQLQueries.GetTransactions,
-                    new { blockIndex = index },
-                    stoppingToken
-                );
+                var (response, jsonResponse) =
+                    await PostGraphQLRequestAsync<GetTransactionsResponse>(
+                        GraphQLQueries.GetTransactions,
+                        new { blockIndex = index },
+                        stoppingToken
+                    );
 
                 // Validate `GetTransactionsResponse` is valid.
-                if (response.Transaction?.NCTransactions is null ||
-                    response.Transaction.NCTransactions.Any(t => t is null || t.Actions.Any(a => a is null)))
+                if (
+                    response.Transaction?.NCTransactions is null
+                    || response.Transaction.NCTransactions.Any(t =>
+                        t is null || t.Actions.Any(a => a is null)
+                    )
+                )
                 {
-                    throw new InvalidOperationException("Invalid transactions response." +
-                                                        $" blockIndex: {index}" +
-                                                        $" response: {jsonResponse}");
+                    throw new InvalidOperationException(
+                        "Invalid transactions response."
+                            + $" blockIndex: {index}"
+                            + $" response: {jsonResponse}"
+                    );
                 }
 
                 return response;
-            });
+            }
+        );
+    }
+
+    public async Task<(GetBlocksResponse response, string jsonResponse)> GetBlocksAsync(
+        int offset,
+        int limit,
+        CancellationToken stoppingToken
+    )
+    {
+        return await PostGraphQLRequestAsync<GetBlocksResponse>(
+            GraphQLQueries.GetBlocks,
+            new { offset, limit },
+            stoppingToken,
+            null,
+            true
+        );
     }
 }

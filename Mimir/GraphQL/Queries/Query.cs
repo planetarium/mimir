@@ -1,6 +1,7 @@
 using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
+using Lib9c.Models.Block;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
@@ -126,6 +127,16 @@ public class Query
         string collectionName,
         [Service] IMetadataRepository repo
     ) => await repo.GetByCollectionAsync(collectionName);
+
+    /// <summary>
+    /// Get Block by index.
+    /// </summary>
+    /// <param name="index">Block index.</param>
+    /// <returns>The Block Information</returns>
+    public async Task<Block> GetBlockAsync(
+        long index,
+        [Service] IBlockRepository repo
+    ) => (await repo.GetByIndexAsync(index)).Object;
 
     /// <summary>
     /// Get an pet state by avatar address.

@@ -23,6 +23,7 @@ public class MongoDbService
     private readonly GridFSBucket _gridFs;
     private readonly Dictionary<string, IMongoCollection<BsonDocument>> _stateCollectionMappings;
     private readonly IMongoCollection<MetadataDocument> _metadataCollection;
+    private readonly IMongoCollection<BlockDocument> _blockCollection;
 
     public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
@@ -57,13 +58,15 @@ public class MongoDbService
         _gridFs = new GridFSBucket(_database);
         _stateCollectionMappings = InitStateCollections();
         _metadataCollection = _database.GetCollection<MetadataDocument>("metadata");
+        _blockCollection = _database.GetCollection<BlockDocument>("block");
     }
 
     private Dictionary<string, IMongoCollection<BsonDocument>> InitStateCollections()
     {
         var mappings = new Dictionary<string, IMongoCollection<BsonDocument>>();
-        var collectionNames = CollectionNames.CollectionAndStateTypeMappings.Values
-            .Concat(CollectionNames.CollectionAndAddressMappings.Values);
+        var collectionNames = CollectionNames.CollectionAndStateTypeMappings.Values.Concat(
+            CollectionNames.CollectionAndAddressMappings.Values
+        );
         foreach (var collectionName in collectionNames)
         {
             var collection = _database.GetCollection<BsonDocument>(collectionName);
@@ -81,10 +84,7 @@ public class MongoDbService
             catch (MongoCommandException e)
             {
                 // ignore already exists
-                _logger.Debug(
-                    e,
-                    "Collection already exists. {CollectionName}",
-                    collectionName);
+                _logger.Debug(e, "Collection already exists. {CollectionName}", collectionName);
             }
         }
 
@@ -98,7 +98,9 @@ public class MongoDbService
             return collection;
         }
 
-        throw new InvalidOperationException($"No collection mapping found for name: {collectionName}");
+        throw new InvalidOperationException(
+            $"No collection mapping found for name: {collectionName}"
+        );
     }
 
     public IMongoCollection<BsonDocument> GetCollection<T>()
@@ -110,7 +112,8 @@ public class MongoDbService
     public async Task<UpdateResult> UpdateLatestBlockIndexAsync(
         MetadataDocument document,
         IClientSessionHandle? session = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var builder = Builders<MetadataDocument>.Filter;
         var filter = builder.Eq("PollerType", document.PollerType);
@@ -118,7 +121,8 @@ public class MongoDbService
 
         var update = Builders<MetadataDocument>.Update.Set(
             "LatestBlockIndex",
-            document.LatestBlockIndex);
+            document.LatestBlockIndex
+        );
 
         var updateOptions = new UpdateOptions { IsUpsert = true };
 
@@ -143,7 +147,8 @@ public class MongoDbService
     public async Task<long> GetLatestBlockIndexAsync(
         string pollerType,
         string collectionName,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var builder = Builders<MetadataDocument>.Filter;
         var filter = builder.Eq("PollerType", pollerType);
@@ -177,7 +182,8 @@ public class MongoDbService
         List<MimirBsonDocument> documents,
         bool createInsertionDate = false,
         IClientSessionHandle? session = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         List<WriteModel<BsonDocument>> bulkOps = [];
         foreach (var document in documents)
@@ -185,26 +191,39 @@ public class MongoDbService
             var stateUpdateModel = GetMimirDocumentUpdateModel(
                 collectionName,
                 document,
-                createInsertionDate);
+                createInsertionDate
+            );
             bulkOps.Add(stateUpdateModel);
         }
 
-        return UpsertStateDataManyAsync(
-            collectionName,
-            bulkOps,
-            session,
-            cancellationToken);
+        return UpsertStateDataManyAsync(collectionName, bulkOps, session, cancellationToken);
+    }
+
+    public async Task InsertBlocksManyAsync(
+        List<BlockDocument> documents,
+        IClientSessionHandle? session = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (session is null)
+        {
+            await _blockCollection.InsertManyAsync(documents);
+        }
+        else
+        {
+            await _blockCollection.InsertManyAsync(session, documents);
+        }
     }
 
     public async Task<BulkWriteResult> UpsertStateDataManyAsync(
         string collectionName,
         List<WriteModel<BsonDocument>> bulkOps,
         IClientSessionHandle? session = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         return session is null
-            ? await GetCollection(collectionName)
-                .BulkWriteAsync(bulkOps, null, cancellationToken)
+            ? await GetCollection(collectionName).BulkWriteAsync(bulkOps, null, cancellationToken)
             : await GetCollection(collectionName)
                 .BulkWriteAsync(session, bulkOps, null, cancellationToken);
     }
@@ -213,18 +232,21 @@ public class MongoDbService
         string collectionName,
         List<SheetDocument> documents,
         IClientSessionHandle? session = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         List<UpdateOneModel<BsonDocument>> bulkOps = [];
         foreach (var document in documents)
         {
-            var stateUpdateModel = await GetSheetDocumentUpdateModelAsync(document, cancellationToken);
+            var stateUpdateModel = await GetSheetDocumentUpdateModelAsync(
+                document,
+                cancellationToken
+            );
             bulkOps.Add(stateUpdateModel);
         }
 
         return session is null
-            ? await GetCollection(collectionName)
-                .BulkWriteAsync(bulkOps, null, cancellationToken)
+            ? await GetCollection(collectionName).BulkWriteAsync(bulkOps, null, cancellationToken)
             : await GetCollection(collectionName)
                 .BulkWriteAsync(session, bulkOps, null, cancellationToken);
     }
@@ -232,13 +254,14 @@ public class MongoDbService
     private UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(
         string collectionName,
         MimirBsonDocument document,
-        bool createInsertionDate = false)
+        bool createInsertionDate = false
+    )
     {
         var json = document.ToJson();
         var bsonDocument = BsonDocument.Parse(json);
         if (createInsertionDate)
         {
-            bsonDocument["InsertionDate"] = DateTime.UtcNow;    
+            bsonDocument["InsertionDate"] = DateTime.UtcNow;
         }
 
         var filter = Builders<BsonDocument>.Filter.Eq("_id", document.Id);
@@ -248,14 +271,16 @@ public class MongoDbService
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
             document.Id,
-            collectionName);
+            collectionName
+        );
 
         return upsertOne;
     }
 
     private async Task<UpdateOneModel<BsonDocument>> GetSheetDocumentUpdateModelAsync(
         SheetDocument document,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var collectionName = CollectionNames.GetCollectionName(document.GetType());
         var rawStateBytes = new Codec().Encode(document.RawState);
@@ -263,7 +288,8 @@ public class MongoDbService
             $"{document.Address.ToHex()}-rawstate",
             rawStateBytes,
             null,
-            cancellationToken);
+            cancellationToken
+        );
 
         var json = MimirBsonDocumentExtensions.ToJson(document);
         var bsonDocument = BsonDocument.Parse(json);
@@ -277,7 +303,8 @@ public class MongoDbService
         _logger.Debug(
             "Address: {Address} - Stored at {CollectionName}",
             document.Address.ToHex(),
-            collectionName);
+            collectionName
+        );
 
         return upsertOne;
     }
