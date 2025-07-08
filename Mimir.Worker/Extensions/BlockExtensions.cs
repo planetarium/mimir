@@ -1,10 +1,16 @@
+using Bencodex;
+using Bencodex.Types;
 using Lib9c.Models.Block;
 using Mimir.Worker.Client;
+using Mimir.Worker.Util;
+using MongoDB.Bson;
 
 namespace Mimir.Worker.Extensions;
 
 public static class BlockExtensions
 {
+    private static readonly Codec Codec = new();
+
     public static Lib9c.Models.Block.Block ToBlockModel(this Client.Block apiBlock)
     {
         return new Lib9c.Models.Block.Block
@@ -14,36 +20,46 @@ public static class BlockExtensions
             Miner = apiBlock.Miner,
             StateRootHash = apiBlock.StateRootHash,
             Timestamp = apiBlock.Timestamp,
-            Transactions = apiBlock.Transactions?.Select(tx => tx.ToTransactionModel()).ToList() ?? new List<Lib9c.Models.Block.Transaction>()
+            Transactions =
+                apiBlock.Transactions?.Select(tx => tx.ToTransactionModel()).ToList()
+                ?? new List<Lib9c.Models.Block.Transaction>(),
         };
     }
 
-    public static Lib9c.Models.Block.Transaction ToTransactionModel(this BlockTransaction apiTransaction)
+    public static Lib9c.Models.Block.Transaction ToTransactionModel(
+        this BlockTransaction apiTransaction
+    )
     {
         return new Lib9c.Models.Block.Transaction
         {
-            Actions = apiTransaction.Actions?.Select(action => action.ToActionModel()).ToList() ?? new List<Lib9c.Models.Block.Action>(),
+            Actions =
+                apiTransaction.Actions?.Select(action => action.ToActionModel()).ToList()
+                ?? new List<Lib9c.Models.Block.Action>(),
             Id = apiTransaction.Id,
             Nonce = apiTransaction.Nonce,
             PublicKey = apiTransaction.PublicKey,
             Signature = apiTransaction.Signature,
             Signer = apiTransaction.Signer,
             Timestamp = apiTransaction.Timestamp,
-            UpdatedAddresses = apiTransaction.UpdatedAddresses ?? new List<string>()
+            UpdatedAddresses = apiTransaction.UpdatedAddresses ?? new List<string>(),
         };
     }
 
     public static Lib9c.Models.Block.Action ToActionModel(this BlockAction apiAction)
     {
+        var (typeId, values, parsedAction) = ActionParser.ParseAction(apiAction.Raw);
+
         return new Lib9c.Models.Block.Action
         {
             Raw = apiAction.Raw,
-            Inspection = apiAction.Inspection
+            TypeId = typeId,
+            Values = values,
         };
     }
 
     public static List<Lib9c.Models.Block.Block> ToBlockModels(this GetBlocksResponse apiResponse)
     {
-        return apiResponse.BlockQuery?.Blocks?.Select(block => block.ToBlockModel()).ToList() ?? new List<Lib9c.Models.Block.Block>();
+        return apiResponse.BlockQuery?.Blocks?.Select(block => block.ToBlockModel()).ToList()
+            ?? new List<Lib9c.Models.Block.Block>();
     }
-} 
+}

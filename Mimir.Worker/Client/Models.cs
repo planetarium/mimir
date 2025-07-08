@@ -90,9 +90,6 @@ public class BlockAction
 {
     [JsonPropertyName("raw")]
     public string Raw { get; set; }
-
-    [JsonPropertyName("inspection")]
-    public string Inspection { get; set; }
 }
 
 public class AccountDiff

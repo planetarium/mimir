@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Bencodex;
+using Libplanet.Crypto;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Serialization;
@@ -156,6 +157,20 @@ public class MongoDbService
 
         var doc = await _metadataCollection.Find(filter).FirstAsync(cancellationToken);
         return doc.LatestBlockIndex;
+    }
+
+    public async Task<bool> IsExistAgentAsync(Address signer)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", signer.ToHex());
+        var count = await GetCollection<AgentDocument>().CountDocumentsAsync(filter);
+        return count > 0;
+    }
+
+    public async Task<bool> IsExistAvatarAsync(Address avatarAddress)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", avatarAddress.ToHex());
+        var count = await GetCollection<AvatarDocument>().CountDocumentsAsync(filter);
+        return count > 0;
     }
 
     public async Task<T?> GetSheetAsync<T>(CancellationToken cancellationToken = default)

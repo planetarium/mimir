@@ -47,15 +47,29 @@ public class StateGetter
 
         if (state is null)
         {
-            throw new StateNotFoundException(
-                avatarAddress,
-                typeof(AvatarState)
-            );
+            throw new StateNotFoundException(avatarAddress, typeof(AvatarState));
         }
 
         var avatarState = new AvatarState(state);
 
         return avatarState;
+    }
+
+    public async Task<AgentState> GetAgentStateAccount(
+        Address agentAddress,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var state = await GetStateWithLegacyAccount(agentAddress, Addresses.Agent, stoppingToken);
+
+        if (state is null)
+        {
+            throw new StateNotFoundException(agentAddress, typeof(AgentState));
+        }
+
+        var agentState = new AgentState(state);
+
+        return agentState;
     }
 
     public async Task<Inventory> GetInventoryState(
@@ -101,7 +115,8 @@ public class StateGetter
 
     public async Task<ProductsState> GetProductsState(
         Address avatarAddress,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var productAddress = Nekoyume.Model.Market.ProductsState.DeriveAddress(avatarAddress);
         var state = await _service.GetState(productAddress, stoppingToken);
@@ -115,7 +130,8 @@ public class StateGetter
 
     public async Task<Product> GetProductState(
         Guid productId,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var productAddress = Nekoyume.Model.Market.Product.DeriveAddress(productId);
         var state = await _service.GetState(productAddress, stoppingToken);
@@ -123,7 +139,7 @@ public class StateGetter
         {
             null => throw new StateNotFoundException(productAddress, typeof(Product)),
             Null => throw new StateIsNullException(productAddress, typeof(Product)),
-            _ => Lib9c.Models.Factories.ProductFactory.DeserializeProduct(state)
+            _ => Lib9c.Models.Factories.ProductFactory.DeserializeProduct(state),
         };
     }
 
@@ -135,17 +151,17 @@ public class StateGetter
         return state switch
         {
             List list => new Nekoyume.Model.State.MarketState(list),
-            _
-                => throw new StateNotFoundException(
-                    Addresses.Market,
-                    typeof(Nekoyume.Model.State.MarketState)
-                )
+            _ => throw new StateNotFoundException(
+                Addresses.Market,
+                typeof(Nekoyume.Model.State.MarketState)
+            ),
         };
     }
 
     public async Task<WorldBossState> GetWorldBossStateAsync(
         Address worldBossAddress,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var state = await _service.GetState(worldBossAddress, stoppingToken);
         if (state is null)
@@ -158,7 +174,8 @@ public class StateGetter
 
     public async Task<RaiderState> GetRaiderStateAsync(
         Address raiderAddress,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var state = await _service.GetState(raiderAddress, stoppingToken);
         if (state is null)
@@ -171,12 +188,16 @@ public class StateGetter
 
     public async Task<WorldBossKillRewardRecord> GetWorldBossKillRewardRecordStateAsync(
         Address worldBossKillRewardRecordAddress,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var state = await _service.GetState(worldBossKillRewardRecordAddress, stoppingToken);
         if (state is null)
         {
-            throw new StateNotFoundException(worldBossKillRewardRecordAddress, typeof(WorldBossKillRewardRecord));
+            throw new StateNotFoundException(
+                worldBossKillRewardRecordAddress,
+                typeof(WorldBossKillRewardRecord)
+            );
         }
 
         return new WorldBossKillRewardRecord(state);
@@ -184,12 +205,14 @@ public class StateGetter
 
     public async Task<AllCombinationSlotState> GetAllCombinationSlotStateAsync(
         Address avatarAddress,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var state = await _service.GetState(
             avatarAddress,
             Addresses.CombinationSlot,
-            stoppingToken);
+            stoppingToken
+        );
         if (state is not null)
         {
             return new AllCombinationSlotState(state);
@@ -199,7 +222,10 @@ public class StateGetter
         var allCombinationSlotState = new AllCombinationSlotState();
         for (var i = 0; i < Nekoyume.Model.State.AvatarState.DefaultCombinationSlotCount; i++)
         {
-            var slotAddress = Nekoyume.Model.State.CombinationSlotState.DeriveAddress(avatarAddress, i);
+            var slotAddress = Nekoyume.Model.State.CombinationSlotState.DeriveAddress(
+                avatarAddress,
+                i
+            );
             var combinationSlotState = await _service.GetState(slotAddress, stoppingToken);
             if (combinationSlotState is null)
             {
@@ -211,7 +237,9 @@ public class StateGetter
             }
             else
             {
-                allCombinationSlotState.CombinationSlots[i] = new CombinationSlotState(combinationSlotState)
+                allCombinationSlotState.CombinationSlots[i] = new CombinationSlotState(
+                    combinationSlotState
+                )
                 {
                     Index = i,
                 };
@@ -235,10 +263,11 @@ public class StateGetter
 
         return new PetState(state);
     }
-    
+
     public async Task<IEnumerable<PetState>> GetPetStates(
         Address[] petStateAddresses,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         var states = await _service.GetStates(petStateAddresses, stoppingToken);
         return states.Select(e => new PetState(e));

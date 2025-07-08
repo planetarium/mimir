@@ -14,8 +14,7 @@ public static class GraphQLQueries
                     timestamp
                     transactions {
                         actions {
-                        raw
-                        inspection
+                            raw
                         }
                         id
                         nonce
