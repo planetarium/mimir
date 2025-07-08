@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Lib9c.GraphQL.Types;
+using Lib9c.Models.Block;
 using Libplanet.Common;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
@@ -92,6 +93,8 @@ builder
     .BindRuntimeType(typeof(Address), typeof(AddressType))
     .BindRuntimeType(typeof(BigInteger), typeof(BigIntegerType))
     .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
+    .BindRuntimeType(typeof(Lib9c.Models.Block.Action), typeof(Lib9c.GraphQL.Types.ActionType))
+    .BindRuntimeType(typeof(MongoDB.Bson.BsonDocument), typeof(Lib9c.GraphQL.Types.BsonDocumentType))
     .ModifyRequestOptions(requestExecutorOptions =>
     {
         requestExecutorOptions.IncludeExceptionDetails = true;
