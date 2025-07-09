@@ -2,6 +2,7 @@ using Bencodex;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
+using Libplanet.Types.Tx;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
@@ -23,7 +24,7 @@ public class BlockHandler(
     public const string PollerType = "BlockPoller";
     public const string collectionName = "block";
     private readonly StateGetter StateGetter = stateService.At();
-    private const int LIMIT = 15;
+    private const int LIMIT = 50;
 
     private readonly ILogger Logger = Log.ForContext<BlockHandler>();
 
@@ -70,7 +71,10 @@ public class BlockHandler(
                 }
 
                 if (documents.Count > 0)
+                {
+                    await UpdateTransactionStatuses(documents, stoppingToken);
                     await dbService.InsertBlocksManyAsync(documents);
+                }
 
                 await dbService.UpdateLatestBlockIndexAsync(
                     new MetadataDocument
@@ -233,5 +237,56 @@ public class BlockHandler(
             CollectionNames.GetCollectionName<AvatarDocument>(),
             [document]
         );
+    }
+
+    private async Task UpdateTransactionStatuses(List<BlockDocument> documents, CancellationToken stoppingToken)
+    {
+        var allTxIds = new List<TxId>();
+        var txIdToDocumentMap = new Dictionary<TxId, (BlockDocument document, int transactionIndex)>();
+
+        foreach (var document in documents)
+        {
+            for (int i = 0; i < document.Object.Transactions.Count; i++)
+            {
+                var transaction = document.Object.Transactions[i];
+                var txId = new TxId(Convert.FromHexString(transaction.Id));
+                allTxIds.Add(txId);
+                txIdToDocumentMap[txId] = (document, i);
+            }
+        }
+
+        if (allTxIds.Count == 0)
+            return;
+
+        try
+        {
+            var (statusResponse, _) = await headlessGqlClient.GetTransactionStatusesAsync(allTxIds, stoppingToken);
+            
+            if (statusResponse.Transaction?.TransactionResults != null)
+            {
+                for (int i = 0; i < statusResponse.Transaction.TransactionResults.Count && i < allTxIds.Count; i++)
+                {
+                    var txId = allTxIds[i];
+                    var status = statusResponse.Transaction.TransactionResults[i];
+                    
+                    if (txIdToDocumentMap.TryGetValue(txId, out var mapping))
+                    {
+                        var (document, transactionIndex) = mapping;
+                        var transaction = document.Object.Transactions[transactionIndex];
+                        
+                        transaction.TxStatus = ConvertToLib9cTxStatus(status.TxStatus);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warning(ex, "Failed to update transaction statuses for {Count} transactions", allTxIds.Count);
+        }
+    }
+
+    private static Lib9c.Models.Block.TxStatus ConvertToLib9cTxStatus(Lib9c.Models.Block.TxStatus clientStatus)
+    {
+        return clientStatus;
     }
 }

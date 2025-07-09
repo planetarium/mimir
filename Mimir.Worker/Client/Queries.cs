@@ -27,6 +27,7 @@ public static class GraphQLQueries
                     }
                 }
             }";
+
     public const string GetAccountDiffs =
         @"
             query GetAccountDiffs($baseIndex: Long!, $changedIndex: Long!, $accountAddress: Address!) {
@@ -34,6 +35,17 @@ public static class GraphQLQueries
                     path
                     baseState
                     changedState
+                }
+            }";
+
+    public const string GetTransactionStatus =
+        @"
+            query GetTransactionStatuses($txIds: [TxId]!) {
+                transaction {
+                    transactionResults(txIds: $txIds) {
+                        txStatus
+                        exceptionNames
+                    }
                 }
             }";
 

@@ -1,11 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using BitFaster.Caching;
 using BitFaster.Caching.Lru;
 using Libplanet.Crypto;
+using Libplanet.Types.Tx;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -28,16 +29,18 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     private const int RetryAttempts = 3;
     private const int DelayInSeconds = 5;
 
-    public HeadlessGQLClient(Uri[] urls, string? issuer, string? secret)
+    public HeadlessGQLClient(HttpClient httpClient, Uri[] urls, string? issuer, string? secret)
     {
-        _httpClient = new HttpClient();
+        _httpClient = httpClient;
         _urls = urls;
         _issuer = issuer;
         _secret = secret;
         _logger = Log.ForContext<HeadlessGQLClient>();
-
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
     }
+
+    public HeadlessGQLClient(Uri[] urls, string? issuer, string? secret)
+        : this(new HttpClient(), urls, issuer, secret) { }
 
     private string GenerateJwtToken(string secret, string issuer)
     {
@@ -83,7 +86,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         attempt + 1
                     );
                     var request = new GraphQLRequest { Query = query, Variables = variables };
-                    var jsonRequest = JsonSerializer.Serialize(request);
+                    var jsonRequest = JsonConvert.SerializeObject(request);
                     var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
                     using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
@@ -104,7 +107,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                     response.EnsureSuccessStatusCode();
 
                     var jsonResponse = await response.Content.ReadAsStringAsync(stoppingToken);
-                    var graphQLResponse = JsonSerializer.Deserialize<GraphQLResponse<T>>(
+                    var graphQLResponse = JsonConvert.DeserializeObject<GraphQLResponse<T>>(
                         jsonResponse
                     );
 
@@ -144,15 +147,15 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         ex
                     );
                 }
-                catch (Exception ex)
-                {
-                    logger.Debug(
-                        "Unexpected error occurred: {Url}, retry: {Retry}, error:\n{Errors}",
-                        url,
-                        attempt + 1,
-                        ex
-                    );
-                }
+                // catch (Exception ex)
+                // {
+                //     logger.Debug(
+                //         "Unexpected error occurred: {Url}, retry: {Retry}, error:\n{Errors}",
+                //         url,
+                //         attempt + 1,
+                //         ex
+                //     );
+                // }
             }
 
             logger.Information(
@@ -269,6 +272,19 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             stoppingToken,
             null,
             true
+        );
+    }
+
+    public async Task<(
+        GetTransactionStatusesResponse response,
+        string jsonResponse
+    )> GetTransactionStatusesAsync(List<TxId> txIds, CancellationToken stoppingToken = default)
+    {
+        return await PostGraphQLRequestAsync<GetTransactionStatusesResponse>(
+            GraphQLQueries.GetTransactionStatus,
+            new { txIds = txIds.Select((txId) => txId.ToString()).ToList() },
+            stoppingToken,
+            null
         );
     }
 }
