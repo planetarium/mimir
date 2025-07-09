@@ -1,3 +1,4 @@
+using HotChocolate;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
@@ -7,8 +8,8 @@ namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record WorldBossStateDocument(
-    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
-    [property: BsonIgnore, JsonIgnore] Address Address,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] Address Address,
     int RaidId,
     WorldBossState Object
 ) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));

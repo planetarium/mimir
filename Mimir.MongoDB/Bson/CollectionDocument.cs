@@ -1,3 +1,4 @@
+using HotChocolate;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
@@ -11,7 +12,7 @@ namespace Mimir.MongoDB.Bson;
 /// <param name="Object"></param>
 [BsonIgnoreExtraElements]
 public record CollectionDocument(
-    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
-    [property: BsonIgnore, JsonIgnore] Address Address,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] Address Address,
     CollectionState Object
 ) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex));
