@@ -1,0 +1,30 @@
+﻿{
+  "data": {
+    "blocks": {
+      "items": [
+        {
+          "object": {
+            "index": 6494611,
+            "hash": "blockHash1",
+            "miner": "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7",
+            "stateRootHash": "stateRootHash1",
+            "timestamp": "2024-01-01T00:00:00Z"
+          }
+        },
+        {
+          "object": {
+            "index": 6494610,
+            "hash": "blockHash2",
+            "miner": "0x99cAFD096f81F722ad099e154A2000dA482c0B89",
+            "stateRootHash": "stateRootHash2",
+            "timestamp": "2024-01-01T00:00:01Z"
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false,
+        "hasPreviousPage": false
+      }
+    }
+  }
+}

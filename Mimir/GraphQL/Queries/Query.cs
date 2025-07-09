@@ -133,8 +133,18 @@ public class Query
     /// </summary>
     /// <param name="index">Block index.</param>
     /// <returns>The Block Information</returns>
-    public async Task<BlockDocument> GetBlockAsync(long index, [Service] IBlockRepository repo) =>
-        (await repo.GetByIndexAsync(index));
+    public async Task<BlockDocument> GetBlockAsync(
+        long index,
+        [Service] IBlockRepository repo
+    ) => (await repo.GetByIndexAsync(index));
+
+    /// <summary>
+    /// Get blocks with pagination support.
+    /// </summary>
+    /// <returns>Paginated list of blocks</returns>
+    public IExecutable<BlockDocument> GetBlocksAsync(
+        [Service] IBlockRepository repo
+    ) => repo.Get();
 
     /// <summary>
     /// Get an pet state by avatar address.
