@@ -5,6 +5,7 @@ using System.Text.Json;
 using BitFaster.Caching;
 using BitFaster.Caching.Lru;
 using Libplanet.Crypto;
+using Libplanet.Types.Tx;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using ILogger = Serilog.ILogger;
@@ -28,15 +29,19 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     private const int RetryAttempts = 3;
     private const int DelayInSeconds = 5;
 
-    public HeadlessGQLClient(Uri[] urls, string? issuer, string? secret)
+    public HeadlessGQLClient(HttpClient httpClient, Uri[] urls, string? issuer, string? secret)
     {
-        _httpClient = new HttpClient();
+        _httpClient = httpClient;
         _urls = urls;
         _issuer = issuer;
         _secret = secret;
         _logger = Log.ForContext<HeadlessGQLClient>();
-
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
+    }
+
+    public HeadlessGQLClient(Uri[] urls, string? issuer, string? secret)
+        : this(new HttpClient(), urls, issuer, secret)
+    {
     }
 
     private string GenerateJwtToken(string secret, string issuer)
@@ -269,6 +274,21 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             stoppingToken,
             null,
             true
+        );
+    }
+
+    public async Task<(GetTransactionStatusResponse response, string jsonResponse)> GetTransactionStatusAsync(
+        TxId txid,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var contextualLogger = _logger.ForContext("TxId", txid);
+
+        return await PostGraphQLRequestAsync<GetTransactionStatusResponse>(
+            GraphQLQueries.GetTransactionStatus,
+            new { txId = txid },
+            stoppingToken,
+            contextualLogger
         );
     }
 }

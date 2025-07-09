@@ -3,6 +3,15 @@ using System.Text.Json.Serialization;
 
 namespace Mimir.Worker.Client;
 
+public enum TxStatus
+{
+    INVALID,
+    STAGING,
+    SUCCESS,
+    FAILURE,
+    INCLUDED
+}
+
 public class GraphQLRequest
 {
     [JsonPropertyName("query")]
@@ -159,4 +168,25 @@ public class Action
 {
     [JsonPropertyName("raw")]
     public string Raw { get; set; }
+}
+
+public class GetTransactionStatusResponse
+{
+    [JsonPropertyName("transaction")]
+    public TransactionStatusResponse? Transaction { get; set; }
+}
+
+public class TransactionStatusResponse
+{
+    [JsonPropertyName("transactionResult")]
+    public TransactionResult? TransactionResult { get; set; }
+}
+
+public class TransactionResult
+{
+    [JsonPropertyName("txStatus")]
+    public TxStatus TxStatus { get; set; }
+
+    [JsonPropertyName("exceptionNames")]
+    public List<string?> ExceptionNames { get; set; }
 }

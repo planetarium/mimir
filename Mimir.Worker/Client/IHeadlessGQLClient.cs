@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Libplanet.Types.Tx;
 
 namespace Mimir.Worker.Client;
 
@@ -20,6 +21,10 @@ public interface IHeadlessGQLClient
     Task<(GetStateResponse response, string jsonResponse)> GetStateAsync(
         Address accountAddress,
         Address address,
+        CancellationToken stoppingToken
+    );
+    Task<(GetTransactionStatusResponse response, string jsonResponse)> GetTransactionStatusAsync(
+        TxId txid,
         CancellationToken stoppingToken
     );
     Task<GetTransactionsResponse> GetTransactionsAsync(
