@@ -2,6 +2,7 @@ using System.Text.Json;
 using Lib9c.Models.Block;
 using MongoDB.Bson;
 using Xunit;
+using Libplanet.Crypto;
 
 public class BlockTest
 {
@@ -14,7 +15,7 @@ public class BlockTest
             Nonce = 1,
             PublicKey = "pubkey",
             Signature = "sig",
-            Signer = "signer",
+            Signer = new Address("0x0000000000000000000000000000000000000000"),
             Timestamp = "2024-01-01T00:00:00Z",
             UpdatedAddresses = new List<string> { "addr1", "addr2" },
             Actions = new List<Lib9c.Models.Block.Action>
@@ -31,7 +32,7 @@ public class BlockTest
         {
             Index = 123,
             Hash = "blockhash",
-            Miner = "miner",
+            Miner = new Address("0x0000000000000000000000000000000000000000"),
             StateRootHash = "stateroot",
             Timestamp = "2024-01-01T00:00:00Z",
             Transactions = new List<Transaction> { tx },
@@ -39,7 +40,7 @@ public class BlockTest
 
         Assert.Equal(123, block.Index);
         Assert.Equal("blockhash", block.Hash);
-        Assert.Equal("miner", block.Miner);
+        Assert.Equal(new Address("0x0000000000000000000000000000000000000000"), block.Miner);
         Assert.Equal("stateroot", block.StateRootHash);
         Assert.Equal("2024-01-01T00:00:00Z", block.Timestamp);
         Assert.Single(block.Transactions);
@@ -57,7 +58,7 @@ public class BlockTest
         {
             Index = 1,
             Hash = "h",
-            Miner = "m",
+            Miner = new Address("0x0000000000000000000000000000000000000000"),
             StateRootHash = "s",
             Timestamp = "t",
             Transactions = new List<Transaction>(),

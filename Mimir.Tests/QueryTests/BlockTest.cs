@@ -3,6 +3,7 @@ using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Repositories;
 using Moq;
 using MongoDB.Bson;
+using Libplanet.Crypto;
 
 namespace Mimir.Tests.QueryTests;
 
@@ -13,7 +14,7 @@ public class BlockTest
     {
         var blockIndex = 6494625L;
         var blockHash = "348245059ff5695b67077d42a4c43327ebcd876f899e2a99de604e9db3eca04f";
-        var miner = "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7";
+        var miner = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7");
         var stateRootHash = "830dfa32f49e7aa8b72a792fbc7654b1aaa0b6be1a8f060648cc8a2911983249";
         var timestamp = "2025-07-07T14:16:28.289321+00:00";
 
@@ -25,7 +26,7 @@ public class BlockTest
                 Nonce = 5795,
                 PublicKey = "024ec1d362481abf7e630295b3e8ca57f754fa00d43f77fc45063a15e9630de4c5",
                 Signature = "3045022100a9072c765b0a19e5b13d2ea3affe3f98deb029a32182e5257b25340ede9771540220123f140ab6b1605efca6ba760c3eb8ea281e8d747a2095476d45579d93c40cb6",
-                Signer = "0x99cAFD096f81F722ad099e154A2000dA482c0B89",
+                Signer = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
                 Timestamp = "2025-07-07T14:16:22.901456+00:00",
                 UpdatedAddresses = new List<string>(),
                 Actions = new List<Lib9c.Models.Block.Action>
@@ -44,7 +45,7 @@ public class BlockTest
                 Nonce = 1282,
                 PublicKey = "03244737ffe0f6795721101ce96e3a14f64214d7472560a34f02fa275a634b0a4c",
                 Signature = "3045022100d8c33dd7a5e3758707a970458aa2bc0385c8ee9d0c1852dc14a3937809fe862002201c7ec6633147d2396ed02e5ef2cd13bed374505a0b631be9cc257e1e9ba5217c",
-                Signer = "0x915Ee99b1132836644135326EEEA6d3EA86576Df",
+                Signer = new Address("0x915Ee99b1132836644135326EEEA6d3EA86576Df"),
                 Timestamp = "2025-07-07T14:16:14.463466+00:00",
                 UpdatedAddresses = new List<string>(),
                 Actions = new List<Lib9c.Models.Block.Action>
@@ -81,23 +82,25 @@ public class BlockTest
         var query = $$"""
                       query {
                         block(index: {{blockIndex}}) {
-                          hash
-                          index
-                          miner
-                          stateRootHash
-                          timestamp
-                          transactions {
-                            id
-                            nonce
-                            publicKey
-                            signature
-                            signer
+                          object {
+                            hash
+                            index
+                            miner
+                            stateRootHash
                             timestamp
-                            updatedAddresses
-                            actions {
-                              raw
-                              typeId
-                              values
+                            transactions {
+                              id
+                              nonce
+                              publicKey
+                              signature
+                              signer
+                              timestamp
+                              updatedAddresses
+                              actions {
+                                raw
+                                typeId
+                                values
+                              }
                             }
                           }
                         }

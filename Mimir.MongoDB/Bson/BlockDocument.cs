@@ -1,6 +1,7 @@
 using Lib9c.Models.Block;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
+using HotChocolate;
 
 namespace Mimir.MongoDB.Bson;
 
@@ -10,7 +11,7 @@ namespace Mimir.MongoDB.Bson;
 /// <param name="Object"></param>
 [BsonIgnoreExtraElements]
 public record BlockDocument(
-    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
-    [property: BsonIgnore, JsonIgnore] string BlockHash,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] string BlockHash,
     Block Object
 ) : MimirBsonDocument(BlockHash, new DocumentMetadata(1, StoredBlockIndex));

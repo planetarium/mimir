@@ -92,7 +92,7 @@ public class BlockHandler(
                     foreach (var transaction in document.Object.Transactions)
                     {
                         await InsertAgentIfNotExist(
-                            new Address(transaction.Signer),
+                            transaction.Signer,
                             currentTargetIndex
                         );
 

@@ -133,10 +133,8 @@ public class Query
     /// </summary>
     /// <param name="index">Block index.</param>
     /// <returns>The Block Information</returns>
-    public async Task<Block> GetBlockAsync(
-        long index,
-        [Service] IBlockRepository repo
-    ) => (await repo.GetByIndexAsync(index)).Object;
+    public async Task<BlockDocument> GetBlockAsync(long index, [Service] IBlockRepository repo) =>
+        (await repo.GetByIndexAsync(index));
 
     /// <summary>
     /// Get an pet state by avatar address.

@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongo:4
+    image: mongo:8
     hostname: mongo
     restart: always
     environment:
