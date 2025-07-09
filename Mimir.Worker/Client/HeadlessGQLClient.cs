@@ -1,12 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using BitFaster.Caching;
 using BitFaster.Caching.Lru;
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -40,9 +40,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
     }
 
     public HeadlessGQLClient(Uri[] urls, string? issuer, string? secret)
-        : this(new HttpClient(), urls, issuer, secret)
-    {
-    }
+        : this(new HttpClient(), urls, issuer, secret) { }
 
     private string GenerateJwtToken(string secret, string issuer)
     {
@@ -88,7 +86,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         attempt + 1
                     );
                     var request = new GraphQLRequest { Query = query, Variables = variables };
-                    var jsonRequest = JsonSerializer.Serialize(request);
+                    var jsonRequest = JsonConvert.SerializeObject(request);
                     var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
                     using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
@@ -109,7 +107,7 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                     response.EnsureSuccessStatusCode();
 
                     var jsonResponse = await response.Content.ReadAsStringAsync(stoppingToken);
-                    var graphQLResponse = JsonSerializer.Deserialize<GraphQLResponse<T>>(
+                    var graphQLResponse = JsonConvert.DeserializeObject<GraphQLResponse<T>>(
                         jsonResponse
                     );
 
@@ -149,15 +147,15 @@ public class HeadlessGQLClient : IHeadlessGQLClient
                         ex
                     );
                 }
-                catch (Exception ex)
-                {
-                    logger.Debug(
-                        "Unexpected error occurred: {Url}, retry: {Retry}, error:\n{Errors}",
-                        url,
-                        attempt + 1,
-                        ex
-                    );
-                }
+                // catch (Exception ex)
+                // {
+                //     logger.Debug(
+                //         "Unexpected error occurred: {Url}, retry: {Retry}, error:\n{Errors}",
+                //         url,
+                //         attempt + 1,
+                //         ex
+                //     );
+                // }
             }
 
             logger.Information(
@@ -277,18 +275,16 @@ public class HeadlessGQLClient : IHeadlessGQLClient
         );
     }
 
-    public async Task<(GetTransactionStatusResponse response, string jsonResponse)> GetTransactionStatusAsync(
-        TxId txid,
-        CancellationToken stoppingToken = default
-    )
+    public async Task<(
+        GetTransactionStatusesResponse response,
+        string jsonResponse
+    )> GetTransactionStatusesAsync(List<TxId> txIds, CancellationToken stoppingToken = default)
     {
-        var contextualLogger = _logger.ForContext("TxId", txid);
-
-        return await PostGraphQLRequestAsync<GetTransactionStatusResponse>(
+        return await PostGraphQLRequestAsync<GetTransactionStatusesResponse>(
             GraphQLQueries.GetTransactionStatus,
-            new { txId = txid },
+            new { txIds = txIds.Select((txId) => txId.ToString()).ToList() },
             stoppingToken,
-            contextualLogger
+            null
         );
     }
 }

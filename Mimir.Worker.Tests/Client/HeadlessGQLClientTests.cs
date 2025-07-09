@@ -1,28 +1,38 @@
 using System.Net;
-using System.Text.Json;
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
 using Mimir.Worker.Client;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using System.Text;
+using Newtonsoft.Json;
+using Lib9c.Models.Block;
 
 namespace Mimir.Worker.Tests.Client;
 
 public class HeadlessGQLClientTests
 {
     [Fact]
-    public async Task GetTransactionStatusAsync_ReturnsCorrectResponse()
+    public async Task GetTransactionStatusesAsync_ReturnsCorrectResponse()
     {
-        var txId = new TxId(new byte[32]);
-        var expectedResponse = new GetTransactionStatusResponse
+        var txIds = new List<TxId> { new TxId(new byte[32]), new TxId(new byte[32]) };
+        var expectedResponse = new GetTransactionStatusesResponse
         {
             Transaction = new TransactionStatusResponse
             {
-                TransactionResult = new TransactionResult
+                TransactionResults = new List<TransactionResult>
                 {
-                    TxStatus = TxStatus.SUCCESS,
-                    ExceptionNames = new List<string?> { null, null, null, null }
+                    new TransactionResult
+                    {
+                        TxStatus = TxStatus.SUCCESS,
+                        ExceptionNames = new List<string?> { null, null }
+                    },
+                    new TransactionResult
+                    {
+                        TxStatus = TxStatus.FAILURE,
+                        ExceptionNames = new List<string?> { "Exception1" }
+                    }
                 }
             }
         };
@@ -38,7 +48,7 @@ public class HeadlessGQLClientTests
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(JsonSerializer.Serialize(new GraphQLResponse<GetTransactionStatusResponse>
+                Content = new StringContent(JsonConvert.SerializeObject(new GraphQLResponse<GetTransactionStatusesResponse>
                 {
                     Data = expectedResponse
                 }))
@@ -48,29 +58,25 @@ public class HeadlessGQLClientTests
         var urls = new[] { new Uri("http://localhost:8080") };
         var client = new HeadlessGQLClient(httpClient, urls, null, null);
 
-        var (response, jsonResponse) = await client.GetTransactionStatusAsync(txId, CancellationToken.None);
+        var (response, jsonResponse) = await client.GetTransactionStatusesAsync(txIds, CancellationToken.None);
 
         Assert.NotNull(response);
         Assert.NotNull(response.Transaction);
-        Assert.NotNull(response.Transaction.TransactionResult);
-        Assert.Equal(TxStatus.SUCCESS, response.Transaction.TransactionResult.TxStatus);
-        Assert.Equal(4, response.Transaction.TransactionResult.ExceptionNames.Count);
-        Assert.All(response.Transaction.TransactionResult.ExceptionNames, exception => Assert.Null(exception));
+        Assert.NotNull(response.Transaction.TransactionResults);
+        Assert.Equal(2, response.Transaction.TransactionResults.Count);
+        Assert.Equal(TxStatus.SUCCESS, response.Transaction.TransactionResults[0].TxStatus);
+        Assert.Equal(TxStatus.FAILURE, response.Transaction.TransactionResults[1].TxStatus);
     }
 
     [Fact]
-    public async Task GetTransactionStatusAsync_WithFailureStatus_ReturnsCorrectResponse()
+    public async Task GetTransactionStatusesAsync_WithEmptyList_ReturnsCorrectResponse()
     {
-        var txId = new TxId(new byte[32]);
-        var expectedResponse = new GetTransactionStatusResponse
+        var txIds = new List<TxId>();
+        var expectedResponse = new GetTransactionStatusesResponse
         {
             Transaction = new TransactionStatusResponse
             {
-                TransactionResult = new TransactionResult
-                {
-                    TxStatus = TxStatus.FAILURE,
-                    ExceptionNames = new List<string?> { "Exception1", "Exception2" }
-                }
+                TransactionResults = new List<TransactionResult>()
             }
         };
 
@@ -85,7 +91,7 @@ public class HeadlessGQLClientTests
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(JsonSerializer.Serialize(new GraphQLResponse<GetTransactionStatusResponse>
+                Content = new StringContent(JsonConvert.SerializeObject(new GraphQLResponse<GetTransactionStatusesResponse>
                 {
                     Data = expectedResponse
                 }))
@@ -95,21 +101,18 @@ public class HeadlessGQLClientTests
         var urls = new[] { new Uri("http://localhost:8080") };
         var client = new HeadlessGQLClient(httpClient, urls, null, null);
 
-        var (response, jsonResponse) = await client.GetTransactionStatusAsync(txId, CancellationToken.None);
+        var (response, jsonResponse) = await client.GetTransactionStatusesAsync(txIds, CancellationToken.None);
 
         Assert.NotNull(response);
         Assert.NotNull(response.Transaction);
-        Assert.NotNull(response.Transaction.TransactionResult);
-        Assert.Equal(TxStatus.FAILURE, response.Transaction.TransactionResult.TxStatus);
-        Assert.Equal(2, response.Transaction.TransactionResult.ExceptionNames.Count);
-        Assert.Equal("Exception1", response.Transaction.TransactionResult.ExceptionNames[0]);
-        Assert.Equal("Exception2", response.Transaction.TransactionResult.ExceptionNames[1]);
+        Assert.NotNull(response.Transaction.TransactionResults);
+        Assert.Empty(response.Transaction.TransactionResults);
     }
 
     [Fact]
-    public async Task GetTransactionStatusAsync_WithNullResponse_ThrowsException()
+    public async Task GetTransactionStatusesAsync_WithNullResponse_ThrowsException()
     {
-        var txId = new TxId(new byte[32]);
+        var txIds = new List<TxId> { new TxId(new byte[32]) };
 
         var mockHttpHandler = new Mock<HttpMessageHandler>();
         mockHttpHandler
@@ -122,7 +125,7 @@ public class HeadlessGQLClientTests
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(JsonSerializer.Serialize(new GraphQLResponse<GetTransactionStatusResponse>
+                Content = new StringContent(JsonConvert.SerializeObject(new GraphQLResponse<GetTransactionStatusesResponse>
                 {
                     Data = null
                 }))
@@ -133,6 +136,63 @@ public class HeadlessGQLClientTests
         var client = new HeadlessGQLClient(httpClient, urls, null, null);
 
         await Assert.ThrowsAsync<HttpRequestException>(() => 
-            client.GetTransactionStatusAsync(txId, CancellationToken.None));
+            client.GetTransactionStatusesAsync(txIds, CancellationToken.None));
+    }
+
+    [Fact]
+    public void TxStatus_Enum_Serialization_Deserialization_Works_Correctly()
+    {
+        var transactionResult = new TransactionResult
+        {
+            TxStatus = TxStatus.SUCCESS,
+            ExceptionNames = new List<string?> { "TestException" }
+        };
+
+        var response = new GetTransactionStatusesResponse
+        {
+            Transaction = new TransactionStatusResponse
+            {
+                TransactionResults = new List<TransactionResult> { transactionResult }
+            }
+        };
+
+        var json = JsonConvert.SerializeObject(response);
+        var deserializedResponse = JsonConvert.DeserializeObject<GetTransactionStatusesResponse>(json);
+
+        Assert.NotNull(deserializedResponse);
+        Assert.NotNull(deserializedResponse.Transaction);
+        Assert.NotNull(deserializedResponse.Transaction.TransactionResults);
+        Assert.Single(deserializedResponse.Transaction.TransactionResults);
+        Assert.Equal(TxStatus.SUCCESS, deserializedResponse.Transaction.TransactionResults[0].TxStatus);
+    }
+
+    [Theory]
+    [InlineData("INVALID", TxStatus.INVALID)]
+    [InlineData("STAGING", TxStatus.STAGING)]
+    [InlineData("SUCCESS", TxStatus.SUCCESS)]
+    [InlineData("FAILURE", TxStatus.FAILURE)]
+    [InlineData("INCLUDED", TxStatus.INCLUDED)]
+    public void TxStatus_Enum_Deserialization_From_String_Works_Correctly(string statusString, TxStatus expectedStatus)
+    {
+        var json = $"{{\"txStatus\":\"{statusString}\",\"exceptionNames\":[]}}";
+        var transactionResult = JsonConvert.DeserializeObject<TransactionResult>(json);
+
+        Assert.NotNull(transactionResult);
+        Assert.Equal(expectedStatus, transactionResult.TxStatus);
+    }
+
+    [Fact]
+    public void TxStatus_Enum_Serialization_To_String_Works_Correctly()
+    {
+        var transactionResult = new TransactionResult
+        {
+            TxStatus = TxStatus.FAILURE,
+            ExceptionNames = new List<string?>()
+        };
+
+        var json = JsonConvert.SerializeObject(transactionResult);
+        var expectedJson = "{\"txStatus\":\"FAILURE\",\"exceptionNames\":[]}";
+
+        Assert.Equal(expectedJson, json);
     }
 } 

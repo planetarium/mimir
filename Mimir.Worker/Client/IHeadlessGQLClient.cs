@@ -23,8 +23,8 @@ public interface IHeadlessGQLClient
         Address address,
         CancellationToken stoppingToken
     );
-    Task<(GetTransactionStatusResponse response, string jsonResponse)> GetTransactionStatusAsync(
-        TxId txid,
+    Task<(GetTransactionStatusesResponse response, string jsonResponse)> GetTransactionStatusesAsync(
+        List<TxId> txIds,
         CancellationToken stoppingToken
     );
     Task<GetTransactionsResponse> GetTransactionsAsync(

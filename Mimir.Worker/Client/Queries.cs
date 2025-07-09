@@ -40,11 +40,11 @@ public static class GraphQLQueries
 
     public const string GetTransactionStatus =
         @"
-            query GetTransactionStatus($txId: TxId!) {
+            query GetTransactionStatuses($txIds: [TxId]!) {
                 transaction {
-                        transactionResult(txId: $txId) {
-                            txStatus
-                            exceptionNames
+                    transactionResults(txIds: $txIds) {
+                        txStatus
+                        exceptionNames
                     }
                 }
             }";

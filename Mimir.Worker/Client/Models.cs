@@ -1,192 +1,185 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Lib9c.Models.Block;
 
 namespace Mimir.Worker.Client;
 
-public enum TxStatus
-{
-    INVALID,
-    STAGING,
-    SUCCESS,
-    FAILURE,
-    INCLUDED
-}
-
 public class GraphQLRequest
 {
-    [JsonPropertyName("query")]
+    [JsonProperty("query")]
     public required string Query { get; set; }
 
-    [JsonPropertyName("variables")]
+    [JsonProperty("variables")]
     public object? Variables { get; set; }
 }
 
 public class GraphQLResponse<T>
 {
-    [JsonPropertyName("data")]
+    [JsonProperty("data")]
     public T? Data { get; set; }
 
-    public JsonElement[]? Errors { get; set; }
+    [JsonProperty("errors")]
+    public object[]? Errors { get; set; }
 }
 
 public class GetAccountDiffsResponse
 {
-    [JsonPropertyName("accountDiffs")]
+    [JsonProperty("accountDiffs")]
     public List<AccountDiff> AccountDiffs { get; set; }
 }
 
 public class GetBlocksResponse
 {
-    [JsonPropertyName("blockQuery")]
+    [JsonProperty("blockQuery")]
     public BlockQuery BlockQuery { get; set; }
 }
 
 public class BlockQuery
 {
-    [JsonPropertyName("blocks")]
+    [JsonProperty("blocks")]
     public List<Block> Blocks { get; set; }
 }
 
 public class Block
 {
-    [JsonPropertyName("index")]
+    [JsonProperty("index")]
     public long Index { get; set; }
 
-    [JsonPropertyName("hash")]
+    [JsonProperty("hash")]
     public string Hash { get; set; }
 
-    [JsonPropertyName("miner")]
+    [JsonProperty("miner")]
     public string Miner { get; set; }
 
-    [JsonPropertyName("stateRootHash")]
+    [JsonProperty("stateRootHash")]
     public string StateRootHash { get; set; }
 
-    [JsonPropertyName("timestamp")]
+    [JsonProperty("timestamp")]
     public string Timestamp { get; set; }
 
-    [JsonPropertyName("transactions")]
+    [JsonProperty("transactions")]
     public List<BlockTransaction> Transactions { get; set; }
 }
 
 public class BlockTransaction
 {
-    [JsonPropertyName("actions")]
+    [JsonProperty("actions")]
     public List<BlockAction> Actions { get; set; }
 
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonPropertyName("nonce")]
+    [JsonProperty("nonce")]
     public long Nonce { get; set; }
 
-    [JsonPropertyName("publicKey")]
+    [JsonProperty("publicKey")]
     public string PublicKey { get; set; }
 
-    [JsonPropertyName("signature")]
+    [JsonProperty("signature")]
     public string Signature { get; set; }
 
-    [JsonPropertyName("signer")]
+    [JsonProperty("signer")]
     public string Signer { get; set; }
 
-    [JsonPropertyName("timestamp")]
+    [JsonProperty("timestamp")]
     public string Timestamp { get; set; }
 
-    [JsonPropertyName("updatedAddresses")]
+    [JsonProperty("updatedAddresses")]
     public List<string> UpdatedAddresses { get; set; }
 }
 
 public class BlockAction
 {
-    [JsonPropertyName("raw")]
+    [JsonProperty("raw")]
     public string Raw { get; set; }
 }
 
 public class AccountDiff
 {
-    [JsonPropertyName("path")]
+    [JsonProperty("path")]
     public string Path { get; set; }
 
-    [JsonPropertyName("baseState")]
+    [JsonProperty("baseState")]
     public string BaseState { get; set; }
 
-    [JsonPropertyName("changedState")]
+    [JsonProperty("changedState")]
     public string ChangedState { get; set; }
 }
 
 public class GetTipResponse
 {
-    [JsonPropertyName("nodeStatus")]
+    [JsonProperty("nodeStatus")]
     public NodeStatus NodeStatus { get; set; }
 }
 
 public class NodeStatus
 {
-    [JsonPropertyName("tip")]
+    [JsonProperty("tip")]
     public Tip Tip { get; set; }
 }
 
 public class Tip
 {
-    [JsonPropertyName("index")]
+    [JsonProperty("index")]
     public long Index { get; set; }
 }
 
 public class GetStateResponse
 {
-    [JsonPropertyName("state")]
+    [JsonProperty("state")]
     public string? State { get; set; }
 }
 
 public class GetTransactionsResponse
 {
-    [JsonPropertyName("transaction")]
+    [JsonProperty("transaction")]
     public TransactionResponse? Transaction { get; set; }
 }
 
 public class TransactionResponse
 {
-    [JsonPropertyName("ncTransactions")]
+    [JsonProperty("ncTransactions")]
     public List<NcTransaction?>? NCTransactions { get; set; }
 }
 
 public class NcTransaction
 {
-    [JsonPropertyName("signer")]
+    [JsonProperty("signer")]
     public string Signer { get; set; }
 
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonPropertyName("serializedPayload")]
+    [JsonProperty("serializedPayload")]
     public string SerializedPayload { get; set; }
 
-    [JsonPropertyName("actions")]
+    [JsonProperty("actions")]
     public List<Action?> Actions { get; set; }
 }
 
 public class Action
 {
-    [JsonPropertyName("raw")]
+    [JsonProperty("raw")]
     public string Raw { get; set; }
 }
 
-public class GetTransactionStatusResponse
+public class GetTransactionStatusesResponse
 {
-    [JsonPropertyName("transaction")]
+    [JsonProperty("transaction")]
     public TransactionStatusResponse? Transaction { get; set; }
 }
 
 public class TransactionStatusResponse
 {
-    [JsonPropertyName("transactionResult")]
-    public TransactionResult? TransactionResult { get; set; }
+    [JsonProperty("transactionResults")]
+    public List<TransactionResult> TransactionResults { get; set; }
 }
 
 public class TransactionResult
 {
-    [JsonPropertyName("txStatus")]
+    [JsonProperty("txStatus")]
     public TxStatus TxStatus { get; set; }
 
-    [JsonPropertyName("exceptionNames")]
+    [JsonProperty("exceptionNames")]
     public List<string?> ExceptionNames { get; set; }
 }
