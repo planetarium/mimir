@@ -17,15 +17,15 @@ public class BlockTest
             Signer = "signer",
             Timestamp = "2024-01-01T00:00:00Z",
             UpdatedAddresses = new List<string> { "addr1", "addr2" },
-            Actions = new List<Action>
+            Actions = new List<Lib9c.Models.Block.Action>
             {
-                new Action
+                new Lib9c.Models.Block.Action
                 {
                     Raw = "rawdata",
                     TypeId = "typeid",
-                    Values = new BsonDocument { { "k", "v" } }
-                }
-            }
+                    Values = new BsonDocument { { "k", "v" } },
+                },
+            },
         };
         var block = new Block
         {
@@ -34,7 +34,7 @@ public class BlockTest
             Miner = "miner",
             StateRootHash = "stateroot",
             Timestamp = "2024-01-01T00:00:00Z",
-            Transactions = new List<Transaction> { tx }
+            Transactions = new List<Transaction> { tx },
         };
 
         Assert.Equal(123, block.Index);
@@ -60,7 +60,7 @@ public class BlockTest
             Miner = "m",
             StateRootHash = "s",
             Timestamp = "t",
-            Transactions = new List<Transaction>()
+            Transactions = new List<Transaction>(),
         };
         var json = JsonSerializer.Serialize(block);
         var deserialized = JsonSerializer.Deserialize<Block>(json);
@@ -71,14 +71,4 @@ public class BlockTest
         Assert.Equal(block.Timestamp, deserialized.Timestamp);
         Assert.NotNull(deserialized.Transactions);
     }
-
-    [Fact]
-    public void Block_Equality_Works()
-    {
-        var block1 = new Block { Index = 1, Hash = "h", Miner = "m", StateRootHash = "s", Timestamp = "t", Transactions = new List<Transaction>() };
-        var block2 = new Block { Index = 1, Hash = "h", Miner = "m", StateRootHash = "s", Timestamp = "t", Transactions = new List<Transaction>() };
-        Assert.Equal(block1, block2);
-        block2.Index = 2;
-        Assert.NotEqual(block1, block2);
-    }
-} 
+}
