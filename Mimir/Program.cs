@@ -81,6 +81,7 @@ builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder
     .Services.AddGraphQLServer()
+    .AllowIntrospection(true)
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
     .AddErrorFilter<ErrorFilter>()
@@ -102,6 +103,7 @@ builder
     .ModifyCostOptions(options =>
     {
         options.MaxFieldCost = 3_000;
+        options.MaxTypeCost = 3_000;
     });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();

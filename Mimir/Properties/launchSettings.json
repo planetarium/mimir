@@ -9,6 +9,16 @@
     }
   },
   "profiles": {
+    "http": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "graphql",
+      "applicationUrl": "http://localhost:5009",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      }
+    },
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
@@ -16,7 +26,7 @@
       "launchUrl": "graphql",
       "applicationUrl": "https://localhost:7272",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Local"
       }
     },
     "IIS Express": {

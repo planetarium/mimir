@@ -36,7 +36,7 @@ public class QueryType : ObjectType<Query>
         descriptor
             .Field("blocks")
             .Description("Retrieves a paginated list of blocks.")
-            .UseOffsetPaging<BlockDocumentType>()
+            .UseOffsetPaging<NonNullType<BlockDocumentType>>()
             .Resolve(context =>
             {
                 return context.Service<IBlockRepository>().Get();
