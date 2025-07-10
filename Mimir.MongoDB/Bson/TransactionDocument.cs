@@ -10,8 +10,13 @@ namespace Mimir.MongoDB.Bson;
 /// </summary>
 /// <param name="Object"></param>
 [BsonIgnoreExtraElements]
-public record BlockDocument(
+public record TransactionDocument(
     [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
-    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] string BlockHash,
-    Block Object
-) : MimirBsonDocument(BlockHash, new DocumentMetadata(2, StoredBlockIndex));
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] string TxId,
+    string BlockHash,
+    long BlockIndex,
+    string firstActionTypeId,
+    string? firstAvatarAddressInActionArguments,
+    string? firstNCGAmountInActionArguments,
+    Transaction Object
+) : MimirBsonDocument(TxId, new DocumentMetadata(1, StoredBlockIndex));

@@ -1,3 +1,6 @@
+using HotChocolate;
+using HotChocolate.Data;
+using HotChocolate.Data.MongoDb;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Services;
@@ -8,16 +11,25 @@ namespace Mimir.MongoDB.Repositories;
 public interface IBlockRepository
 {
     Task<BlockDocument> GetByIndexAsync(long index);
+    IExecutable<BlockDocument> Get();
 }
 
 public class BlockRepository(IMongoDbService dbService) : IBlockRepository
 {
+    private readonly IMongoCollection<BlockDocument> _collection = dbService.GetCollection<BlockDocument>(
+        CollectionNames.GetCollectionName<BlockDocument>()
+    );
+
     public async Task<BlockDocument> GetByIndexAsync(long index)
     {
-        var collection = dbService.GetCollection<BlockDocument>(
-            CollectionNames.GetCollectionName<BlockDocument>()
-        );
-        return await GetBlockInfoAsync(collection, index);
+        return await GetBlockInfoAsync(_collection, index);
+    }
+
+    public IExecutable<BlockDocument> Get()
+    {
+        var find = _collection.Find(Builders<BlockDocument>.Filter.Empty);
+        var sortDefinition = Builders<BlockDocument>.Sort.Descending("Object.Index");
+        return find.Sort(sortDefinition).AsExecutable();
     }
 
     private static async Task<BlockDocument> GetBlockInfoAsync(

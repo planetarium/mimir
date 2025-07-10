@@ -34,6 +34,24 @@ public class QueryType : ObjectType<Query>
             });
 
         descriptor
+            .Field("blocks")
+            .Description("Retrieves a paginated list of blocks.")
+            .UseOffsetPaging<NonNullType<BlockDocumentType>>()
+            .Resolve(context =>
+            {
+                return context.Service<IBlockRepository>().Get();
+            });
+
+        descriptor
+            .Field("transactions")
+            .Description("Retrieves a paginated list of transactions.")
+            .UseOffsetPaging<NonNullType<TransactionDocumentType>>()
+            .Resolve(context =>
+            {
+                return context.Service<ITransactionRepository>().Get();
+            });
+
+        descriptor
             .Field("myWorldInformationRanking")
             .Description("Get my world information ranking based on StageClearedId.")
             .Argument("address", a => a.Type<NonNullType<AddressType>>())

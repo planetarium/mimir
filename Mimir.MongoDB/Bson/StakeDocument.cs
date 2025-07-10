@@ -1,3 +1,4 @@
+using HotChocolate;
 using System.Numerics;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
@@ -8,8 +9,8 @@ namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record StakeDocument(
-    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
-    [property: BsonIgnore, JsonIgnore] Address Address,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] Address Address,
     Address AgentAddress,
     StakeState? Object,
     BigInteger Amount

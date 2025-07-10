@@ -1,12 +1,10 @@
 ﻿{
   "data": {
     "pledge": {
-      "address": "0x0000000000000000000000000000000000000000",
       "contractAddress": "0x0000000000000000000000000000000000000000",
       "contracted": true,
       "id": "0000000000000000000000000000000000000000",
       "refillMead": 10,
-      "storedBlockIndex": 10000,
       "metadata": {
         "schemaVersion": 1,
         "storedBlockIndex": 10000

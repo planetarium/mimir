@@ -1,4 +1,5 @@
 using Bencodex.Types;
+using HotChocolate;
 using Libplanet.Crypto;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.TableData;
@@ -8,8 +9,8 @@ namespace Mimir.MongoDB.Bson;
 
 [BsonIgnoreExtraElements]
 public record SheetDocument(
-    [property: BsonIgnore, JsonIgnore] long StoredBlockIndex,
-    [property: BsonIgnore, JsonIgnore] Address Address,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
+    [property: BsonIgnore, JsonIgnore, GraphQLIgnore] Address Address,
     ISheet Object,
     string Name,
     IValue RawState

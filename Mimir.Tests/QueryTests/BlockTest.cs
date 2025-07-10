@@ -1,8 +1,9 @@
 using Lib9c.Models.Block;
+using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Repositories;
-using Moq;
 using MongoDB.Bson;
+using Moq;
 
 namespace Mimir.Tests.QueryTests;
 
@@ -13,51 +14,9 @@ public class BlockTest
     {
         var blockIndex = 6494625L;
         var blockHash = "348245059ff5695b67077d42a4c43327ebcd876f899e2a99de604e9db3eca04f";
-        var miner = "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7";
+        var miner = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7");
         var stateRootHash = "830dfa32f49e7aa8b72a792fbc7654b1aaa0b6be1a8f060648cc8a2911983249";
         var timestamp = "2025-07-07T14:16:28.289321+00:00";
-
-        var transactions = new List<Transaction>
-        {
-            new()
-            {
-                Id = "45c97ffe8184559e732f2e01a2ff5016b01301095237f61ec3ea89f35ca6f7dc",
-                Nonce = 5795,
-                PublicKey = "024ec1d362481abf7e630295b3e8ca57f754fa00d43f77fc45063a15e9630de4c5",
-                Signature = "3045022100a9072c765b0a19e5b13d2ea3affe3f98deb029a32182e5257b25340ede9771540220123f140ab6b1605efca6ba760c3eb8ea281e8d747a2095476d45579d93c40cb6",
-                Signer = "0x99cAFD096f81F722ad099e154A2000dA482c0B89",
-                Timestamp = "2025-07-07T14:16:22.901456+00:00",
-                UpdatedAddresses = new List<string>(),
-                Actions = new List<Lib9c.Models.Block.Action>
-                {
-                    new()
-                    {
-                        Raw = "6475373a747970655f69647531393a72617069645f636f6d62696e6174696f6e313075363a76616c7565736475313a6132303a76abc747075d89459cefcd6da150401a9be53af475323a696431363ab70e94f7cc68a147bdb206bd797e4b3975313a736c693265656565",
-                        TypeId = "rapid_combination10",
-                        Values = BsonDocument.Parse("{ \"a\" : \"76abc747075d89459cefcd6da150401a9be53af4\", \"id\" : \"b70e94f7cc68a147bdb206bd797e4b39\", \"s\" : [\"2\"] }")
-                    }
-                }
-            },
-            new()
-            {
-                Id = "4daebd646b7506f2fc6f689a0497993e23f0f66cbc46515120497710e73e3875",
-                Nonce = 1282,
-                PublicKey = "03244737ffe0f6795721101ce96e3a14f64214d7472560a34f02fa275a634b0a4c",
-                Signature = "3045022100d8c33dd7a5e3758707a970458aa2bc0385c8ee9d0c1852dc14a3937809fe862002201c7ec6633147d2396ed02e5ef2cd13bed374505a0b631be9cc257e1e9ba5217c",
-                Signer = "0x915Ee99b1132836644135326EEEA6d3EA86576Df",
-                Timestamp = "2025-07-07T14:16:14.463466+00:00",
-                UpdatedAddresses = new List<string>(),
-                Actions = new List<Lib9c.Models.Block.Action>
-                {
-                    new()
-                    {
-                        Raw = "6475373a747970655f69647531373a72656769737465725f70726f647563743375363a76616c7565736475313a6132303a2aa02e2f3abbac8b13fd4e2a3a037adaf872fb2f75313a636675323a696431363a498308deaf8a7a4282dd85a98c9e7e1c75313a726c6c32303a2aa02e2f3abbac8b13fd4e2a3a037adaf872fb2f6c647531333a646563696d616c506c61636573313a0275373a6d696e746572736e75363a7469636b657275333a4e4347656931303065657531313a4e6f6e46756e6769626c6531363aed3ccb87c89bf34d86dcd787d3925b4e75313a3165656565",
-                        TypeId = "register_product3",
-                        Values = BsonDocument.Parse("{ \"a\" : \"2aa02e2f3abbac8b13fd4e2a3a037adaf872fb2f\", \"c\" : false, \"id\" : \"498308deaf8a7a4282dd85a98c9e7e1c\", \"r\" : [[\"2aa02e2f3abbac8b13fd4e2a3a037adaf872fb2f\", [{ \"decimalPlaces\" : \"02\", \"minters\" : null, \"ticker\" : \"NCG\" }, \"100\"], \"NonFungible\", \"ed3ccb87c89bf34d86dcd787d3925b4e\", \"1\"]] }")
-                    }
-                }
-            }
-        };
 
         var block = new Block
         {
@@ -66,7 +25,6 @@ public class BlockTest
             Miner = miner,
             StateRootHash = stateRootHash,
             Timestamp = timestamp,
-            Transactions = transactions
         };
 
         var mockRepo = new Mock<IBlockRepository>();
@@ -74,38 +32,27 @@ public class BlockTest
             .Setup(repo => repo.GetByIndexAsync(It.IsAny<long>()))
             .ReturnsAsync(new BlockDocument(6494611, blockHash, block));
 
-        var serviceProvider = TestServices.Builder
-            .With(mockRepo.Object)
-            .Build();
+        var serviceProvider = TestServices.Builder.With(mockRepo.Object).Build();
 
         var query = $$"""
-                      query {
-                        block(index: {{blockIndex}}) {
-                          hash
-                          index
-                          miner
-                          stateRootHash
-                          timestamp
-                          transactions {
-                            id
-                            nonce
-                            publicKey
-                            signature
-                            signer
-                            timestamp
-                            updatedAddresses
-                            actions {
-                              raw
-                              typeId
-                              values
-                            }
-                          }
-                        }
-                      }
-                      """;
+            query {
+              block(index: {{blockIndex}}) {
+                object {
+                  hash
+                  index
+                  miner
+                  stateRootHash
+                  timestamp
+                }
+              }
+            }
+            """;
 
-        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
+        var result = await TestServices.ExecuteRequestAsync(
+            serviceProvider,
+            b => b.SetDocument(query)
+        );
 
         await Verify(result);
     }
-} 
+}

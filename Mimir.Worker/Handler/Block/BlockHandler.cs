@@ -23,6 +23,7 @@ public class BlockHandler(
 {
     public const string PollerType = "BlockPoller";
     public const string collectionName = "block";
+    public const string transactionCollectionName = "transaction";
     private readonly StateGetter StateGetter = stateService.At();
     private const int LIMIT = 50;
 
@@ -58,22 +59,51 @@ public class BlockHandler(
                     stoppingToken
                 );
 
-                var documents = new List<BlockDocument>();
+                var blockDocuments = new List<BlockDocument>();
+                var transactionDocuments = new List<TransactionDocument>();
+
                 foreach (var block in blockResponse.BlockQuery.Blocks)
                 {
                     var blockModel = block.ToBlockModel();
-                    var document = new BlockDocument(
+                    var blockDocument = new BlockDocument(
                         currentTargetIndex,
                         blockModel.Hash,
                         blockModel
                     );
-                    documents.Add(document);
+                    blockDocuments.Add(blockDocument);
+
+                    if (block.Transactions != null)
+                    {
+                        foreach (var transaction in block.Transactions)
+                        {
+                            var transactionModel = transaction.ToTransactionModel();
+                            var (firstActionTypeId, firstAvatarAddress, firstNCGAmount) =
+                                ExtractTransactionMetadata(transactionModel);
+
+                            var transactionDocument = new TransactionDocument(
+                                currentTargetIndex,
+                                transactionModel.Id,
+                                blockModel.Hash,
+                                blockModel.Index,
+                                firstActionTypeId,
+                                firstAvatarAddress,
+                                firstNCGAmount,
+                                transactionModel
+                            );
+                            transactionDocuments.Add(transactionDocument);
+                        }
+                    }
                 }
 
-                if (documents.Count > 0)
+                if (blockDocuments.Count > 0)
                 {
-                    await UpdateTransactionStatuses(documents, stoppingToken);
-                    await dbService.InsertBlocksManyAsync(documents);
+                    await dbService.InsertBlocksManyAsync(blockDocuments);
+                }
+
+                if (transactionDocuments.Count > 0)
+                {
+                    await UpdateTransactionStatuses(transactionDocuments, stoppingToken);
+                    await dbService.InsertTransactionsManyAsync(transactionDocuments);
                 }
 
                 await dbService.UpdateLatestBlockIndexAsync(
@@ -87,21 +117,35 @@ public class BlockHandler(
                     stoppingToken
                 );
 
-                foreach (var document in documents)
+                foreach (var document in blockDocuments)
                 {
-                    foreach (var transaction in document.Object.Transactions)
+                    if (document.Object.TxIds != null)
                     {
-                        await InsertAgentIfNotExist(
-                            new Address(transaction.Signer),
-                            currentTargetIndex
-                        );
-
-                        foreach (var action in transaction.Actions)
+                        foreach (var txId in document.Object.TxIds)
                         {
-                            var avatarAddresses = ActionParser.ExtractAvatarAddress(action.Raw);
-                            foreach (var avatarAddress in avatarAddresses)
+                            var transaction = transactionDocuments.FirstOrDefault(td =>
+                                td.TxId == txId
+                            );
+                            if (transaction != null)
                             {
-                                await InsertAvatarIfNotExist(avatarAddress, currentTargetIndex);
+                                await InsertAgentIfNotExist(
+                                    transaction.Object.Signer,
+                                    currentTargetIndex
+                                );
+
+                                foreach (var action in transaction.Object.Actions)
+                                {
+                                    var avatarAddresses = ActionParser.ExtractAvatarAddress(
+                                        action.Raw
+                                    );
+                                    foreach (var avatarAddress in avatarAddresses)
+                                    {
+                                        await InsertAvatarIfNotExist(
+                                            avatarAddress,
+                                            currentTargetIndex
+                                        );
+                                    }
+                                }
                             }
                         }
                     }
@@ -239,53 +283,52 @@ public class BlockHandler(
         );
     }
 
-    private async Task UpdateTransactionStatuses(List<BlockDocument> documents, CancellationToken stoppingToken)
+    private async Task UpdateTransactionStatuses(
+        List<TransactionDocument> documents,
+        CancellationToken stoppingToken
+    )
     {
-        var allTxIds = new List<TxId>();
-        var txIdToDocumentMap = new Dictionary<TxId, (BlockDocument document, int transactionIndex)>();
+        var (statusResponse, _) = await headlessGqlClient.GetTransactionStatusesAsync(
+            documents.Select(txDocument => TxId.FromHex(txDocument.Object.Id)).ToList(),
+            stoppingToken
+        );
 
-        foreach (var document in documents)
+        if (statusResponse.Transaction?.TransactionResults != null)
         {
-            for (int i = 0; i < document.Object.Transactions.Count; i++)
+            for (int i = 0; i < documents.Count; i++)
             {
-                var transaction = document.Object.Transactions[i];
-                var txId = new TxId(Convert.FromHexString(transaction.Id));
-                allTxIds.Add(txId);
-                txIdToDocumentMap[txId] = (document, i);
+                var status = statusResponse.Transaction.TransactionResults[i];
+                documents[i].Object.TxStatus = ConvertToLib9cTxStatus(status.TxStatus);
             }
-        }
-
-        if (allTxIds.Count == 0)
-            return;
-
-        try
-        {
-            var (statusResponse, _) = await headlessGqlClient.GetTransactionStatusesAsync(allTxIds, stoppingToken);
-            
-            if (statusResponse.Transaction?.TransactionResults != null)
-            {
-                for (int i = 0; i < statusResponse.Transaction.TransactionResults.Count && i < allTxIds.Count; i++)
-                {
-                    var txId = allTxIds[i];
-                    var status = statusResponse.Transaction.TransactionResults[i];
-                    
-                    if (txIdToDocumentMap.TryGetValue(txId, out var mapping))
-                    {
-                        var (document, transactionIndex) = mapping;
-                        var transaction = document.Object.Transactions[transactionIndex];
-                        
-                        transaction.TxStatus = ConvertToLib9cTxStatus(status.TxStatus);
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Warning(ex, "Failed to update transaction statuses for {Count} transactions", allTxIds.Count);
         }
     }
 
-    private static Lib9c.Models.Block.TxStatus ConvertToLib9cTxStatus(Lib9c.Models.Block.TxStatus clientStatus)
+    private (
+        string firstActionTypeId,
+        string? firstAvatarAddress,
+        string? firstNCGAmount
+    ) ExtractTransactionMetadata(Lib9c.Models.Block.Transaction transaction)
+    {
+        if (transaction.Actions.Count == 0)
+        {
+            return ("not found", null, null);
+        }
+
+        var firstAction = transaction.Actions[0];
+        var firstActionTypeId = string.IsNullOrEmpty(firstAction.TypeId)
+            ? "not found"
+            : firstAction.TypeId;
+        var avatarAddress = ActionParser.ExtractAvatarAddress(firstAction.Raw)
+            .FirstOrDefault(addr => addr != default && !addr.Equals(default));
+        var firstAvatarAddress = (avatarAddress == null || avatarAddress.Equals(default)) ? null : avatarAddress.ToHex();
+        var firstNCGAmount = ActionParser.ExtractNCGAmount(firstAction.Raw);
+
+        return (firstActionTypeId, firstAvatarAddress, firstNCGAmount);
+    }
+
+    private static Lib9c.Models.Block.TxStatus ConvertToLib9cTxStatus(
+        Lib9c.Models.Block.TxStatus clientStatus
+    )
     {
         return clientStatus;
     }

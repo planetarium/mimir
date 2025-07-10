@@ -4,6 +4,7 @@ using Lib9c.Models.Block;
 using Mimir.Worker.Client;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
+using Libplanet.Crypto;
 
 namespace Mimir.Worker.Extensions;
 
@@ -17,12 +18,11 @@ public static class BlockExtensions
         {
             Index = apiBlock.Index,
             Hash = apiBlock.Hash,
-            Miner = apiBlock.Miner,
+            Miner = new Address(apiBlock.Miner),
             StateRootHash = apiBlock.StateRootHash,
             Timestamp = apiBlock.Timestamp,
-            Transactions =
-                apiBlock.Transactions?.Select(tx => tx.ToTransactionModel()).ToList()
-                ?? new List<Lib9c.Models.Block.Transaction>(),
+            TxCount = apiBlock.Transactions?.Count ?? 0,
+            TxIds = apiBlock.Transactions?.Select(tx => tx.Id).ToList() ?? new List<string>(),
         };
     }
 
@@ -39,7 +39,7 @@ public static class BlockExtensions
             Nonce = apiTransaction.Nonce,
             PublicKey = apiTransaction.PublicKey,
             Signature = apiTransaction.Signature,
-            Signer = apiTransaction.Signer,
+            Signer = new Address(apiTransaction.Signer),
             Timestamp = apiTransaction.Timestamp,
             UpdatedAddresses = apiTransaction.UpdatedAddresses ?? new List<string>(),
         };

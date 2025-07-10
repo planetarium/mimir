@@ -59,7 +59,8 @@ builder.Services.AddSingleton<IPledgeRepository, PledgeRepository>();
 builder.Services.AddSingleton<IProductsRepository, ProductsRepository>();
 builder.Services.AddSingleton<IRuneSlotRepository, RuneSlotRepository>();
 builder.Services.AddSingleton<IStakeRepository, StakeRepository>();
-builder.Services.AddSingleton<IBlockRepository, BlockRepository>();
+builder.Services.AddScoped<IBlockRepository, BlockRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddSingleton<TableSheetsRepository>();
 builder.Services.AddSingleton<WorldBossKillRewardRecordRepository>();
 builder.Services.AddSingleton<WorldBossRaiderRepository>();
@@ -81,6 +82,7 @@ builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder
     .Services.AddGraphQLServer()
+    .AllowIntrospection(true)
     .AddLib9cGraphQLTypes()
     .AddMimirGraphQLTypes()
     .AddErrorFilter<ErrorFilter>()
@@ -102,6 +104,7 @@ builder
     .ModifyCostOptions(options =>
     {
         options.MaxFieldCost = 3_000;
+        options.MaxTypeCost = 3_000;
     });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();
