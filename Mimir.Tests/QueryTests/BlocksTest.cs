@@ -22,7 +22,6 @@ public class BlocksTest
                 Miner = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                 StateRootHash = "stateRootHash1",
                 Timestamp = "2024-01-01T00:00:00Z",
-                Transactions = new List<Lib9c.Models.Block.Transaction>()
             }),
             new(6494610, "blockHash2", new Lib9c.Models.Block.Block
             {
@@ -31,7 +30,6 @@ public class BlocksTest
                 Miner = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
                 StateRootHash = "stateRootHash2",
                 Timestamp = "2024-01-01T00:00:01Z",
-                Transactions = new List<Lib9c.Models.Block.Transaction>()
             })
         };
 
@@ -81,7 +79,6 @@ public class BlocksTest
                 Miner = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                 StateRootHash = "stateRootHash1",
                 Timestamp = "2024-01-01T00:00:00Z",
-                Transactions = new List<Lib9c.Models.Block.Transaction>()
             }),
             new(6494610, "blockHash2", new Lib9c.Models.Block.Block
             {
@@ -90,7 +87,6 @@ public class BlocksTest
                 Miner = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
                 StateRootHash = "stateRootHash2",
                 Timestamp = "2024-01-01T00:00:01Z",
-                Transactions = new List<Lib9c.Models.Block.Transaction>()
             })
         };
 

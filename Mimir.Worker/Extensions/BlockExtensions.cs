@@ -21,9 +21,8 @@ public static class BlockExtensions
             Miner = new Address(apiBlock.Miner),
             StateRootHash = apiBlock.StateRootHash,
             Timestamp = apiBlock.Timestamp,
-            Transactions =
-                apiBlock.Transactions?.Select(tx => tx.ToTransactionModel()).ToList()
-                ?? new List<Lib9c.Models.Block.Transaction>(),
+            TxCount = apiBlock.Transactions?.Count ?? 0,
+            TxIds = apiBlock.Transactions?.Select(tx => tx.Id).ToList() ?? new List<string>(),
         };
     }
 

@@ -1,0 +1,232 @@
+using HotChocolate;
+using HotChocolate.Data;
+using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Repositories;
+using Moq;
+using Libplanet.Crypto;
+using MongoDB.Bson;
+
+namespace Mimir.Tests.QueryTests;
+
+public class TransactionTest
+{
+    [Fact]
+    public async Task GetTransactions_Returns_PaginatedTransactions()
+    {
+        var mockRepo = new Mock<ITransactionRepository>();
+        var transactions = new List<TransactionDocument>
+        {
+            new TransactionDocument(
+                6494625,
+                "txid1",
+                "blockHash1",
+                6494625,
+                "actionType1",
+                "0xavatar1",
+                "0.01",
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid1",
+                    Nonce = 1,
+                    PublicKey = "pubkey1",
+                    Signature = "sig1",
+                    Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
+                    Timestamp = "2024-01-01T00:00:00Z",
+                    UpdatedAddresses = new List<string>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw1",
+                            TypeId = "actionType1",
+                            Values = new BsonDocument { { "amount", "100" } }
+                        }
+                    }
+                }
+            ),
+            new TransactionDocument(
+                6494624,
+                "txid2",
+                "blockHash2",
+                6494624,
+                "actionType2",
+                "0xavatar2",
+                null,
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid2",
+                    Nonce = 2,
+                    PublicKey = "pubkey2",
+                    Signature = "sig2",
+                    Signer = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
+                    Timestamp = "2024-01-01T00:00:01Z",
+                    UpdatedAddresses = new List<string>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw2",
+                            TypeId = "actionType2",
+                            Values = new BsonDocument { { "amount", "200" } }
+                        }
+                    }
+                }
+            )
+        };
+
+        mockRepo
+            .Setup(repo => repo.Get())
+            .Returns(transactions.AsQueryable().AsExecutable());
+
+        var serviceProvider = TestServices.Builder
+            .With(mockRepo.Object)
+            .Build();
+
+        var query = """
+                    query {
+                      transactions {
+                        items {
+                          id
+                          blockHash
+                          blockIndex
+                          firstActionTypeId
+                          firstAvatarAddressInActionArguments
+                          firstNCGAmountInActionArguments
+                          object {
+                            id
+                            nonce
+                            publicKey
+                            signature
+                            signer
+                            timestamp
+                            updatedAddresses
+                            actions {
+                              raw
+                              typeId
+                              values
+                            }
+                          }
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
+                        }
+                      }
+                    }
+                    """;
+
+        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
+
+        await Verify(result);
+    }
+
+    [Fact]
+    public async Task GetTransactions_WithPagination_Returns_CorrectPage()
+    {
+        var mockRepo = new Mock<ITransactionRepository>();
+        var transactions = new List<TransactionDocument>
+        {
+            new TransactionDocument(
+                6494625,
+                "txid1",
+                "blockHash1",
+                6494625,
+                "actionType1",
+                "0xavatar1",
+                "0.01",
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid1",
+                    Nonce = 1,
+                    PublicKey = "pubkey1",
+                    Signature = "sig1",
+                    Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
+                    Timestamp = "2024-01-01T00:00:00Z",
+                    UpdatedAddresses = new List<string>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw1",
+                            TypeId = "actionType1",
+                            Values = new BsonDocument { { "amount", "100" } }
+                        }
+                    }
+                }
+            ),
+            new TransactionDocument(
+                6494624,
+                "txid2",
+                "blockHash2",
+                6494624,
+                "actionType2",
+                "0xavatar2",
+                null,
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid2",
+                    Nonce = 2,
+                    PublicKey = "pubkey2",
+                    Signature = "sig2",
+                    Signer = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
+                    Timestamp = "2024-01-01T00:00:01Z",
+                    UpdatedAddresses = new List<string>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw2",
+                            TypeId = "actionType2",
+                            Values = new BsonDocument { { "amount", "200" } }
+                        }
+                    }
+                }
+            )
+        };
+
+        mockRepo
+            .Setup(repo => repo.Get())
+            .Returns(transactions.AsQueryable().AsExecutable());
+
+        var serviceProvider = TestServices.Builder
+            .With(mockRepo.Object)
+            .Build();
+
+        var query = """
+                    query {
+                      transactions(skip: 0, take: 1) {
+                        items {
+                          id
+                          blockHash
+                          blockIndex
+                          firstActionTypeId
+                          firstAvatarAddressInActionArguments
+                          firstNCGAmountInActionArguments
+                          object {
+                            id
+                            nonce
+                            publicKey
+                            signature
+                            signer
+                            timestamp
+                            updatedAddresses
+                            actions {
+                              raw
+                              typeId
+                              values
+                            }
+                          }
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
+                        }
+                      }
+                    }
+                    """;
+
+        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
+
+        await Verify(result);
+    }
+} 

@@ -22,12 +22,10 @@ public class PledgeTest
         var query = $$"""
                     query {
                         pledge(agentAddress: "{{address}}") {
-                            address
                             contractAddress
                             contracted
                             id
                             refillMead
-                            storedBlockIndex
                             metadata {
                             schemaVersion
                             storedBlockIndex

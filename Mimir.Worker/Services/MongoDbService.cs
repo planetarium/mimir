@@ -25,6 +25,7 @@ public class MongoDbService
     private readonly Dictionary<string, IMongoCollection<BsonDocument>> _stateCollectionMappings;
     private readonly IMongoCollection<MetadataDocument> _metadataCollection;
     private readonly IMongoCollection<BlockDocument> _blockCollection;
+    private readonly IMongoCollection<TransactionDocument> _transactionCollection;
 
     public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
@@ -60,6 +61,7 @@ public class MongoDbService
         _stateCollectionMappings = InitStateCollections();
         _metadataCollection = _database.GetCollection<MetadataDocument>("metadata");
         _blockCollection = _database.GetCollection<BlockDocument>("block");
+        _transactionCollection = _database.GetCollection<TransactionDocument>("transaction");
     }
 
     private Dictionary<string, IMongoCollection<BsonDocument>> InitStateCollections()
@@ -227,6 +229,22 @@ public class MongoDbService
         else
         {
             await _blockCollection.InsertManyAsync(session, documents);
+        }
+    }
+
+    public async Task InsertTransactionsManyAsync(
+        List<TransactionDocument> documents,
+        IClientSessionHandle? session = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (session is null)
+        {
+            await _transactionCollection.InsertManyAsync(documents);
+        }
+        else
+        {
+            await _transactionCollection.InsertManyAsync(session, documents);
         }
     }
 

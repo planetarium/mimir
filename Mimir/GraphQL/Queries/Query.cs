@@ -137,6 +137,22 @@ public class Query
         await repo.GetByIndexAsync(index);
 
     /// <summary>
+    /// Get Transaction by transaction ID.
+    /// </summary>
+    /// <param name="txId">Transaction ID.</param>
+    /// <returns>The Transaction Information</returns>
+    public async Task<TransactionDocument> GetTransactionAsync(string txId, [Service] ITransactionRepository repo) =>
+        await repo.GetByTxIdAsync(txId);
+
+    /// <summary>
+    /// Get Transactions by block index.
+    /// </summary>
+    /// <param name="blockIndex">Block index.</param>
+    /// <returns>The Transactions in the block</returns>
+    public async Task<IEnumerable<TransactionDocument>> GetTransactionsByBlockIndexAsync(long blockIndex, [Service] ITransactionRepository repo) =>
+        await repo.GetByBlockIndex(blockIndex).ToListAsync();
+
+    /// <summary>
     /// Get an pet state by avatar address.
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>

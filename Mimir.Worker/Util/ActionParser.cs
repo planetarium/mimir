@@ -155,4 +155,76 @@ public static class ActionParser
 
         return avatarAddresses;
     }
+
+    public static string? ExtractNCGAmount(string raw)
+    {
+        try
+        {
+            var decodedAction = Codec.Decode(Convert.FromHexString(raw));
+
+            if (decodedAction is not Dictionary actionDict)
+            {
+                return null;
+            }
+
+            if (!actionDict.TryGetValue((Text)"values", out var valuesValue) || valuesValue is not Dictionary valuesDict)
+            {
+                return null;
+            }
+
+            if (!valuesDict.TryGetValue((Text)"amount", out var amountValue))
+            {
+                return null;
+            }
+
+            return ParseNCGAmount(amountValue);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? ParseNCGAmount(IValue amountValue)
+    {
+        if (amountValue is not List amountList || amountList.Count < 2)
+        {
+            return null;
+        }
+
+        var currencyInfo = amountList[0];
+        var amount = amountList[1];
+
+        if (currencyInfo is not Dictionary currencyDict || amount is not Integer amountInt)
+        {
+            return null;
+        }
+
+        if (!currencyDict.TryGetValue((Text)"ticker", out var tickerValue) || tickerValue is not Text ticker)
+        {
+            return null;
+        }
+
+        if (ticker.Value != "NCG")
+        {
+            return null;
+        }
+
+        if (!currencyDict.TryGetValue((Text)"decimalPlaces", out var decimalPlacesValue) || decimalPlacesValue is not Binary decimalPlacesBinary)
+        {
+            return null;
+        }
+
+        var decimalPlacesBytes = decimalPlacesBinary.ToByteArray();
+        if (decimalPlacesBytes.Length == 0)
+        {
+            return null;
+        }
+
+        var decimalPlaces = decimalPlacesBytes[0];
+        var divisor = Math.Pow(10, decimalPlaces);
+        var result = (decimal)amountInt.Value / (decimal)divisor;
+
+        return result.ToString("F" + decimalPlaces);
+    }
 }

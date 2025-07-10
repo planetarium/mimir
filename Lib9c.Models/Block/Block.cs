@@ -14,5 +14,6 @@ public record class Block
     public Address Miner { get; set; }
     public string StateRootHash { get; set; }
     public string Timestamp { get; set; }
-    public List<Transaction> Transactions { get; set; }
+    public int TxCount { get; set; }
+    public List<string> TxIds { get; set; }
 }
