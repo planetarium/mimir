@@ -1,7 +1,13 @@
+using System.Runtime.Intrinsics.Arm;
+using System.Security.Cryptography;
 using Bencodex.Types;
-using Lib9c.Models.Items;
 using Lib9c.Models.Tests.Fixtures.Types.Items;
+using Libplanet.Common;
+using Nekoyume.Model.Elemental;
+using Nekoyume.Model.Item;
+using Nekoyume.Model.State;
 using Nekoyume.TableData;
+using ItemBase = Lib9c.Models.Items.ItemBase;
 
 namespace Lib9c.Models.Tests.Items;
 
@@ -10,23 +16,25 @@ public class ItemBaseTest
     [Fact]
     public void Test()
     {
-        // Prepare target state
-        var row = new ItemSheet.Row();
-        row.Set(new[] { "0", "Weapon", "1", "Normal" });
-        var target = new VanillaItemBase(row);
+        // Prepare legacy state
+        var dictSerialized = Dictionary.Empty
+            .Add("id", 0.Serialize())
+            .Add("item_type", ItemType.Material.Serialize())
+            .Add("item_sub_type", ItemSubType.FoodMaterial.Serialize())
+            .Add("grade", 1.Serialize())
+            .Add("elemental_type", ElementalType.Normal.Serialize());
+
+        var target = ItemFactory.Deserialize(dictSerialized);
 
         // serialize target state and deserialize as paired state
         var serialized = target.Serialize();
-        var paired = new ItemBase(serialized);
-        // ...
+        var deserialized = new ItemBase(serialized);
 
-        // serialize paired state and verify
-        var bencoded = paired.Bencoded;
-        Assert.Equal(serialized, bencoded);
-
-        // deserialize bencoded state as target2 and verify
-        var target2 = new VanillaItemBase((Dictionary)bencoded);
-        var serialized2 = target2.Serialize();
-        Assert.Equal(serialized, serialized2);
+        // Check Deserialize from List
+        Assert.Equal(0, deserialized.Id);
+        Assert.Equal(ItemType.Material, deserialized.ItemType);
+        Assert.Equal(ItemSubType.FoodMaterial, deserialized.ItemSubType);
+        Assert.Equal(1, deserialized.Grade);
+        Assert.Equal(ElementalType.Normal, deserialized.ElementalType);
     }
 }
