@@ -29,14 +29,17 @@ public record Consumable : ItemUsable
 
     public Consumable(IValue bencoded) : base(bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var consumable = (Nekoyume.Model.Item.Consumable)Nekoyume.Model.Item.ItemFactory.Deserialize(bencoded);
+            Stats = consumable.Stats.Select(s => new DecimalStat(s.Serialize())).ToList();
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
         }
-
-        Stats = d["stats"].ToList(e => new DecimalStat(e));
     }
 }

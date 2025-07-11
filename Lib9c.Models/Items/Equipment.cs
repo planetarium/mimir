@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Reflection;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Stats;
@@ -61,70 +62,24 @@ public record Equipment : ItemUsable
 
     public Equipment(IValue bencoded) : base(bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var equipment = (Nekoyume.Model.Item.Equipment)Nekoyume.Model.Item.ItemFactory.Deserialize(bencoded);
+            Equipped = equipment.Equipped;
+            Level = equipment.level;
+            Exp = equipment.Exp;
+            Stat = new DecimalStat(equipment.Stat.Serialize());
+            SetId = equipment.SetId;
+            SpineResourcePath = equipment.SpineResourcePath;
+            OptionCountFromCombination = equipment.optionCountFromCombination;
+            MadeWithMimisbrunnrRecipe = equipment.MadeWithMimisbrunnrRecipe;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
-        }
-
-        if (d.TryGetValue((Text)LegacyEquippedKey, out var value))
-        {
-            Equipped = value.ToBoolean();
-        }
-
-        if (d.TryGetValue((Text)LegacyLevelKey, out value))
-        {
-            try
-            {
-                Level = value.ToInteger();
-            }
-            catch (InvalidCastException)
-            {
-                Level = (int)((Integer)value).Value;
-            }
-        }
-
-        if (d.TryGetValue((Text)EquipmentExpKey, out value))
-        {
-            try
-            {
-                Exp = value.ToLong();
-            }
-            catch (InvalidCastException)
-            {
-                Exp = (long)((Integer)value).Value;
-            }
-        }
-        else
-        {
-            Exp = 0L;
-        }
-
-        if (d.TryGetValue((Text)LegacyStatKey, out value))
-        {
-            Stat = new DecimalStat(value);
-        }
-
-        if (d.TryGetValue((Text)LegacySetIdKey, out value))
-        {
-            SetId = value.ToInteger();
-        }
-
-        if (d.TryGetValue((Text)LegacySpineResourcePathKey, out value))
-        {
-            SpineResourcePath = (Text)value;
-        }
-
-        if (d.TryGetValue((Text)OptionCountFromCombinationKey, out value))
-        {
-            OptionCountFromCombination = value.ToInteger();
-        }
-
-        if (d.TryGetValue((Text)MadeWithMimisbrunnrRecipeKey, out value))
-        {
-            MadeWithMimisbrunnrRecipe = value.ToBoolean();
         }
     }
 }

@@ -27,17 +27,17 @@ public record Material : ItemBase
 
     public Material(IValue bencoded) : base(bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var material = (Nekoyume.Model.Item.Material)Nekoyume.Model.Item.ItemFactory.Deserialize(bencoded);
+            ItemId = material.ItemId;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
-        }
-
-        if (d.TryGetValue((Text)"item_id", out var itemId))
-        {
-            ItemId = itemId.ToItemId();
         }
     }
 

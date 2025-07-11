@@ -4,6 +4,7 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using MongoDB.Bson.Serialization.Attributes;
+using Nekoyume.Model.Item;
 using ValueKind = Bencodex.Types.ValueKind;
 
 namespace Lib9c.Models.Items;
@@ -34,18 +35,21 @@ public record ItemBase : IBencodable
 
     public ItemBase(IValue bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var itemBase = ItemFactory.Deserialize(bencoded);
+            Id = itemBase.Id;
+            Grade = itemBase.Grade;
+            ItemType = itemBase.ItemType;
+            ItemSubType = itemBase.ItemSubType;
+            ElementalType = itemBase.ElementalType;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
         }
-
-        Id = d["id"].ToInteger();
-        Grade = d["grade"].ToInteger();
-        ItemType = d["item_type"].ToEnum<Nekoyume.Model.Item.ItemType>();
-        ItemSubType = d["item_sub_type"].ToEnum<Nekoyume.Model.Item.ItemSubType>();
-        ElementalType = d["elemental_type"].ToEnum<Nekoyume.Model.Elemental.ElementalType>();
     }
 }

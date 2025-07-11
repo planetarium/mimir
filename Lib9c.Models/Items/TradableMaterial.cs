@@ -26,16 +26,17 @@ public record TradableMaterial : Material
 
     public TradableMaterial(IValue bencoded) : base(bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var tradableMaterial = (Nekoyume.Model.Item.TradableMaterial)Nekoyume.Model.Item.ItemFactory.Deserialize(bencoded);
+            RequiredBlockIndex = tradableMaterial.RequiredBlockIndex;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
         }
-
-        RequiredBlockIndex = d.ContainsKey(RequiredBlockIndexKey)
-            ? d[RequiredBlockIndexKey].ToLong()
-            : default;
     }
 }

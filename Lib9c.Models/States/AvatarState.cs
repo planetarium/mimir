@@ -83,10 +83,10 @@ public record AvatarState : State
             BlockIndex = (long)((Integer)l[9]).Value;
             DailyRewardReceivedIndex = (long)((Integer)l[10]).Value;
             ActionPoint = (int)((Integer)l[11]).Value;
-            StageMap = new CollectionMap((Dictionary)l[12]);
-            MonsterMap = new CollectionMap((Dictionary)l[13]);
-            ItemMap = new CollectionMap((Dictionary)l[14]);
-            EventMap = new CollectionMap((Dictionary)l[15]);
+            StageMap = new CollectionMap(l[12]);
+            MonsterMap = new CollectionMap(l[13]);
+            ItemMap = new CollectionMap(l[14]);
+            EventMap = new CollectionMap(l[15]);
             Hair = (int)((Integer)l[16]).Value;
             Lens = (int)((Integer)l[17]).Value;
             Ear = (int)((Integer)l[18]).Value;
@@ -104,6 +104,6 @@ public record AvatarState : State
 
     public AvatarState()
     {
-        
+
     }
 }

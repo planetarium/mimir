@@ -4,6 +4,7 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using MongoDB.Bson.Serialization.Attributes;
+using Nekoyume.Model.Skill;
 using Nekoyume.Model.Stat;
 using Nekoyume.TableData;
 using ValueKind = Bencodex.Types.ValueKind;
@@ -62,24 +63,22 @@ public record Skill : IBencodable
 
     public Skill(IValue bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var skill = SkillFactory.Deserialize(bencoded);
+            SkillRow = skill.SkillRow;
+            _skillRowHasCombo = SkillRow.Combo;
+            Power = skill.Power;
+            Chance = skill.Chance;
+            StatPowerRatio = skill.StatPowerRatio;
+            ReferencedStatType = skill.ReferencedStatType;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
         }
-
-        SkillRow = SkillSheet.Row.Deserialize((Dictionary)d["skillRow"]);
-        _skillRowHasCombo = ((Dictionary)d["skillRow"]).ContainsKey("combo");
-
-        Power = d["power"].ToInteger();
-        Chance = d["chance"].ToInteger();
-        StatPowerRatio = d.TryGetValue((Text)"stat_power_ratio", out var ratioValue)
-            ? ratioValue.ToInteger()
-            : default;
-        ReferencedStatType = d.TryGetValue((Text)"referenced_stat_type", out var refStatType)
-            ? StatTypeExtension.Deserialize((Binary)refStatType)
-            : StatType.NONE;
     }
 }

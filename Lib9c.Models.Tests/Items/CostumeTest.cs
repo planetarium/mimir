@@ -9,7 +9,7 @@ public class CostumeTest
     [Fact]
     public void Test()
     {
-        // Prepare target state
+        // Prepare legacy state
         var row = new CostumeItemSheet.Row();
         row.Set(new[] { "0", "FullCostume", "1", "Normal", string.Empty });
         var target = new Nekoyume.Model.Item.Costume(
@@ -18,16 +18,17 @@ public class CostumeTest
 
         // serialize target state and deserialize as paired state
         var serialized = target.Serialize();
-        var paired = new Costume(serialized);
-        // ...
+        var deserialized = new Costume(serialized);
 
-        // serialize paired state and verify
-        var bencoded = paired.Bencoded;
-        Assert.Equal(serialized, bencoded);
-
-        // deserialize bencoded state as target2 and verify
-        var target2 = new Nekoyume.Model.Item.Costume((Dictionary)bencoded);
-        var serialized2 = target2.Serialize();
-        Assert.Equal(serialized, serialized2);
+        // Check Deserialize from List
+        Assert.Equal(target.Id, deserialized.Id);
+        Assert.Equal(target.ItemType, deserialized.ItemType);
+        Assert.Equal(target.ItemSubType, deserialized.ItemSubType);
+        Assert.Equal(target.Grade, deserialized.Grade);
+        Assert.Equal(target.ElementalType, deserialized.ElementalType);
+        Assert.Equal(target.Equipped, deserialized.Equipped);
+        Assert.Equal(target.SpineResourcePath, deserialized.SpineResourcePath);
+        Assert.Equal(target.ItemId, deserialized.ItemId);
+        Assert.Equal(target.RequiredBlockIndex, deserialized.RequiredBlockIndex);
     }
 }

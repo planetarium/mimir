@@ -30,19 +30,23 @@ public record StatMap : IBencodable
 
     public StatMap(IValue bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var statMap = new Nekoyume.Model.Stat.StatMap(bencoded);
+            var decimalStats = statMap.GetDecimalStats(true);
+            Value = new Dictionary<StatType, DecimalStat>();
+            foreach (var decimalStat in decimalStats)
+            {
+                var stat = new DecimalStat(decimalStat.StatType, decimalStat.BaseValue, decimalStat.AdditionalValue);
+                Value.Add(decimalStat.StatType, stat);
+            }
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
-        }
-
-        Value = new Dictionary<StatType, DecimalStat>();
-        foreach (var kv in d)
-        {
-            var statType = StatTypeExtension.Deserialize((Binary)kv.Key);
-            Value[statType] = new DecimalStat(kv.Value);
         }
     }
 }
