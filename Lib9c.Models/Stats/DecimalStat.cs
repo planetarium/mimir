@@ -40,35 +40,34 @@ public record DecimalStat : IBencodable
     {
     }
 
+    public DecimalStat(StatType statType, decimal baseValue, decimal additionalValue)
+    {
+        StatType = statType;
+        BaseValue = baseValue;
+        AdditionalValue = additionalValue;
+    }
+
     public DecimalStat(IValue bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            Nekoyume.Model.Stat.DecimalStat stat = bencoded switch
+            {
+                Dictionary => bencoded.ToDecimalStat(),
+                List => new Nekoyume.Model.Stat.DecimalStat(bencoded),
+                _ => throw new ArgumentException(),
+            };
+
+            StatType = stat.StatType;
+            BaseValue = stat.BaseValue;
+            AdditionalValue = stat.AdditionalValue;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
-        }
-
-        if (d.TryGetValue((Text)"type", out var type))
-        {
-            StatType = StatTypeExtension.Deserialize((Binary)type);
-        }
-        else if (d.TryGetValue((Text)"statType", out var statType))
-        {
-            StatType = StatTypeExtension.Deserialize((Binary)statType);
-        }
-        else
-        {
-            throw new KeyNotFoundException(
-                "The required key 'type' or 'statType' was not found.");
-        }
-
-        BaseValue = d["value"].ToDecimal();
-
-        if (d.TryGetValue((Text)"additionalValue", out var additionalValue))
-        {
-            AdditionalValue = additionalValue.ToDecimal();
         }
     }
 }
