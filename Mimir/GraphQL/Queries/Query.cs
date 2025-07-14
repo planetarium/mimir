@@ -39,7 +39,7 @@ public class Query
     /// <returns>All action types.</returns>
     public async Task<IEnumerable<ActionTypeDocument>> GetActionTypesAsync(
         [Service] IActionTypeRepository repo
-    ) => await repo.GetAllAsync();
+    ) => (await repo.GetAllAsync()).OrderBy(x => x.Id);
 
     /// <summary>
     /// Get an agent state by address.
@@ -153,37 +153,7 @@ public class Query
     public async Task<TransactionDocument> GetTransactionAsync(string txId, [Service] ITransactionRepository repo) =>
         await repo.GetByTxIdAsync(txId);
 
-    /// <summary>
-    /// Get Transactions by block index.
-    /// </summary>
-    /// <param name="blockIndex">Block index.</param>
-    /// <returns>The Transactions in the block</returns>
-    public async Task<IEnumerable<TransactionDocument>> GetTransactionsByBlockIndexAsync(long blockIndex, [Service] ITransactionRepository repo) =>
-        await repo.GetByBlockIndex(blockIndex).ToListAsync();
 
-    /// <summary>
-    /// Get Transactions by signer address.
-    /// </summary>
-    /// <param name="signer">The signer address.</param>
-    /// <returns>The Transactions signed by the specified address</returns>
-    public async Task<IEnumerable<TransactionDocument>> GetTransactionsBySignerAsync(string signer, [Service] ITransactionRepository repo) =>
-        await repo.GetBySignerAsync(signer).ToListAsync();
-
-    /// <summary>
-    /// Get Transactions by first avatar address in action arguments.
-    /// </summary>
-    /// <param name="firstAvatarAddress">The first avatar address in action arguments.</param>
-    /// <returns>The Transactions with the specified first avatar address in action arguments</returns>
-    public async Task<IEnumerable<TransactionDocument>> GetTransactionsByFirstAvatarAddressInActionArgumentsAsync(string firstAvatarAddress, [Service] ITransactionRepository repo) =>
-        await repo.GetByFirstAvatarAddressInActionArgumentsAsync(firstAvatarAddress).ToListAsync();
-
-    /// <summary>
-    /// Get Transactions by first action type ID.
-    /// </summary>
-    /// <param name="firstActionTypeId">The first action type ID.</param>
-    /// <returns>The Transactions with the specified first action type ID</returns>
-    public async Task<IEnumerable<TransactionDocument>> GetTransactionsByFirstActionTypeIdAsync(string firstActionTypeId, [Service] ITransactionRepository repo) =>
-        await repo.GetByFirstActionTypeIdAsync(firstActionTypeId).ToListAsync();
 
     /// <summary>
     /// Get an pet state by avatar address.

@@ -1,6 +1,7 @@
 using HotChocolate;
 using HotChocolate.Data;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Models;
 using Mimir.MongoDB.Repositories;
 using Moq;
 using Libplanet.Crypto;
@@ -75,7 +76,7 @@ public class TransactionTest
         };
 
         mockRepo
-            .Setup(repo => repo.Get())
+            .Setup(repo => repo.Get(It.IsAny<TransactionFilter>()))
             .Returns(transactions.AsQueryable().AsExecutable());
 
         var serviceProvider = TestServices.Builder
@@ -185,7 +186,7 @@ public class TransactionTest
         };
 
         mockRepo
-            .Setup(repo => repo.Get())
+            .Setup(repo => repo.Get(It.IsAny<TransactionFilter>()))
             .Returns(transactions.AsQueryable().AsExecutable());
 
         var serviceProvider = TestServices.Builder
@@ -231,7 +232,7 @@ public class TransactionTest
     }
 
     [Fact]
-    public async Task GetTransactionsBySigner_Returns_CorrectTransactions()
+    public async Task GetTransactions_WithSignerFilter_Returns_CorrectTransactions()
     {
         var mockRepo = new Mock<ITransactionRepository>();
         var signerAddress = "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7";
@@ -268,7 +269,7 @@ public class TransactionTest
         };
 
         mockRepo
-            .Setup(repo => repo.GetBySignerAsync(signerAddress))
+            .Setup(repo => repo.Get(It.IsAny<TransactionFilter>()))
             .Returns(transactions.AsQueryable().AsExecutable());
 
         var serviceProvider = TestServices.Builder
@@ -277,26 +278,32 @@ public class TransactionTest
 
         var query = $$"""
                     query {
-                      transactionsBySigner(signer: "{{signerAddress}}") {
-                        id
-                        blockHash
-                        blockIndex
-                        firstActionTypeId
-                        firstAvatarAddressInActionArguments
-                        firstNCGAmountInActionArguments
-                        object {
+                      transactions(filter: { signer: "{{signerAddress}}" }) {
+                        items {
                           id
-                          nonce
-                          publicKey
-                          signature
-                          signer
-                          timestamp
-                          updatedAddresses
-                          actions {
-                            raw
-                            typeId
-                            values
+                          blockHash
+                          blockIndex
+                          firstActionTypeId
+                          firstAvatarAddressInActionArguments
+                          firstNCGAmountInActionArguments
+                          object {
+                            id
+                            nonce
+                            publicKey
+                            signature
+                            signer
+                            timestamp
+                            updatedAddresses
+                            actions {
+                              raw
+                              typeId
+                              values
+                            }
                           }
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
                         }
                       }
                     }
@@ -308,7 +315,7 @@ public class TransactionTest
     }
 
     [Fact]
-    public async Task GetTransactionsByFirstAvatarAddressInActionArguments_Returns_CorrectTransactions()
+    public async Task GetTransactions_WithFirstAvatarAddressFilter_Returns_CorrectTransactions()
     {
         var mockRepo = new Mock<ITransactionRepository>();
         var avatarAddress = "0xavatar1";
@@ -345,7 +352,7 @@ public class TransactionTest
         };
 
         mockRepo
-            .Setup(repo => repo.GetByFirstAvatarAddressInActionArgumentsAsync(avatarAddress))
+            .Setup(repo => repo.Get(It.IsAny<TransactionFilter>()))
             .Returns(transactions.AsQueryable().AsExecutable());
 
         var serviceProvider = TestServices.Builder
@@ -354,26 +361,32 @@ public class TransactionTest
 
         var query = $$"""
                     query {
-                      transactionsByFirstAvatarAddressInActionArguments(firstAvatarAddress: "{{avatarAddress}}") {
-                        id
-                        blockHash
-                        blockIndex
-                        firstActionTypeId
-                        firstAvatarAddressInActionArguments
-                        firstNCGAmountInActionArguments
-                        object {
+                      transactions(filter: { firstAvatarAddressInActionArguments: "{{avatarAddress}}" }) {
+                        items {
                           id
-                          nonce
-                          publicKey
-                          signature
-                          signer
-                          timestamp
-                          updatedAddresses
-                          actions {
-                            raw
-                            typeId
-                            values
+                          blockHash
+                          blockIndex
+                          firstActionTypeId
+                          firstAvatarAddressInActionArguments
+                          firstNCGAmountInActionArguments
+                          object {
+                            id
+                            nonce
+                            publicKey
+                            signature
+                            signer
+                            timestamp
+                            updatedAddresses
+                            actions {
+                              raw
+                              typeId
+                              values
+                            }
                           }
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
                         }
                       }
                     }
@@ -385,7 +398,7 @@ public class TransactionTest
     }
 
     [Fact]
-    public async Task GetTransactionsByFirstActionTypeId_Returns_CorrectTransactions()
+    public async Task GetTransactions_WithFirstActionTypeIdFilter_Returns_CorrectTransactions()
     {
         var mockRepo = new Mock<ITransactionRepository>();
         var actionTypeId = "actionType1";
@@ -422,7 +435,7 @@ public class TransactionTest
         };
 
         mockRepo
-            .Setup(repo => repo.GetByFirstActionTypeIdAsync(actionTypeId))
+            .Setup(repo => repo.Get(It.IsAny<TransactionFilter>()))
             .Returns(transactions.AsQueryable().AsExecutable());
 
         var serviceProvider = TestServices.Builder
@@ -431,26 +444,32 @@ public class TransactionTest
 
         var query = $$"""
                     query {
-                      transactionsByFirstActionTypeId(firstActionTypeId: "{{actionTypeId}}") {
-                        id
-                        blockHash
-                        blockIndex
-                        firstActionTypeId
-                        firstAvatarAddressInActionArguments
-                        firstNCGAmountInActionArguments
-                        object {
+                      transactions(filter: { firstActionTypeId: "{{actionTypeId}}" }) {
+                        items {
                           id
-                          nonce
-                          publicKey
-                          signature
-                          signer
-                          timestamp
-                          updatedAddresses
-                          actions {
-                            raw
-                            typeId
-                            values
+                          blockHash
+                          blockIndex
+                          firstActionTypeId
+                          firstAvatarAddressInActionArguments
+                          firstNCGAmountInActionArguments
+                          object {
+                            id
+                            nonce
+                            publicKey
+                            signature
+                            signer
+                            timestamp
+                            updatedAddresses
+                            actions {
+                              raw
+                              typeId
+                              values
+                            }
                           }
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
                         }
                       }
                     }
@@ -459,5 +478,22 @@ public class TransactionTest
         var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
 
         await Verify(result);
+    }
+
+    [Fact]
+    public async Task GetActionTypesAsync_Returns_AlphabeticallySorted()
+    {
+        var mockRepo = new Mock<IActionTypeRepository>();
+        var actionTypes = new List<ActionTypeDocument>
+        {
+            new ActionTypeDocument("zeta"),
+            new ActionTypeDocument("alpha"),
+            new ActionTypeDocument("beta"),
+        };
+        mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(actionTypes);
+        var query = new Mimir.GraphQL.Queries.Query();
+        var result = await query.GetActionTypesAsync(mockRepo.Object);
+        var ids = result.Select(x => x.Id).ToList();
+        Assert.Equal(new List<string> { "alpha", "beta", "zeta" }, ids);
     }
 } 
