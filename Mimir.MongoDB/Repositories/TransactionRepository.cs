@@ -8,10 +8,13 @@ using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
 
+using Mimir.MongoDB.Models;
+
 public interface ITransactionRepository
 {
     Task<TransactionDocument> GetByTxIdAsync(string txId);
     IExecutable<TransactionDocument> Get();
+    IExecutable<TransactionDocument> Get(TransactionFilter? filter);
     IExecutable<TransactionDocument> GetByBlockIndex(long blockIndex);
     IExecutable<TransactionDocument> GetBySignerAsync(string signer);
     IExecutable<TransactionDocument> GetByFirstAvatarAddressInActionArgumentsAsync(string firstAvatarAddress);
@@ -42,6 +45,36 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
     public IExecutable<TransactionDocument> Get()
     {
         var find = _collection.Find(Builders<TransactionDocument>.Filter.Empty);
+        var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
+        return find.Sort(sortDefinition).AsExecutable();
+    }
+
+    public IExecutable<TransactionDocument> Get(TransactionFilter? filter)
+    {
+        var filterBuilder = Builders<TransactionDocument>.Filter;
+        var filterDefinition = filterBuilder.Empty;
+
+        if (filter?.Signer != null)
+        {
+            filterDefinition &= filterBuilder.Eq("Object.Signer", filter.Signer);
+        }
+
+        if (filter?.FirstAvatarAddressInActionArguments != null)
+        {
+            filterDefinition &= filterBuilder.Eq("firstAvatarAddressInActionArguments", filter.FirstAvatarAddressInActionArguments);
+        }
+
+        if (filter?.FirstActionTypeId != null)
+        {
+            filterDefinition &= filterBuilder.Eq("firstActionTypeId", filter.FirstActionTypeId);
+        }
+
+        if (filter?.BlockIndex != null)
+        {
+            filterDefinition &= filterBuilder.Eq("BlockIndex", filter.BlockIndex);
+        }
+
+        var find = _collection.Find(filterDefinition);
         var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
         return find.Sort(sortDefinition).AsExecutable();
     }

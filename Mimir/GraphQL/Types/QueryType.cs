@@ -45,10 +45,12 @@ public class QueryType : ObjectType<Query>
         descriptor
             .Field("transactions")
             .Description("Retrieves a paginated list of transactions.")
+            .Argument("filter", a => a.Type<TransactionFilterInputType>())
             .UseOffsetPaging<NonNullType<TransactionDocumentType>>()
             .Resolve(context =>
             {
-                return context.Service<ITransactionRepository>().Get();
+                var transactionFilter = context.ArgumentValue<TransactionFilter?>("filter");
+                return context.Service<ITransactionRepository>().Get(transactionFilter);
             });
 
         descriptor
