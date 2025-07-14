@@ -36,10 +36,12 @@ public class QueryType : ObjectType<Query>
         descriptor
             .Field("blocks")
             .Description("Retrieves a paginated list of blocks.")
+            .Argument("filter", a => a.Type<BlockFilterInputType>())
             .UseOffsetPaging<NonNullType<BlockDocumentType>>()
             .Resolve(context =>
             {
-                return context.Service<IBlockRepository>().Get();
+                var blockFilter = context.ArgumentValue<BlockFilter?>("filter");
+                return context.Service<IBlockRepository>().Get(blockFilter);
             });
 
         descriptor

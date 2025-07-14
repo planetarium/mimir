@@ -7,7 +7,7 @@
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
           "firstActionTypeId": "actionType1",
-          "firstAvatarAddressInActionArguments": "0xavatar1",
+          "firstAvatarAddressInActionArguments": "0000000000000000000000000000000000000002",
           "firstNCGAmountInActionArguments": "0.01",
           "object": {
             "id": "txid1",

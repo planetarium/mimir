@@ -6,6 +6,7 @@ using Mimir.MongoDB.Repositories;
 using Moq;
 using Libplanet.Crypto;
 using MongoDB.Bson;
+using Mimir.GraphQL.Queries;
 
 namespace Mimir.Tests.QueryTests;
 
@@ -235,7 +236,7 @@ public class TransactionTest
     public async Task GetTransactions_WithSignerFilter_Returns_CorrectTransactions()
     {
         var mockRepo = new Mock<ITransactionRepository>();
-        var signerAddress = "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7";
+        var signerAddress = new Address("0x0000000000000000000000000000000000000001");
         var transactions = new List<TransactionDocument>
         {
             new TransactionDocument(
@@ -252,7 +253,7 @@ public class TransactionTest
                     Nonce = 1,
                     PublicKey = "pubkey1",
                     Signature = "sig1",
-                    Signer = new Address(signerAddress),
+                    Signer = signerAddress,
                     Timestamp = "2024-01-01T00:00:00Z",
                     UpdatedAddresses = new List<string>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -278,7 +279,7 @@ public class TransactionTest
 
         var query = $$"""
                     query {
-                      transactions(filter: { signer: "{{signerAddress}}" }) {
+                      transactions(filter: { signer: "{{signerAddress.ToHex()}}" }) {
                         items {
                           id
                           blockHash
@@ -318,7 +319,7 @@ public class TransactionTest
     public async Task GetTransactions_WithFirstAvatarAddressFilter_Returns_CorrectTransactions()
     {
         var mockRepo = new Mock<ITransactionRepository>();
-        var avatarAddress = "0xavatar1";
+        var avatarAddress = new Address("0x0000000000000000000000000000000000000002");
         var transactions = new List<TransactionDocument>
         {
             new TransactionDocument(
@@ -327,7 +328,7 @@ public class TransactionTest
                 "blockHash1",
                 6494625,
                 "actionType1",
-                avatarAddress,
+                avatarAddress.ToHex(),
                 "0.01",
                 new Lib9c.Models.Block.Transaction
                 {
@@ -361,7 +362,7 @@ public class TransactionTest
 
         var query = $$"""
                     query {
-                      transactions(filter: { firstAvatarAddressInActionArguments: "{{avatarAddress}}" }) {
+                      transactions(filter: { firstAvatarAddressInActionArguments: "{{avatarAddress.ToHex()}}" }) {
                         items {
                           id
                           blockHash
@@ -479,6 +480,8 @@ public class TransactionTest
 
         await Verify(result);
     }
+
+
 
     [Fact]
     public async Task GetActionTypesAsync_Returns_AlphabeticallySorted()
