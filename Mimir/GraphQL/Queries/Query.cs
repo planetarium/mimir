@@ -33,6 +33,14 @@ public class Query
     ) => (await repo.GetByAddressAsync(address)).Object;
 
     /// <summary>
+    /// Get all action types.
+    /// </summary>
+    /// <returns>All action types.</returns>
+    public async Task<IEnumerable<ActionTypeDocument>> GetActionTypesAsync(
+        [Service] IActionTypeRepository repo
+    ) => await repo.GetAllAsync();
+
+    /// <summary>
     /// Get an agent state by address.
     /// </summary>
     /// <param name="address">The address of the agent.</param>

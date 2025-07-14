@@ -40,6 +40,7 @@ builder.Services.AddSingleton<IMongoDbService, MongoDbService>();
 
 // NOTE: MongoDB repositories. Sort in alphabetical order.
 builder.Services.AddSingleton<IActionPointRepository, ActionPointRepository>();
+builder.Services.AddSingleton<IActionTypeRepository, ActionTypeRepository>();
 builder.Services.AddSingleton<IAgentRepository, AgentRepository>();
 builder.Services.AddSingleton<
     IAllCombinationSlotStateRepository,
