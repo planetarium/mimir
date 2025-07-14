@@ -229,4 +229,235 @@ public class TransactionTest
 
         await Verify(result);
     }
+
+    [Fact]
+    public async Task GetTransactionsBySigner_Returns_CorrectTransactions()
+    {
+        var mockRepo = new Mock<ITransactionRepository>();
+        var signerAddress = "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7";
+        var transactions = new List<TransactionDocument>
+        {
+            new TransactionDocument(
+                6494625,
+                "txid1",
+                "blockHash1",
+                6494625,
+                "actionType1",
+                "0xavatar1",
+                "0.01",
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid1",
+                    Nonce = 1,
+                    PublicKey = "pubkey1",
+                    Signature = "sig1",
+                    Signer = new Address(signerAddress),
+                    Timestamp = "2024-01-01T00:00:00Z",
+                    UpdatedAddresses = new List<string>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw1",
+                            TypeId = "actionType1",
+                            Values = new BsonDocument { { "amount", "100" } }
+                        }
+                    }
+                }
+            )
+        };
+
+        mockRepo
+            .Setup(repo => repo.GetBySignerAsync(signerAddress))
+            .Returns(transactions.AsQueryable().AsExecutable());
+
+        var serviceProvider = TestServices.Builder
+            .With(mockRepo.Object)
+            .Build();
+
+        var query = $$"""
+                    query {
+                      transactionsBySigner(signer: "{{signerAddress}}") {
+                        id
+                        blockHash
+                        blockIndex
+                        firstActionTypeId
+                        firstAvatarAddressInActionArguments
+                        firstNCGAmountInActionArguments
+                        object {
+                          id
+                          nonce
+                          publicKey
+                          signature
+                          signer
+                          timestamp
+                          updatedAddresses
+                          actions {
+                            raw
+                            typeId
+                            values
+                          }
+                        }
+                      }
+                    }
+                    """;
+
+        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
+
+        await Verify(result);
+    }
+
+    [Fact]
+    public async Task GetTransactionsByFirstAvatarAddressInActionArguments_Returns_CorrectTransactions()
+    {
+        var mockRepo = new Mock<ITransactionRepository>();
+        var avatarAddress = "0xavatar1";
+        var transactions = new List<TransactionDocument>
+        {
+            new TransactionDocument(
+                6494625,
+                "txid1",
+                "blockHash1",
+                6494625,
+                "actionType1",
+                avatarAddress,
+                "0.01",
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid1",
+                    Nonce = 1,
+                    PublicKey = "pubkey1",
+                    Signature = "sig1",
+                    Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
+                    Timestamp = "2024-01-01T00:00:00Z",
+                    UpdatedAddresses = new List<string>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw1",
+                            TypeId = "actionType1",
+                            Values = new BsonDocument { { "amount", "100" } }
+                        }
+                    }
+                }
+            )
+        };
+
+        mockRepo
+            .Setup(repo => repo.GetByFirstAvatarAddressInActionArgumentsAsync(avatarAddress))
+            .Returns(transactions.AsQueryable().AsExecutable());
+
+        var serviceProvider = TestServices.Builder
+            .With(mockRepo.Object)
+            .Build();
+
+        var query = $$"""
+                    query {
+                      transactionsByFirstAvatarAddressInActionArguments(firstAvatarAddress: "{{avatarAddress}}") {
+                        id
+                        blockHash
+                        blockIndex
+                        firstActionTypeId
+                        firstAvatarAddressInActionArguments
+                        firstNCGAmountInActionArguments
+                        object {
+                          id
+                          nonce
+                          publicKey
+                          signature
+                          signer
+                          timestamp
+                          updatedAddresses
+                          actions {
+                            raw
+                            typeId
+                            values
+                          }
+                        }
+                      }
+                    }
+                    """;
+
+        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
+
+        await Verify(result);
+    }
+
+    [Fact]
+    public async Task GetTransactionsByFirstActionTypeId_Returns_CorrectTransactions()
+    {
+        var mockRepo = new Mock<ITransactionRepository>();
+        var actionTypeId = "actionType1";
+        var transactions = new List<TransactionDocument>
+        {
+            new TransactionDocument(
+                6494625,
+                "txid1",
+                "blockHash1",
+                6494625,
+                actionTypeId,
+                "0xavatar1",
+                "0.01",
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid1",
+                    Nonce = 1,
+                    PublicKey = "pubkey1",
+                    Signature = "sig1",
+                    Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
+                    Timestamp = "2024-01-01T00:00:00Z",
+                    UpdatedAddresses = new List<string>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw1",
+                            TypeId = actionTypeId,
+                            Values = new BsonDocument { { "amount", "100" } }
+                        }
+                    }
+                }
+            )
+        };
+
+        mockRepo
+            .Setup(repo => repo.GetByFirstActionTypeIdAsync(actionTypeId))
+            .Returns(transactions.AsQueryable().AsExecutable());
+
+        var serviceProvider = TestServices.Builder
+            .With(mockRepo.Object)
+            .Build();
+
+        var query = $$"""
+                    query {
+                      transactionsByFirstActionTypeId(firstActionTypeId: "{{actionTypeId}}") {
+                        id
+                        blockHash
+                        blockIndex
+                        firstActionTypeId
+                        firstAvatarAddressInActionArguments
+                        firstNCGAmountInActionArguments
+                        object {
+                          id
+                          nonce
+                          publicKey
+                          signature
+                          signer
+                          timestamp
+                          updatedAddresses
+                          actions {
+                            raw
+                            typeId
+                            values
+                          }
+                        }
+                      }
+                    }
+                    """;
+
+        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
+
+        await Verify(result);
+    }
 } 

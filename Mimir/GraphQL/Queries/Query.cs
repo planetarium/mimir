@@ -153,6 +153,30 @@ public class Query
         await repo.GetByBlockIndex(blockIndex).ToListAsync();
 
     /// <summary>
+    /// Get Transactions by signer address.
+    /// </summary>
+    /// <param name="signer">The signer address.</param>
+    /// <returns>The Transactions signed by the specified address</returns>
+    public async Task<IEnumerable<TransactionDocument>> GetTransactionsBySignerAsync(string signer, [Service] ITransactionRepository repo) =>
+        await repo.GetBySignerAsync(signer).ToListAsync();
+
+    /// <summary>
+    /// Get Transactions by first avatar address in action arguments.
+    /// </summary>
+    /// <param name="firstAvatarAddress">The first avatar address in action arguments.</param>
+    /// <returns>The Transactions with the specified first avatar address in action arguments</returns>
+    public async Task<IEnumerable<TransactionDocument>> GetTransactionsByFirstAvatarAddressInActionArgumentsAsync(string firstAvatarAddress, [Service] ITransactionRepository repo) =>
+        await repo.GetByFirstAvatarAddressInActionArgumentsAsync(firstAvatarAddress).ToListAsync();
+
+    /// <summary>
+    /// Get Transactions by first action type ID.
+    /// </summary>
+    /// <param name="firstActionTypeId">The first action type ID.</param>
+    /// <returns>The Transactions with the specified first action type ID</returns>
+    public async Task<IEnumerable<TransactionDocument>> GetTransactionsByFirstActionTypeIdAsync(string firstActionTypeId, [Service] ITransactionRepository repo) =>
+        await repo.GetByFirstActionTypeIdAsync(firstActionTypeId).ToListAsync();
+
+    /// <summary>
     /// Get an pet state by avatar address.
     /// </summary>
     /// <param name="avatarAddress">The address of the avatar.</param>

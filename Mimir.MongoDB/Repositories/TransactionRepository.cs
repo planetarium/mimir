@@ -13,6 +13,9 @@ public interface ITransactionRepository
     Task<TransactionDocument> GetByTxIdAsync(string txId);
     IExecutable<TransactionDocument> Get();
     IExecutable<TransactionDocument> GetByBlockIndex(long blockIndex);
+    IExecutable<TransactionDocument> GetBySignerAsync(string signer);
+    IExecutable<TransactionDocument> GetByFirstAvatarAddressInActionArgumentsAsync(string firstAvatarAddress);
+    IExecutable<TransactionDocument> GetByFirstActionTypeIdAsync(string firstActionTypeId);
 }
 
 public class TransactionRepository(IMongoDbService dbService) : ITransactionRepository
@@ -48,6 +51,30 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
         var filter = Builders<TransactionDocument>.Filter.Eq("BlockIndex", blockIndex);
         var find = _collection.Find(filter);
         var sortDefinition = Builders<TransactionDocument>.Sort.Ascending("_id");
+        return find.Sort(sortDefinition).AsExecutable();
+    }
+
+    public IExecutable<TransactionDocument> GetBySignerAsync(string signer)
+    {
+        var filter = Builders<TransactionDocument>.Filter.Eq("Object.Signer", signer);
+        var find = _collection.Find(filter);
+        var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
+        return find.Sort(sortDefinition).AsExecutable();
+    }
+
+    public IExecutable<TransactionDocument> GetByFirstAvatarAddressInActionArgumentsAsync(string firstAvatarAddress)
+    {
+        var filter = Builders<TransactionDocument>.Filter.Eq("firstAvatarAddressInActionArguments", firstAvatarAddress);
+        var find = _collection.Find(filter);
+        var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
+        return find.Sort(sortDefinition).AsExecutable();
+    }
+
+    public IExecutable<TransactionDocument> GetByFirstActionTypeIdAsync(string firstActionTypeId)
+    {
+        var filter = Builders<TransactionDocument>.Filter.Eq("firstActionTypeId", firstActionTypeId);
+        var find = _collection.Find(filter);
+        var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
         return find.Sort(sortDefinition).AsExecutable();
     }
 } 
