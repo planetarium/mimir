@@ -5,12 +5,13 @@ using Lib9c.Models.Block;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
-using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Mimir.GraphQL.Objects;
+using Mimir.GraphQL.Types;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Repositories;
+using Mimir.Services;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.Extensions;
@@ -368,4 +369,12 @@ public class Query
         Address address,
         [Service] IWorldInformationRepository repo
     ) => (await repo.GetByAddressAsync(address)).Object;
+
+    /// <summary>
+    /// Get WNCG price from CoinMarketCap API.
+    /// </summary>
+    /// <returns>The WNCG price information.</returns>
+    public async Task<WncgPriceType?> GetWncgPriceAsync(
+        [Service] IWncgPriceService wncgPriceService
+    ) => await wncgPriceService.GetWncgPriceAsync();
 }

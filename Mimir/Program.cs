@@ -12,6 +12,7 @@ using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Repositories;
 using Mimir.MongoDB.Services;
 using Mimir.Options;
+using Mimir.Services;
 using BalanceRepository = Mimir.MongoDB.Repositories.BalanceRepository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,9 @@ builder.Services.Configure<RateLimitOption>(
 );
 builder.Services.Configure<JwtOption>(
     builder.Configuration.GetRequiredSection(JwtOption.SectionName)
+);
+builder.Services.Configure<WncgApiOption>(
+    builder.Configuration.GetRequiredSection(WncgApiOption.SectionName)
 );
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -144,6 +148,13 @@ builder.Services.AddRateLimiter(limiterOptions =>
             );
         }
     );
+});
+
+builder.Services.AddMemoryCache();
+
+builder.Services.AddHttpClient<IWncgPriceService, WncgPriceService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(3);
 });
 
 var app = builder.Build();
