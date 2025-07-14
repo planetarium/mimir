@@ -1,0 +1,15 @@
+﻿{
+  "data": {
+    "actionTypes": [
+      {
+        "id": "action1"
+      },
+      {
+        "id": "action2"
+      },
+      {
+        "id": "action3"
+      }
+    ]
+  }
+}

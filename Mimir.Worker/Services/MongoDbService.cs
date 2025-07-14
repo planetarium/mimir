@@ -26,6 +26,7 @@ public class MongoDbService
     private readonly IMongoCollection<MetadataDocument> _metadataCollection;
     private readonly IMongoCollection<BlockDocument> _blockCollection;
     private readonly IMongoCollection<TransactionDocument> _transactionCollection;
+    private readonly IMongoCollection<ActionTypeDocument> _actionTypeCollection;
 
     public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
@@ -62,6 +63,7 @@ public class MongoDbService
         _metadataCollection = _database.GetCollection<MetadataDocument>("metadata");
         _blockCollection = _database.GetCollection<BlockDocument>("block");
         _transactionCollection = _database.GetCollection<TransactionDocument>("transaction");
+        _actionTypeCollection = _database.GetCollection<ActionTypeDocument>("action_type");
     }
 
     private Dictionary<string, IMongoCollection<BsonDocument>> InitStateCollections()
@@ -282,6 +284,15 @@ public class MongoDbService
             ? await GetCollection(collectionName).BulkWriteAsync(bulkOps, null, cancellationToken)
             : await GetCollection(collectionName)
                 .BulkWriteAsync(session, bulkOps, null, cancellationToken);
+    }
+
+    public async Task UpsertActionTypeAsync(string actionTypeId)
+    {
+        var filter = Builders<ActionTypeDocument>.Filter.Eq("_id", actionTypeId);
+        var update = Builders<ActionTypeDocument>.Update.SetOnInsert("_id", actionTypeId);
+
+        var options = new UpdateOptions { IsUpsert = true };
+        await _actionTypeCollection.UpdateOneAsync(filter, update, options);
     }
 
     private UpdateOneModel<BsonDocument> GetMimirDocumentUpdateModel(

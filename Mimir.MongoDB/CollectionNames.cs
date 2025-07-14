@@ -112,6 +112,7 @@ namespace Mimir.MongoDB
             CollectionAndStateTypeMappings.Add(typeof(ItemSlotDocument), "item_slot");
             CollectionAndStateTypeMappings.Add(typeof(InventoryDocument), "inventory");
             CollectionAndStateTypeMappings.Add(typeof(MetadataDocument), "metadata");
+            CollectionAndStateTypeMappings.Add(typeof(ActionTypeDocument), "action_type");
             CollectionAndStateTypeMappings.Add(typeof(BlockDocument), "block");
             CollectionAndStateTypeMappings.Add(typeof(TransactionDocument), "transaction");
             CollectionAndStateTypeMappings.Add(typeof(PetStateDocument), "pet_state");

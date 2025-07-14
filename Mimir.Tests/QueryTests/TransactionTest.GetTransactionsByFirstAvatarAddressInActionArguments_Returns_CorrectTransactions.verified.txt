@@ -1,0 +1,30 @@
+﻿{
+  "data": {
+    "transactionsByFirstAvatarAddressInActionArguments": [
+      {
+        "id": "txid1",
+        "blockHash": "blockHash1",
+        "blockIndex": 6494625,
+        "firstActionTypeId": "actionType1",
+        "firstAvatarAddressInActionArguments": "0xavatar1",
+        "firstNCGAmountInActionArguments": "0.01",
+        "object": {
+          "id": "txid1",
+          "nonce": 1,
+          "publicKey": "pubkey1",
+          "signature": "sig1",
+          "signer": "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7",
+          "timestamp": "2024-01-01T00:00:00Z",
+          "updatedAddresses": [],
+          "actions": [
+            {
+              "raw": "raw1",
+              "typeId": "actionType1",
+              "values": "{ \"amount\" : \"100\" }"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

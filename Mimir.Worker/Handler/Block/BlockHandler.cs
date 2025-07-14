@@ -80,6 +80,11 @@ public class BlockHandler(
                             var (firstActionTypeId, firstAvatarAddress, firstNCGAmount) =
                                 ExtractTransactionMetadata(transactionModel);
 
+                            if (firstActionTypeId is not null)
+                            {
+                                await dbService.UpsertActionTypeAsync(firstActionTypeId);
+                            }
+
                             var transactionDocument = new TransactionDocument(
                                 currentTargetIndex,
                                 transactionModel.Id,
@@ -318,9 +323,11 @@ public class BlockHandler(
         var firstActionTypeId = string.IsNullOrEmpty(firstAction.TypeId)
             ? "not found"
             : firstAction.TypeId;
-        var avatarAddress = ActionParser.ExtractAvatarAddress(firstAction.Raw)
+        var avatarAddress = ActionParser
+            .ExtractAvatarAddress(firstAction.Raw)
             .FirstOrDefault(addr => addr != default && !addr.Equals(default));
-        var firstAvatarAddress = (avatarAddress == null || avatarAddress.Equals(default)) ? null : avatarAddress.ToHex();
+        var firstAvatarAddress =
+            (avatarAddress == null || avatarAddress.Equals(default)) ? null : avatarAddress.ToHex();
         var firstNCGAmount = ActionParser.ExtractNCGAmount(firstAction.Raw);
 
         return (firstActionTypeId, firstAvatarAddress, firstNCGAmount);
