@@ -56,12 +56,12 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
 
         if (filter?.Signer != null)
         {
-            filterDefinition &= filterBuilder.Eq("Object.Signer", filter.Signer);
+            filterDefinition &= filterBuilder.Eq("Object.Signer", filter.Signer.Value.ToHex());
         }
 
         if (filter?.FirstAvatarAddressInActionArguments != null)
         {
-            filterDefinition &= filterBuilder.Eq("firstAvatarAddressInActionArguments", filter.FirstAvatarAddressInActionArguments);
+            filterDefinition &= filterBuilder.Eq("firstAvatarAddressInActionArguments", filter.FirstAvatarAddressInActionArguments.Value.ToHex());
         }
 
         if (filter?.FirstActionTypeId != null)

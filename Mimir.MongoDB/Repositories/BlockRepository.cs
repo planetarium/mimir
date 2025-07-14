@@ -3,6 +3,7 @@ using HotChocolate.Data;
 using HotChocolate.Data.MongoDb;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Exceptions;
+using Mimir.MongoDB.Models;
 using Mimir.MongoDB.Services;
 using MongoDB.Driver;
 
@@ -12,6 +13,7 @@ public interface IBlockRepository
 {
     Task<BlockDocument> GetByIndexAsync(long index);
     IExecutable<BlockDocument> Get();
+    IExecutable<BlockDocument> Get(BlockFilter? filter);
 }
 
 public class BlockRepository(IMongoDbService dbService) : IBlockRepository
@@ -28,6 +30,21 @@ public class BlockRepository(IMongoDbService dbService) : IBlockRepository
     public IExecutable<BlockDocument> Get()
     {
         var find = _collection.Find(Builders<BlockDocument>.Filter.Empty);
+        var sortDefinition = Builders<BlockDocument>.Sort.Descending("Object.Index");
+        return find.Sort(sortDefinition).AsExecutable();
+    }
+
+    public IExecutable<BlockDocument> Get(BlockFilter? filter)
+    {
+        var filterBuilder = Builders<BlockDocument>.Filter;
+        var filterDefinition = filterBuilder.Empty;
+
+        if (filter?.Miner != null)
+        {
+            filterDefinition &= filterBuilder.Eq("Object.Miner", filter.Miner.Value.ToHex());
+        }
+
+        var find = _collection.Find(filterDefinition);
         var sortDefinition = Builders<BlockDocument>.Sort.Descending("Object.Index");
         return find.Sort(sortDefinition).AsExecutable();
     }

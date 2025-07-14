@@ -1,0 +1,25 @@
+﻿{
+  "data": {
+    "blocks": {
+      "items": [
+        {
+          "id": "blockHash1",
+          "object": {
+            "index": 6494625,
+            "hash": "blockHash1",
+            "miner": "0x0000000000000000000000000000000000000003",
+            "stateRootHash": "stateRootHash1",
+            "timestamp": "2024-01-01T00:00:00Z",
+            "txIds": [
+              "txid1"
+            ]
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false,
+        "hasPreviousPage": false
+      }
+    }
+  }
+}
