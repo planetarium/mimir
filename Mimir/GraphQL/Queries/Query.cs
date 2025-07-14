@@ -39,7 +39,7 @@ public class Query
     /// <returns>All action types.</returns>
     public async Task<IEnumerable<ActionTypeDocument>> GetActionTypesAsync(
         [Service] IActionTypeRepository repo
-    ) => await repo.GetAllAsync();
+    ) => (await repo.GetAllAsync()).OrderBy(x => x.Id);
 
     /// <summary>
     /// Get an agent state by address.

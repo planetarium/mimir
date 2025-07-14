@@ -479,4 +479,21 @@ public class TransactionTest
 
         await Verify(result);
     }
+
+    [Fact]
+    public async Task GetActionTypesAsync_Returns_AlphabeticallySorted()
+    {
+        var mockRepo = new Mock<IActionTypeRepository>();
+        var actionTypes = new List<ActionTypeDocument>
+        {
+            new ActionTypeDocument("zeta"),
+            new ActionTypeDocument("alpha"),
+            new ActionTypeDocument("beta"),
+        };
+        mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(actionTypes);
+        var query = new Mimir.GraphQL.Queries.Query();
+        var result = await query.GetActionTypesAsync(mockRepo.Object);
+        var ids = result.Select(x => x.Id).ToList();
+        Assert.Equal(new List<string> { "alpha", "beta", "zeta" }, ids);
+    }
 } 
