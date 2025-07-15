@@ -45,22 +45,21 @@ public record ItemUsable : ItemBase
 
     public ItemUsable(IValue bencoded) : base(bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var itemUsable = (Nekoyume.Model.Item.ItemUsable)Nekoyume.Model.Item.ItemFactory.Deserialize(bencoded);
+            ItemId = itemUsable.ItemId;
+            StatsMap = new StatMap(itemUsable.StatsMap.Serialize());
+            Skills = itemUsable.Skills.Select(s => new Skill(s.Serialize())).ToList();
+            BuffSkills = itemUsable.BuffSkills.Select(s => new Skill(s.Serialize())).ToList();
+            RequiredBlockIndex = itemUsable.RequiredBlockIndex;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
         }
-
-        ItemId = d["itemId"].ToGuid();
-        StatsMap = new StatMap(d["statsMap"]);
-        Skills = ((List)d["skills"])
-            .Select(SkillFactory.Create)
-            .ToList();
-        BuffSkills = ((List)d["buffSkills"])
-            .Select(SkillFactory.Create)
-            .ToList();
-        RequiredBlockIndex = d["requiredBlockIndex"].ToLong();
     }
 }

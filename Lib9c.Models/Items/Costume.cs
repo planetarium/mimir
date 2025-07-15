@@ -41,29 +41,20 @@ public record Costume : ItemBase
 
     public Costume(IValue bencoded) : base(bencoded)
     {
-        if (bencoded is not Dictionary d)
+        try
+        {
+            var costume = (Nekoyume.Model.Item.Costume)Nekoyume.Model.Item.ItemFactory.Deserialize(bencoded);
+            Equipped = costume.Equipped;
+            SpineResourcePath = costume.SpineResourcePath;
+            ItemId = costume.ItemId;
+            RequiredBlockIndex = costume.RequiredBlockIndex;
+        }
+        catch (ArgumentException)
         {
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(bencoded),
-                new[] { ValueKind.Dictionary },
+                new[] { ValueKind.Dictionary, ValueKind.List },
                 bencoded.Kind);
-        }
-
-        if (d.TryGetValue((Text)"equipped", out var toEquipped))
-        {
-            Equipped = toEquipped.ToBoolean();
-        }
-
-        if (d.TryGetValue((Text)"spine_resource_path", out var spineResourcePath))
-        {
-            SpineResourcePath = (Text)spineResourcePath;
-        }
-
-        ItemId = d[LegacyCostumeItemIdKey].ToGuid();
-
-        if (d.ContainsKey(RequiredBlockIndexKey))
-        {
-            RequiredBlockIndex = d[RequiredBlockIndexKey].ToLong();
         }
     }
 }
