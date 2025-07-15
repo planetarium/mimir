@@ -65,7 +65,8 @@ public class EquipmentTest
 
         // serialize target state and deserialize as paired state
         var serialized = target.Serialize();
-        var deserialized = new Models.Items.Equipment(serialized);
+        Assert.IsType<List>(serialized);
+        var deserialized = (Models.Items.Equipment)Factories.ItemFactory.Deserialize(serialized);
 
         // Check Deserialize from List
         Assert.Equal(target.Id, deserialized.Id);
