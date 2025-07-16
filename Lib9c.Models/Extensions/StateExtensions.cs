@@ -258,7 +258,7 @@ public static class StateExtensions
         return ((List)serialized)
             .Cast<Dictionary>()
             .ToDictionary(
-                value => (Material)ItemFactory.Deserialize((Dictionary)value["material"]),
+                value => (Material)ItemFactory.Deserialize(value["material"]),
                 value => value["count"].ToInteger()
             );
     }
