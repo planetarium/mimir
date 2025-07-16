@@ -3,6 +3,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
+using Lib9c.Models.Factories;
 using MongoDB.Bson.Serialization.Attributes;
 using Nekoyume.Model.Item;
 using ValueKind = Bencodex.Types.ValueKind;
@@ -37,12 +38,14 @@ public record ItemBase : IBencodable
     {
         try
         {
-            var itemBase = ItemFactory.Deserialize(bencoded);
-            Id = itemBase.Id;
-            Grade = itemBase.Grade;
-            ItemType = itemBase.ItemType;
-            ItemSubType = itemBase.ItemSubType;
-            ElementalType = itemBase.ElementalType;
+            // ItemFactory의 헬퍼 메서드를 사용하여 공통 속성 파싱
+            var properties = Lib9c.Models.Factories.ItemFactory.ParseCommonProperties(bencoded);
+
+            Id = properties.id;
+            Grade = properties.grade;
+            ItemType = properties.itemType;
+            ItemSubType = properties.itemSubType;
+            ElementalType = properties.elementalType;
         }
         catch (ArgumentException)
         {
