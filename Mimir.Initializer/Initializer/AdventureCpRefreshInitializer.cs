@@ -31,7 +31,7 @@ public class AdventureCpRefreshInitializer : IExecutor
     {
         _dbService = dbService;
         _stateService = stateService;
-        _stateGetter = stateService.At();
+        _stateGetter = stateService.At(configuration);
         _shouldRun = configuration.Value.RunOptions.HasFlag(RunOptions.AdventureCpRefreshInitializer);
         _logger = Log.ForContext<AdventureCpRefreshInitializer>();
         _adventureCpConverter = new AdventureCpStateDocumentConverter();

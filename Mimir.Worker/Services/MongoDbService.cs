@@ -27,6 +27,7 @@ public class MongoDbService
     private readonly IMongoCollection<BlockDocument> _blockCollection;
     private readonly IMongoCollection<TransactionDocument> _transactionCollection;
     private readonly IMongoCollection<ActionTypeDocument> _actionTypeCollection;
+    private readonly IMongoCollection<BalanceDocument> _ncgBalanceCollection;
 
     public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
     {
@@ -64,6 +65,7 @@ public class MongoDbService
         _blockCollection = _database.GetCollection<BlockDocument>("block");
         _transactionCollection = _database.GetCollection<TransactionDocument>("transaction");
         _actionTypeCollection = _database.GetCollection<ActionTypeDocument>("action_type");
+        _ncgBalanceCollection = _database.GetCollection<BalanceDocument>("balance_ncg");
     }
 
     private Dictionary<string, IMongoCollection<BsonDocument>> InitStateCollections()
@@ -161,6 +163,20 @@ public class MongoDbService
 
         var doc = await _metadataCollection.Find(filter).FirstAsync(cancellationToken);
         return doc.LatestBlockIndex;
+    }
+
+    public async Task<bool> IsExistDailyRewardAsync(Address avatarAddress)
+    {
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", avatarAddress.ToHex());
+        var count = await GetCollection<DailyRewardDocument>().CountDocumentsAsync(filter);
+        return count > 0;
+    }
+
+    public async Task<bool> IsExistNCGBalanceAsync(Address signer)
+    {
+        var filter = Builders<BalanceDocument>.Filter.Eq("_id", signer.ToHex());
+        var count = await _ncgBalanceCollection.CountDocumentsAsync(filter);
+        return count > 0;
     }
 
     public async Task<bool> IsExistAgentAsync(Address signer)

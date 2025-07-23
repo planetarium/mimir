@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Market;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
@@ -17,7 +18,8 @@ public class ProductsStateHandler(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration
 )
     : BaseActionHandler<ProductsStateDocument>(
         stateService,
@@ -25,7 +27,8 @@ public class ProductsStateHandler(
         headlessGqlClient,
         initializerManager,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductsStateHandler>()
+        Log.ForContext<ProductsStateHandler>(),
+        configuration
     )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(

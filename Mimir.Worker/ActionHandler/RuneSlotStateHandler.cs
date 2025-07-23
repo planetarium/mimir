@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
@@ -19,7 +20,8 @@ public class RuneSlotStateHandler(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration
 )
     : BaseActionHandler<RuneSlotDocument>(
         stateService,
@@ -27,7 +29,8 @@ public class RuneSlotStateHandler(
         headlessGqlClient,
         initializerManager,
         "^(battle_arena[0-9]*|event_dungeon_battle[0-9]*|hack_and_slash[0-9]*|hack_and_slash_sweep[0-9]*|join_arena[0-9]*|raid[0-9]*|unlock_rune_slot[0-9]*)$",
-        Log.ForContext<RuneSlotStateHandler>()
+        Log.ForContext<RuneSlotStateHandler>(),
+        configuration
     )
 {
     private static readonly BattleType[] BattleTypes = Enum.GetValues<BattleType>();

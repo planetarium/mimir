@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
@@ -18,7 +19,8 @@ public class WorldBossStateHandler(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration
 )
     : BaseActionHandler<WorldBossStateDocument>(
         stateService,
@@ -26,7 +28,8 @@ public class WorldBossStateHandler(
         headlessGqlClient,
         initializerManager,
         "^raid[0-9]*$",
-        Log.ForContext<WorldBossStateHandler>()
+        Log.ForContext<WorldBossStateHandler>(),
+        configuration
     )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(

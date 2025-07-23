@@ -3,6 +3,7 @@ using Lib9c.Models.Extensions;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
@@ -18,13 +19,14 @@ namespace Mimir.Worker.Handler;
 public class BlockHandler(
     MongoDbService dbService,
     IHeadlessGQLClient headlessGqlClient,
-    IStateService stateService
+    IStateService stateService,
+    IOptions<Configuration> configuration
 ) : BackgroundService
 {
     public const string PollerType = "BlockPoller";
     public const string collectionName = "block";
     public const string transactionCollectionName = "transaction";
-    private readonly StateGetter StateGetter = stateService.At();
+    private readonly StateGetter StateGetter = stateService.At(configuration);
     private const int LIMIT = 50;
 
     private readonly ILogger Logger = Log.ForContext<BlockHandler>();
@@ -137,6 +139,10 @@ public class BlockHandler(
                                     transaction.Object.Signer,
                                     currentTargetIndex
                                 );
+                                await InsertNCGBalanceIfNotExist(
+                                    transaction.Object.Signer,
+                                    currentTargetIndex
+                                );
 
                                 foreach (var action in transaction.Object.Actions)
                                 {
@@ -146,6 +152,10 @@ public class BlockHandler(
                                     foreach (var avatarAddress in avatarAddresses)
                                     {
                                         await InsertAvatarIfNotExist(
+                                            avatarAddress,
+                                            currentTargetIndex
+                                        );
+                                        await InsertDailyRewardIfNotExist(
                                             avatarAddress,
                                             currentTargetIndex
                                         );
@@ -221,6 +231,64 @@ public class BlockHandler(
     {
         var (result, _) = await headlessGqlClient.GetTipAsync(stoppingToken, null);
         return result.NodeStatus.Tip.Index;
+    }
+
+    private async Task InsertNCGBalanceIfNotExist(Address signer, long blockIndex)
+    {
+        var isExist = await dbService.IsExistNCGBalanceAsync(signer);
+        if (isExist)
+            return;
+
+        await InsertNCGBalance(signer, blockIndex);
+    }
+
+    private async Task InsertNCGBalance(Address signer, long blockIndex)
+    {
+        try
+        {
+            var ncgBalanceState = await StateGetter.GetNCGBalanceAsync(signer);
+
+            var document = new BalanceDocument(blockIndex, signer, ncgBalanceState);
+
+            await dbService.UpsertStateDataManyAsync("balance_ncg", [document]);
+        }
+        catch (StateNotFoundException)
+        {
+            var document = new BalanceDocument(blockIndex, signer, "0");
+            await dbService.UpsertStateDataManyAsync("balance_ncg", [document]);
+        }
+    }
+
+    private async Task InsertDailyRewardIfNotExist(Address signer, long blockIndex)
+    {
+        var isExist = await dbService.IsExistDailyRewardAsync(signer);
+        if (isExist)
+            return;
+
+        await InsertDailyReward(signer, blockIndex);
+    }
+
+    private async Task InsertDailyReward(Address avatarAddress, long blockIndex)
+    {
+        try
+        {
+            var dailyRewardState = await StateGetter.GetDailyRewardAsync(avatarAddress);
+
+            var document = new DailyRewardDocument(blockIndex, avatarAddress, dailyRewardState);
+
+            await dbService.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName<DailyRewardDocument>(),
+                [document]
+            );
+        }
+        catch (StateNotFoundException)
+        {
+            var document = new DailyRewardDocument(blockIndex, avatarAddress, 0);
+            await dbService.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName<DailyRewardDocument>(),
+                [document]
+            );
+        }
     }
 
     private async Task InsertAgentIfNotExist(Address signer, long blockIndex)

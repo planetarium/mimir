@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
@@ -13,14 +14,20 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class PledgeStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
+public class PledgeStateHandler(
+    IStateService stateService, 
+    MongoDbService store, 
+    IHeadlessGQLClient headlessGqlClient, 
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseActionHandler<PledgeDocument>(
         stateService,
         store,
         headlessGqlClient,
         initializerManager,
         "^approve_pledge[0-9]*$|^end_pledge[0-9]*$|^request_pledge[0-9]*$",
-        Log.ForContext<PledgeStateHandler>())
+        Log.ForContext<PledgeStateHandler>(),
+        configuration)
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,

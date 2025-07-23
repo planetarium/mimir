@@ -1,4 +1,5 @@
 using Libplanet.Types.Assets;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
@@ -15,7 +16,8 @@ public abstract class BaseBalanceHandler(
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
     ILogger logger,
-    Currency currency)
+    Currency currency,
+    IOptions<Configuration> configuration)
     : BaseDiffHandler(
         collectionName,
         CollectionNames.GetAccountAddress(currency),
@@ -24,4 +26,5 @@ public abstract class BaseBalanceHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        logger);
+        logger,
+        configuration);

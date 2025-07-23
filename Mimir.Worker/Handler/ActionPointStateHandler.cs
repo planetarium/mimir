@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -11,7 +12,8 @@ public sealed class ActionPointStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseDiffHandler(
         "action_point",
         Addresses.ActionPoint,
@@ -20,4 +22,5 @@ public sealed class ActionPointStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<ActionPointStateHandler>());
+        Log.ForContext<ActionPointStateHandler>(),
+        configuration);

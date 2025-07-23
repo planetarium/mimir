@@ -29,7 +29,7 @@ public class AgentRefreshInitializer : IExecutor
     {
         _dbService = dbService;
         _stateService = stateService;
-        _stateGetter = stateService.At();
+        _stateGetter = stateService.At(configuration);
         _shouldRun = configuration.Value.RunOptions.HasFlag(RunOptions.AgentRefreshInitializer);
         _logger = Log.ForContext<AgentRefreshInitializer>();
         _agentConverter = new AgentStateDocumentConverter();

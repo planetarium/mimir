@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -12,7 +13,8 @@ public sealed class AdventureCpStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseDiffHandler(
         "adventure_cp",
         Addresses.AdventureCp,
@@ -21,4 +23,5 @@ public sealed class AdventureCpStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<AdventureCpStateHandler>());
+        Log.ForContext<AdventureCpStateHandler>(),
+        configuration);

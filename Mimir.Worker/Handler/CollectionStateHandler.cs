@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -11,12 +12,17 @@ public sealed class CollectionStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
-    : BaseDiffHandler("collection",
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration
+)
+    : BaseDiffHandler(
+        "collection",
         Addresses.Collection,
         new CollectionStateDocumentConverter(),
         dbService,
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<CollectionStateHandler>());
+        Log.ForContext<CollectionStateHandler>(),
+        configuration
+    );

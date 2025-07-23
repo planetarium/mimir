@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -11,7 +12,8 @@ public sealed class AgentStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseDiffHandler("agent",
         Addresses.Agent,
         new AgentStateDocumentConverter(),
@@ -19,4 +21,5 @@ public sealed class AgentStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<AgentStateHandler>());
+        Log.ForContext<AgentStateHandler>(),
+        configuration);

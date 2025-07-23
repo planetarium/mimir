@@ -1,4 +1,5 @@
 using Lib9c;
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -10,6 +11,7 @@ public sealed class FreyaLiberationRuneBalanceHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseBalanceHandler("balance_freya_liberation_rune", dbService, stateService, headlessGqlClient,
-        initializerManager, Log.ForContext<FreyaLiberationRuneBalanceHandler>(), Currencies.FreyaLiberationRune);
+        initializerManager, Log.ForContext<FreyaLiberationRuneBalanceHandler>(), Currencies.FreyaLiberationRune, configuration);

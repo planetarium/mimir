@@ -31,7 +31,7 @@ public class AvatarRefreshInitializer : IExecutor
     {
         _dbService = dbService;
         _stateService = stateService;
-        _stateGetter = stateService.At();
+        _stateGetter = stateService.At(configuration);
         _shouldRun = configuration.Value.RunOptions.HasFlag(RunOptions.AvatarRefreshInitializer);
         _logger = Log.ForContext<AvatarRefreshInitializer>();
         _avatarConverter = new AvatarStateDocumentConverter();

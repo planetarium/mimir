@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
@@ -20,7 +21,8 @@ public class TableSheetStateHandler(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration
 )
     : BaseActionHandler<SheetDocument>(
         stateService,
@@ -28,7 +30,8 @@ public class TableSheetStateHandler(
         headlessGqlClient,
         initializerManager,
         "^patch_table_sheet[0-9]*$",
-        Log.ForContext<TableSheetStateHandler>()
+        Log.ForContext<TableSheetStateHandler>(),
+        configuration
     )
 {
     private static readonly ImmutableArray<Type> SheetTypes =
