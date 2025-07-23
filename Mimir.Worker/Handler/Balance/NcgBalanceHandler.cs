@@ -21,15 +21,15 @@ public sealed class NcgBalanceHandler(
             PlanetType.Odin => OdinNCGCurrency,
             PlanetType.Heimdall => HeimdallNCGCurrency,
             _ => throw new ArgumentOutOfRangeException(nameof(configuration.Value.PlanetType), configuration.Value.PlanetType, null)
-        })
+        }, configuration)
 {
-    private static readonly Currency OdinNCGCurrency = Currency.Legacy(
+    public static readonly Currency OdinNCGCurrency = Currency.Legacy(
         "NCG",
         2,
         new Address("0x47d082a115c63e7b58b1532d20e631538eafadde")
     );
 
-    private static readonly Currency HeimdallNCGCurrency = Currency.Legacy(
+    public static readonly Currency HeimdallNCGCurrency = Currency.Legacy(
         "NCG",
         2,
         null

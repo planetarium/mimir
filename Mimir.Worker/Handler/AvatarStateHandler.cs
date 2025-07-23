@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
@@ -15,7 +16,8 @@ public sealed class AvatarStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration
 )
     : BaseDiffHandler(
         "avatar",
@@ -25,7 +27,8 @@ public sealed class AvatarStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<AvatarStateHandler>()
+        Log.ForContext<AvatarStateHandler>(),
+        configuration
     )
 {
     protected override async Task<MimirBsonDocument> CreateDocumentAsync(

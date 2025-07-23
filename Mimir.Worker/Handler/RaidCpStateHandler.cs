@@ -1,4 +1,5 @@
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -12,7 +13,8 @@ public sealed class RaidCpStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseDiffHandler(
         "raid_cp",
         Addresses.RaidCp,
@@ -21,4 +23,5 @@ public sealed class RaidCpStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<RaidCpStateHandler>());
+        Log.ForContext<RaidCpStateHandler>(),
+        configuration);

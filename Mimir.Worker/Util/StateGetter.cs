@@ -3,7 +3,14 @@ using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
 using Libplanet.Crypto;
+using Libplanet.Types.Assets;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Mimir.MongoDB;
+using Mimir.MongoDB.Bson;
+using Mimir.Worker.Constants;
 using Mimir.Worker.Exceptions;
+using Mimir.Worker.Handler.Balance;
 using Mimir.Worker.Services;
 using Nekoyume;
 using Nekoyume.Action;
@@ -15,10 +22,12 @@ namespace Mimir.Worker.Util;
 public class StateGetter
 {
     private readonly IStateService _service;
+    private readonly IOptions<Configuration> _configuration;
 
-    public StateGetter(IStateService service)
+    public StateGetter(IStateService service, IOptions<Configuration> configuration)
     {
         _service = service;
+        _configuration = configuration;
     }
 
     public async Task<T> GetSheet<T>(CancellationToken stoppingToken = default)
@@ -36,6 +45,64 @@ public class StateGetter
         var sheet = new T();
         sheet.Set(sheetValue.Value);
         return sheet;
+    }
+
+    public async Task<string> GetNCGBalanceAsync(
+        Address agentAddress,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var currency = _configuration.Value.PlanetType switch
+        {
+            PlanetType.Odin => NcgBalanceHandler.OdinNCGCurrency,
+            PlanetType.Heimdall => NcgBalanceHandler.HeimdallNCGCurrency,
+            _ => throw new ArgumentOutOfRangeException(),
+        };
+
+        var state = await GetStateWithLegacyAccount(
+            agentAddress,
+            CollectionNames.GetAccountAddress(currency),
+            stoppingToken
+        );
+        var a = CollectionNames.GetAccountAddress(currency);
+
+        if (state is null)
+        {
+            throw new StateNotFoundException(agentAddress, typeof(BalanceDocument));
+        }
+
+        if (state is not Integer value)
+            throw new InvalidCastException(
+                $"{nameof(state)} Invalid state type. "
+                    + $"Expected {nameof(Integer)}, got {state.GetType().Name}."
+            );
+
+        return FungibleAssetValue.FromRawValue(currency, value).GetQuantityString();
+    }
+
+    public async Task<long> GetDailyRewardAsync(
+        Address avatarAddress,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var state = await GetStateWithLegacyAccount(
+            avatarAddress,
+            Addresses.DailyReward,
+            stoppingToken
+        );
+
+        if (state is null)
+        {
+            throw new StateNotFoundException(avatarAddress, typeof(long));
+        }
+
+        if (state is not Integer value)
+            throw new ArgumentException(
+                $"Invalid state type. Expected {nameof(Integer)}, got {state.GetType().Name}.",
+                nameof(state)
+            );
+
+        return value;
     }
 
     public async Task<AvatarState> GetAvatarStateAsync(

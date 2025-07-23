@@ -1,6 +1,7 @@
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
@@ -20,13 +21,14 @@ public abstract class BaseDiffHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    ILogger logger
+    ILogger logger,
+    IOptions<Configuration> configuration
 ) : BackgroundService
 {
     protected const string PollerType = "DiffPoller";
     protected static readonly Codec Codec = new();
 
-    protected readonly StateGetter StateGetter = stateService.At();
+    protected readonly StateGetter StateGetter = stateService.At(configuration);
     protected readonly ILogger Logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

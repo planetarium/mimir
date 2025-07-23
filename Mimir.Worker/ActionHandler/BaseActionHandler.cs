@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
@@ -22,14 +23,15 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
     IInitializerManager initializerManager,
     [StringSyntax(StringSyntaxAttribute.Regex)]
     string actionTypeRegex,
-    ILogger logger) : BackgroundService
+    ILogger logger,
+    IOptions<Configuration> configuration) : BackgroundService
     where TMimirBsonDocument : MimirBsonDocument
 {
     private readonly Codec Codec = new();
 
     protected readonly IStateService StateService = stateService;
 
-    protected readonly StateGetter StateGetter = stateService.At();
+    protected readonly StateGetter StateGetter = stateService.At(configuration);
 
     protected readonly MongoDbService Store = store;
 

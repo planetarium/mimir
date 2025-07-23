@@ -4,6 +4,7 @@ using Lib9c.Models.Extensions;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
@@ -24,7 +25,8 @@ public class ProductStateHandler(
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IItemProductCalculationService itemProductCalculationService
+    IItemProductCalculationService itemProductCalculationService,
+    IOptions<Configuration> configuration
 )
     : BaseActionHandler<ProductDocument>(
         stateService,
@@ -32,7 +34,8 @@ public class ProductStateHandler(
         headlessGqlClient,
         initializerManager,
         "^register_product[0-9]*$|^cancel_product_registration[0-9]*$|^buy_product[0-9]*$|^re_register_product[0-9]*$",
-        Log.ForContext<ProductStateHandler>()
+        Log.ForContext<ProductStateHandler>(),
+        configuration
     )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(

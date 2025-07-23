@@ -2,6 +2,7 @@ using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
@@ -15,8 +16,14 @@ using Serilog;
 
 namespace Mimir.Worker.ActionHandler;
 
-public class RaiderStateHandler(IStateService stateService, MongoDbService store, IHeadlessGQLClient headlessGqlClient, IInitializerManager initializerManager)
-    : BaseActionHandler<RaiderStateDocument>(stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>())
+public class RaiderStateHandler(
+    IStateService stateService, 
+    MongoDbService store, 
+    IHeadlessGQLClient headlessGqlClient, 
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
+    : BaseActionHandler<RaiderStateDocument>(
+        stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<RaiderStateHandler>(), configuration)
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,

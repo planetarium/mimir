@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -11,7 +12,8 @@ public sealed class AllRuneStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseDiffHandler("all_rune",
         Addresses.RuneState,
         new AllRuneStateDocumentConverter(),
@@ -19,4 +21,5 @@ public sealed class AllRuneStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<AllRuneStateHandler>());
+        Log.ForContext<AllRuneStateHandler>(),
+        configuration);

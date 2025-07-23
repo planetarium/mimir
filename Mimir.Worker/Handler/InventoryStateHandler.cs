@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -11,7 +12,8 @@ public sealed class InventoryStateHandler(
     MongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager)
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration)
     : BaseDiffHandler("inventory",
         Addresses.Inventory,
         new InventoryStateDocumentConverter(),
@@ -19,4 +21,5 @@ public sealed class InventoryStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<InventoryStateHandler>());
+        Log.ForContext<InventoryStateHandler>(),
+        configuration);

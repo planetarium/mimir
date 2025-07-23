@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Lib9c.Models.Exceptions;
 using Libplanet.Crypto;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
@@ -19,7 +20,8 @@ public class ItemSlotStateHandler(
     IStateService stateService,
     MongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
-    IInitializerManager initializerManager
+    IInitializerManager initializerManager,
+    IOptions<Configuration> configuration
 )
     : BaseActionHandler<ItemSlotDocument>(
         stateService,
@@ -27,7 +29,8 @@ public class ItemSlotStateHandler(
         headlessGqlClient,
         initializerManager,
         "^hack_and_slash[0-9]*$|^hack_and_slash_sweep[0-9]*$|^battle_arena[0-9]*$|^event_dungeon_battle[0-9]*$|^join_arena[0-9]*$|^raid[0-9]*$",
-        Log.ForContext<ItemSlotStateHandler>()
+        Log.ForContext<ItemSlotStateHandler>(),
+        configuration
     )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
