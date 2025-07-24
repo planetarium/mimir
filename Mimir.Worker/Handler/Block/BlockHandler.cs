@@ -78,7 +78,7 @@ public class BlockHandler(
                     {
                         foreach (var transaction in block.Transactions)
                         {
-                            var transactionModel = transaction.ToTransactionModel();
+                            var transactionModel = transaction.ToTransactionModel(block);
                             var (firstActionTypeId, firstAvatarAddress, firstNCGAmount) =
                                 ExtractTransactionMetadata(transactionModel);
 

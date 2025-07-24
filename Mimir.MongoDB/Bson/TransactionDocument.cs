@@ -19,4 +19,4 @@ public record TransactionDocument(
     string? firstAvatarAddressInActionArguments,
     string? firstNCGAmountInActionArguments,
     Transaction Object
-) : MimirBsonDocument(TxId, new DocumentMetadata(1, StoredBlockIndex));
+) : MimirBsonDocument(TxId, new DocumentMetadata(2, StoredBlockIndex));
