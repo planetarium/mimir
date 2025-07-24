@@ -6,11 +6,11 @@
           "id": "txid1",
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
-          "firstActionTypeId": "actionType1",
-          "firstAvatarAddressInActionArguments": "0x0000000000000000000000000000000000000002",
-          "firstNCGAmountInActionArguments": "0.01",
-          "firstRecipientInActionArguments": null,
-          "firstSenderInActionArguments": null,
+          "firstActionTypeId": "transfer_asset",
+          "firstAvatarAddressInActionArguments": "0x0000000000000000000000000000000000000001",
+          "firstNCGAmountInActionArguments": "10.5",
+          "firstRecipientInActionArguments": "0x0000000000000000000000000000000000000003",
+          "firstSenderInActionArguments": "0x0000000000000000000000000000000000000004",
           "object": {
             "id": "txid1",
             "nonce": 1,
@@ -22,7 +22,7 @@
             "actions": [
               {
                 "raw": "raw1",
-                "typeId": "actionType1",
+                "typeId": "transfer_asset",
                 "values": "{ \"amount\" : \"100\" }"
               }
             ]

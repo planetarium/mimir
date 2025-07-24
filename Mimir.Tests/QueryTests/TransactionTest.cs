@@ -24,8 +24,10 @@ public class TransactionTest
                 "blockHash1",
                 6494625,
                 "actionType1",
-                "0xavatar1",
+                new Address("0x0000000000000000000000000000000000000001"),
                 "0.01",
+                new Address("0x0000000000000000000000000000000000000001"),
+                new Address("0x0000000000000000000000000000000000000001"),
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -34,7 +36,7 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    UpdatedAddresses = new List<string>(),
+                    UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
                     {
                         new Lib9c.Models.Block.Action
@@ -52,7 +54,9 @@ public class TransactionTest
                 "blockHash2",
                 6494624,
                 "actionType2",
-                "0xavatar2",
+                new Address("0x0000000000000000000000000000000000000002"),
+                null,
+                null,
                 null,
                 new Lib9c.Models.Block.Transaction
                 {
@@ -62,7 +66,7 @@ public class TransactionTest
                     Signature = "sig2",
                     Signer = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
                     Timestamp = "2024-01-01T00:00:01Z",
-                    UpdatedAddresses = new List<string>(),
+                    UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
                     {
                         new Lib9c.Models.Block.Action
@@ -94,6 +98,8 @@ public class TransactionTest
                           firstActionTypeId
                           firstAvatarAddressInActionArguments
                           firstNCGAmountInActionArguments
+                          firstRecipientInActionArguments
+                          firstSenderInActionArguments
                           object {
                             id
                             nonce
@@ -134,8 +140,10 @@ public class TransactionTest
                 "blockHash1",
                 6494625,
                 "actionType1",
-                "0xavatar1",
+                new Address("0x0000000000000000000000000000000000000001"),
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -144,7 +152,7 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    UpdatedAddresses = new List<string>(),
+                    UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
                     {
                         new Lib9c.Models.Block.Action
@@ -162,7 +170,9 @@ public class TransactionTest
                 "blockHash2",
                 6494624,
                 "actionType2",
-                "0xavatar2",
+                new Address("0x0000000000000000000000000000000000000002"),
+                null,
+                null,
                 null,
                 new Lib9c.Models.Block.Transaction
                 {
@@ -172,7 +182,7 @@ public class TransactionTest
                     Signature = "sig2",
                     Signer = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
                     Timestamp = "2024-01-01T00:00:01Z",
-                    UpdatedAddresses = new List<string>(),
+                    UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
                     {
                         new Lib9c.Models.Block.Action
@@ -204,6 +214,8 @@ public class TransactionTest
                           firstActionTypeId
                           firstAvatarAddressInActionArguments
                           firstNCGAmountInActionArguments
+                          firstRecipientInActionArguments
+                          firstSenderInActionArguments
                           object {
                             id
                             nonce
@@ -245,8 +257,10 @@ public class TransactionTest
                 "blockHash1",
                 6494625,
                 "actionType1",
-                "0xavatar1",
+                new Address("0x0000000000000000000000000000000000000001"),
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -255,7 +269,7 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = signerAddress,
                     Timestamp = "2024-01-01T00:00:00Z",
-                    UpdatedAddresses = new List<string>(),
+                    UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
                     {
                         new Lib9c.Models.Block.Action
@@ -287,6 +301,8 @@ public class TransactionTest
                           firstActionTypeId
                           firstAvatarAddressInActionArguments
                           firstNCGAmountInActionArguments
+                          firstRecipientInActionArguments
+                          firstSenderInActionArguments
                           object {
                             id
                             nonce
@@ -328,8 +344,10 @@ public class TransactionTest
                 "blockHash1",
                 6494625,
                 "actionType1",
-                avatarAddress.ToHex(),
+                avatarAddress,
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -338,7 +356,7 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    UpdatedAddresses = new List<string>(),
+                    UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
                     {
                         new Lib9c.Models.Block.Action
@@ -370,6 +388,8 @@ public class TransactionTest
                           firstActionTypeId
                           firstAvatarAddressInActionArguments
                           firstNCGAmountInActionArguments
+                          firstRecipientInActionArguments
+                          firstSenderInActionArguments
                           object {
                             id
                             nonce
@@ -411,8 +431,10 @@ public class TransactionTest
                 "blockHash1",
                 6494625,
                 actionTypeId,
-                "0xavatar1",
+                new Address("0x0000000000000000000000000000000000000001"),
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -421,7 +443,7 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    UpdatedAddresses = new List<string>(),
+                    UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
                     {
                         new Lib9c.Models.Block.Action
@@ -453,6 +475,8 @@ public class TransactionTest
                           firstActionTypeId
                           firstAvatarAddressInActionArguments
                           firstNCGAmountInActionArguments
+                          firstRecipientInActionArguments
+                          firstSenderInActionArguments
                           object {
                             id
                             nonce
@@ -481,8 +505,6 @@ public class TransactionTest
         await Verify(result);
     }
 
-
-
     [Fact]
     public async Task GetActionTypesAsync_Returns_AlphabeticallySorted()
     {
@@ -498,5 +520,93 @@ public class TransactionTest
         var result = await query.GetActionTypesAsync(mockRepo.Object);
         var ids = result.Select(x => x.Id).ToList();
         Assert.Equal(new List<string> { "alpha", "beta", "zeta" }, ids);
+    }
+
+    [Fact]
+    public async Task GetTransactions_WithNewFields_Returns_CorrectData()
+    {
+        var mockRepo = new Mock<ITransactionRepository>();
+        var recipientAddress = new Address("0x0000000000000000000000000000000000000003");
+        var senderAddress = new Address("0x0000000000000000000000000000000000000004");
+        var transactions = new List<TransactionDocument>
+        {
+            new TransactionDocument(
+                6494625,
+                "txid1",
+                "blockHash1",
+                6494625,
+                "transfer_asset",
+                new Address("0x0000000000000000000000000000000000000001"),
+                "10.5",
+                recipientAddress,
+                senderAddress,
+                new Lib9c.Models.Block.Transaction
+                {
+                    Id = "txid1",
+                    Nonce = 1,
+                    PublicKey = "pubkey1",
+                    Signature = "sig1",
+                    Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
+                    Timestamp = "2024-01-01T00:00:00Z",
+                    UpdatedAddresses = new List<Address>(),
+                    Actions = new List<Lib9c.Models.Block.Action>
+                    {
+                        new Lib9c.Models.Block.Action
+                        {
+                            Raw = "raw1",
+                            TypeId = "transfer_asset",
+                            Values = new BsonDocument { { "amount", "100" } }
+                        }
+                    }
+                }
+            )
+        };
+
+        mockRepo
+            .Setup(repo => repo.Get(It.IsAny<TransactionFilter>()))
+            .Returns(transactions.AsQueryable().AsExecutable());
+
+        var serviceProvider = TestServices.Builder
+            .With(mockRepo.Object)
+            .Build();
+
+        var query = """
+                    query {
+                      transactions {
+                        items {
+                          id
+                          blockHash
+                          blockIndex
+                          firstActionTypeId
+                          firstAvatarAddressInActionArguments
+                          firstNCGAmountInActionArguments
+                          firstRecipientInActionArguments
+                          firstSenderInActionArguments
+                          object {
+                            id
+                            nonce
+                            publicKey
+                            signature
+                            signer
+                            timestamp
+                            updatedAddresses
+                            actions {
+                              raw
+                              typeId
+                              values
+                            }
+                          }
+                        }
+                        pageInfo {
+                          hasNextPage
+                          hasPreviousPage
+                        }
+                      }
+                    }
+                    """;
+
+        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
+
+        await Verify(result);
     }
 } 

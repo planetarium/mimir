@@ -78,8 +78,8 @@ public class BlockHandler(
                     {
                         foreach (var transaction in block.Transactions)
                         {
-                            var transactionModel = transaction.ToTransactionModel();
-                            var (firstActionTypeId, firstAvatarAddress, firstNCGAmount) =
+                            var transactionModel = transaction.ToTransactionModel(block);
+                            var (firstActionTypeId, firstAvatarAddress, firstNCGAmount, firstRecipientAddress, firstSenderAddress) =
                                 ExtractTransactionMetadata(transactionModel);
 
                             if (firstActionTypeId is not null)
@@ -95,6 +95,8 @@ public class BlockHandler(
                                 firstActionTypeId,
                                 firstAvatarAddress,
                                 firstNCGAmount,
+                                firstRecipientAddress,
+                                firstSenderAddress,
                                 transactionModel
                             );
                             transactionDocuments.Add(transactionDocument);
@@ -378,27 +380,31 @@ public class BlockHandler(
 
     private (
         string firstActionTypeId,
-        string? firstAvatarAddress,
-        string? firstNCGAmount
+        Address? firstAvatarAddress,
+        string? firstNCGAmount,
+        Address? firstRecipientAddress,
+        Address? firstSenderAddress
     ) ExtractTransactionMetadata(Lib9c.Models.Block.Transaction transaction)
     {
         if (transaction.Actions.Count == 0)
         {
-            return ("not found", null, null);
+            return ("not found", null, null, null, null);
         }
 
         var firstAction = transaction.Actions[0];
         var firstActionTypeId = string.IsNullOrEmpty(firstAction.TypeId)
             ? "not found"
             : firstAction.TypeId;
-        var avatarAddress = ActionParser
+        var avatarAddresses = ActionParser
             .ExtractAvatarAddress(firstAction.Raw)
-            .FirstOrDefault(addr => addr != default && !addr.Equals(default));
-        var firstAvatarAddress =
-            (avatarAddress == null || avatarAddress.Equals(default)) ? null : avatarAddress.ToHex();
+            .Where(addr => addr != default && !addr.Equals(default))
+            .ToList();
+        var firstAvatarAddress = avatarAddresses.Count > 0 ? (Address?)avatarAddresses[0] : null;
         var firstNCGAmount = ActionParser.ExtractNCGAmount(firstAction.Raw);
+        var firstRecipientAddress = ActionParser.ExtractRecipient(firstAction.Raw);
+        var firstSenderAddress = ActionParser.ExtractSender(firstAction.Raw);
 
-        return (firstActionTypeId, firstAvatarAddress, firstNCGAmount);
+        return (firstActionTypeId, firstAvatarAddress, firstNCGAmount, firstRecipientAddress, firstSenderAddress);
     }
 
     private static Lib9c.Models.Block.TxStatus ConvertToLib9cTxStatus(

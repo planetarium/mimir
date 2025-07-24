@@ -38,11 +38,57 @@ public class ActionParserTests
     [Fact]
     public void ExtractNCGAmount_WithValidNCGAmount_ReturnsCorrectDecimalString()
     {
-        // 아래 rawData는 amount: [ { decimalPlaces: 0x02, ticker: "NCG", ... }, 1 ] 구조를 가정
-        // 0x02 = 2, 1 / 10^2 = 0.01
         var rawData = "6475373a747970655f69647531353a7472616e736665725f61737365743575363a76616c7565736475363a616d6f756e746c647531333a646563696d616c506c61636573313a0275373a6d696e746572736c32303a47d082a115c63e7b58b1532d20e631538eafadde6575363a7469636b657275333a4e43476569353530656575343a6d656d6f75303a75393a726563697069656e7432303acd01d2d7d7dd82da471ce7973205f0e7da0deb9e75363a73656e64657232303a491d9842ed8f1b5d291272cf9e7b66a7b7c90cda6565";
         var result = ActionParser.ExtractNCGAmount(rawData);
         Assert.Equal("5.50", result);
+    }
+
+    [Fact]
+    public void ExtractRecipient_WithValidRecipient_ReturnsCorrectAddress()
+    {
+        var rawData = "6475373a747970655f69647531353a7472616e736665725f61737365743575363a76616c7565736475363a616d6f756e746c647531333a646563696d616c506c61636573313a0275373a6d696e746572736c32303a47d082a115c63e7b58b1532d20e631538eafadde6575363a7469636b657275333a4e43476569353530656575343a6d656d6f75303a75393a726563697069656e7432303acd01d2d7d7dd82da471ce7973205f0e7da0deb9e75363a73656e64657232303a491d9842ed8f1b5d291272cf9e7b66a7b7c90cda6565";
+        var result = ActionParser.ExtractRecipient(rawData);
+        Assert.Equal(new Address("0xcd01d2d7d7dd82da471ce7973205f0e7da0deb9e"), result);
+    }
+
+    [Fact]
+    public void ExtractSender_WithValidSender_ReturnsCorrectAddress()
+    {
+        var rawData = "6475373a747970655f69647531353a7472616e736665725f61737365743575363a76616c7565736475363a616d6f756e746c647531333a646563696d616c506c61636573313a0275373a6d696e746572736c32303a47d082a115c63e7b58b1532d20e631538eafadde6575363a7469636b657275333a4e43476569353530656575343a6d656d6f75303a75393a726563697069656e7432303acd01d2d7d7dd82da471ce7973205f0e7da0deb9e75363a73656e64657232303a491d9842ed8f1b5d291272cf9e7b66a7b7c90cda6565";
+        var result = ActionParser.ExtractSender(rawData);
+        Assert.Equal(new Address("0x491d9842ed8f1b5d291272cf9e7b66a7b7c90cda"), result);
+    }
+
+    [Fact]
+    public void ExtractRecipient_WithMissingRecipient_ReturnsNull()
+    {
+        var rawData = "6475373a747970655f69647531353a7472616e736665725f61737365743575363a76616c7565736475363a616d6f756e746c647531333a646563696d616c506c61636573313a0275373a6d696e746572736c32303a47d082a115c63e7b58b1532d20e631538eafadde6575363a7469636b657275333a4e43476569353530656575343a6d656d6f75303a75363a73656e64657232303a491d9842ed8f1b5d291272cf9e7b66a7b7c90cda6565";
+        var result = ActionParser.ExtractRecipient(rawData);
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void ExtractSender_WithMissingSender_ReturnsNull()
+    {
+        var rawData = "6475373a747970655f69647531353a7472616e736665725f61737365743575363a76616c7565736475363a616d6f756e746c647531333a646563696d616c506c61636573313a0275373a6d696e746572736c32303a47d082a115c63e7b58b1532d20e631538eafadde6575363a7469636b657275333a4e43476569353530656575343a6d656d6f75303a75393a726563697069656e7432303acd01d2d7d7dd82da471ce7973205f0e7da0deb9e6565";
+        var result = ActionParser.ExtractSender(rawData);
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void ExtractRecipient_WithInvalidRawData_ReturnsNull()
+    {
+        var invalidRawData = "invalid_hex_data";
+        var result = ActionParser.ExtractRecipient(invalidRawData);
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void ExtractSender_WithInvalidRawData_ReturnsNull()
+    {
+        var invalidRawData = "invalid_hex_data";
+        var result = ActionParser.ExtractSender(invalidRawData);
+        Assert.Null(result);
     }
 
     [Fact]

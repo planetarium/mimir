@@ -7,8 +7,10 @@
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
           "firstActionTypeId": "actionType1",
-          "firstAvatarAddressInActionArguments": "0xavatar1",
+          "firstAvatarAddressInActionArguments": "0x0000000000000000000000000000000000000001",
           "firstNCGAmountInActionArguments": "0.01",
+          "firstRecipientInActionArguments": "0x0000000000000000000000000000000000000001",
+          "firstSenderInActionArguments": "0x0000000000000000000000000000000000000001",
           "object": {
             "id": "txid1",
             "nonce": 1,
@@ -31,8 +33,10 @@
           "blockHash": "blockHash2",
           "blockIndex": 6494624,
           "firstActionTypeId": "actionType2",
-          "firstAvatarAddressInActionArguments": "0xavatar2",
+          "firstAvatarAddressInActionArguments": "0x0000000000000000000000000000000000000002",
           "firstNCGAmountInActionArguments": null,
+          "firstRecipientInActionArguments": null,
+          "firstSenderInActionArguments": null,
           "object": {
             "id": "txid2",
             "nonce": 2,
