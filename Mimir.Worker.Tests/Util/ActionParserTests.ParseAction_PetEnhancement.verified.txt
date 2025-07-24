@@ -1,0 +1,4 @@
+﻿{
+  TypeId: pet_enhancement,
+  AvatarAddress: 4CE91b9f8542525118981d23e160e55dFC651A63
+}

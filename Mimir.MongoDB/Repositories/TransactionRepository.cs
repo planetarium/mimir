@@ -17,8 +17,8 @@ public interface ITransactionRepository
     IExecutable<TransactionDocument> Get(TransactionFilter? filter);
     IExecutable<TransactionDocument> GetByBlockIndex(long blockIndex);
     IExecutable<TransactionDocument> GetBySignerAsync(string signer);
-    IExecutable<TransactionDocument> GetByFirstAvatarAddressInActionArgumentsAsync(string firstAvatarAddress);
-    IExecutable<TransactionDocument> GetByFirstActionTypeIdAsync(string firstActionTypeId);
+    IExecutable<TransactionDocument> GetByAvatarAddressAsync(string avatarAddress);
+    IExecutable<TransactionDocument> GetByActionTypeIdAsync(string actionTypeId);
 }
 
 public class TransactionRepository(IMongoDbService dbService) : ITransactionRepository
@@ -56,17 +56,35 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
 
         if (filter?.Signer != null)
         {
-            filterDefinition &= filterBuilder.Eq("Object.Signer", filter.Signer.Value.ToHex());
+            var signerFilter = filterBuilder.Eq("Object.Signer", filter.Signer.Value.ToHex());
+            if (filter.IncludeInvolvedAddress)
+            {
+                var involvedAddressFilter = filterBuilder.AnyEq("extractedActionValues.InvolvedAddresses", filter.Signer.Value.ToHex());
+                filterDefinition &= filterBuilder.Or(signerFilter, involvedAddressFilter);
+            }
+            else
+            {
+                filterDefinition &= signerFilter;
+            }
         }
 
-        if (filter?.FirstAvatarAddressInActionArguments != null)
+        if (filter?.AvatarAddress != null)
         {
-            filterDefinition &= filterBuilder.Eq("firstAvatarAddressInActionArguments", filter.FirstAvatarAddressInActionArguments.Value.ToHex());
+            var avatarAddressFilter = filterBuilder.Eq("extractedActionValues.AvatarAddress", filter.AvatarAddress.Value.ToHex());
+            if (filter.IncludeInvolvedAvatarAddress)
+            {
+                var involvedAvatarAddressFilter = filterBuilder.AnyEq("extractedActionValues.InvolvedAvatarAddresses", filter.AvatarAddress.Value.ToHex());
+                filterDefinition &= filterBuilder.Or(avatarAddressFilter, involvedAvatarAddressFilter);
+            }
+            else
+            {
+                filterDefinition &= avatarAddressFilter;
+            }
         }
 
-        if (filter?.FirstActionTypeId != null)
+        if (filter?.ActionTypeId != null)
         {
-            filterDefinition &= filterBuilder.Eq("firstActionTypeId", filter.FirstActionTypeId);
+            filterDefinition &= filterBuilder.Eq("extractedActionValues.TypeId", filter.ActionTypeId);
         }
 
         if (filter?.BlockIndex != null)
@@ -95,17 +113,17 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
         return find.Sort(sortDefinition).AsExecutable();
     }
 
-    public IExecutable<TransactionDocument> GetByFirstAvatarAddressInActionArgumentsAsync(string firstAvatarAddress)
+    public IExecutable<TransactionDocument> GetByAvatarAddressAsync(string avatarAddress)
     {
-        var filter = Builders<TransactionDocument>.Filter.Eq("firstAvatarAddressInActionArguments", firstAvatarAddress);
+        var filter = Builders<TransactionDocument>.Filter.Eq("extractedActionValues.AvatarAddress", avatarAddress);
         var find = _collection.Find(filter);
         var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
         return find.Sort(sortDefinition).AsExecutable();
     }
 
-    public IExecutable<TransactionDocument> GetByFirstActionTypeIdAsync(string firstActionTypeId)
+    public IExecutable<TransactionDocument> GetByActionTypeIdAsync(string actionTypeId)
     {
-        var filter = Builders<TransactionDocument>.Filter.Eq("firstActionTypeId", firstActionTypeId);
+        var filter = Builders<TransactionDocument>.Filter.Eq("extractedActionValues.TypeId", actionTypeId);
         var find = _collection.Find(filter);
         var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
         return find.Sort(sortDefinition).AsExecutable();

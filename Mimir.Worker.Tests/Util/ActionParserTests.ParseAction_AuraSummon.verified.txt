@@ -1,0 +1,4 @@
+﻿{
+  TypeId: aura_summon,
+  AvatarAddress: d0a7Cf753A9619C25a4eC851AeF08c68c529c2b1
+}

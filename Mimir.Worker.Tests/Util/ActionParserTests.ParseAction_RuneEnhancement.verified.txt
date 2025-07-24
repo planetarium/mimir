@@ -1,0 +1,4 @@
+﻿{
+  TypeId: runeEnhancement2,
+  AvatarAddress: e4453fAc7fe28F95F970EBe49a27628e8141d4df
+}

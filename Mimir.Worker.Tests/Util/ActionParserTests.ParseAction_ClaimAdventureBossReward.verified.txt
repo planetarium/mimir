@@ -1,0 +1,4 @@
+﻿{
+  TypeId: claim_adventure_boss_reward,
+  AvatarAddress: 19326abE59e7115290cF0c69d295C542E2CF973A
+}

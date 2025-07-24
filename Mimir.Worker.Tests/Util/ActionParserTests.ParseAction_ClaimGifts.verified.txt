@@ -1,0 +1,4 @@
+﻿{
+  TypeId: claim_gifts,
+  AvatarAddress: bE598D15FC9c8040C9A3C819691353f078a580Fa
+}

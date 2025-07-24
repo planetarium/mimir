@@ -1,0 +1,4 @@
+﻿{
+  TypeId: claim_world_boss_reward,
+  AvatarAddress: ff08107442CD409F3307d0F448fb98A1A7b290A0
+}

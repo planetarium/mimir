@@ -1,0 +1,4 @@
+﻿{
+  TypeId: combination_equipment17,
+  AvatarAddress: 7043DB4A56dE807717CBcd73A3ef54bA97f964Fe
+}

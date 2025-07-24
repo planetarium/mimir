@@ -1,0 +1,4 @@
+﻿{
+  TypeId: sweep_adventure_boss,
+  AvatarAddress: 3Dc11702B4E1d41aC165c5412eE4a8551d1155a7
+}

@@ -1,0 +1,7 @@
+﻿{
+  TypeId: hack_and_slash22,
+  AvatarAddress: E06aA76fbC394Bd5F0E97179d1d955de324f15be,
+  InvolvedAvatarAddresses: [
+    E06aA76fbC394Bd5F0E97179d1d955de324f15be
+  ]
+}

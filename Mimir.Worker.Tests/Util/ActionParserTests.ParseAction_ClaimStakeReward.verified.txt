@@ -1,0 +1,4 @@
+﻿{
+  TypeId: claim_stake_reward9,
+  AvatarAddress: 26C0a6F2508b4256bc25529A5D33B33f89554f0D
+}

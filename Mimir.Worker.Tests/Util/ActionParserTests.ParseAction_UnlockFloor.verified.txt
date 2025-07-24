@@ -1,0 +1,4 @@
+﻿{
+  TypeId: unlock_floor,
+  AvatarAddress: 3Dc11702B4E1d41aC165c5412eE4a8551d1155a7
+}

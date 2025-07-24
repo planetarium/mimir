@@ -7,16 +7,25 @@
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
           "extractedActionValues": {
-            "typeId": "actionType1",
-            "avatarAddress": "0x0000000000000000000000000000000000000002",
-            "sender": null,
-            "recipients": null,
-            "fungibleAssetValues": null,
+            "typeId": "transfer_asset",
+            "avatarAddress": "0x0000000000000000000000000000000000000001",
+            "sender": "0x0000000000000000000000000000000000000002",
+            "recipients": [
+              {
+                "recipient": "0x0000000000000000000000000000000000000005",
+                "amount": "10.5"
+              }
+            ],
+            "fungibleAssetValues": [
+              "10.5"
+            ],
             "involvedAvatarAddresses": [
-              "0x0000000000000000000000000000000000000002"
+              "0x0000000000000000000000000000000000000001"
             ],
             "involvedAddresses": [
-              "0x0000000000000000000000000000000000000002"
+              "0x0000000000000000000000000000000000000001",
+              "0x0000000000000000000000000000000000000002",
+              "0x0000000000000000000000000000000000000005"
             ]
           },
           "object": {
@@ -32,7 +41,7 @@
             "actions": [
               {
                 "raw": "raw1",
-                "typeId": "actionType1",
+                "typeId": "transfer_asset",
                 "values": "{ \"amount\" : \"100\" }"
               }
             ]

@@ -1,0 +1,7 @@
+﻿{
+  TypeId: battle,
+  AvatarAddress: BEda0ceb36943f4b53042CB07E613F74B212e337,
+  InvolvedAvatarAddresses: [
+    Fb343d09D075295282F6c40b27CC0d0496020b1E
+  ]
+}

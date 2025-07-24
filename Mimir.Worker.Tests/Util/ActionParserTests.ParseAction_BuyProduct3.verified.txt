@@ -1,0 +1,20 @@
+﻿{
+  TypeId: buy_product3,
+  AvatarAddress: 0BE8F2F79a2084E8668c1d65b71B0A473880D89C,
+  FungibleAssetValues: [
+    5 NCG,
+    7 NCG,
+    8 NCG,
+    7 NCG,
+    5 NCG,
+    10 NCG,
+    10 NCG,
+    20 NCG,
+    10 NCG,
+    8 NCG,
+    15 NCG,
+    4 NCG,
+    4 NCG,
+    15 NCG
+  ]
+}

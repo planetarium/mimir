@@ -1,10 +1,10 @@
 using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Block;
+using Libplanet.Crypto;
 using Mimir.Worker.Client;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
-using Libplanet.Crypto;
 
 namespace Mimir.Worker.Extensions;
 
@@ -43,13 +43,15 @@ public static class BlockExtensions
             Signer = new Address(apiTransaction.Signer),
             Timestamp = apiTransaction.Timestamp,
             BlockTimestamp = apiBlock.Timestamp,
-            UpdatedAddresses = apiTransaction.UpdatedAddresses?.Select(addr => new Address(addr)).ToList() ?? new List<Address>(),
+            UpdatedAddresses =
+                apiTransaction.UpdatedAddresses?.Select(addr => new Address(addr)).ToList()
+                ?? new List<Address>(),
         };
     }
 
     public static Lib9c.Models.Block.Action ToActionModel(this BlockAction apiAction)
     {
-        var (typeId, values, parsedAction) = ActionParser.ParseAction(apiAction.Raw);
+        var (typeId, values, _) = ActionParser.ParseAction(apiAction.Raw);
 
         return new Lib9c.Models.Block.Action
         {

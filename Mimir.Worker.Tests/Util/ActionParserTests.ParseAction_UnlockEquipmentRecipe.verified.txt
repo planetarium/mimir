@@ -1,0 +1,4 @@
+﻿{
+  TypeId: unlock_equipment_recipe2,
+  AvatarAddress: 238dA46BDdAa99178eC59586b419ABf977b6524B
+}

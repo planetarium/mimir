@@ -6,11 +6,26 @@
           "id": "txid1",
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
-          "firstActionTypeId": "actionType1",
-          "firstAvatarAddressInActionArguments": "0x0000000000000000000000000000000000000001",
-          "firstNCGAmountInActionArguments": "0.01",
-          "firstRecipientInActionArguments": "0x0000000000000000000000000000000000000001",
-          "firstSenderInActionArguments": "0x0000000000000000000000000000000000000001",
+          "extractedActionValues": {
+            "typeId": "actionType1",
+            "avatarAddress": "0x0000000000000000000000000000000000000001",
+            "sender": "0x0000000000000000000000000000000000000001",
+            "recipients": [
+              {
+                "recipient": "0x0000000000000000000000000000000000000001",
+                "amount": "100"
+              }
+            ],
+            "fungibleAssetValues": [
+              "100"
+            ],
+            "involvedAvatarAddresses": [
+              "0x0000000000000000000000000000000000000001"
+            ],
+            "involvedAddresses": [
+              "0x0000000000000000000000000000000000000001"
+            ]
+          },
           "object": {
             "id": "txid1",
             "nonce": 1,
@@ -18,6 +33,8 @@
             "signature": "sig1",
             "signer": "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7",
             "timestamp": "2024-01-01T00:00:00Z",
+            "blockTimestamp": "2024-01-01T00:00:01Z",
+            "txStatus": "SUCCESS",
             "updatedAddresses": [],
             "actions": [
               {
@@ -32,11 +49,19 @@
           "id": "txid2",
           "blockHash": "blockHash2",
           "blockIndex": 6494624,
-          "firstActionTypeId": "actionType2",
-          "firstAvatarAddressInActionArguments": "0x0000000000000000000000000000000000000002",
-          "firstNCGAmountInActionArguments": null,
-          "firstRecipientInActionArguments": null,
-          "firstSenderInActionArguments": null,
+          "extractedActionValues": {
+            "typeId": "actionType2",
+            "avatarAddress": "0x0000000000000000000000000000000000000002",
+            "sender": null,
+            "recipients": null,
+            "fungibleAssetValues": null,
+            "involvedAvatarAddresses": [
+              "0x0000000000000000000000000000000000000002"
+            ],
+            "involvedAddresses": [
+              "0x0000000000000000000000000000000000000002"
+            ]
+          },
           "object": {
             "id": "txid2",
             "nonce": 2,
@@ -44,6 +69,8 @@
             "signature": "sig2",
             "signer": "0x99cAFD096f81F722ad099e154A2000dA482c0B89",
             "timestamp": "2024-01-01T00:00:01Z",
+            "blockTimestamp": "2024-01-01T00:00:02Z",
+            "txStatus": "SUCCESS",
             "updatedAddresses": [],
             "actions": [
               {
