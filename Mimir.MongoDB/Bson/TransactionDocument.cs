@@ -18,5 +18,7 @@ public record TransactionDocument(
     string firstActionTypeId,
     string? firstAvatarAddressInActionArguments,
     string? firstNCGAmountInActionArguments,
+    string? firstRecipientInActionArguments,
+    string? firstSenderInActionArguments,
     Transaction Object
 ) : MimirBsonDocument(TxId, new DocumentMetadata(2, StoredBlockIndex));

@@ -26,6 +26,8 @@ public class TransactionTest
                 "actionType1",
                 "0xavatar1",
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -53,6 +55,8 @@ public class TransactionTest
                 6494624,
                 "actionType2",
                 "0xavatar2",
+                null,
+                null,
                 null,
                 new Lib9c.Models.Block.Transaction
                 {
@@ -136,6 +140,8 @@ public class TransactionTest
                 "actionType1",
                 "0xavatar1",
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -163,6 +169,8 @@ public class TransactionTest
                 6494624,
                 "actionType2",
                 "0xavatar2",
+                null,
+                null,
                 null,
                 new Lib9c.Models.Block.Transaction
                 {
@@ -247,6 +255,8 @@ public class TransactionTest
                 "actionType1",
                 "0xavatar1",
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -330,6 +340,8 @@ public class TransactionTest
                 "actionType1",
                 avatarAddress.ToHex(),
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -413,6 +425,8 @@ public class TransactionTest
                 actionTypeId,
                 "0xavatar1",
                 "0.01",
+                null,
+                null,
                 new Lib9c.Models.Block.Transaction
                 {
                     Id = "txid1",
@@ -480,8 +494,6 @@ public class TransactionTest
 
         await Verify(result);
     }
-
-
 
     [Fact]
     public async Task GetActionTypesAsync_Returns_AlphabeticallySorted()

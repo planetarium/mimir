@@ -185,6 +185,64 @@ public static class ActionParser
         }
     }
 
+    public static string? ExtractRecipient(string raw)
+    {
+        try
+        {
+            var decodedAction = Codec.Decode(Convert.FromHexString(raw));
+
+            if (decodedAction is not Dictionary actionDict)
+            {
+                return null;
+            }
+
+            if (!actionDict.TryGetValue((Text)"values", out var valuesValue) || valuesValue is not Dictionary valuesDict)
+            {
+                return null;
+            }
+
+            if (!valuesDict.TryGetValue((Text)"recipient", out var recipientValue))
+            {
+                return null;
+            }
+
+            return ParseAddress(recipientValue);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public static string? ExtractSender(string raw)
+    {
+        try
+        {
+            var decodedAction = Codec.Decode(Convert.FromHexString(raw));
+
+            if (decodedAction is not Dictionary actionDict)
+            {
+                return null;
+            }
+
+            if (!actionDict.TryGetValue((Text)"values", out var valuesValue) || valuesValue is not Dictionary valuesDict)
+            {
+                return null;
+            }
+
+            if (!valuesDict.TryGetValue((Text)"sender", out var senderValue))
+            {
+                return null;
+            }
+
+            return ParseAddress(senderValue);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private static string? ParseNCGAmount(IValue amountValue)
     {
         if (amountValue is not List amountList || amountList.Count < 2)
@@ -226,5 +284,20 @@ public static class ActionParser
         var result = (decimal)amountInt.Value / (decimal)divisor;
 
         return result.ToString("F" + decimalPlaces);
+    }
+
+    private static string? ParseAddress(IValue addressValue)
+    {
+        if (addressValue is Binary addressBinary)
+        {
+            return Convert.ToHexString(addressBinary.ToByteArray()).ToLower();
+        }
+
+        if (addressValue is Text addressText)
+        {
+            return addressText.Value;
+        }
+
+        return null;
     }
 }

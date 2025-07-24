@@ -79,7 +79,7 @@ public class BlockHandler(
                         foreach (var transaction in block.Transactions)
                         {
                             var transactionModel = transaction.ToTransactionModel(block);
-                            var (firstActionTypeId, firstAvatarAddress, firstNCGAmount) =
+                            var (firstActionTypeId, firstAvatarAddress, firstNCGAmount, firstRecipientAddress, firstSenderAddress) =
                                 ExtractTransactionMetadata(transactionModel);
 
                             if (firstActionTypeId is not null)
@@ -95,6 +95,8 @@ public class BlockHandler(
                                 firstActionTypeId,
                                 firstAvatarAddress,
                                 firstNCGAmount,
+                                firstRecipientAddress,
+                                firstSenderAddress,
                                 transactionModel
                             );
                             transactionDocuments.Add(transactionDocument);
@@ -379,12 +381,14 @@ public class BlockHandler(
     private (
         string firstActionTypeId,
         string? firstAvatarAddress,
-        string? firstNCGAmount
+        string? firstNCGAmount,
+        string? firstRecipientAddress,
+        string? firstSenderAddress
     ) ExtractTransactionMetadata(Lib9c.Models.Block.Transaction transaction)
     {
         if (transaction.Actions.Count == 0)
         {
-            return ("not found", null, null);
+            return ("not found", null, null, null, null);
         }
 
         var firstAction = transaction.Actions[0];
@@ -397,8 +401,10 @@ public class BlockHandler(
         var firstAvatarAddress =
             (avatarAddress == null || avatarAddress.Equals(default)) ? null : avatarAddress.ToHex();
         var firstNCGAmount = ActionParser.ExtractNCGAmount(firstAction.Raw);
+        var firstRecipientAddress = ActionParser.ExtractRecipient(firstAction.Raw);
+        var firstSenderAddress = ActionParser.ExtractSender(firstAction.Raw);
 
-        return (firstActionTypeId, firstAvatarAddress, firstNCGAmount);
+        return (firstActionTypeId, firstAvatarAddress, firstNCGAmount, firstRecipientAddress, firstSenderAddress);
     }
 
     private static Lib9c.Models.Block.TxStatus ConvertToLib9cTxStatus(
