@@ -43,7 +43,7 @@ public static class BlockExtensions
             Signer = new Address(apiTransaction.Signer),
             Timestamp = apiTransaction.Timestamp,
             BlockTimestamp = apiBlock.Timestamp,
-            UpdatedAddresses = apiTransaction.UpdatedAddresses ?? new List<string>(),
+            UpdatedAddresses = apiTransaction.UpdatedAddresses?.Select(addr => new Address(addr)).ToList() ?? new List<Address>(),
         };
     }
 

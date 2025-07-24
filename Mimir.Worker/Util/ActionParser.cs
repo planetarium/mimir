@@ -156,36 +156,7 @@ public static class ActionParser
         return avatarAddresses;
     }
 
-    public static string? ExtractNCGAmount(string raw)
-    {
-        try
-        {
-            var decodedAction = Codec.Decode(Convert.FromHexString(raw));
-
-            if (decodedAction is not Dictionary actionDict)
-            {
-                return null;
-            }
-
-            if (!actionDict.TryGetValue((Text)"values", out var valuesValue) || valuesValue is not Dictionary valuesDict)
-            {
-                return null;
-            }
-
-            if (!valuesDict.TryGetValue((Text)"amount", out var amountValue))
-            {
-                return null;
-            }
-
-            return ParseNCGAmount(amountValue);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public static string? ExtractRecipient(string raw)
+    public static Address? ExtractRecipient(string raw)
     {
         try
         {
@@ -214,7 +185,7 @@ public static class ActionParser
         }
     }
 
-    public static string? ExtractSender(string raw)
+    public static Address? ExtractSender(string raw)
     {
         try
         {
@@ -236,6 +207,35 @@ public static class ActionParser
             }
 
             return ParseAddress(senderValue);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public static string? ExtractNCGAmount(string raw)
+    {
+        try
+        {
+            var decodedAction = Codec.Decode(Convert.FromHexString(raw));
+
+            if (decodedAction is not Dictionary actionDict)
+            {
+                return null;
+            }
+
+            if (!actionDict.TryGetValue((Text)"values", out var valuesValue) || valuesValue is not Dictionary valuesDict)
+            {
+                return null;
+            }
+
+            if (!valuesDict.TryGetValue((Text)"amount", out var amountValue))
+            {
+                return null;
+            }
+
+            return ParseNCGAmount(amountValue);
         }
         catch
         {
@@ -286,16 +286,16 @@ public static class ActionParser
         return result.ToString("F" + decimalPlaces);
     }
 
-    private static string? ParseAddress(IValue addressValue)
+    private static Address? ParseAddress(IValue addressValue)
     {
         if (addressValue is Binary addressBinary)
         {
-            return Convert.ToHexString(addressBinary.ToByteArray()).ToLower();
+            return new Address(addressBinary.ToByteArray());
         }
 
         if (addressValue is Text addressText)
         {
-            return addressText.Value;
+            return new Address(addressText.Value);
         }
 
         return null;

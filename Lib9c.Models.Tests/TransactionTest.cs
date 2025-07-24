@@ -17,7 +17,7 @@ public class TransactionTest
             Signature = "sig",
             Signer = new Address("0x0000000000000000000000000000000000000000"),
             Timestamp = "2024-01-01T00:00:00Z",
-            UpdatedAddresses = new List<string> { "addr1", "addr2" },
+            UpdatedAddresses = new List<Address> { new Address("0x0000000000000000000000000000000000000001"), new Address("0x0000000000000000000000000000000000000002") },
             Actions = new List<Lib9c.Models.Block.Action>
             {
                 new Lib9c.Models.Block.Action
@@ -53,7 +53,7 @@ public class TransactionTest
             Signature = "sig",
             Signer = new Address("0x0000000000000000000000000000000000000000"),
             Timestamp = "2024-01-01T00:00:00Z",
-            UpdatedAddresses = new List<string> { "addr1", "addr2" },
+            UpdatedAddresses = new List<Address> { new Address("0x0000000000000000000000000000000000000001"), new Address("0x0000000000000000000000000000000000000002") },
             Actions = new List<Lib9c.Models.Block.Action>(),
         };
         var json = JsonSerializer.Serialize(tx);

@@ -380,10 +380,10 @@ public class BlockHandler(
 
     private (
         string firstActionTypeId,
-        string? firstAvatarAddress,
+        Address? firstAvatarAddress,
         string? firstNCGAmount,
-        string? firstRecipientAddress,
-        string? firstSenderAddress
+        Address? firstRecipientAddress,
+        Address? firstSenderAddress
     ) ExtractTransactionMetadata(Lib9c.Models.Block.Transaction transaction)
     {
         if (transaction.Actions.Count == 0)
@@ -395,11 +395,11 @@ public class BlockHandler(
         var firstActionTypeId = string.IsNullOrEmpty(firstAction.TypeId)
             ? "not found"
             : firstAction.TypeId;
-        var avatarAddress = ActionParser
+        var avatarAddresses = ActionParser
             .ExtractAvatarAddress(firstAction.Raw)
-            .FirstOrDefault(addr => addr != default && !addr.Equals(default));
-        var firstAvatarAddress =
-            (avatarAddress == null || avatarAddress.Equals(default)) ? null : avatarAddress.ToHex();
+            .Where(addr => addr != default && !addr.Equals(default))
+            .ToList();
+        var firstAvatarAddress = avatarAddresses.Count > 0 ? (Address?)avatarAddresses[0] : null;
         var firstNCGAmount = ActionParser.ExtractNCGAmount(firstAction.Raw);
         var firstRecipientAddress = ActionParser.ExtractRecipient(firstAction.Raw);
         var firstSenderAddress = ActionParser.ExtractSender(firstAction.Raw);

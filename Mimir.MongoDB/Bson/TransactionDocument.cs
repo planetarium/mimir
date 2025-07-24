@@ -2,6 +2,7 @@ using Lib9c.Models.Block;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using HotChocolate;
+using Libplanet.Crypto;
 
 namespace Mimir.MongoDB.Bson;
 
@@ -16,9 +17,9 @@ public record TransactionDocument(
     string BlockHash,
     long BlockIndex,
     string firstActionTypeId,
-    string? firstAvatarAddressInActionArguments,
+    Address? firstAvatarAddressInActionArguments,
     string? firstNCGAmountInActionArguments,
-    string? firstRecipientInActionArguments,
-    string? firstSenderInActionArguments,
+    Address? firstRecipientInActionArguments,
+    Address? firstSenderInActionArguments,
     Transaction Object
 ) : MimirBsonDocument(TxId, new DocumentMetadata(2, StoredBlockIndex));

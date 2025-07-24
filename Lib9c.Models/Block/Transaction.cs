@@ -18,5 +18,5 @@ public record class Transaction
     public Address Signer { get; set; }
     public string Timestamp { get; set; }
     public string? BlockTimestamp { get; set; }
-    public List<string> UpdatedAddresses { get; set; }
+    public List<Address> UpdatedAddresses { get; set; }
 }
