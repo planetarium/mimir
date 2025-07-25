@@ -1,0 +1,4 @@
+﻿{
+  TypeId: claim_patrol_reward,
+  AvatarAddress: F33FD309c17cEa9371e9BeB31dD4aC840b6A6a12
+}

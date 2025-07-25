@@ -1,0 +1,4 @@
+﻿{
+  TypeId: unlock_rune_slot,
+  AvatarAddress: F5433FdB52C493116B9051196c8746AA1c835aCb
+}

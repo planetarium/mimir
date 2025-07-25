@@ -1,0 +1,4 @@
+﻿{
+  TypeId: costume_summon,
+  AvatarAddress: 6d87A81051106e8484f562c046612E25Cc423C2A
+}

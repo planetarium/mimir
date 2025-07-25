@@ -1,0 +1,17 @@
+﻿{
+  TypeId: transfer_assets3,
+  Sender: 5340C29B6044D646DC8Abe8e2a585F9e8BB88a50,
+  Recipients: [
+    {
+      Recipient: Cb75C84D76A6f97A2d55882Aea4436674c288673,
+      Amount: 5050000 Item_NT_800202
+    },
+    {
+      Recipient: Cb75C84D76A6f97A2d55882Aea4436674c288673,
+      Amount: 100000 Item_NT_600306
+    }
+  ],
+  InvolvedAddresses: [
+    Cb75C84D76A6f97A2d55882Aea4436674c288673
+  ]
+}

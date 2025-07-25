@@ -1,0 +1,4 @@
+﻿{
+  TypeId: daily_reward7,
+  AvatarAddress: cc0b6D014e3fFb4E430189b4D88271767FD6ec26
+}

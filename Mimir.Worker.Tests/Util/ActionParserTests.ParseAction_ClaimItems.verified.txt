@@ -1,0 +1,12 @@
+﻿{
+  TypeId: claim_items,
+  FungibleAssetValues: [
+    10 Item_NT_800201,
+    4 Item_NT_600201,
+    4 Item_NT_500000,
+    1000 Item_NT_400000
+  ],
+  InvolvedAvatarAddresses: [
+    2692D73A42627f137B42CC819726f25580a23137
+  ]
+}

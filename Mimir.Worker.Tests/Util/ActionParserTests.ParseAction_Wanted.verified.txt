@@ -1,0 +1,4 @@
+﻿{
+  TypeId: wanted,
+  AvatarAddress: E55bfDec6F59C418029B35C5276e2e9f18c176ed
+}

@@ -1,0 +1,4 @@
+﻿{
+  TypeId: unlock_world2,
+  AvatarAddress: 102fE0CBa66e4d8c7543a338321B789AED1255d6
+}

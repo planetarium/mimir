@@ -1,0 +1,4 @@
+﻿{
+  TypeId: synthesize,
+  AvatarAddress: 7355c6EB16b02DE1dae910CAfED9AD8Cbb19eBf8
+}

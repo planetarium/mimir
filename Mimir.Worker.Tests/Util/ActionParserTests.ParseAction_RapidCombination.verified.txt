@@ -1,0 +1,4 @@
+﻿{
+  TypeId: rapid_combination10,
+  AvatarAddress: 96f3f92A97CB0D7a7B5BEBFb80259A0a9bFD54e6
+}

@@ -1,0 +1,4 @@
+﻿{
+  TypeId: item_enhancement14,
+  AvatarAddress: 0cAc53afEa8C0B69F536B81d718fb0acddb7b79e
+}

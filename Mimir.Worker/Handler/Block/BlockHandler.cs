@@ -79,24 +79,17 @@ public class BlockHandler(
                         foreach (var transaction in block.Transactions)
                         {
                             var transactionModel = transaction.ToTransactionModel(block);
-                            var (firstActionTypeId, firstAvatarAddress, firstNCGAmount, firstRecipientAddress, firstSenderAddress) =
-                                ExtractTransactionMetadata(transactionModel);
-
-                            if (firstActionTypeId is not null)
-                            {
-                                await dbService.UpsertActionTypeAsync(firstActionTypeId);
-                            }
+                            var extractedActionValues = ActionParser.ExtractActionValue(
+                                transactionModel.Actions[0].Raw
+                            );
+                            await dbService.UpsertActionTypeAsync(extractedActionValues.TypeId);
 
                             var transactionDocument = new TransactionDocument(
                                 currentTargetIndex,
                                 transactionModel.Id,
                                 blockModel.Hash,
                                 blockModel.Index,
-                                firstActionTypeId,
-                                firstAvatarAddress,
-                                firstNCGAmount,
-                                firstRecipientAddress,
-                                firstSenderAddress,
+                                extractedActionValues,
                                 transactionModel
                             );
                             transactionDocuments.Add(transactionDocument);
@@ -137,10 +130,7 @@ public class BlockHandler(
                             );
                             if (transaction != null)
                             {
-                                await InsertAgentIfNotExist(
-                                    transaction.Object.Signer,
-                                    currentTargetIndex
-                                );
+                                await InsertAgent(transaction.Object.Signer, currentTargetIndex);
                                 await InsertNCGBalanceIfNotExist(
                                     transaction.Object.Signer,
                                     currentTargetIndex
@@ -148,17 +138,30 @@ public class BlockHandler(
 
                                 foreach (var action in transaction.Object.Actions)
                                 {
-                                    var avatarAddresses = ActionParser.ExtractAvatarAddress(
+                                    var extractedActionValues = ActionParser.ExtractActionValue(
                                         action.Raw
                                     );
-                                    foreach (var avatarAddress in avatarAddresses)
+                                    if (extractedActionValues.InvolvedAvatarAddresses is not null)
+                                    {
+                                        foreach (
+                                            var avatarAddress in extractedActionValues.InvolvedAvatarAddresses
+                                        )
+                                        {
+                                            await InsertAvatar(avatarAddress, currentTargetIndex);
+                                            await InsertDailyRewardIfNotExist(
+                                                avatarAddress,
+                                                currentTargetIndex
+                                            );
+                                        }
+                                    }
+                                    if (extractedActionValues.AvatarAddress is not null)
                                     {
                                         await InsertAvatarIfNotExist(
-                                            avatarAddress,
+                                            extractedActionValues.AvatarAddress.Value,
                                             currentTargetIndex
                                         );
                                         await InsertDailyRewardIfNotExist(
-                                            avatarAddress,
+                                            extractedActionValues.AvatarAddress.Value,
                                             currentTargetIndex
                                         );
                                     }
@@ -376,35 +379,6 @@ public class BlockHandler(
                 documents[i].Object.TxStatus = ConvertToLib9cTxStatus(status.TxStatus);
             }
         }
-    }
-
-    private (
-        string firstActionTypeId,
-        Address? firstAvatarAddress,
-        string? firstNCGAmount,
-        Address? firstRecipientAddress,
-        Address? firstSenderAddress
-    ) ExtractTransactionMetadata(Lib9c.Models.Block.Transaction transaction)
-    {
-        if (transaction.Actions.Count == 0)
-        {
-            return ("not found", null, null, null, null);
-        }
-
-        var firstAction = transaction.Actions[0];
-        var firstActionTypeId = string.IsNullOrEmpty(firstAction.TypeId)
-            ? "not found"
-            : firstAction.TypeId;
-        var avatarAddresses = ActionParser
-            .ExtractAvatarAddress(firstAction.Raw)
-            .Where(addr => addr != default && !addr.Equals(default))
-            .ToList();
-        var firstAvatarAddress = avatarAddresses.Count > 0 ? (Address?)avatarAddresses[0] : null;
-        var firstNCGAmount = ActionParser.ExtractNCGAmount(firstAction.Raw);
-        var firstRecipientAddress = ActionParser.ExtractRecipient(firstAction.Raw);
-        var firstSenderAddress = ActionParser.ExtractSender(firstAction.Raw);
-
-        return (firstActionTypeId, firstAvatarAddress, firstNCGAmount, firstRecipientAddress, firstSenderAddress);
     }
 
     private static Lib9c.Models.Block.TxStatus ConvertToLib9cTxStatus(

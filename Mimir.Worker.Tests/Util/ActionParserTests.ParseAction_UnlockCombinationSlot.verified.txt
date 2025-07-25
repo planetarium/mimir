@@ -1,0 +1,4 @@
+﻿{
+  TypeId: unlock_combination_slot,
+  AvatarAddress: 4076939d01c74de928ED14E59e8280075d0743D0
+}

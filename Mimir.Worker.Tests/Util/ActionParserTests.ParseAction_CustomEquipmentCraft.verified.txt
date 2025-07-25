@@ -1,0 +1,4 @@
+﻿{
+  TypeId: custom_equipment_craft,
+  AvatarAddress: b374Df06963119738a16e1b08c2052a697996431
+}

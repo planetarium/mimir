@@ -1,0 +1,4 @@
+﻿{
+  TypeId: buy7,
+  AvatarAddress: 47ef9E17fE94C16dB8b83c240b1d8C960D059F0e
+}

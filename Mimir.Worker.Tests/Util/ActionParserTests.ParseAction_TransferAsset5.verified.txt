@@ -1,0 +1,13 @@
+﻿{
+  TypeId: transfer_asset5,
+  Sender: feDB101Dc9D6Adc060E9256a576BE4d5BaBc865f,
+  Recipients: [
+    {
+      Recipient: 70E3676822139cC80cfdEebA8aCDed47fe50F90b,
+      Amount: 0.01 NCG
+    }
+  ],
+  InvolvedAddresses: [
+    70E3676822139cC80cfdEebA8aCDed47fe50F90b
+  ]
+}

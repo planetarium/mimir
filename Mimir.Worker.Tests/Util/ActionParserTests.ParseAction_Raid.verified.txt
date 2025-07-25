@@ -1,0 +1,4 @@
+﻿{
+  TypeId: raid7,
+  AvatarAddress: f637375F78C08298f7580f1d7E7d81185E699B9C
+}
