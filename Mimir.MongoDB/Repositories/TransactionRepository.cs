@@ -57,7 +57,7 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
         if (filter?.Signer != null)
         {
             var signerFilter = filterBuilder.Eq("Object.Signer", filter.Signer.Value.ToHex());
-            if (filter.IncludeInvolvedAddress)
+            if (filter.IncludeInvolvedAddress == true)
             {
                 var involvedAddressFilter = filterBuilder.AnyEq("extractedActionValues.InvolvedAddresses", filter.Signer.Value.ToHex());
                 filterDefinition &= filterBuilder.Or(signerFilter, involvedAddressFilter);
@@ -71,7 +71,7 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
         if (filter?.AvatarAddress != null)
         {
             var avatarAddressFilter = filterBuilder.Eq("extractedActionValues.AvatarAddress", filter.AvatarAddress.Value.ToHex());
-            if (filter.IncludeInvolvedAvatarAddress)
+            if (filter.IncludeInvolvedAvatarAddress == true)
             {
                 var involvedAvatarAddressFilter = filterBuilder.AnyEq("extractedActionValues.InvolvedAvatarAddresses", filter.AvatarAddress.Value.ToHex());
                 filterDefinition &= filterBuilder.Or(avatarAddressFilter, involvedAvatarAddressFilter);

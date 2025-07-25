@@ -788,7 +788,7 @@ public class TransactionTest
 
         var query = $$"""
             query {
-              transactions(filter: { includeInvolvedAddress: "{{involvedAddress.ToHex()}}" }) {
+              transactions(filter: { signer: "{{involvedAddress.ToHex()}}", includeInvolvedAddress: true }) {
                 items {
                   id
                   blockHash
@@ -896,7 +896,7 @@ public class TransactionTest
 
         var query = $$"""
             query {
-              transactions(filter: { includeInvolvedAvatarAddress: "{{involvedAvatarAddress.ToHex()}}" }) {
+              transactions(filter: { avatarAddress: "{{involvedAvatarAddress.ToHex()}}", includeInvolvedAvatarAddress: true }) {
                 items {
                   id
                   blockHash
