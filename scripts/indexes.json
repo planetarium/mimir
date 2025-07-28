@@ -30,5 +30,95 @@
             "name": "collection_name_index",
             "unique": true
         }
+    ],
+    "transaction": [
+        {
+            "key": {
+                "BlockIndex": -1
+            },
+            "name": "block_index_index"
+        },
+        {
+            "key": {
+                "BlockHash": 1
+            },
+            "name": "block_hash_index"
+        },
+        {
+            "key": {
+                "Object.Signer": 1
+            },
+            "name": "signer_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.TypeId": 1
+            },
+            "name": "action_type_id_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.AvatarAddress": 1
+            },
+            "name": "action_avatar_address_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.InvolvedAddresses": 1
+            },
+            "name": "action_involved_addresses_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.InvolvedAvatarAddresses": 1
+            },
+            "name": "action_involved_avatar_addresses_index"
+        }
+    ],
+    "block": [
+        {
+            "key": {
+                "Object.Index": -1
+            },
+            "name": "index_index"
+        },
+        {
+            "key": {
+                "Object.Miner": 1
+            },
+            "name": "miner_index"
+        }
+    ],
+    "adventure_cp": [
+        {
+            "key": {
+                "Cp": -1
+            },
+            "name": "cp_index"
+        }
+    ],
+    "arena_cp": [
+        {
+            "key": {
+                "Cp": -1
+            },
+            "name": "cp_index"
+        }
+    ],
+    "raider_cp": [
+        {
+            "key": {
+                "Cp": -1
+            },
+            "name": "cp_index"
+        }
+    ],
+    "world_information": [
+        {
+            "key": {
+                "LastStageClearedId": -1
+            },
+            "name": "last_stage_cleared_id_index"
+        }
     ]
 }
