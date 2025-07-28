@@ -23,7 +23,7 @@ public static class ActionParser
 {
     private static readonly Codec Codec = new();
 
-    public static (string TypeId, BsonDocument Values, BsonDocument ParsedAction) ParseAction(
+    public static (string TypeId, BsonValue Values, BsonDocument ParsedAction) ParseAction(
         string raw
     )
     {
@@ -49,14 +49,10 @@ public static class ActionParser
                 };
             }
 
-            var values = new BsonDocument();
+            BsonValue values = BsonNull.Value;
             if (actionDict.TryGetValue((Text)"values", out var valuesValue))
             {
-                var parsedValue = ParseBencodexValue(valuesValue);
-                if (parsedValue is BsonDocument doc)
-                {
-                    values = doc;
-                }
+                values = ParseBencodexValue(valuesValue);
             }
 
             var parsedAction =

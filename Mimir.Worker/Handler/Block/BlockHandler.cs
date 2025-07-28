@@ -78,7 +78,7 @@ public class BlockHandler(
                     {
                         foreach (var transaction in block.Transactions)
                         {
-                            var transactionModel = transaction.ToTransactionModel(block);
+                            var transactionModel = transaction.ToTransactionModel();
                             var extractedActionValues = ActionParser.ExtractActionValue(
                                 transactionModel.Actions[0].Raw
                             );
@@ -89,6 +89,7 @@ public class BlockHandler(
                                 transactionModel.Id,
                                 blockModel.Hash,
                                 blockModel.Index,
+                                blockModel.Timestamp,
                                 extractedActionValues,
                                 transactionModel
                             );

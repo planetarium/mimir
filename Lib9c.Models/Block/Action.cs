@@ -11,5 +11,5 @@ public record class Action
 {
     public string Raw { get; set; }
     public string TypeId { get; set; }
-    public BsonDocument Values { get; set; }
+    public BsonValue Values { get; set; }
 }

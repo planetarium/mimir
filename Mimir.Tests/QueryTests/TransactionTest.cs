@@ -24,6 +24,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "actionType1",
                     new Address("0x0000000000000000000000000000000000000001"),
@@ -47,7 +48,6 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    BlockTimestamp = "2024-01-01T00:00:01Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -66,6 +66,7 @@ public class TransactionTest
                 "txid2",
                 "blockHash2",
                 6494624,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "actionType2",
                     new Address("0x0000000000000000000000000000000000000002"),
@@ -83,7 +84,6 @@ public class TransactionTest
                     Signature = "sig2",
                     Signer = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
                     Timestamp = "2024-01-01T00:00:01Z",
-                    BlockTimestamp = "2024-01-01T00:00:02Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -112,6 +112,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -131,7 +132,6 @@ public class TransactionTest
                     signature
                     signer
                     timestamp
-                    blockTimestamp
                     txStatus
                     updatedAddresses
                     actions {
@@ -168,6 +168,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "actionType1",
                     new Address("0x0000000000000000000000000000000000000001"),
@@ -185,7 +186,6 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    BlockTimestamp = "2024-01-01T00:00:01Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -204,6 +204,7 @@ public class TransactionTest
                 "txid2",
                 "blockHash2",
                 6494624,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "actionType2",
                     new Address("0x0000000000000000000000000000000000000002"),
@@ -221,7 +222,6 @@ public class TransactionTest
                     Signature = "sig2",
                     Signer = new Address("0x99cAFD096f81F722ad099e154A2000dA482c0B89"),
                     Timestamp = "2024-01-01T00:00:01Z",
-                    BlockTimestamp = "2024-01-01T00:00:02Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -250,6 +250,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -269,7 +270,6 @@ public class TransactionTest
                     signature
                     signer
                     timestamp
-                    blockTimestamp
                     txStatus
                     updatedAddresses
                     actions {
@@ -307,6 +307,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "actionType1",
                     new Address("0x0000000000000000000000000000000000000001"),
@@ -324,7 +325,6 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = signerAddress,
                     Timestamp = "2024-01-01T00:00:00Z",
-                    BlockTimestamp = "2024-01-01T00:00:01Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -353,6 +353,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -372,7 +373,6 @@ public class TransactionTest
                     signature
                     signer
                     timestamp
-                    blockTimestamp
                     txStatus
                     updatedAddresses
                     actions {
@@ -410,6 +410,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "actionType1",
                     avatarAddress,
@@ -427,7 +428,6 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    BlockTimestamp = "2024-01-01T00:00:01Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -456,6 +456,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -475,7 +476,6 @@ public class TransactionTest
                     signature
                     signer
                     timestamp
-                    blockTimestamp
                     txStatus
                     updatedAddresses
                     actions {
@@ -513,6 +513,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     actionTypeId,
                     new Address("0x0000000000000000000000000000000000000001"),
@@ -530,7 +531,6 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    BlockTimestamp = "2024-01-01T00:00:01Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -559,6 +559,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -578,7 +579,6 @@ public class TransactionTest
                     signature
                     signer
                     timestamp
-                    blockTimestamp
                     txStatus
                     updatedAddresses
                     actions {
@@ -634,6 +634,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "transfer_asset",
                     new Address("0x0000000000000000000000000000000000000001"),
@@ -656,7 +657,6 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    BlockTimestamp = "2024-01-01T00:00:01Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -685,6 +685,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -704,7 +705,6 @@ public class TransactionTest
                     signature
                     signer
                     timestamp
-                    blockTimestamp
                     txStatus
                     updatedAddresses
                     actions {
@@ -742,6 +742,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "transfer_asset",
                     new Address("0x0000000000000000000000000000000000000001"),
@@ -793,6 +794,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -850,6 +852,7 @@ public class TransactionTest
                 "txid1",
                 "blockHash1",
                 6494625,
+                "2024-01-01T00:00:01Z",
                 new ExtractedActionValues(
                     "transfer_asset",
                     new Address("0x0000000000000000000000000000000000000001"),
@@ -872,7 +875,6 @@ public class TransactionTest
                     Signature = "sig1",
                     Signer = new Address("0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7"),
                     Timestamp = "2024-01-01T00:00:00Z",
-                    BlockTimestamp = "2024-01-01T00:00:01Z",
                     TxStatus = TxStatus.SUCCESS,
                     UpdatedAddresses = new List<Address>(),
                     Actions = new List<Lib9c.Models.Block.Action>
@@ -901,6 +903,7 @@ public class TransactionTest
                   id
                   blockHash
                   blockIndex
+                  blockTimestamp
                   extractedActionValues {
                     typeId
                     avatarAddress
@@ -920,7 +923,6 @@ public class TransactionTest
                     signature
                     signer
                     timestamp
-                    blockTimestamp
                     txStatus
                     updatedAddresses
                     actions {

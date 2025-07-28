@@ -17,7 +17,7 @@ public class ActionType : ObjectType<Lib9c.Models.Block.Action>
 
         descriptor
             .Field(f => f.Values)
-            .Type<BsonDocumentType>()
-            .Description("Dynamic action values as BSON document");
+            .Type<BsonValueType>()
+            .Description("Dynamic action values as BSON value");
     }
 } 

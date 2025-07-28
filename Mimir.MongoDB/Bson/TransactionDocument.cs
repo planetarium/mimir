@@ -16,9 +16,10 @@ public record TransactionDocument(
     [property: BsonIgnore, JsonIgnore, GraphQLIgnore] string TxId,
     string BlockHash,
     long BlockIndex,
+    string? BlockTimestamp,
     ExtractedActionValues extractedActionValues,
     Transaction Object
-) : MimirBsonDocument(TxId, new DocumentMetadata(3, StoredBlockIndex));
+) : MimirBsonDocument(TxId, new DocumentMetadata(4, StoredBlockIndex));
 
 /// <summary>
 /// Extracted action values from the action arguments.

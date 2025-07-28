@@ -24,8 +24,8 @@ public class MongoDbService
     private readonly GridFSBucket _gridFs;
     private readonly Dictionary<string, IMongoCollection<BsonDocument>> _stateCollectionMappings;
     private readonly IMongoCollection<MetadataDocument> _metadataCollection;
-    private readonly IMongoCollection<BlockDocument> _blockCollection;
-    private readonly IMongoCollection<TransactionDocument> _transactionCollection;
+    public readonly IMongoCollection<BlockDocument> _blockCollection;
+    public readonly IMongoCollection<TransactionDocument> _transactionCollection;
     private readonly IMongoCollection<ActionTypeDocument> _actionTypeCollection;
     private readonly IMongoCollection<BalanceDocument> _ncgBalanceCollection;
 

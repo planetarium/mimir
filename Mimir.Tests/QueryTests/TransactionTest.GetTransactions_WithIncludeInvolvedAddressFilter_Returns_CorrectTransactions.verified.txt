@@ -6,6 +6,7 @@
           "id": "txid1",
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
+          "blockTimestamp": "2024-01-01T00:00:01Z",
           "extractedActionValues": {
             "typeId": "transfer_asset",
             "avatarAddress": "0x0000000000000000000000000000000000000001",

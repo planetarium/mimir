@@ -17,7 +17,6 @@ public class TransactionTest
             Signature = "sig",
             Signer = new Address("0x0000000000000000000000000000000000000000"),
             Timestamp = "2024-01-01T00:00:00Z",
-            BlockTimestamp = "2024-01-01T00:00:01Z",
             TxStatus = TxStatus.SUCCESS,
             UpdatedAddresses = new List<Address> { new Address("0x0000000000000000000000000000000000000001"), new Address("0x0000000000000000000000000000000000000002") },
             Actions = new List<Lib9c.Models.Block.Action>
@@ -37,13 +36,12 @@ public class TransactionTest
         Assert.Equal("sig", tx.Signature);
         Assert.Equal(new Address("0x0000000000000000000000000000000000000000"), tx.Signer);
         Assert.Equal("2024-01-01T00:00:00Z", tx.Timestamp);
-        Assert.Equal("2024-01-01T00:00:01Z", tx.BlockTimestamp);
         Assert.Equal(TxStatus.SUCCESS, tx.TxStatus);
         Assert.Equal(2, tx.UpdatedAddresses.Count);
         Assert.Single(tx.Actions);
         Assert.Equal("rawdata", tx.Actions[0].Raw);
         Assert.Equal("typeid", tx.Actions[0].TypeId);
-        Assert.Equal("v", tx.Actions[0].Values["k"].AsString);
+        Assert.Equal("v", ((BsonDocument)tx.Actions[0].Values)["k"].AsString);
     }
 
     [Fact]
@@ -57,7 +55,6 @@ public class TransactionTest
             Signature = "sig",
             Signer = new Address("0x0000000000000000000000000000000000000000"),
             Timestamp = "2024-01-01T00:00:00Z",
-            BlockTimestamp = "2024-01-01T00:00:01Z",
             TxStatus = TxStatus.SUCCESS,
             UpdatedAddresses = new List<Address> { new Address("0x0000000000000000000000000000000000000001"), new Address("0x0000000000000000000000000000000000000002") },
             Actions = new List<Lib9c.Models.Block.Action>(),
@@ -71,7 +68,6 @@ public class TransactionTest
         Assert.Equal(tx.Signature, deserialized.Signature);
         Assert.Equal(tx.Signer, deserialized.Signer);
         Assert.Equal(tx.Timestamp, deserialized.Timestamp);
-        Assert.Equal(tx.BlockTimestamp, deserialized.BlockTimestamp);
         Assert.Equal(tx.TxStatus, deserialized.TxStatus);
         Assert.Equal(tx.UpdatedAddresses, deserialized.UpdatedAddresses);
         Assert.NotNull(deserialized.Actions);
@@ -88,13 +84,11 @@ public class TransactionTest
             Signature = "sig",
             Signer = new Address("0x0000000000000000000000000000000000000000"),
             Timestamp = "2024-01-01T00:00:00Z",
-            BlockTimestamp = null,
             TxStatus = TxStatus.STAGING,
             UpdatedAddresses = new List<Address>(),
             Actions = new List<Lib9c.Models.Block.Action>(),
         };
 
-        Assert.Null(tx.BlockTimestamp);
         Assert.Equal(TxStatus.STAGING, tx.TxStatus);
     }
 

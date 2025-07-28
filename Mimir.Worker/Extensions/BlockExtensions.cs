@@ -27,8 +27,7 @@ public static class BlockExtensions
     }
 
     public static Lib9c.Models.Block.Transaction ToTransactionModel(
-        this BlockTransaction apiTransaction,
-        Client.Block apiBlock
+        this BlockTransaction apiTransaction
     )
     {
         return new Lib9c.Models.Block.Transaction
@@ -42,7 +41,6 @@ public static class BlockExtensions
             Signature = apiTransaction.Signature,
             Signer = new Address(apiTransaction.Signer),
             Timestamp = apiTransaction.Timestamp,
-            BlockTimestamp = apiBlock.Timestamp,
             UpdatedAddresses =
                 apiTransaction.UpdatedAddresses?.Select(addr => new Address(addr)).ToList()
                 ?? new List<Address>(),
