@@ -6,6 +6,7 @@
           "id": "txid1",
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
+          "blockTimestamp": "2024-01-01T00:00:01Z",
           "extractedActionValues": {
             "typeId": "actionType1",
             "avatarAddress": "0x0000000000000000000000000000000000000001",
@@ -33,7 +34,6 @@
             "signature": "sig1",
             "signer": "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7",
             "timestamp": "2024-01-01T00:00:00Z",
-            "blockTimestamp": "2024-01-01T00:00:01Z",
             "txStatus": "SUCCESS",
             "updatedAddresses": [],
             "actions": [
@@ -49,6 +49,7 @@
           "id": "txid2",
           "blockHash": "blockHash2",
           "blockIndex": 6494624,
+          "blockTimestamp": "2024-01-01T00:00:01Z",
           "extractedActionValues": {
             "typeId": "actionType2",
             "avatarAddress": "0x0000000000000000000000000000000000000002",
@@ -69,7 +70,6 @@
             "signature": "sig2",
             "signer": "0x99cAFD096f81F722ad099e154A2000dA482c0B89",
             "timestamp": "2024-01-01T00:00:01Z",
-            "blockTimestamp": "2024-01-01T00:00:02Z",
             "txStatus": "SUCCESS",
             "updatedAddresses": [],
             "actions": [

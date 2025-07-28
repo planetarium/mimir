@@ -6,6 +6,7 @@
           "id": "txid1",
           "blockHash": "blockHash1",
           "blockIndex": 6494625,
+          "blockTimestamp": "2024-01-01T00:00:01Z",
           "extractedActionValues": {
             "typeId": "transfer_asset",
             "avatarAddress": "0x0000000000000000000000000000000000000001",
@@ -35,7 +36,6 @@
             "signature": "sig1",
             "signer": "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7",
             "timestamp": "2024-01-01T00:00:00Z",
-            "blockTimestamp": "2024-01-01T00:00:01Z",
             "txStatus": "SUCCESS",
             "updatedAddresses": [],
             "actions": [

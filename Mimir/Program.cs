@@ -101,6 +101,7 @@ builder
     .BindRuntimeType(typeof(BigInteger), typeof(BigIntegerType))
     .BindRuntimeType(typeof(HashDigest<SHA256>), typeof(HashDigestSHA256Type))
     .BindRuntimeType(typeof(Lib9c.Models.Block.Action), typeof(Lib9c.GraphQL.Types.ActionType))
+    .BindRuntimeType(typeof(Lib9c.Models.Block.Transaction), typeof(Lib9c.GraphQL.Types.TransactionType))
     .BindRuntimeType(typeof(MongoDB.Bson.BsonDocument), typeof(Lib9c.GraphQL.Types.BsonDocumentType))
     .ModifyRequestOptions(requestExecutorOptions =>
     {
