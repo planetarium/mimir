@@ -5,6 +5,8 @@ using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Text.Json;
+using Libplanet.Crypto;
 
 namespace Mimir.Scripts.Migrations;
 
@@ -12,6 +14,7 @@ public class UpdateTransactionDocumentMigration
 {
     private readonly MongoDbService _mongoDbService;
     private readonly ILogger<UpdateTransactionDocumentMigration> _logger;
+    private const string ProgressFileName = "migration_progress.json";
 
     public UpdateTransactionDocumentMigration(
         MongoDbService mongoDbService,
@@ -38,28 +41,37 @@ public class UpdateTransactionDocumentMigration
             CollectionNames.GetCollectionName<BlockDocument>()
         );
 
-        var filter = Builders<TransactionDocument>.Filter.Or(
-            Builders<TransactionDocument>.Filter.Not(
-                Builders<TransactionDocument>.Filter.Exists("Metadata.SchemaVersion")
-            ),
-            Builders<TransactionDocument>.Filter.Lte("Metadata.SchemaVersion", 3)
+        var progress = await LoadProgressAsync(databaseName);
+        var startBlockIndex = progress.LastProcessedBlockIndex - 1;
+
+        _logger.LogInformation(
+            "진행상황 로드 완료: 시작 BlockIndex={StartBlockIndex}",
+            startBlockIndex
         );
 
-        _logger.LogDebug("필터 조건: SchemaVersion이 없거나 3 이하인 문서 검색");
+        var filter = Builders<TransactionDocument>.Filter.Lte("BlockIndex", startBlockIndex);
 
-        const int batchSize = 5000;
+        _logger.LogDebug("필터 조건: BlockIndex <= {StartBlockIndex}인 문서 검색", startBlockIndex);
+
+        const int batchSize = 1000;
         var totalCount = 0;
         var batchCount = 0;
         var skip = 0;
+
+        var sort = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
 
         while (true)
         {
             try
             {
-                var batchFilter = filter;
                 var batchCursor = await transactionCollection.FindAsync(
-                    batchFilter,
-                    new FindOptions<TransactionDocument> { Limit = batchSize, Skip = skip }
+                    filter,
+                    new FindOptions<TransactionDocument> 
+                    { 
+                        Limit = batchSize, 
+                        Skip = skip,
+                        Sort = sort
+                    }
                 );
 
                 var batch = await batchCursor.ToListAsync();
@@ -75,12 +87,14 @@ public class UpdateTransactionDocumentMigration
 
                 batchCount++;
                 _logger.LogInformation(
-                    "배치 {BatchNumber} 시작: {BatchSize}개 문서 처리 중...",
+                    "배치 {BatchNumber} 시작: {BatchSize}개 문서 처리 중... (최대 BlockIndex: {MaxBlockIndex})",
                     batchCount,
-                    batch.Count
+                    batch.Count,
+                    batch.Max(d => d.BlockIndex)
                 );
 
                 var batchProcessedCount = 0;
+                var currentBlockIndex = batch.Max(d => d.BlockIndex);
 
                 foreach (var doc in batch)
                 {
@@ -118,10 +132,15 @@ public class UpdateTransactionDocumentMigration
                     }
                 }
 
+                progress.LastProcessedBlockIndex = currentBlockIndex;
+                progress.ProcessedCount = totalCount;
+                await SaveProgressAsync(databaseName, progress);
+
                 _logger.LogInformation(
-                    "배치 {BatchNumber} 완료: {ProcessedCount}개 문서 처리됨",
+                    "배치 {BatchNumber} 완료: {ProcessedCount}개 문서 처리됨, 현재 BlockIndex: {CurrentBlockIndex}",
                     batchCount,
-                    batchProcessedCount
+                    batchProcessedCount,
+                    currentBlockIndex
                 );
                 skip += batchSize;
             }
@@ -139,6 +158,53 @@ public class UpdateTransactionDocumentMigration
         return totalCount;
     }
 
+    private async Task<MigrationProgress> LoadProgressAsync(string databaseName)
+    {
+        var fileName = $"{databaseName}_{ProgressFileName}";
+        
+        if (File.Exists(fileName))
+        {
+            try
+            {
+                var json = await File.ReadAllTextAsync(fileName);
+                var progress = JsonSerializer.Deserialize<MigrationProgress>(json);
+                _logger.LogInformation(
+                    "진행상황 파일 로드 완료: {FileName}, LastProcessedBlockIndex: {LastProcessedBlockIndex}",
+                    fileName,
+                    progress?.LastProcessedBlockIndex
+                );
+                return progress ?? new MigrationProgress();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "진행상황 파일 로드 실패: {FileName}", fileName);
+            }
+        }
+
+        var newProgress = new MigrationProgress();
+        await SaveProgressAsync(databaseName, newProgress);
+        return newProgress;
+    }
+
+    private async Task SaveProgressAsync(string databaseName, MigrationProgress progress)
+    {
+        var fileName = $"{databaseName}_{ProgressFileName}";
+        try
+        {
+            var json = JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(fileName, json);
+            _logger.LogDebug(
+                "진행상황 저장 완료: {FileName}, LastProcessedBlockIndex: {LastProcessedBlockIndex}",
+                fileName,
+                progress.LastProcessedBlockIndex
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "진행상황 저장 실패: {FileName}", fileName);
+        }
+    }
+
     private async Task ProcessTransactionDocument(
         TransactionDocument doc,
         IMongoCollection<TransactionDocument> transactionCollection,
@@ -150,6 +216,7 @@ public class UpdateTransactionDocumentMigration
 
         await ProcessExtractedActionValues(doc, updates);
         await UpdateBlockHashAndTimestamp(doc, blockCollection, updates);
+        await UpdateSignerToHex(doc, updates);
     }
 
     private async Task ProcessExtractedActionValues(
@@ -296,6 +363,43 @@ public class UpdateTransactionDocumentMigration
         }
     }
 
+    private async Task UpdateSignerToHex(
+        TransactionDocument doc,
+        List<UpdateDefinition<TransactionDocument>> updates
+    )
+    {
+        var transaction = doc.Object;
+        var signer = transaction.Signer;
+
+        _logger.LogDebug(
+            "Signer 업데이트: ID={DocumentId}, 현재 Signer={CurrentSigner}",
+            doc.Id,
+            signer
+        );
+
+        try
+        {
+            var signerHex = signer.ToHex();
+            updates.Add(
+                Builders<TransactionDocument>.Update.Set("Object.Signer", signerHex)
+            );
+            _logger.LogDebug(
+                "Signer ToHex 변환 완료: {DocumentId} -> {SignerHex}",
+                doc.Id,
+                signerHex
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Signer ToHex 변환 오류 (ID: {DocumentId}, Signer: {Signer})",
+                doc.Id,
+                signer
+            );
+        }
+    }
+
     public async Task<int> ExecuteAsync()
     {
         _logger.LogInformation("MongoDB 연결 성공");
@@ -309,4 +413,11 @@ public class UpdateTransactionDocumentMigration
         );
         return odinCount + heimdallCount;
     }
+}
+
+public class MigrationProgress
+{
+    public long LastProcessedBlockIndex { get; set; } = long.MaxValue;
+    public int ProcessedCount { get; set; } = 0;
+    public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 }

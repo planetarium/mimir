@@ -17,7 +17,7 @@ public record TransactionDocument(
     string BlockHash,
     long BlockIndex,
     string? BlockTimestamp,
-    ExtractedActionValues extractedActionValues,
+    ExtractedActionValues? extractedActionValues,
     Transaction Object
 ) : MimirBsonDocument(TxId, new DocumentMetadata(4, StoredBlockIndex));
 
