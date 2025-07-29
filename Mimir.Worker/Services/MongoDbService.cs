@@ -74,12 +74,14 @@ public class MongoDbService
         var collectionNames = CollectionNames.CollectionAndStateTypeMappings.Values.Concat(
             CollectionNames.CollectionAndAddressMappings.Values
         );
+        var existingCollections = _database.ListCollectionNames().ToList();
+
         foreach (var collectionName in collectionNames)
         {
             var collection = _database.GetCollection<BsonDocument>(collectionName);
             mappings[collectionName] = collection;
 
-            if (collection.CountDocuments(Builders<BsonDocument>.Filter.Empty) > 0)
+            if (existingCollections.Contains(collectionName))
             {
                 continue;
             }
