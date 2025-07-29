@@ -472,6 +472,15 @@ public static class ActionParser
                 case IHackAndSlashRandomBuffV1 hackAndSlashRandomBuff:
                     avatarAddress = hackAndSlashRandomBuff.AvatarAddress;
                     break;
+                case IHackAndSlashSweepV1 hackAndSlashSweepV1:
+                    avatarAddress = hackAndSlashSweepV1.AvatarAddress;
+                    break;
+                case IHackAndSlashSweepV2 hackAndSlashSweepV2:
+                    avatarAddress = hackAndSlashSweepV2.AvatarAddress;
+                    break;
+                case IHackAndSlashSweepV3 hackAndSlashSweepV3:
+                    avatarAddress = hackAndSlashSweepV3.AvatarAddress;
+                    break;
                 case IJoinArenaV1 joinArena:
                     avatarAddress = joinArena.AvatarAddress;
                     break;

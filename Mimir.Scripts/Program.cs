@@ -46,6 +46,7 @@ var host = Host.CreateDefaultBuilder(args)
 
             services.AddTransient<UpdateLastStageClearedIdMigration>();
             services.AddTransient<UpdateTransactionDocumentMigration>();
+            services.AddTransient<UpdateActionTypeMigration>();
         }
     )
     .Build();
@@ -62,12 +63,14 @@ try
         Console.WriteLine("실행할 마이그레이션을 선택하세요:");
         Console.WriteLine("1. LastStageClearedId");
         Console.WriteLine("2. TransactionDocument");
+        Console.WriteLine("3. ActionType");
         Console.Write("번호 입력: ");
         var input = Console.ReadLine();
         migrationType = input switch
         {
             "1" => "laststage",
             "2" => "transaction",
+            "3" => "actiontype",
             _ => null,
         };
     }
@@ -91,6 +94,17 @@ try
         logger.LogInformation(
             "TransactionDocument 마이그레이션 완료. 총 {Count}개 문서 수정됨",
             transactionResult
+        );
+    }
+    else if (migrationType == "actiontype")
+    {
+        logger.LogInformation("ActionType 마이그레이션 시작");
+        var actionTypeMigration =
+            host.Services.GetRequiredService<UpdateActionTypeMigration>();
+        var actionTypeResult = await actionTypeMigration.ExecuteAsync();
+        logger.LogInformation(
+            "ActionType 마이그레이션 완료. 총 {Count}개 문서 추가됨",
+            actionTypeResult
         );
     }
     else
