@@ -14,7 +14,7 @@ namespace Mimir.MongoDB.Bson;
 public record TransactionDocument(
     [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore, GraphQLIgnore] string TxId,
-    string BlockHash,
+    string? BlockHash,
     long BlockIndex,
     string? BlockTimestamp,
     ExtractedActionValues? extractedActionValues,
