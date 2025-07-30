@@ -11,6 +11,12 @@
                 "Object.AgentAddress": 1
             },
             "name": "agent_index"
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ],
     "table_sheet": [
@@ -20,6 +26,12 @@
             },
             "name": "name_index",
             "unique": true
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ],
     "metadata": [
@@ -29,6 +41,12 @@
             },
             "name": "collection_name_index",
             "unique": true
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ],
     "transaction": [
@@ -40,39 +58,76 @@
         },
         {
             "key": {
-                "BlockHash": 1
+                "Metadata.SchemaVersion": 1
             },
-            "name": "block_hash_index"
+            "name": "schema_version_index"
         },
         {
             "key": {
-                "Object.Signer": 1
+                "Object.Signer": 1,
+                "BlockIndex": -1
             },
-            "name": "signer_index"
+            "name": "signer_block_index_index"
         },
         {
             "key": {
-                "extractedActionValues.TypeId": 1
+                "Object.Signer": 1,
+                "extractedActionValues.TypeId": 1,
+                "BlockIndex": -1
             },
-            "name": "action_type_id_index"
+            "name": "signer_action_type_block_index_index"
         },
         {
             "key": {
-                "extractedActionValues.AvatarAddress": 1
+                "extractedActionValues.InvolvedAddresses": 1,
+                "BlockIndex": -1
             },
-            "name": "action_avatar_address_index"
+            "name": "involved_addresses_block_index_index"
         },
         {
             "key": {
-                "extractedActionValues.InvolvedAddresses": 1
+                "extractedActionValues.InvolvedAddresses": 1,
+                "extractedActionValues.TypeId": 1,
+                "BlockIndex": -1
             },
-            "name": "action_involved_addresses_index"
+            "name": "involved_addresses_action_type_block_index_index"
         },
         {
             "key": {
-                "extractedActionValues.InvolvedAvatarAddresses": 1
+                "extractedActionValues.AvatarAddress": 1,
+                "BlockIndex": -1
             },
-            "name": "action_involved_avatar_addresses_index"
+            "name": "avatar_address_block_index_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.AvatarAddress": 1,
+                "extractedActionValues.TypeId": 1,
+                "BlockIndex": -1
+            },
+            "name": "avatar_address_action_type_block_index_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.InvolvedAvatarAddresses": 1,
+                "BlockIndex": -1
+            },
+            "name": "involved_avatar_addresses_block_index_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.InvolvedAvatarAddresses": 1,
+                "extractedActionValues.TypeId": 1,
+                "BlockIndex": -1
+            },
+            "name": "involved_avatar_addresses_action_type_block_index_index"
+        },
+        {
+            "key": {
+                "extractedActionValues.TypeId": 1,
+                "BlockIndex": -1
+            },
+            "name": "action_type_block_index_index"
         }
     ],
     "block": [
@@ -87,6 +142,12 @@
                 "Object.Miner": 1
             },
             "name": "miner_index"
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ],
     "adventure_cp": [
@@ -95,6 +156,12 @@
                 "Cp": -1
             },
             "name": "cp_index"
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ],
     "arena_cp": [
@@ -103,6 +170,12 @@
                 "Cp": -1
             },
             "name": "cp_index"
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ],
     "raider_cp": [
@@ -111,6 +184,12 @@
                 "Cp": -1
             },
             "name": "cp_index"
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ],
     "world_information": [
@@ -119,6 +198,12 @@
                 "LastStageClearedId": -1
             },
             "name": "last_stage_cleared_id_index"
+        },
+        {
+            "key": {
+                "Metadata.SchemaVersion": 1
+            },
+            "name": "schema_version_index"
         }
     ]
 }
