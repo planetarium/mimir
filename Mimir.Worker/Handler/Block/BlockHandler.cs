@@ -57,7 +57,7 @@ public class BlockHandler(
 
                 var (blockResponse, _) = await headlessGqlClient.GetBlocksAsync(
                     (int)currentBaseIndex + 1,
-                    LIMIT,
+                    (int)indexDifference,
                     stoppingToken
                 );
 
