@@ -68,10 +68,16 @@ try
 
     string? migrationType = args.Length > 0 ? args[0] : null;
     long? startBlockIndex = null;
+    long? endBlockIndex = null;
     
     if (args.Length > 1 && long.TryParse(args[1], out var blockIndex))
     {
         startBlockIndex = blockIndex;
+    }
+    
+    if (args.Length > 2 && long.TryParse(args[2], out var endIndex))
+    {
+        endBlockIndex = endIndex;
     }
     
     if (string.IsNullOrEmpty(migrationType))
@@ -99,6 +105,13 @@ try
             if (long.TryParse(blockIndexInput, out var parsedBlockIndex))
             {
                 startBlockIndex = parsedBlockIndex;
+            }
+            
+            Console.Write("끝 블록 인덱스를 입력하세요 (엔터시 최신 블록까지): ");
+            var endBlockIndexInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(endBlockIndexInput) && long.TryParse(endBlockIndexInput, out var parsedEndBlockIndex))
+            {
+                endBlockIndex = parsedEndBlockIndex;
             }
         }
     }
@@ -143,10 +156,10 @@ try
             return;
         }
         
-        logger.LogInformation("블록 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}", startBlockIndex.Value);
+        logger.LogInformation("블록 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}, 끝 블록 인덱스: {EndBlockIndex}", startBlockIndex.Value, endBlockIndex);
         var blockRecoveryMigration =
             host.Services.GetRequiredService<BlockRecoveryMigration>();
-        var blockRecoveryResult = await blockRecoveryMigration.ExecuteAsync(startBlockIndex.Value);
+        var blockRecoveryResult = await blockRecoveryMigration.ExecuteAsync(startBlockIndex.Value, endBlockIndex);
         logger.LogInformation(
             "블록 복구 마이그레이션 완료. 총 {Count}개 블록 처리됨",
             blockRecoveryResult

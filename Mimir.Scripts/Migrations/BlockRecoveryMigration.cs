@@ -41,21 +41,23 @@ public class BlockRecoveryMigration
         _configuration = configuration.Value;
     }
 
-    public async Task<int> ExecuteAsync(long startBlockIndex)
+    public async Task<int> ExecuteAsync(long startBlockIndex, long? endBlockIndex = null)
     {
-        _logger.LogInformation("블록 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}", startBlockIndex);
+        _logger.LogInformation("블록 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}, 끝 블록 인덱스: {EndBlockIndex}", startBlockIndex, endBlockIndex);
 
         var progress = await LoadProgressAsync();
         var currentBlockIndex = Math.Max(startBlockIndex, progress.LastProcessedBlockIndex);
         var latestBlockIndex = await GetLatestBlockIndexAsync();
+        var targetEndBlockIndex = endBlockIndex ?? latestBlockIndex;
 
         _logger.LogInformation(
-            "복구 범위: {CurrentBlockIndex} ~ {LatestBlockIndex}",
+            "복구 범위: {CurrentBlockIndex} ~ {TargetEndBlockIndex} (최신 블록: {LatestBlockIndex})",
             currentBlockIndex,
+            targetEndBlockIndex,
             latestBlockIndex
         );
 
-        if (currentBlockIndex >= latestBlockIndex)
+        if (currentBlockIndex >= targetEndBlockIndex)
         {
             _logger.LogInformation("복구할 블록이 없습니다.");
             return 0;
@@ -64,11 +66,11 @@ public class BlockRecoveryMigration
         var totalProcessedBlocks = 0;
         var totalProcessedTransactions = 0;
 
-        while (currentBlockIndex < latestBlockIndex)
+        while (currentBlockIndex < targetEndBlockIndex)
         {
             try
             {
-                var targetBlockIndex = Math.Min(currentBlockIndex + LIMIT, latestBlockIndex);
+                var targetBlockIndex = Math.Min(currentBlockIndex + LIMIT, targetEndBlockIndex);
                 var batchSize = (int)(targetBlockIndex - currentBlockIndex);
 
                 _logger.LogInformation(
@@ -159,9 +161,9 @@ public class BlockRecoveryMigration
                 await SaveProgressAsync(progress);
 
                 _logger.LogInformation(
-                    "배치 처리 완료. 현재 진행률: {CurrentBlockIndex}/{LatestBlockIndex}",
+                    "배치 처리 완료. 현재 진행률: {CurrentBlockIndex}/{TargetEndBlockIndex}",
                     currentBlockIndex,
-                    latestBlockIndex
+                    targetEndBlockIndex
                 );
             }
             catch (Exception ex)
@@ -172,9 +174,11 @@ public class BlockRecoveryMigration
         }
 
         _logger.LogInformation(
-            "블록 복구 마이그레이션 완료. 총 {Blocks}개 블록, {Transactions}개 트랜잭션 처리됨",
+            "블록 복구 마이그레이션 완료. 총 {Blocks}개 블록, {Transactions}개 트랜잭션 처리됨 (범위: {StartBlockIndex} ~ {EndBlockIndex})",
             totalProcessedBlocks,
-            totalProcessedTransactions
+            totalProcessedTransactions,
+            startBlockIndex,
+            targetEndBlockIndex
         );
 
         return totalProcessedBlocks;
