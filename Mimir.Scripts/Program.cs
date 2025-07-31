@@ -104,7 +104,7 @@ try
             _ => null,
         };
         
-        if ((migrationType == "blockrecovery" || migrationType == "agentstaterecovery") && startBlockIndex == null)
+        if (migrationType == "blockrecovery" && startBlockIndex == null)
         {
             Console.Write("시작 블록 인덱스를 입력하세요: ");
             var blockIndexInput = Console.ReadLine();
@@ -173,16 +173,10 @@ try
     }
     else if (migrationType == "agentstaterecovery")
     {
-        if (startBlockIndex == null)
-        {
-            logger.LogError("Agent State 복구를 위해서는 시작 블록 인덱스가 필요합니다.");
-            return;
-        }
-        
-        logger.LogInformation("Agent State 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}, 끝 블록 인덱스: {EndBlockIndex}", startBlockIndex.Value, endBlockIndex);
+        logger.LogInformation("Agent State 복구 마이그레이션 시작");
         var agentStateRecoveryMigration =
             host.Services.GetRequiredService<AgentStateRecoveryMigration>();
-        var agentStateRecoveryResult = await agentStateRecoveryMigration.ExecuteAsync(startBlockIndex.Value, endBlockIndex);
+        var agentStateRecoveryResult = await agentStateRecoveryMigration.ExecuteAsync();
         logger.LogInformation(
             "Agent State 복구 마이그레이션 완료. 총 {Count}개 Agent 처리됨",
             agentStateRecoveryResult

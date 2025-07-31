@@ -8,6 +8,7 @@ using Mimir.Worker.Util;
 using Mimir.Worker.Extensions;
 using Mimir.Scripts;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Text.Json;
 using Libplanet.Crypto;
@@ -40,115 +41,92 @@ public class AgentStateRecoveryMigration
         _configuration = configuration.Value;
     }
 
-    public async Task<int> ExecuteAsync(long startBlockIndex, long? endBlockIndex = null)
+    public async Task<int> ExecuteAsync()
     {
-        _logger.LogInformation("Agent State 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}, 끝 블록 인덱스: {EndBlockIndex}", startBlockIndex, endBlockIndex);
+        _logger.LogInformation("Agent State 복구 마이그레이션 시작");
 
         var progress = await LoadProgressAsync();
-        var currentBlockIndex = Math.Max(startBlockIndex, progress.LastProcessedBlockIndex);
-        var latestBlockIndex = await GetLatestBlockIndexAsync();
-        var targetEndBlockIndex = endBlockIndex ?? latestBlockIndex;
+        var totalTransactions = await GetTotalTransactionCountAsync();
 
         _logger.LogInformation(
-            "복구 범위: {CurrentBlockIndex} ~ {TargetEndBlockIndex} (최신 블록: {LatestBlockIndex})",
-            currentBlockIndex,
-            targetEndBlockIndex,
-            latestBlockIndex
+            "복구 대상: 총 {TotalTransactions}개 Transaction",
+            totalTransactions
         );
 
-        if (currentBlockIndex >= targetEndBlockIndex)
+        if (totalTransactions == 0)
         {
-            _logger.LogInformation("복구할 블록이 없습니다.");
+            _logger.LogInformation("복구할 Transaction이 없습니다.");
             return 0;
         }
 
-        var totalProcessedBlocks = 0;
+        var totalProcessedTransactions = 0;
         var totalProcessedAgents = 0;
+        var processedCount = 0;
 
-        while (currentBlockIndex < targetEndBlockIndex)
+        var collection = _mongoDbService._transactionCollection;
+        var filter = Builders<TransactionDocument>.Filter.Empty;
+        var sort = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
+        
+        using var cursor = await collection.Find(filter).Sort(sort).ToCursorAsync();
+
+        while (await cursor.MoveNextAsync())
         {
-            try
+            foreach (var transaction in cursor.Current)
             {
-                var targetBlockIndex = Math.Min(currentBlockIndex + LIMIT, targetEndBlockIndex);
-                var batchSize = (int)(targetBlockIndex - currentBlockIndex);
-
-                _logger.LogInformation(
-                    "블록 배치 처리 중: {CurrentBlockIndex} ~ {TargetBlockIndex} ({BatchSize}개)",
-                    currentBlockIndex,
-                    targetBlockIndex,
-                    batchSize
-                );
-
-                var (blockResponse, _) = await _headlessGqlClient.GetBlocksAsync(
-                    (int)currentBlockIndex,
-                    batchSize,
-                    CancellationToken.None
-                );
-
-                var processedAgentsInBatch = 0;
-
-                foreach (var block in blockResponse.BlockQuery.Blocks)
+                try
                 {
-                    var blockModel = block.ToBlockModel();
-                    
-                    if (block.Transactions != null)
+                    var signer = transaction.Object.Signer;
+                    var isAgentExists = await _mongoDbService.IsExistAgentAsync(signer);
+                    if (isAgentExists)
                     {
-                        foreach (var transaction in block.Transactions)
-                        {
-                            var transactionModel = transaction.ToTransactionModel();
-                            var signer = transactionModel.Signer;
-                            
-                            var isAgentExists = await _mongoDbService.IsExistAgentAsync(signer);
-                            if (isAgentExists)
-                            {
-                                _logger.LogDebug("Agent {Signer}는 이미 존재합니다. 건너뜁니다.", signer.ToHex());
-                                continue;
-                            }
+                        _logger.LogDebug("Agent {Signer}는 이미 존재합니다. 건너뜁니다.", signer.ToHex());
+                        totalProcessedTransactions++;
+                        processedCount++;
+                        continue;
+                    }
 
-                            await InsertAgent(signer, blockModel.Index);
-                            processedAgentsInBatch++;
-                            totalProcessedAgents++;
-                        }
+                    await InsertAgent(signer, transaction.BlockIndex);
+                    totalProcessedAgents++;
+                    totalProcessedTransactions++;
+                    processedCount++;
+
+                    if (processedCount % LIMIT == 0)
+                    {
+                        progress.ProcessedTransactions = totalProcessedTransactions;
+                        progress.ProcessedAgents = totalProcessedAgents;
+                        await SaveProgressAsync(progress);
+
+                        _logger.LogInformation(
+                            "진행상황: {ProcessedCount}/{TotalTransactions} Transaction 처리됨, 총 {TotalAgents}개 Agent 처리됨",
+                            processedCount,
+                            totalTransactions,
+                            totalProcessedAgents
+                        );
                     }
                 }
-
-                totalProcessedBlocks += blockResponse.BlockQuery.Blocks.Count;
-
-                currentBlockIndex = targetBlockIndex;
-                progress.LastProcessedBlockIndex = currentBlockIndex;
-                progress.ProcessedBlocks = totalProcessedBlocks;
-                progress.ProcessedAgents = totalProcessedAgents;
-                await SaveProgressAsync(progress);
-
-                _logger.LogInformation(
-                    "배치 처리 완료. 현재 진행률: {CurrentBlockIndex}/{TargetEndBlockIndex}, 이번 배치에서 {ProcessedAgents}개 Agent 처리됨",
-                    currentBlockIndex,
-                    targetEndBlockIndex,
-                    processedAgentsInBatch
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "블록 배치 처리 중 오류 발생. 블록 인덱스: {BlockIndex}", currentBlockIndex);
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Transaction 처리 중 오류 발생");
+                }
             }
         }
 
+        progress.ProcessedTransactions = totalProcessedTransactions;
+        progress.ProcessedAgents = totalProcessedAgents;
+        await SaveProgressAsync(progress);
+
         _logger.LogInformation(
-            "Agent State 복구 마이그레이션 완료. 총 {Blocks}개 블록, {Agents}개 Agent 처리됨 (범위: {StartBlockIndex} ~ {EndBlockIndex})",
-            totalProcessedBlocks,
-            totalProcessedAgents,
-            startBlockIndex,
-            targetEndBlockIndex
+            "Agent State 복구 마이그레이션 완료. 총 {Transactions}개 Transaction, {Agents}개 Agent 처리됨",
+            totalProcessedTransactions,
+            totalProcessedAgents
         );
 
         return totalProcessedAgents;
     }
 
-    private async Task<long> GetLatestBlockIndexAsync()
+    private async Task<long> GetTotalTransactionCountAsync()
     {
-        var (result, _) = await _headlessGqlClient.GetTipAsync(CancellationToken.None, null);
-        return result.NodeStatus.Tip.Index;
+        return await _mongoDbService._transactionCollection.CountDocumentsAsync(Builders<TransactionDocument>.Filter.Empty);
     }
 
     private async Task InsertAgent(Address signer, long blockIndex)
@@ -189,8 +167,9 @@ public class AgentStateRecoveryMigration
                 var json = await File.ReadAllTextAsync(ProgressFileName);
                 var progress = JsonSerializer.Deserialize<AgentStateRecoveryProgress>(json);
                 _logger.LogInformation(
-                    "진행상황 파일 로드 완료: LastProcessedBlockIndex={LastProcessedBlockIndex}",
-                    progress?.LastProcessedBlockIndex
+                    "진행상황 파일 로드 완료: ProcessedTransactions={ProcessedTransactions}, ProcessedAgents={ProcessedAgents}",
+                    progress?.ProcessedTransactions,
+                    progress?.ProcessedAgents
                 );
                 return progress ?? new AgentStateRecoveryProgress();
             }
@@ -212,8 +191,9 @@ public class AgentStateRecoveryMigration
             var json = JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(ProgressFileName, json);
             _logger.LogDebug(
-                "진행상황 저장 완료: LastProcessedBlockIndex={LastProcessedBlockIndex}",
-                progress.LastProcessedBlockIndex
+                "진행상황 저장 완료: ProcessedTransactions={ProcessedTransactions}, ProcessedAgents={ProcessedAgents}",
+                progress.ProcessedTransactions,
+                progress.ProcessedAgents
             );
         }
         catch (Exception ex)
@@ -225,8 +205,7 @@ public class AgentStateRecoveryMigration
 
 public class AgentStateRecoveryProgress
 {
-    public long LastProcessedBlockIndex { get; set; } = 0;
-    public int ProcessedBlocks { get; set; } = 0;
+    public int ProcessedTransactions { get; set; } = 0;
     public int ProcessedAgents { get; set; } = 0;
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 } 
