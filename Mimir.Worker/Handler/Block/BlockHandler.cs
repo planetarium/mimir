@@ -131,7 +131,7 @@ public class BlockHandler(
                             );
                             if (transaction != null)
                             {
-                                await InsertAgent(transaction.Object.Signer, currentTargetIndex);
+                                await InsertAgentIfNotExist(transaction.Object.Signer, currentTargetIndex);
                                 await InsertNCGBalanceIfNotExist(
                                     transaction.Object.Signer,
                                     currentTargetIndex
@@ -148,7 +148,7 @@ public class BlockHandler(
                                             var avatarAddress in extractedActionValues.InvolvedAvatarAddresses
                                         )
                                         {
-                                            await InsertAvatar(avatarAddress, currentTargetIndex);
+                                            await InsertAvatarIfNotExist(avatarAddress, currentTargetIndex);
                                             await InsertDailyRewardIfNotExist(
                                                 avatarAddress,
                                                 currentTargetIndex
