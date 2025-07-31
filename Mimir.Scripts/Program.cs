@@ -49,6 +49,8 @@ var host = Host.CreateDefaultBuilder(args)
             services.AddTransient<UpdateTransactionDocumentMigration>();
             services.AddTransient<UpdateActionTypeMigration>();
             services.AddTransient<BlockRecoveryMigration>();
+            services.AddTransient<AgentStateRecoveryMigration>();
+            services.AddTransient<AvatarStateRecoveryMigration>();
             
             services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProvider =>
             {
@@ -87,6 +89,8 @@ try
         Console.WriteLine("2. TransactionDocument");
         Console.WriteLine("3. ActionType");
         Console.WriteLine("4. BlockRecovery");
+        Console.WriteLine("5. AgentStateRecovery");
+        Console.WriteLine("6. AvatarStateRecovery");
         Console.Write("번호 입력: ");
         var input = Console.ReadLine();
         migrationType = input switch
@@ -95,10 +99,12 @@ try
             "2" => "transaction",
             "3" => "actiontype",
             "4" => "blockrecovery",
+            "5" => "agentstaterecovery",
+            "6" => "avatarstaterecovery",
             _ => null,
         };
         
-        if (migrationType == "blockrecovery" && startBlockIndex == null)
+        if ((migrationType == "blockrecovery" || migrationType == "agentstaterecovery") && startBlockIndex == null)
         {
             Console.Write("시작 블록 인덱스를 입력하세요: ");
             var blockIndexInput = Console.ReadLine();
@@ -163,6 +169,34 @@ try
         logger.LogInformation(
             "블록 복구 마이그레이션 완료. 총 {Count}개 블록 처리됨",
             blockRecoveryResult
+        );
+    }
+    else if (migrationType == "agentstaterecovery")
+    {
+        if (startBlockIndex == null)
+        {
+            logger.LogError("Agent State 복구를 위해서는 시작 블록 인덱스가 필요합니다.");
+            return;
+        }
+        
+        logger.LogInformation("Agent State 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}, 끝 블록 인덱스: {EndBlockIndex}", startBlockIndex.Value, endBlockIndex);
+        var agentStateRecoveryMigration =
+            host.Services.GetRequiredService<AgentStateRecoveryMigration>();
+        var agentStateRecoveryResult = await agentStateRecoveryMigration.ExecuteAsync(startBlockIndex.Value, endBlockIndex);
+        logger.LogInformation(
+            "Agent State 복구 마이그레이션 완료. 총 {Count}개 Agent 처리됨",
+            agentStateRecoveryResult
+        );
+    }
+    else if (migrationType == "avatarstaterecovery")
+    {
+        logger.LogInformation("Avatar State 복구 마이그레이션 시작");
+        var avatarStateRecoveryMigration =
+            host.Services.GetRequiredService<AvatarStateRecoveryMigration>();
+        var avatarStateRecoveryResult = await avatarStateRecoveryMigration.ExecuteAsync();
+        logger.LogInformation(
+            "Avatar State 복구 마이그레이션 완료. 총 {Count}개 Avatar 처리됨",
+            avatarStateRecoveryResult
         );
     }
     else
