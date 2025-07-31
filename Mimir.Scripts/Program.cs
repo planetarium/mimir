@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Mimir.Scripts;
 using Mimir.Scripts.Migrations;
 using Mimir.Worker.Services;
+using Mimir.Worker.Client;
 using Serilog;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -47,6 +48,14 @@ var host = Host.CreateDefaultBuilder(args)
             services.AddTransient<UpdateLastStageClearedIdMigration>();
             services.AddTransient<UpdateTransactionDocumentMigration>();
             services.AddTransient<UpdateActionTypeMigration>();
+            services.AddTransient<BlockRecoveryMigration>();
+            
+            services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProvider =>
+            {
+                var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+                return new HeadlessGQLClient(config.HeadlessEndpoints, config.JwtIssuer, config.JwtSecretKey);
+            });
+            services.AddSingleton<IStateService, HeadlessStateService>();
         }
     )
     .Build();
@@ -58,12 +67,20 @@ try
     logger.LogInformation("마이그레이션 스크립트 시작");
 
     string? migrationType = args.Length > 0 ? args[0] : null;
+    long? startBlockIndex = null;
+    
+    if (args.Length > 1 && long.TryParse(args[1], out var blockIndex))
+    {
+        startBlockIndex = blockIndex;
+    }
+    
     if (string.IsNullOrEmpty(migrationType))
     {
         Console.WriteLine("실행할 마이그레이션을 선택하세요:");
         Console.WriteLine("1. LastStageClearedId");
         Console.WriteLine("2. TransactionDocument");
         Console.WriteLine("3. ActionType");
+        Console.WriteLine("4. BlockRecovery");
         Console.Write("번호 입력: ");
         var input = Console.ReadLine();
         migrationType = input switch
@@ -71,8 +88,19 @@ try
             "1" => "laststage",
             "2" => "transaction",
             "3" => "actiontype",
+            "4" => "blockrecovery",
             _ => null,
         };
+        
+        if (migrationType == "blockrecovery" && startBlockIndex == null)
+        {
+            Console.Write("시작 블록 인덱스를 입력하세요: ");
+            var blockIndexInput = Console.ReadLine();
+            if (long.TryParse(blockIndexInput, out var parsedBlockIndex))
+            {
+                startBlockIndex = parsedBlockIndex;
+            }
+        }
     }
 
     if (migrationType == "laststage")
@@ -105,6 +133,23 @@ try
         logger.LogInformation(
             "ActionType 마이그레이션 완료. 총 {Count}개 문서 추가됨",
             actionTypeResult
+        );
+    }
+    else if (migrationType == "blockrecovery")
+    {
+        if (startBlockIndex == null)
+        {
+            logger.LogError("블록 복구를 위해서는 시작 블록 인덱스가 필요합니다.");
+            return;
+        }
+        
+        logger.LogInformation("블록 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}", startBlockIndex.Value);
+        var blockRecoveryMigration =
+            host.Services.GetRequiredService<BlockRecoveryMigration>();
+        var blockRecoveryResult = await blockRecoveryMigration.ExecuteAsync(startBlockIndex.Value);
+        logger.LogInformation(
+            "블록 복구 마이그레이션 완료. 총 {Count}개 블록 처리됨",
+            blockRecoveryResult
         );
     }
     else

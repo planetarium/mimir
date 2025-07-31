@@ -195,6 +195,13 @@ public class MongoDbService
         return count > 0;
     }
 
+    public async Task<bool> IsExistBlockAsync(long blockIndex)
+    {
+        var filter = Builders<BlockDocument>.Filter.Eq("Object.Index", blockIndex);
+        var count = await _blockCollection.CountDocumentsAsync(filter);
+        return count > 0;
+    }
+
     public async Task<T?> GetSheetAsync<T>(CancellationToken cancellationToken = default)
         where T : ISheet, new()
     {
