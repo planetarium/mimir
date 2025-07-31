@@ -37,27 +37,25 @@ public class BlockHandler(
         {
             try
             {
-                var (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference) =
-                    await CalculateCurrentAndTargetIndexes(stoppingToken);
+                var (currentBaseIndex, targetLimit) = await CalculateCurrentAndTargetIndexes(
+                    stoppingToken
+                );
 
-                if (currentBaseIndex >= currentTargetIndex)
+                if (targetLimit < 1)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(8), stoppingToken);
                     continue;
                 }
 
                 Logger.Information(
-                    "{CollectionName} Request block data, current: {CurrentBlockIndex}, gap: {IndexDiff}, base: {CurrentBaseIndex} target: {CurrentTargetIndex}",
-                    collectionName,
-                    currentIndexOnChain,
-                    indexDifference,
+                    "Request block data, current: {CurrentBlockIndex}, targetLimit: {TargetLimit}",
                     currentBaseIndex,
-                    currentTargetIndex
+                    targetLimit
                 );
 
                 var (blockResponse, _) = await headlessGqlClient.GetBlocksAsync(
                     (int)currentBaseIndex + 1,
-                    LIMIT,
+                    (int)targetLimit,
                     stoppingToken
                 );
 
@@ -68,7 +66,7 @@ public class BlockHandler(
                 {
                     var blockModel = block.ToBlockModel();
                     var blockDocument = new BlockDocument(
-                        currentTargetIndex,
+                        blockModel.Index,
                         blockModel.Hash,
                         blockModel
                     );
@@ -85,7 +83,7 @@ public class BlockHandler(
                             await dbService.UpsertActionTypeAsync(extractedActionValues.TypeId);
 
                             var transactionDocument = new TransactionDocument(
-                                currentTargetIndex,
+                                blockModel.Index,
                                 transactionModel.Id,
                                 blockModel.Hash,
                                 blockModel.Index,
@@ -98,10 +96,13 @@ public class BlockHandler(
                     }
                 }
 
-                if (blockDocuments.Count > 0)
+                if (blockDocuments.Count < 1)
                 {
-                    await dbService.InsertBlocksManyAsync(blockDocuments);
+                    throw new Exception("blockDocuments is empty");
                 }
+
+                await dbService.InsertBlocksManyAsync(blockDocuments);
+                long latestBlockIndex = blockDocuments.Max(bd => bd.Object.Index);
 
                 if (transactionDocuments.Count > 0)
                 {
@@ -109,19 +110,12 @@ public class BlockHandler(
                     await dbService.InsertTransactionsManyAsync(transactionDocuments);
                 }
 
-                await dbService.UpdateLatestBlockIndexAsync(
-                    new MetadataDocument
-                    {
-                        PollerType = PollerType,
-                        CollectionName = collectionName,
-                        LatestBlockIndex = currentTargetIndex,
-                    },
-                    null,
-                    stoppingToken
-                );
-
                 foreach (var document in blockDocuments)
                 {
+                    Logger.Information(
+                        "Processing block index: {BlockIndex}",
+                        document.Object.Index
+                    );
                     if (document.Object.TxIds != null)
                     {
                         foreach (var txId in document.Object.TxIds)
@@ -131,10 +125,13 @@ public class BlockHandler(
                             );
                             if (transaction != null)
                             {
-                                await InsertAgentIfNotExist(transaction.Object.Signer, currentTargetIndex);
+                                await InsertAgentIfNotExist(
+                                    transaction.Object.Signer,
+                                    transaction.BlockIndex
+                                );
                                 await InsertNCGBalanceIfNotExist(
                                     transaction.Object.Signer,
-                                    currentTargetIndex
+                                    transaction.BlockIndex
                                 );
 
                                 foreach (var action in transaction.Object.Actions)
@@ -148,10 +145,13 @@ public class BlockHandler(
                                             var avatarAddress in extractedActionValues.InvolvedAvatarAddresses
                                         )
                                         {
-                                            await InsertAvatarIfNotExist(avatarAddress, currentTargetIndex);
+                                            await InsertAvatarIfNotExist(
+                                                avatarAddress,
+                                                transaction.BlockIndex
+                                            );
                                             await InsertDailyRewardIfNotExist(
                                                 avatarAddress,
-                                                currentTargetIndex
+                                                transaction.BlockIndex
                                             );
                                         }
                                     }
@@ -159,11 +159,11 @@ public class BlockHandler(
                                     {
                                         await InsertAvatarIfNotExist(
                                             extractedActionValues.AvatarAddress.Value,
-                                            currentTargetIndex
+                                            transaction.BlockIndex
                                         );
                                         await InsertDailyRewardIfNotExist(
                                             extractedActionValues.AvatarAddress.Value,
-                                            currentTargetIndex
+                                            transaction.BlockIndex
                                         );
                                     }
                                 }
@@ -171,6 +171,22 @@ public class BlockHandler(
                         }
                     }
                 }
+
+                Logger.Information(
+                    "Synced Latest block index: {LatestBlockIndex}",
+                    latestBlockIndex
+                );
+
+                await dbService.UpdateLatestBlockIndexAsync(
+                    new MetadataDocument
+                    {
+                        PollerType = PollerType,
+                        CollectionName = collectionName,
+                        LatestBlockIndex = latestBlockIndex,
+                    },
+                    null,
+                    stoppingToken
+                );
             }
             catch (Exception e)
             {
@@ -179,27 +195,22 @@ public class BlockHandler(
         }
     }
 
-    private async Task<(
-        long CurrentBaseIndex,
-        long CurrentTargetIndex,
-        long CurrentIndexOnChain,
-        long IndexDifference
-    )> CalculateCurrentAndTargetIndexes(CancellationToken stoppingToken)
+    private async Task<(long CurrentBaseIndex, long TargetLimit)> CalculateCurrentAndTargetIndexes(
+        CancellationToken stoppingToken
+    )
     {
-        var syncedIndex = await GetSyncedBlockIndex(stoppingToken);
-        var currentBaseIndex = syncedIndex;
+        var syncedBlockIndex = await GetSyncedBlockIndex(stoppingToken);
         Logger.Information(
             "{CollectionName} Synced BlockIndex: {SyncedBlockIndex}",
             collectionName,
-            syncedIndex
+            syncedBlockIndex
         );
 
         var currentIndexOnChain = await GetLatestIndex(stoppingToken);
-        var indexDifference = currentIndexOnChain - currentBaseIndex;
-        var currentTargetIndex =
-            currentBaseIndex + (indexDifference > LIMIT ? LIMIT : indexDifference);
+        var indexDifference = currentIndexOnChain - syncedBlockIndex;
+        var targetLimit = indexDifference > LIMIT ? LIMIT : indexDifference;
 
-        return (currentBaseIndex, currentTargetIndex, currentIndexOnChain, indexDifference);
+        return (syncedBlockIndex, targetLimit);
     }
 
     private async Task<long> GetSyncedBlockIndex(CancellationToken stoppingToken)
@@ -340,26 +351,37 @@ public class BlockHandler(
 
     private async Task InsertAvatar(Address avatarAddress, long blockIndex)
     {
-        var avatarState = await StateGetter.GetAvatarStateAsync(avatarAddress);
-        var inventoryState = await StateGetter.GetInventoryState(
-            avatarAddress,
-            CancellationToken.None
-        );
-        var armorId = inventoryState.GetArmorId();
-        var portraitId = inventoryState.GetPortraitId();
+        try
+        {
+            var avatarState = await StateGetter.GetAvatarStateAsync(avatarAddress);
+            var inventoryState = await StateGetter.GetInventoryState(
+                avatarAddress,
+                CancellationToken.None
+            );
+            var armorId = inventoryState.GetArmorId();
+            var portraitId = inventoryState.GetPortraitId();
 
-        var document = new AvatarDocument(
-            blockIndex,
-            avatarState.Address,
-            avatarState,
-            armorId,
-            portraitId
-        );
+            var document = new AvatarDocument(
+                blockIndex,
+                avatarState.Address,
+                avatarState,
+                armorId,
+                portraitId
+            );
 
-        await dbService.UpsertStateDataManyAsync(
-            CollectionNames.GetCollectionName<AvatarDocument>(),
-            [document]
-        );
+            await dbService.UpsertStateDataManyAsync(
+                CollectionNames.GetCollectionName<AvatarDocument>(),
+                [document]
+            );
+        }
+        catch (StateNotFoundException)
+        {
+            Logger.Information(
+                "Avatar state not found, block index: {BlockIndex}, avatar address: {AvatarAddress}",
+                blockIndex,
+                avatarAddress
+            );
+        }
     }
 
     private async Task UpdateTransactionStatuses(
