@@ -133,9 +133,9 @@ public class BlockRecoveryMigration
 
                 if (blockDocuments.Count > 0)
                 {
-                    await _mongoDbService.InsertBlocksManyAsync(blockDocuments);
+                    await _mongoDbService.UpsertBlocksManyAsync(blockDocuments);
                     _logger.LogInformation(
-                        "{Count}개 블록 문서 삽입 완료",
+                        "{Count}개 블록 문서 업서트 완료",
                         blockDocuments.Count
                     );
                     totalProcessedBlocks += blockDocuments.Count;
@@ -144,9 +144,9 @@ public class BlockRecoveryMigration
                 if (transactionDocuments.Count > 0)
                 {
                     await UpdateTransactionStatuses(transactionDocuments);
-                    await _mongoDbService.InsertTransactionsManyAsync(transactionDocuments);
+                    await _mongoDbService.UpsertTransactionsManyAsync(transactionDocuments);
                     _logger.LogInformation(
-                        "{Count}개 트랜잭션 문서 삽입 완료",
+                        "{Count}개 트랜잭션 문서 업서트 완료",
                         transactionDocuments.Count
                     );
                     totalProcessedTransactions += transactionDocuments.Count;

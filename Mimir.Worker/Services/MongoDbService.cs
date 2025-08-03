@@ -243,35 +243,69 @@ public class MongoDbService
         return UpsertStateDataManyAsync(collectionName, bulkOps, session, cancellationToken);
     }
 
-    public async Task InsertBlocksManyAsync(
+    public async Task<BulkWriteResult> UpsertBlocksManyAsync(
         List<BlockDocument> documents,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default
     )
     {
+        var bulkOps = documents
+            .Select(doc => new ReplaceOneModel<BlockDocument>(
+                Builders<BlockDocument>.Filter.Eq(x => x.Id, doc.Id),
+                doc
+            )
+            {
+                IsUpsert = true,
+            })
+            .ToList();
+
         if (session is null)
         {
-            await _blockCollection.InsertManyAsync(documents);
+            return await _blockCollection.BulkWriteAsync(
+                bulkOps,
+                cancellationToken: cancellationToken
+            );
         }
         else
         {
-            await _blockCollection.InsertManyAsync(session, documents);
+            return await _blockCollection.BulkWriteAsync(
+                session,
+                bulkOps,
+                cancellationToken: cancellationToken
+            );
         }
     }
 
-    public async Task InsertTransactionsManyAsync(
+    public async Task<BulkWriteResult> UpsertTransactionsManyAsync(
         List<TransactionDocument> documents,
         IClientSessionHandle? session = null,
         CancellationToken cancellationToken = default
     )
     {
+        var bulkOps = documents
+            .Select(doc => new ReplaceOneModel<TransactionDocument>(
+                Builders<TransactionDocument>.Filter.Eq(x => x.Id, doc.Id),
+                doc
+            )
+            {
+                IsUpsert = true,
+            })
+            .ToList();
+
         if (session is null)
         {
-            await _transactionCollection.InsertManyAsync(documents);
+            return await _transactionCollection.BulkWriteAsync(
+                bulkOps,
+                cancellationToken: cancellationToken
+            );
         }
         else
         {
-            await _transactionCollection.InsertManyAsync(session, documents);
+            return await _transactionCollection.BulkWriteAsync(
+                session,
+                bulkOps,
+                cancellationToken: cancellationToken
+            );
         }
     }
 

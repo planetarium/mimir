@@ -101,13 +101,13 @@ public class BlockHandler(
                     throw new Exception("blockDocuments is empty");
                 }
 
-                await dbService.InsertBlocksManyAsync(blockDocuments);
+                await dbService.UpsertBlocksManyAsync(blockDocuments);
                 long latestBlockIndex = blockDocuments.Max(bd => bd.Object.Index);
 
                 if (transactionDocuments.Count > 0)
                 {
                     await UpdateTransactionStatuses(transactionDocuments, stoppingToken);
-                    await dbService.InsertTransactionsManyAsync(transactionDocuments);
+                    await dbService.UpsertTransactionsManyAsync(transactionDocuments);
                 }
 
                 foreach (var document in blockDocuments)
