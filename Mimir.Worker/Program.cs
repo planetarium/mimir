@@ -31,7 +31,7 @@ builder.Services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProv
 });
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
 
-builder.Services.AddSingleton(serviceProvider =>
+builder.Services.AddSingleton<IMongoDbService, MongoDbService>(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     return new MongoDbService(

@@ -3,12 +3,11 @@ using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
+using Mimir.MongoDB.Services;
 using Nekoyume.Battle;
 using Nekoyume.Helper;
 using Nekoyume.TableData;
 using Nekoyume.TableData.Crystal;
-using ILogger = Serilog.ILogger;
-using Mimir.MongoDB.Services;
 
 namespace Mimir.Worker.Services;
 
@@ -29,23 +28,25 @@ public class ItemProductCalculationService : IItemProductCalculationService
         {
             int? cp = itemProduct.TradableItem switch
             {
-                ItemUsable itemUsable
-                    => CPHelper.GetCP(
-                        (Nekoyume.Model.Item.ItemUsable)
-                        Nekoyume.Model.Item.ItemFactory.Deserialize(
-                            (Dictionary)itemUsable.Bencoded
-                        )
-                    ),
-                Costume costume => CPHelper.GetCP(new Nekoyume.Model.Item.Costume((Dictionary)costume.Bencoded), costumeStatSheet),
-                _ => null
+                ItemUsable itemUsable => CPHelper.GetCP(
+                    (Nekoyume.Model.Item.ItemUsable)
+                        Nekoyume.Model.Item.ItemFactory.Deserialize((Dictionary)itemUsable.Bencoded)
+                ),
+                Costume costume => CPHelper.GetCP(
+                    new Nekoyume.Model.Item.Costume((Dictionary)costume.Bencoded),
+                    costumeStatSheet
+                ),
+                _ => null,
             };
             return cp;
         }
-        
+
         return null;
     }
 
-    public async Task<(int? crystal, int? crystalPerPrice)> CalculateCrystalMetricsAsync(ItemProduct itemProduct)
+    public async Task<(int? crystal, int? crystalPerPrice)> CalculateCrystalMetricsAsync(
+        ItemProduct itemProduct
+    )
     {
         var crystalEquipmentGrindingSheet =
             await _store.GetSheetAsync<CrystalEquipmentGrindingSheet>();
