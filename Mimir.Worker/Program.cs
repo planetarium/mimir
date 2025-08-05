@@ -1,14 +1,14 @@
-using Mimir.Shared.Constants;
-using Mimir.Shared.Client;
-using Mimir.Shared.Services;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
 using Mimir.Shared.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
+using Mimir.Shared.Services;
 using Mimir.Shared.Services;
 using Mimir.Worker;
-using Mimir.Shared.Services;
-using Serilog;
 using Mimir.Worker.Services;
+using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -20,7 +20,9 @@ builder
 builder.Services.Configure<Configuration>(builder.Configuration.GetSection("Configuration"));
 
 var loggerConfiguration = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration);
-if (builder.Configuration.GetSection("Configuration").GetValue<string>("SentryDsn") is { } sentryDsn)
+if (
+    builder.Configuration.GetSection("Configuration").GetValue<string>("SentryDsn") is { } sentryDsn
+)
 {
     loggerConfiguration = loggerConfiguration.WriteTo.Sentry(sentryDsn);
 }

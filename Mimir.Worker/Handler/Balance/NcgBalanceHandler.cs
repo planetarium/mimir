@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
 using Mimir.Shared.Client;
 using Mimir.Shared.Constants;
+using Mimir.Shared.Options;
 using Mimir.Shared.Services;
 using Mimir.Worker.Initializer.Manager;
 using Serilog;
@@ -15,7 +16,7 @@ public sealed class NcgBalanceHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    PlanetType planetType,
+    IOptions<Configuration> configuration,
     IStateGetterService stateGetterService
 )
     : BaseBalanceHandler(
@@ -26,10 +27,14 @@ public sealed class NcgBalanceHandler(
         initializerManager,
         stateGetterService,
         Log.ForContext<NcgBalanceHandler>(),
-        planetType switch
+        configuration.Value.PlanetType switch
         {
             PlanetType.Odin => NCGCurrency.OdinNCGCurrency,
             PlanetType.Heimdall => NCGCurrency.HeimdallNCGCurrency,
-            _ => throw new ArgumentOutOfRangeException(nameof(planetType), planetType, null),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(configuration.Value.PlanetType),
+                configuration.Value.PlanetType,
+                null
+            ),
         }
     ) { }
