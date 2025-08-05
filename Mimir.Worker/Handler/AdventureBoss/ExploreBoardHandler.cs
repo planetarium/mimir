@@ -1,9 +1,12 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 // using Bencodex;
 // using Bencodex.Types;
 // using Mimir.Worker.Exceptions;
 // using Mimir.Worker.Models;
 // using Mimir.Worker.Models.State.AdventureBoss;
-// using Mimir.Worker.Services;
+// using Mimir.Shared.Services;
 // using Nekoyume.Model.AdventureBoss;
 
 // namespace Mimir.Worker.Handler.AdventureBoss;

@@ -4,9 +4,10 @@ using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume;
@@ -21,7 +22,7 @@ public class WorldBossStateHandler(
     IMongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration
+    IStateGetterService stateGetterService
 )
     : BaseActionHandler<WorldBossStateDocument>(
         stateService,
@@ -30,7 +31,7 @@ public class WorldBossStateHandler(
         initializerManager,
         "^raid[0-9]*$",
         Log.ForContext<WorldBossStateHandler>(),
-        configuration
+        stateGetterService
     )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(

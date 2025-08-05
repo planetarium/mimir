@@ -1,7 +1,12 @@
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
+using Mimir.Shared.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
+using Mimir.Shared.Services;
+using Mimir.Shared.Services;
 using Mimir.Worker;
-using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Serilog;
 
@@ -15,7 +20,9 @@ builder
 builder.Services.Configure<Configuration>(builder.Configuration.GetSection("Configuration"));
 
 var loggerConfiguration = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration);
-if (builder.Configuration.GetSection("Configuration").GetValue<string>("SentryDsn") is { } sentryDsn)
+if (
+    builder.Configuration.GetSection("Configuration").GetValue<string>("SentryDsn") is { } sentryDsn
+)
 {
     loggerConfiguration = loggerConfiguration.WriteTo.Sentry(sentryDsn);
 }
@@ -30,13 +37,19 @@ builder.Services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProv
     return new HeadlessGQLClient(config.HeadlessEndpoints, config.JwtIssuer, config.JwtSecretKey);
 });
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
+builder.Services.AddSingleton<IStateGetterService, StateGetterService>(serviceProvider =>
+{
+    var stateService = serviceProvider.GetRequiredService<IStateService>();
+    var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+    return new StateGetterService(stateService, config.PlanetType);
+});
 
 builder.Services.AddSingleton<IMongoDbService, MongoDbService>(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
     return new MongoDbService(
         config.MongoDbConnectionString,
-        config.PlanetType,
+        config.PlanetType.ToString().ToLowerInvariant(),
         config.MongoDbCAFile
     );
 });

@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj" />
     <ProjectReference Include="..\Mimir.MongoDB\Mimir.MongoDB.csproj" />
+    <ProjectReference Include="..\Mimir.Shared\Mimir.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,32 +2,28 @@ using Bencodex.Types;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
 using Lib9c.Models.States;
+using Libplanet.Action.State;
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Mimir.MongoDB;
-using Mimir.MongoDB.Bson;
-using Mimir.Worker.Constants;
-using Mimir.Worker.Exceptions;
-using Mimir.Worker.Handler.Balance;
-using Mimir.Worker.Services;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Exceptions;
+using Mimir.Shared.Services;
 using Nekoyume;
 using Nekoyume.Action;
 using Nekoyume.Model.EnumType;
 using Nekoyume.TableData;
 
-namespace Mimir.Worker.Util;
+namespace Mimir.Shared.Services;
 
-public class StateGetter
+public class StateGetterService : IStateGetterService
 {
     private readonly IStateService _service;
-    private readonly IOptions<Configuration> _configuration;
+    private readonly PlanetType _planetType;
 
-    public StateGetter(IStateService service, IOptions<Configuration> configuration)
+    public StateGetterService(IStateService service, PlanetType planetType)
     {
         _service = service;
-        _configuration = configuration;
+        _planetType = planetType;
     }
 
     public async Task<T> GetSheet<T>(CancellationToken stoppingToken = default)
@@ -52,23 +48,22 @@ public class StateGetter
         CancellationToken stoppingToken = default
     )
     {
-        var currency = _configuration.Value.PlanetType switch
+        var currency = _planetType switch
         {
-            PlanetType.Odin => NcgBalanceHandler.OdinNCGCurrency,
-            PlanetType.Heimdall => NcgBalanceHandler.HeimdallNCGCurrency,
+            PlanetType.Odin => NCGCurrency.OdinNCGCurrency,
+            PlanetType.Heimdall => NCGCurrency.HeimdallNCGCurrency,
             _ => throw new ArgumentOutOfRangeException(),
         };
 
         var state = await GetStateWithLegacyAccount(
             agentAddress,
-            CollectionNames.GetAccountAddress(currency),
+            currency.Minters?.FirstOrDefault() ?? ReservedAddresses.LegacyAccount,
             stoppingToken
         );
-        var a = CollectionNames.GetAccountAddress(currency);
 
         if (state is null)
         {
-            throw new StateNotFoundException(agentAddress, typeof(BalanceDocument));
+            throw new StateNotFoundException(agentAddress, typeof(long));
         }
 
         if (state is not Integer value)
@@ -285,7 +280,6 @@ public class StateGetter
             return new AllCombinationSlotState(state);
         }
 
-        // try migration
         var allCombinationSlotState = new AllCombinationSlotState();
         for (var i = 0; i < Nekoyume.Model.State.AvatarState.DefaultCombinationSlotCount; i++)
         {

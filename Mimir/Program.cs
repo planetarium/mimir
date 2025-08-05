@@ -17,10 +17,9 @@ using Mimir.MongoDB.Repositories;
 using Mimir.MongoDB.Services;
 using Mimir.Options;
 using Mimir.Services;
-using Mimir.Worker.Client;
-using Mimir.Worker.Constants;
-using Mimir.Worker.Services;
-using Mimir.Worker.Util;
+using Mimir.Shared.Client;
+using Mimir.Shared.Options;
+using Mimir.Shared.Services;
 using StackExchange.Redis;
 using BalanceRepository = Mimir.MongoDB.Repositories.BalanceRepository;
 
@@ -62,12 +61,22 @@ builder.Services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProv
     return new HeadlessGQLClient(config.HeadlessEndpoints, config.JwtIssuer, config.JwtSecretKey);
 });
 builder.Services.AddSingleton<IStateService, HeadlessStateService>();
+builder.Services.AddSingleton<IStateGetterService, StateGetterService>(serviceProvider =>
+{
+    var stateService = serviceProvider.GetRequiredService<IStateService>();
+    var dbConfig = serviceProvider.GetRequiredService<IOptions<DatabaseOption>>().Value;
+    return new StateGetterService(stateService, dbConfig.PlanetType);
+});
 
 builder.Services.AddSingleton<IMongoDbService, MongoDbService>(serviceProvider =>
 {
     var config = serviceProvider.GetRequiredService<IOptions<DatabaseOption>>().Value;
 
-    return new MongoDbService(config.ConnectionString, config.PlanetType, config.CAFile);
+    return new MongoDbService(
+        config.ConnectionString,
+        config.PlanetType.ToString().ToLowerInvariant(),
+        config.CAFile
+    );
 });
 
 // NOTE: MongoDB repositories. Sort in alphabetical order.
@@ -118,10 +127,7 @@ var hangfireOption = builder
     .Get<HangfireOption>();
 if (hangfireOption != null)
 {
-    var redisConfig = new ConfigurationOptions
-    {
-        DefaultDatabase = hangfireOption.RedisDatabase,
-    };
+    var redisConfig = new ConfigurationOptions { DefaultDatabase = hangfireOption.RedisDatabase };
 
     redisConfig.EndPoints.Add(hangfireOption.RedisHost, hangfireOption.RedisPort);
 

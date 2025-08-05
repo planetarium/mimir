@@ -5,9 +5,10 @@ using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume;
@@ -18,13 +19,21 @@ using Serilog;
 namespace Mimir.Worker.ActionHandler;
 
 public class WorldBossKillRewardRecordStateHandler(
-    IStateService stateService, 
-    IMongoDbService store, 
-    IHeadlessGQLClient headlessGqlClient, 
+    IStateService stateService,
+    IMongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
+    IStateGetterService stateGetterService
+)
     : BaseActionHandler<WorldBossKillRewardRecordDocument>(
-        stateService, store, headlessGqlClient, initializerManager, "^raid[0-9]*$", Log.ForContext<WorldBossKillRewardRecordStateHandler>(), configuration)
+        stateService,
+        store,
+        headlessGqlClient,
+        initializerManager,
+        "^raid[0-9]*$",
+        Log.ForContext<WorldBossKillRewardRecordStateHandler>(),
+        stateGetterService
+    )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
@@ -33,7 +42,8 @@ public class WorldBossKillRewardRecordStateHandler(
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (actionPlainValueInternal is null)
         {
@@ -45,14 +55,17 @@ public class WorldBossKillRewardRecordStateHandler(
             throw new UnsupportedArgumentTypeException<ValueKind>(
                 nameof(actionPlainValueInternal),
                 [ValueKind.Dictionary],
-                actionPlainValueInternal.Kind);
+                actionPlainValueInternal.Kind
+            );
         }
 
         var avatarAddress = d["a"].ToAddress();
         var worldBossListSheet = await Store.GetSheetAsync<WorldBossListSheet>(stoppingToken);
         if (worldBossListSheet is null)
         {
-            throw new InvalidOperationException($"{nameof(WorldBossKillRewardRecordStateHandler)} requires {nameof(WorldBossListSheet)}");
+            throw new InvalidOperationException(
+                $"{nameof(WorldBossKillRewardRecordStateHandler)} requires {nameof(WorldBossListSheet)}"
+            );
         }
 
         var row = worldBossListSheet.FindRowByBlockIndex(blockIndex);
@@ -60,17 +73,21 @@ public class WorldBossKillRewardRecordStateHandler(
 
         var worldBossKillRewardRecordAddress = Addresses.GetWorldBossKillRewardRecordAddress(
             avatarAddress,
-            raidId);
-        var worldBossKillRewardRecordState = await StateGetter.GetWorldBossKillRewardRecordStateAsync(
-            worldBossKillRewardRecordAddress,
-            stoppingToken);
+            raidId
+        );
+        var worldBossKillRewardRecordState =
+            await StateGetter.GetWorldBossKillRewardRecordStateAsync(
+                worldBossKillRewardRecordAddress,
+                stoppingToken
+            );
         return
         [
             new WorldBossKillRewardRecordDocument(
                 blockIndex,
                 worldBossKillRewardRecordAddress,
                 avatarAddress,
-                worldBossKillRewardRecordState).ToUpdateOneModel()
+                worldBossKillRewardRecordState
+            ).ToUpdateOneModel(),
         ];
     }
 }

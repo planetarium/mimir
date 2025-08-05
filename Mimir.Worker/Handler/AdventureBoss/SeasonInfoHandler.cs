@@ -1,9 +1,12 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 // using Bencodex.Types;
 // using Libplanet.Crypto;
 // using Lib9c.Models.AdventureBoss;
 // using Mimir.Worker.Models;
 // using Mimir.Worker.Models.State.AdventureBoss;
-// using Mimir.Worker.Services;
+// using Mimir.Shared.Services;
 
 // namespace Mimir.Worker.Handler.AdventureBoss;
 

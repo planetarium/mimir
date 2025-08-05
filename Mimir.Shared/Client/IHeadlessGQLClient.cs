@@ -1,7 +1,7 @@
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
 
-namespace Mimir.Worker.Client;
+namespace Mimir.Shared.Client;
 
 public interface IHeadlessGQLClient
 {

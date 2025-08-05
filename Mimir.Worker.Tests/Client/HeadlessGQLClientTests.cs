@@ -1,13 +1,13 @@
 using System.Net;
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
-using Mimir.Worker.Client;
 using Moq;
 using Moq.Protected;
 using Xunit;
 using System.Text;
 using Newtonsoft.Json;
 using Lib9c.Models.Block;
+using Mimir.Shared.Client;
 
 namespace Mimir.Worker.Tests.Client;
 

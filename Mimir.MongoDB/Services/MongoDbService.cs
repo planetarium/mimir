@@ -6,7 +6,6 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Bson.Serialization;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Constants;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
@@ -30,7 +29,7 @@ public class MongoDbService : IMongoDbService
     private readonly IMongoCollection<ActionTypeDocument> _actionTypeCollection;
     private readonly IMongoCollection<BalanceDocument> _ncgBalanceCollection;
 
-    public MongoDbService(string connectionString, PlanetType planetType, string? pathToCAFile)
+    public MongoDbService(string connectionString, string database, string? pathToCAFile)
     {
         _logger = Log.ForContext<MongoDbService>();
         SerializationRegistry.Register();
@@ -59,7 +58,7 @@ public class MongoDbService : IMongoDbService
         }
 
         _client = new MongoClient(settings);
-        _database = _client.GetDatabase(planetType.ToString().ToLowerInvariant());
+        _database = _client.GetDatabase(database);
         _gridFs = new GridFSBucket(_database);
         _stateCollectionMappings = InitStateCollections();
         _metadataCollection = _database.GetCollection<MetadataDocument>("metadata");

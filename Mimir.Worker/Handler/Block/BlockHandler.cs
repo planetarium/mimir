@@ -4,16 +4,16 @@ using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB.Services;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Client;
+using Mimir.MongoDB.Services;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Extensions;
-using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using Serilog;
 using ILogger = Serilog.ILogger;
-using Mimir.MongoDB;
 
 namespace Mimir.Worker.Handler;
 
@@ -21,13 +21,13 @@ public class BlockHandler(
     IMongoDbService dbService,
     IHeadlessGQLClient headlessGqlClient,
     IStateService stateService,
+    IStateGetterService stateGetterService,
     IOptions<Configuration> configuration
 ) : BackgroundService
 {
     public const string PollerType = "BlockPoller";
     public const string collectionName = "block";
     public const string transactionCollectionName = "transaction";
-    private readonly StateGetter StateGetter = stateService.At(configuration);
     private const int LIMIT = 50;
 
     private readonly ILogger Logger = Log.ForContext<BlockHandler>();
@@ -264,7 +264,7 @@ public class BlockHandler(
     {
         try
         {
-            var ncgBalanceState = await StateGetter.GetNCGBalanceAsync(signer);
+            var ncgBalanceState = await stateGetterService.GetNCGBalanceAsync(signer);
 
             var document = new BalanceDocument(blockIndex, signer, ncgBalanceState);
 
@@ -290,7 +290,7 @@ public class BlockHandler(
     {
         try
         {
-            var dailyRewardState = await StateGetter.GetDailyRewardAsync(avatarAddress);
+            var dailyRewardState = await stateGetterService.GetDailyRewardAsync(avatarAddress);
 
             var document = new DailyRewardDocument(blockIndex, avatarAddress, dailyRewardState);
 
@@ -322,7 +322,7 @@ public class BlockHandler(
     {
         try
         {
-            var agentState = await StateGetter.GetAgentStateAccount(signer);
+            var agentState = await stateGetterService.GetAgentStateAccount(signer);
 
             var document = new AgentDocument(blockIndex, agentState.Address, agentState);
 
@@ -354,8 +354,8 @@ public class BlockHandler(
     {
         try
         {
-            var avatarState = await StateGetter.GetAvatarStateAsync(avatarAddress);
-            var inventoryState = await StateGetter.GetInventoryState(
+            var avatarState = await stateGetterService.GetAvatarStateAsync(avatarAddress);
+            var inventoryState = await stateGetterService.GetInventoryState(
                 avatarAddress,
                 CancellationToken.None
             );

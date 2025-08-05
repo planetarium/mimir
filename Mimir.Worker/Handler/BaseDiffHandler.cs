@@ -1,3 +1,6 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Bencodex;
 using Bencodex.Types;
 using Libplanet.Crypto;
@@ -5,9 +8,7 @@ using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
 using Mimir.Worker.Util;
 using ILogger = Serilog.ILogger;
@@ -22,14 +23,13 @@ public abstract class BaseDiffHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    ILogger logger,
-    IOptions<Configuration> configuration
+    IStateGetterService stateGetter,
+    ILogger logger
 ) : BackgroundService
 {
     protected const string PollerType = "DiffPoller";
     protected static readonly Codec Codec = new();
 
-    protected readonly StateGetter StateGetter = stateService.At(configuration);
     protected readonly ILogger Logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

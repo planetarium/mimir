@@ -1,9 +1,10 @@
 using Lib9c;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using Serilog;
 
 namespace Mimir.Worker.Handler.Balance;
@@ -13,6 +14,15 @@ public sealed class OdinWisdomRuneBalanceHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
-    : BaseBalanceHandler("balance_wisdom_rune", dbService, stateService, headlessGqlClient, initializerManager,
-        Log.ForContext<OdinWisdomRuneBalanceHandler>(), Currencies.OdinWisdomRune, configuration);
+    IStateGetterService stateGetterService
+)
+    : BaseBalanceHandler(
+        "balance_wisdom_rune",
+        dbService,
+        stateService,
+        headlessGqlClient,
+        initializerManager,
+        stateGetterService,
+        Log.ForContext<OdinWisdomRuneBalanceHandler>(),
+        Currencies.OdinWisdomRune
+    );

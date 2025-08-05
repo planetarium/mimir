@@ -1,19 +1,20 @@
+using System.Text.Json;
+using Lib9c.Models.Extensions;
+using Libplanet.Crypto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Client;
+using Mimir.MongoDB.Services;
+using Mimir.Scripts;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
+using Mimir.Worker.Extensions;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
-using Mimir.Worker.Extensions;
-using Mimir.Scripts;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using System.Text.Json;
-using Libplanet.Crypto;
-using Lib9c.Models.Extensions;
 using Options = Microsoft.Extensions.Options.Options;
-using Mimir.MongoDB.Services;
 
 namespace Mimir.Scripts.Migrations;
 
@@ -22,8 +23,8 @@ public class BlockRecoveryMigration
     private readonly IMongoDbService _mongoDbService;
     private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly IStateService _stateService;
+    private readonly IStateGetterService _stateGetterService;
     private readonly ILogger<BlockRecoveryMigration> _logger;
-    private readonly Worker.Configuration _configuration;
     private const string ProgressFileName = "block_recovery_progress.json";
     private const int LIMIT = 50;
 
@@ -31,6 +32,7 @@ public class BlockRecoveryMigration
         IMongoDbService mongoDbService,
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
+        IStateGetterService stateGetterService,
         ILogger<BlockRecoveryMigration> logger,
         IOptions<Worker.Configuration> configuration
     )
@@ -38,13 +40,17 @@ public class BlockRecoveryMigration
         _mongoDbService = mongoDbService;
         _headlessGqlClient = headlessGqlClient;
         _stateService = stateService;
+        _stateGetterService = stateGetterService;
         _logger = logger;
-        _configuration = configuration.Value;
     }
 
     public async Task<int> ExecuteAsync(long startBlockIndex, long? endBlockIndex = null)
     {
-        _logger.LogInformation("블록 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}, 끝 블록 인덱스: {EndBlockIndex}", startBlockIndex, endBlockIndex);
+        _logger.LogInformation(
+            "블록 복구 마이그레이션 시작. 시작 블록 인덱스: {StartBlockIndex}, 끝 블록 인덱스: {EndBlockIndex}",
+            startBlockIndex,
+            endBlockIndex
+        );
 
         var progress = await LoadProgressAsync();
         var currentBlockIndex = Math.Max(startBlockIndex, progress.LastProcessedBlockIndex);
@@ -93,11 +99,14 @@ public class BlockRecoveryMigration
                 foreach (var block in blockResponse.BlockQuery.Blocks)
                 {
                     var blockModel = block.ToBlockModel();
-                    
+
                     var isBlockExists = await _mongoDbService.IsExistBlockAsync(blockModel.Index);
                     if (isBlockExists)
                     {
-                        _logger.LogDebug("블록 {BlockIndex}는 이미 존재합니다. 건너뜁니다.", blockModel.Index);
+                        _logger.LogDebug(
+                            "블록 {BlockIndex}는 이미 존재합니다. 건너뜁니다.",
+                            blockModel.Index
+                        );
                         continue;
                     }
 
@@ -116,7 +125,9 @@ public class BlockRecoveryMigration
                             var extractedActionValues = ActionParser.ExtractActionValue(
                                 transactionModel.Actions[0].Raw
                             );
-                            await _mongoDbService.UpsertActionTypeAsync(extractedActionValues.TypeId);
+                            await _mongoDbService.UpsertActionTypeAsync(
+                                extractedActionValues.TypeId
+                            );
 
                             var transactionDocument = new TransactionDocument(
                                 blockModel.Index,
@@ -135,10 +146,7 @@ public class BlockRecoveryMigration
                 if (blockDocuments.Count > 0)
                 {
                     await _mongoDbService.UpsertBlocksManyAsync(blockDocuments);
-                    _logger.LogInformation(
-                        "{Count}개 블록 문서 업서트 완료",
-                        blockDocuments.Count
-                    );
+                    _logger.LogInformation("{Count}개 블록 문서 업서트 완료", blockDocuments.Count);
                     totalProcessedBlocks += blockDocuments.Count;
                 }
 
@@ -169,7 +177,11 @@ public class BlockRecoveryMigration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "블록 배치 처리 중 오류 발생. 블록 인덱스: {BlockIndex}", currentBlockIndex);
+                _logger.LogError(
+                    ex,
+                    "블록 배치 처리 중 오류 발생. 블록 인덱스: {BlockIndex}",
+                    currentBlockIndex
+                );
                 await Task.Delay(TimeSpan.FromSeconds(5));
             }
         }
@@ -196,8 +208,6 @@ public class BlockRecoveryMigration
         List<TransactionDocument> transactionDocuments
     )
     {
-        var stateGetter = _stateService.At(new OptionsWrapper<Worker.Configuration>(_configuration));
-
         foreach (var document in blockDocuments)
         {
             if (document.Object.TxIds != null)
@@ -207,11 +217,10 @@ public class BlockRecoveryMigration
                     var transaction = transactionDocuments.FirstOrDefault(td => td.TxId == txId);
                     if (transaction != null)
                     {
-                        await InsertAgent(transaction.Object.Signer, document.StoredBlockIndex, stateGetter);
+                        await InsertAgent(transaction.Object.Signer, document.StoredBlockIndex);
                         await InsertNCGBalanceIfNotExist(
                             transaction.Object.Signer,
-                            document.StoredBlockIndex,
-                            stateGetter
+                            document.StoredBlockIndex
                         );
 
                         foreach (var action in transaction.Object.Actions)
@@ -219,13 +228,14 @@ public class BlockRecoveryMigration
                             var extractedActionValues = ActionParser.ExtractActionValue(action.Raw);
                             if (extractedActionValues.InvolvedAvatarAddresses is not null)
                             {
-                                foreach (var avatarAddress in extractedActionValues.InvolvedAvatarAddresses)
+                                foreach (
+                                    var avatarAddress in extractedActionValues.InvolvedAvatarAddresses
+                                )
                                 {
-                                    await InsertAvatar(avatarAddress, document.StoredBlockIndex, stateGetter);
+                                    await InsertAvatar(avatarAddress, document.StoredBlockIndex);
                                     await InsertDailyRewardIfNotExist(
                                         avatarAddress,
-                                        document.StoredBlockIndex,
-                                        stateGetter
+                                        document.StoredBlockIndex
                                     );
                                 }
                             }
@@ -233,13 +243,11 @@ public class BlockRecoveryMigration
                             {
                                 await InsertAvatarIfNotExist(
                                     extractedActionValues.AvatarAddress.Value,
-                                    document.StoredBlockIndex,
-                                    stateGetter
+                                    document.StoredBlockIndex
                                 );
                                 await InsertDailyRewardIfNotExist(
                                     extractedActionValues.AvatarAddress.Value,
-                                    document.StoredBlockIndex,
-                                    stateGetter
+                                    document.StoredBlockIndex
                                 );
                             }
                         }
@@ -249,20 +257,20 @@ public class BlockRecoveryMigration
         }
     }
 
-    private async Task InsertNCGBalanceIfNotExist(Address signer, long blockIndex, StateGetter stateGetter)
+    private async Task InsertNCGBalanceIfNotExist(Address signer, long blockIndex)
     {
         var isExist = await _mongoDbService.IsExistNCGBalanceAsync(signer);
         if (isExist)
             return;
 
-        await InsertNCGBalance(signer, blockIndex, stateGetter);
+        await InsertNCGBalance(signer, blockIndex);
     }
 
-    private async Task InsertNCGBalance(Address signer, long blockIndex, StateGetter stateGetter)
+    private async Task InsertNCGBalance(Address signer, long blockIndex)
     {
         try
         {
-            var ncgBalanceState = await stateGetter.GetNCGBalanceAsync(signer);
+            var ncgBalanceState = await _stateGetterService.GetNCGBalanceAsync(signer);
             var document = new BalanceDocument(blockIndex, signer, ncgBalanceState);
             await _mongoDbService.UpsertStateDataManyAsync("balance_ncg", [document]);
         }
@@ -273,20 +281,20 @@ public class BlockRecoveryMigration
         }
     }
 
-    private async Task InsertDailyRewardIfNotExist(Address signer, long blockIndex, StateGetter stateGetter)
+    private async Task InsertDailyRewardIfNotExist(Address signer, long blockIndex)
     {
         var isExist = await _mongoDbService.IsExistDailyRewardAsync(signer);
         if (isExist)
             return;
 
-        await InsertDailyReward(signer, blockIndex, stateGetter);
+        await InsertDailyReward(signer, blockIndex);
     }
 
-    private async Task InsertDailyReward(Address avatarAddress, long blockIndex, StateGetter stateGetter)
+    private async Task InsertDailyReward(Address avatarAddress, long blockIndex)
     {
         try
         {
-            var dailyRewardState = await stateGetter.GetDailyRewardAsync(avatarAddress);
+            var dailyRewardState = await _stateGetterService.GetDailyRewardAsync(avatarAddress);
             var document = new DailyRewardDocument(blockIndex, avatarAddress, dailyRewardState);
             await _mongoDbService.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<DailyRewardDocument>(),
@@ -303,11 +311,11 @@ public class BlockRecoveryMigration
         }
     }
 
-    private async Task InsertAgent(Address signer, long blockIndex, StateGetter stateGetter)
+    private async Task InsertAgent(Address signer, long blockIndex)
     {
         try
         {
-            var agentState = await stateGetter.GetAgentStateAccount(signer);
+            var agentState = await _stateGetterService.GetAgentStateAccount(signer);
             var document = new AgentDocument(blockIndex, agentState.Address, agentState);
             await _mongoDbService.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<AgentDocument>(),
@@ -316,7 +324,11 @@ public class BlockRecoveryMigration
         }
         catch (Mimir.Worker.Exceptions.StateNotFoundException)
         {
-            var document = new AgentDocument(blockIndex, signer, new Lib9c.Models.States.AgentState());
+            var document = new AgentDocument(
+                blockIndex,
+                signer,
+                new Lib9c.Models.States.AgentState()
+            );
             await _mongoDbService.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<AgentDocument>(),
                 [document]
@@ -324,19 +336,22 @@ public class BlockRecoveryMigration
         }
     }
 
-    private async Task InsertAvatarIfNotExist(Address avatarAddress, long blockIndex, StateGetter stateGetter)
+    private async Task InsertAvatarIfNotExist(Address avatarAddress, long blockIndex)
     {
         var isExist = await _mongoDbService.IsExistAvatarAsync(avatarAddress);
         if (isExist)
             return;
 
-        await InsertAvatar(avatarAddress, blockIndex, stateGetter);
+        await InsertAvatar(avatarAddress, blockIndex);
     }
 
-    private async Task InsertAvatar(Address avatarAddress, long blockIndex, StateGetter stateGetter)
+    private async Task InsertAvatar(Address avatarAddress, long blockIndex)
     {
-        var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress);
-        var inventoryState = await stateGetter.GetInventoryState(avatarAddress, CancellationToken.None);
+        var avatarState = await _stateGetterService.GetAvatarStateAsync(avatarAddress);
+        var inventoryState = await _stateGetterService.GetInventoryState(
+            avatarAddress,
+            CancellationToken.None
+        );
         var armorId = inventoryState.GetArmorId();
         var portraitId = inventoryState.GetPortraitId();
 
@@ -357,7 +372,9 @@ public class BlockRecoveryMigration
     private async Task UpdateTransactionStatuses(List<TransactionDocument> documents)
     {
         var (statusResponse, _) = await _headlessGqlClient.GetTransactionStatusesAsync(
-            documents.Select(txDocument => Libplanet.Types.Tx.TxId.FromHex(txDocument.Object.Id)).ToList(),
+            documents
+                .Select(txDocument => Libplanet.Types.Tx.TxId.FromHex(txDocument.Object.Id))
+                .ToList(),
             CancellationToken.None
         );
 
@@ -407,7 +424,10 @@ public class BlockRecoveryMigration
     {
         try
         {
-            var json = JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(
+                progress,
+                new JsonSerializerOptions { WriteIndented = true }
+            );
             await File.WriteAllTextAsync(ProgressFileName, json);
             _logger.LogDebug(
                 "진행상황 저장 완료: LastProcessedBlockIndex={LastProcessedBlockIndex}",
@@ -427,4 +447,4 @@ public class BlockRecoveryProgress
     public int ProcessedBlocks { get; set; } = 0;
     public int ProcessedTransactions { get; set; } = 0;
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
-} 
+}

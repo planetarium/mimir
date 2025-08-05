@@ -1,4 +1,4 @@
-namespace Mimir.Worker.Constants;
+namespace Mimir.Shared.Constants;
 
 public enum PlanetType
 {

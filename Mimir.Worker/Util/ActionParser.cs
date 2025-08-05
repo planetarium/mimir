@@ -1,3 +1,6 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using System.Globalization;
 using System.Text.Json;
 using Bencodex;

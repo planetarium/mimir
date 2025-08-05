@@ -1,6 +1,6 @@
-using Mimir.Worker.Constants;
+using Mimir.Shared.Constants;
 
-namespace Mimir.Options;
+namespace Mimir.Shared.Options;
 
 public class DatabaseOption
 {

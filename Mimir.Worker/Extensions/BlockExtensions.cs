@@ -2,7 +2,7 @@ using Bencodex;
 using Bencodex.Types;
 using Lib9c.Models.Block;
 using Libplanet.Crypto;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
 
@@ -12,7 +12,7 @@ public static class BlockExtensions
 {
     private static readonly Codec Codec = new();
 
-    public static Lib9c.Models.Block.Block ToBlockModel(this Client.Block apiBlock)
+    public static Lib9c.Models.Block.Block ToBlockModel(this Shared.Client.Block apiBlock)
     {
         return new Lib9c.Models.Block.Block
         {

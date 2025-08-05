@@ -1,19 +1,20 @@
+using System.Text.Json;
+using Lib9c.Models.Extensions;
+using Libplanet.Crypto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB.Services;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Client;
+using Mimir.MongoDB.Services;
+using Mimir.Scripts;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
+using Mimir.Worker.Extensions;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
-using Mimir.Worker.Extensions;
-using Mimir.Scripts;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using System.Text.Json;
-using Libplanet.Crypto;
-using Lib9c.Models.Extensions;
-using Mimir.MongoDB;
 
 namespace Mimir.Scripts.Migrations;
 
@@ -22,8 +23,8 @@ public class AvatarStateRecoveryMigration
     private readonly IMongoDbService _mongoDbService;
     private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly IStateService _stateService;
+    private readonly IStateGetterService _stateGetterService;
     private readonly ILogger<AvatarStateRecoveryMigration> _logger;
-    private readonly Worker.Configuration _configuration;
     private const string ProgressFileName = "avatar_state_recovery_progress.json";
     private const int LIMIT = 50;
 
@@ -31,15 +32,15 @@ public class AvatarStateRecoveryMigration
         IMongoDbService mongoDbService,
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
-        ILogger<AvatarStateRecoveryMigration> logger,
-        IOptions<Worker.Configuration> configuration
+        IStateGetterService stateGetterService,
+        ILogger<AvatarStateRecoveryMigration> logger
     )
     {
         _mongoDbService = mongoDbService;
         _headlessGqlClient = headlessGqlClient;
         _stateService = stateService;
+        _stateGetterService = stateGetterService;
         _logger = logger;
-        _configuration = configuration.Value;
     }
 
     public async Task<int> ExecuteAsync()
@@ -49,10 +50,7 @@ public class AvatarStateRecoveryMigration
         var progress = await LoadProgressAsync();
         var totalAgents = await GetTotalAgentCountAsync();
 
-        _logger.LogInformation(
-            "복구 대상: 총 {TotalAgents}개 Agent",
-            totalAgents
-        );
+        _logger.LogInformation("복구 대상: 총 {TotalAgents}개 Agent", totalAgents);
 
         if (totalAgents == 0)
         {
@@ -67,7 +65,7 @@ public class AvatarStateRecoveryMigration
         var collection = _mongoDbService.GetCollection<AgentDocument>();
         var filter = Builders<BsonDocument>.Filter.Empty;
         var sort = Builders<BsonDocument>.Sort.Ascending("_id");
-        
+
         using var cursor = await collection.Find(filter).Sort(sort).ToCursorAsync();
 
         while (await cursor.MoveNextAsync())
@@ -88,7 +86,10 @@ public class AvatarStateRecoveryMigration
 
                     if (avatarAddresses == null || avatarAddresses.Count == 0)
                     {
-                        _logger.LogDebug("Agent {AgentAddress}에 아바타가 없습니다.", agentAddress.ToHex());
+                        _logger.LogDebug(
+                            "Agent {AgentAddress}에 아바타가 없습니다.",
+                            agentAddress.ToHex()
+                        );
                         totalProcessedAgents++;
                         continue;
                     }
@@ -97,10 +98,15 @@ public class AvatarStateRecoveryMigration
                     foreach (var avatarAddressEntry in avatarAddresses)
                     {
                         var avatarAddress = avatarAddressEntry.Value;
-                        var isAvatarExists = await _mongoDbService.IsExistAvatarAsync(avatarAddress);
+                        var isAvatarExists = await _mongoDbService.IsExistAvatarAsync(
+                            avatarAddress
+                        );
                         if (isAvatarExists)
                         {
-                            _logger.LogDebug("Avatar {AvatarAddress}는 이미 존재합니다. 건너뜁니다.", avatarAddress.ToHex());
+                            _logger.LogDebug(
+                                "Avatar {AvatarAddress}는 이미 존재합니다. 건너뜁니다.",
+                                avatarAddress.ToHex()
+                            );
                             continue;
                         }
 
@@ -154,12 +160,13 @@ public class AvatarStateRecoveryMigration
 
     private async Task InsertAvatar(Address avatarAddress, long blockIndex)
     {
-        var stateGetter = _stateService.At(new OptionsWrapper<Worker.Configuration>(_configuration));
-        
         try
         {
-            var avatarState = await stateGetter.GetAvatarStateAsync(avatarAddress);
-            var inventoryState = await stateGetter.GetInventoryState(avatarAddress, CancellationToken.None);
+            var avatarState = await _stateGetterService.GetAvatarStateAsync(avatarAddress);
+            var inventoryState = await _stateGetterService.GetInventoryState(
+                avatarAddress,
+                CancellationToken.None
+            );
             var armorId = inventoryState.GetArmorId();
             var portraitId = inventoryState.GetPortraitId();
 
@@ -179,11 +186,18 @@ public class AvatarStateRecoveryMigration
         }
         catch (Mimir.Worker.Exceptions.StateNotFoundException)
         {
-            _logger.LogDebug("Avatar State를 찾을 수 없습니다: {AvatarAddress}", avatarAddress.ToHex());
+            _logger.LogDebug(
+                "Avatar State를 찾을 수 없습니다: {AvatarAddress}",
+                avatarAddress.ToHex()
+            );
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Avatar State 삽입 중 오류 발생: {AvatarAddress}", avatarAddress.ToHex());
+            _logger.LogError(
+                ex,
+                "Avatar State 삽입 중 오류 발생: {AvatarAddress}",
+                avatarAddress.ToHex()
+            );
         }
     }
 
@@ -217,7 +231,10 @@ public class AvatarStateRecoveryMigration
     {
         try
         {
-            var json = JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(
+                progress,
+                new JsonSerializerOptions { WriteIndented = true }
+            );
             await File.WriteAllTextAsync(ProgressFileName, json);
             _logger.LogDebug(
                 "진행상황 저장 완료: ProcessedAgents={ProcessedAgents}, ProcessedAvatars={ProcessedAvatars}",
@@ -237,4 +254,4 @@ public class AvatarStateRecoveryProgress
     public int ProcessedAgents { get; set; } = 0;
     public int ProcessedAvatars { get; set; } = 0;
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
-} 
+}

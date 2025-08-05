@@ -1,8 +1,9 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
 using Nekoyume;
 using Serilog;
@@ -14,7 +15,7 @@ public sealed class AgentStateHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
+    IStateGetterService stateGetter)
     : BaseDiffHandler("agent",
         Addresses.Agent,
         new AgentStateDocumentConverter(),
@@ -22,5 +23,5 @@ public sealed class AgentStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<AgentStateHandler>(),
-        configuration);
+        stateGetter,
+        Log.ForContext<AgentStateHandler>());

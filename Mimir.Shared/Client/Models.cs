@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Lib9c.Models.Block;
 
-namespace Mimir.Worker.Client;
+namespace Mimir.Shared.Client;
 
 public class GraphQLRequest
 {

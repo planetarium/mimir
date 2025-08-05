@@ -1,5 +1,3 @@
-using Mimir.Worker.Constants;
-
 namespace Mimir.Options;
 
 public class HeadlessOption

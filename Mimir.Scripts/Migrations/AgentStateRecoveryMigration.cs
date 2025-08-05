@@ -1,19 +1,21 @@
+using System.Text.Json;
+using Lib9c.Models.Extensions;
+using Libplanet.Crypto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB.Services;
+using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Client;
+using Mimir.MongoDB.Services;
+using Mimir.Scripts;
+using Mimir.Shared.Client;
+using Mimir.Shared.Exceptions;
+using Mimir.Shared.Services;
+using Mimir.Worker.Extensions;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
-using Mimir.Worker.Extensions;
-using Mimir.Scripts;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using System.Text.Json;
-using Libplanet.Crypto;
-using Lib9c.Models.Extensions;
-using Mimir.MongoDB;
 
 namespace Mimir.Scripts.Migrations;
 
@@ -22,8 +24,8 @@ public class AgentStateRecoveryMigration
     private readonly IMongoDbService _mongoDbService;
     private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly IStateService _stateService;
+    private readonly IStateGetterService _stateGetterService;
     private readonly ILogger<AgentStateRecoveryMigration> _logger;
-    private readonly Worker.Configuration _configuration;
     private const string ProgressFileName = "agent_state_recovery_progress.json";
     private const int LIMIT = 100;
 
@@ -31,15 +33,15 @@ public class AgentStateRecoveryMigration
         IMongoDbService mongoDbService,
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
-        ILogger<AgentStateRecoveryMigration> logger,
-        IOptions<Worker.Configuration> configuration
+        IStateGetterService stateGetterService,
+        ILogger<AgentStateRecoveryMigration> logger
     )
     {
         _mongoDbService = mongoDbService;
         _headlessGqlClient = headlessGqlClient;
         _stateService = stateService;
+        _stateGetterService = stateGetterService;
         _logger = logger;
-        _configuration = configuration.Value;
     }
 
     public async Task<int> ExecuteAsync()
@@ -64,10 +66,12 @@ public class AgentStateRecoveryMigration
         var totalProcessedAgents = 0;
         var processedCount = 0;
 
-        var collection = _mongoDbService.GetCollection<TransactionDocument>(CollectionNames.GetCollectionName<TransactionDocument>());
+        var collection = _mongoDbService.GetCollection<TransactionDocument>(
+            CollectionNames.GetCollectionName<TransactionDocument>()
+        );
         var filter = Builders<TransactionDocument>.Filter.Empty;
         var sort = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
-        
+
         using var cursor = await collection.Find(filter).Sort(sort).ToCursorAsync();
 
         while (await cursor.MoveNextAsync())
@@ -80,7 +84,10 @@ public class AgentStateRecoveryMigration
                     var isAgentExists = await _mongoDbService.IsExistAgentAsync(signer);
                     if (isAgentExists)
                     {
-                        _logger.LogDebug("Agent {Signer}는 이미 존재합니다. 건너뜁니다.", signer.ToHex());
+                        _logger.LogDebug(
+                            "Agent {Signer}는 이미 존재합니다. 건너뜁니다.",
+                            signer.ToHex()
+                        );
                         totalProcessedTransactions++;
                         processedCount++;
                         continue;
@@ -127,17 +134,17 @@ public class AgentStateRecoveryMigration
 
     private async Task<long> GetTotalTransactionCountAsync()
     {
-        var collection = _mongoDbService.GetCollection<TransactionDocument>(CollectionNames.GetCollectionName<TransactionDocument>());
+        var collection = _mongoDbService.GetCollection<TransactionDocument>(
+            CollectionNames.GetCollectionName<TransactionDocument>()
+        );
         return await collection.CountDocumentsAsync(Builders<TransactionDocument>.Filter.Empty);
     }
 
     private async Task InsertAgent(Address signer, long blockIndex)
     {
-        var stateGetter = _stateService.At(new OptionsWrapper<Worker.Configuration>(_configuration));
-        
         try
         {
-            var agentState = await stateGetter.GetAgentStateAccount(signer);
+            var agentState = await _stateGetterService.GetAgentStateAccount(signer);
             var document = new AgentDocument(blockIndex, agentState.Address, agentState);
             await _mongoDbService.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<AgentDocument>(),
@@ -145,9 +152,13 @@ public class AgentStateRecoveryMigration
             );
             _logger.LogDebug("Agent State 삽입 완료: {Signer}", signer.ToHex());
         }
-        catch (Mimir.Worker.Exceptions.StateNotFoundException)
+        catch (StateNotFoundException)
         {
-            var document = new AgentDocument(blockIndex, signer, new Lib9c.Models.States.AgentState());
+            var document = new AgentDocument(
+                blockIndex,
+                signer,
+                new Lib9c.Models.States.AgentState()
+            );
             await _mongoDbService.UpsertStateDataManyAsync(
                 CollectionNames.GetCollectionName<AgentDocument>(),
                 [document]
@@ -190,7 +201,10 @@ public class AgentStateRecoveryMigration
     {
         try
         {
-            var json = JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(
+                progress,
+                new JsonSerializerOptions { WriteIndented = true }
+            );
             await File.WriteAllTextAsync(ProgressFileName, json);
             _logger.LogDebug(
                 "진행상황 저장 완료: ProcessedTransactions={ProcessedTransactions}, ProcessedAgents={ProcessedAgents}",
@@ -210,4 +224,4 @@ public class AgentStateRecoveryProgress
     public int ProcessedTransactions { get; set; } = 0;
     public int ProcessedAgents { get; set; } = 0;
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
-} 
+}

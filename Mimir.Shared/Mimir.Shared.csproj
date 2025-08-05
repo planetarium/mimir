@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lib9c" Version="$(Lib9cVersion)" />
+    <PackageReference Include="Lib9c.Abstractions" Version="$(Lib9cVersion)" />
+    <PackageReference Include="Libplanet.RocksDBStore" Version="$(LibplanetVersion)" />
+    <PackageReference Include="Libplanet" Version="$(LibplanetVersion)" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.3.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="BitFaster.Caching" Version="2.5.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lib9c.Models\Lib9c.Models.csproj" />
+    <ProjectReference Include="..\Mimir.MongoDB\Mimir.MongoDB.csproj" />
+  </ItemGroup>
+
+</Project>
