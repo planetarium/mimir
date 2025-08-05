@@ -1,6 +1,7 @@
 using Bencodex.Types;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.ActionHandler;
 using Mimir.Worker.Services;
 using Mimir.Worker.Util;
@@ -15,7 +16,7 @@ using ILogger = Serilog.ILogger;
 
 namespace Mimir.Worker.Initializer;
 
-public class TableSheetInitializer(IStateService service, MongoDbService store)
+public class TableSheetInitializer(IStateService service, IMongoDbService store)
     : BaseInitializer(service, store, Log.ForContext<TableSheetInitializer>())
 {
     public override async Task RunAsync(CancellationToken stoppingToken)
@@ -57,7 +58,7 @@ public class TableSheetInitializer(IStateService service, MongoDbService store)
     private static async Task SyncSheetStateAsync(
         ILogger logger,
         IStateService stateService,
-        MongoDbService mongoDbService,
+        IMongoDbService mongoDbService,
         long blockIndex,
         string sheetName,
         Type sheetType,

@@ -17,11 +17,11 @@
 
 // public class SnapshotInitializer
 // {
-//     private readonly MongoDbService _store;
+//     private readonly IMongoDbService _store;
 //     private readonly ILogger _logger;
 //     private readonly string _chainStorePath;
 
-//     public SnapshotInitializer(MongoDbService store, string chainStorePath)
+//     public SnapshotInitializer(IMongoDbService store, string chainStorePath)
 //     {
 //         _store = store;
 //         _chainStorePath = chainStorePath;

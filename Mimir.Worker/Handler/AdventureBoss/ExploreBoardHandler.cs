@@ -13,7 +13,7 @@
 //     public StateData ConvertToStateData(StateDiffContext context) =>
 //         new(context.Address, ConvertToBencodable(context.RawState));
 
-//     public async Task StoreStateData(MongoDbService store, StateData stateData) =>
+//     public async Task StoreStateData(IMongoDbService store, StateData stateData) =>
 //         await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
 
 //     private static IBencodable ConvertToBencodable(IValue state)

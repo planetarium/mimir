@@ -1,6 +1,7 @@
 using Libplanet.Crypto;
 using Libplanet.Types.Assets;
 using Microsoft.Extensions.Options;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Client;
 using Mimir.Worker.Constants;
 using Mimir.Worker.Initializer.Manager;
@@ -10,7 +11,7 @@ using Serilog;
 namespace Mimir.Worker.Handler.Balance;
 
 public sealed class NcgBalanceHandler(
-    MongoDbService dbService,
+    IMongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,

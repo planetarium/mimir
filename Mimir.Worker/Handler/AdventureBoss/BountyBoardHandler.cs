@@ -11,7 +11,7 @@
 //     public StateData ConvertToStateData(StateDiffContext context) =>
 //         new(context.Address, ConvertToState(context.RawState));
 
-//     public async Task StoreStateData(MongoDbService store, StateData stateData) =>
+//     public async Task StoreStateData(IMongoDbService store, StateData stateData) =>
 //         await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
 
 //     private static BountyBoardState ConvertToState(IValue state)

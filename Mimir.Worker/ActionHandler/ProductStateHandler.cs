@@ -6,6 +6,7 @@ using Lib9c.Models.Market;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Initializer.Manager;
@@ -22,7 +23,7 @@ namespace Mimir.Worker.ActionHandler;
 
 public class ProductStateHandler(
     IStateService stateService,
-    MongoDbService store,
+    IMongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
     IItemProductCalculationService itemProductCalculationService,

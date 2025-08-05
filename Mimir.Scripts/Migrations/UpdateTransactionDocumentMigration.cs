@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Util;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -12,12 +12,12 @@ namespace Mimir.Scripts.Migrations;
 
 public class UpdateTransactionDocumentMigration
 {
-    private readonly MongoDbService _mongoDbService;
+    private readonly IMongoDbService _mongoDbService;
     private readonly ILogger<UpdateTransactionDocumentMigration> _logger;
     private const string ProgressFileName = "migration_progress.json";
 
     public UpdateTransactionDocumentMigration(
-        MongoDbService mongoDbService,
+        IMongoDbService mongoDbService,
         ILogger<UpdateTransactionDocumentMigration> logger
     )
     {
@@ -32,8 +32,8 @@ public class UpdateTransactionDocumentMigration
             databaseName
         );
 
-        var transactionCollection = _mongoDbService._transactionCollection;
-        var blockCollection = _mongoDbService._blockCollection;
+        var transactionCollection = _mongoDbService.GetCollection<TransactionDocument>(CollectionNames.GetCollectionName<TransactionDocument>());
+        var blockCollection = _mongoDbService.GetCollection<BlockDocument>(CollectionNames.GetCollectionName<BlockDocument>());
 
         _logger.LogDebug(
             "컬렉션 초기화 완료: Transaction={TransactionCollection}, Block={BlockCollection}",

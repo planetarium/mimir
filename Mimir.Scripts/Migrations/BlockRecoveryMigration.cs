@@ -13,12 +13,13 @@ using System.Text.Json;
 using Libplanet.Crypto;
 using Lib9c.Models.Extensions;
 using Options = Microsoft.Extensions.Options.Options;
+using Mimir.MongoDB.Services;
 
 namespace Mimir.Scripts.Migrations;
 
 public class BlockRecoveryMigration
 {
-    private readonly MongoDbService _mongoDbService;
+    private readonly IMongoDbService _mongoDbService;
     private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly IStateService _stateService;
     private readonly ILogger<BlockRecoveryMigration> _logger;
@@ -27,7 +28,7 @@ public class BlockRecoveryMigration
     private const int LIMIT = 50;
 
     public BlockRecoveryMigration(
-        MongoDbService mongoDbService,
+        IMongoDbService mongoDbService,
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         ILogger<BlockRecoveryMigration> logger,

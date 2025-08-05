@@ -46,18 +46,36 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the agent.</param>
     /// <returns>The agent state</returns>
-    public async Task<AgentState> GetAgentAsync(Address address, [Service] IAgentRepository repo) =>
-        (await repo.GetByAddressAsync(address)).Object;
+    public async Task<AgentState> GetAgentAsync(Address address, [Service] IAgentRepository repo)
+    {
+        try
+        {
+            return (await repo.GetByAddressAsync(address)).Object;
+        }
+        catch (Mimir.MongoDB.Exceptions.DocumentNotFoundInMongoCollectionException)
+        {
+            HangfireJobs.EnqueueAgentStateRecovery(address);
+            throw;
+        }
+    }
 
     /// <summary>
     /// Get an avatar state by address.
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The avatar state</returns>
-    public async Task<AvatarState> GetAvatarAsync(
-        Address address,
-        [Service] IAvatarRepository repo
-    ) => (await repo.GetByAddressAsync(address)).Object;
+    public async Task<AvatarState> GetAvatarAsync(Address address, [Service] IAvatarRepository repo)
+    {
+        try
+        {
+            return (await repo.GetByAddressAsync(address)).Object;
+        }
+        catch (Mimir.MongoDB.Exceptions.DocumentNotFoundInMongoCollectionException)
+        {
+            HangfireJobs.EnqueueAvatarStateRecovery(address);
+            throw;
+        }
+    }
 
     /// <summary>
     /// Get the balance of a specific currency for a given address.
@@ -150,10 +168,10 @@ public class Query
     /// </summary>
     /// <param name="txId">Transaction ID.</param>
     /// <returns>The Transaction Information</returns>
-    public async Task<TransactionDocument> GetTransactionAsync(string txId, [Service] ITransactionRepository repo) =>
-        await repo.GetByTxIdAsync(txId);
-
-
+    public async Task<TransactionDocument> GetTransactionAsync(
+        string txId,
+        [Service] ITransactionRepository repo
+    ) => await repo.GetByTxIdAsync(txId);
 
     /// <summary>
     /// Get an pet state by avatar address.

@@ -13,7 +13,7 @@
 // {
 //     private StateGetter _stateGetter;
 
-//     public MarketInitializer(IStateService service, MongoDbService store)
+//     public MarketInitializer(IStateService service, IMongoDbService store)
 //         : base(service, store, Log.ForContext<MarketInitializer>())
 //     {
 //         _stateGetter = service.At();

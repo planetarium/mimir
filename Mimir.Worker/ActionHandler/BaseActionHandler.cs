@@ -6,6 +6,7 @@ using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -18,7 +19,7 @@ namespace Mimir.Worker.ActionHandler;
 
 public abstract class BaseActionHandler<TMimirBsonDocument>(
     IStateService stateService,
-    MongoDbService store,
+    IMongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
     [StringSyntax(StringSyntaxAttribute.Regex)]
@@ -33,7 +34,7 @@ public abstract class BaseActionHandler<TMimirBsonDocument>(
 
     protected readonly StateGetter StateGetter = stateService.At(configuration);
 
-    protected readonly MongoDbService Store = store;
+    protected readonly IMongoDbService Store = store;
 
     protected readonly ILogger Logger = logger;
     

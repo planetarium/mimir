@@ -12,7 +12,7 @@
 //     public StateData ConvertToStateData(StateDiffContext context) =>
 //         new(context.Address, ConvertToState(context.Address, context.RawState));
 
-//     public async Task StoreStateData(MongoDbService store, StateData stateData) =>
+//     public async Task StoreStateData(IMongoDbService store, StateData stateData) =>
 //         await store.UpsertStateDataAsyncWithLinkAvatar(stateData);
 
 //     private static SeasonInfoState ConvertToState(Address address, IValue state)

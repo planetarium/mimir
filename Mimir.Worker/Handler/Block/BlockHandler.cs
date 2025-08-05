@@ -4,7 +4,7 @@ using Lib9c.Models.States;
 using Libplanet.Crypto;
 using Libplanet.Types.Tx;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
@@ -13,11 +13,12 @@ using Mimir.Worker.Services;
 using Mimir.Worker.Util;
 using Serilog;
 using ILogger = Serilog.ILogger;
+using Mimir.MongoDB;
 
 namespace Mimir.Worker.Handler;
 
 public class BlockHandler(
-    MongoDbService dbService,
+    IMongoDbService dbService,
     IHeadlessGQLClient headlessGqlClient,
     IStateService stateService,
     IOptions<Configuration> configuration

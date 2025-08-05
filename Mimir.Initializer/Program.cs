@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Mimir.Initializer;
 using Mimir.Initializer.Initializer;
 using Mimir.Initializer.Migrators;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Client;
 using Mimir.Worker.Services;
 using Serilog;

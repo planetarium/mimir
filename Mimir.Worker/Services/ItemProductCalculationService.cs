@@ -1,3 +1,4 @@
+using System;
 using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Lib9c.Models.Items;
@@ -7,14 +8,15 @@ using Nekoyume.Helper;
 using Nekoyume.TableData;
 using Nekoyume.TableData.Crystal;
 using ILogger = Serilog.ILogger;
+using Mimir.MongoDB.Services;
 
 namespace Mimir.Worker.Services;
 
 public class ItemProductCalculationService : IItemProductCalculationService
 {
-    private readonly MongoDbService _store;
+    private readonly IMongoDbService _store;
 
-    public ItemProductCalculationService(MongoDbService store)
+    public ItemProductCalculationService(IMongoDbService store)
     {
         _store = store;
     }

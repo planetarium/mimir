@@ -1,21 +1,21 @@
 using System.Reflection;
 using Microsoft.Extensions.Logging;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Model.State;
+using Mimir.MongoDB;
 
 namespace Mimir.Scripts.Migrations;
 
 public class UpdateActionTypeMigration
 {
-    private readonly Mimir.Worker.Services.MongoDbService _mongoDbService;
+    private readonly IMongoDbService _mongoDbService;
     private readonly ILogger<UpdateActionTypeMigration> _logger;
 
     public UpdateActionTypeMigration(
-        Mimir.Worker.Services.MongoDbService mongoDbService,
+        IMongoDbService mongoDbService,
         ILogger<UpdateActionTypeMigration> logger
     )
     {

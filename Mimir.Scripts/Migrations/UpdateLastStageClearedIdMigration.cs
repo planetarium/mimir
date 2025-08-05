@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Services;
+using Mimir.MongoDB.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -9,11 +9,11 @@ namespace Mimir.Scripts.Migrations;
 
 public class UpdateLastStageClearedIdMigration
 {
-    private readonly Mimir.Worker.Services.MongoDbService _mongoDbService;
+    private readonly IMongoDbService _mongoDbService;
     private readonly ILogger<UpdateLastStageClearedIdMigration> _logger;
 
     public UpdateLastStageClearedIdMigration(
-        Mimir.Worker.Services.MongoDbService mongoDbService,
+        IMongoDbService mongoDbService,
         ILogger<UpdateLastStageClearedIdMigration> logger
     )
     {

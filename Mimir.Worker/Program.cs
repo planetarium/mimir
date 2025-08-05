@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Mimir.MongoDB.Services;
 using Mimir.Worker;
 using Mimir.Worker.Client;
 using Mimir.Worker.Services;

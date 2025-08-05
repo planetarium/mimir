@@ -4,6 +4,7 @@ using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -17,7 +18,7 @@ public abstract class BaseDiffHandler(
     string collectionName,
     Address accountAddress,
     IStateDocumentConverter stateDocumentConverter,
-    MongoDbService dbService,
+    IMongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,

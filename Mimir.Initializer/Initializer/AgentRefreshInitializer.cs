@@ -1,6 +1,6 @@
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
@@ -10,12 +10,13 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Serilog;
 using ILogger = Serilog.ILogger;
+using Mimir.MongoDB;
 
 namespace Mimir.Initializer.Initializer;
 
 public class AgentRefreshInitializer : IExecutor
 {
-    private readonly MongoDbService _dbService;
+    private readonly IMongoDbService _dbService;
     private readonly IStateService _stateService;
     private readonly StateGetter _stateGetter;
     private readonly ILogger _logger;
@@ -24,7 +25,7 @@ public class AgentRefreshInitializer : IExecutor
     
     public AgentRefreshInitializer(
         IOptions<Configuration> configuration,
-        MongoDbService dbService,
+        IMongoDbService dbService,
         IStateService stateService)
     {
         _dbService = dbService;

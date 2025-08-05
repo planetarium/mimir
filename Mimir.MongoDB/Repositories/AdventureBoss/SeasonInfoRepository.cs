@@ -10,7 +10,7 @@
 
 // namespace Mimir.MongoDB.Repositories.AdventureBoss;
 
-// public class SeasonInfoRepository(MongoDbService dbService)
+// public class SeasonInfoRepository(IMongoDbService dbService)
 // {
 //     public SeasonInfo GetSeasonInfo(long number)
 //     {

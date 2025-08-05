@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Services;
@@ -13,12 +13,13 @@ using MongoDB.Driver;
 using System.Text.Json;
 using Libplanet.Crypto;
 using Lib9c.Models.Extensions;
+using Mimir.MongoDB;
 
 namespace Mimir.Scripts.Migrations;
 
 public class AgentStateRecoveryMigration
 {
-    private readonly MongoDbService _mongoDbService;
+    private readonly IMongoDbService _mongoDbService;
     private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly IStateService _stateService;
     private readonly ILogger<AgentStateRecoveryMigration> _logger;
@@ -27,7 +28,7 @@ public class AgentStateRecoveryMigration
     private const int LIMIT = 100;
 
     public AgentStateRecoveryMigration(
-        MongoDbService mongoDbService,
+        IMongoDbService mongoDbService,
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         ILogger<AgentStateRecoveryMigration> logger,
@@ -63,7 +64,7 @@ public class AgentStateRecoveryMigration
         var totalProcessedAgents = 0;
         var processedCount = 0;
 
-        var collection = _mongoDbService._transactionCollection;
+        var collection = _mongoDbService.GetCollection<TransactionDocument>(CollectionNames.GetCollectionName<TransactionDocument>());
         var filter = Builders<TransactionDocument>.Filter.Empty;
         var sort = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
         
@@ -126,7 +127,8 @@ public class AgentStateRecoveryMigration
 
     private async Task<long> GetTotalTransactionCountAsync()
     {
-        return await _mongoDbService._transactionCollection.CountDocumentsAsync(Builders<TransactionDocument>.Filter.Empty);
+        var collection = _mongoDbService.GetCollection<TransactionDocument>(CollectionNames.GetCollectionName<TransactionDocument>());
+        return await collection.CountDocumentsAsync(Builders<TransactionDocument>.Filter.Empty);
     }
 
     private async Task InsertAgent(Address signer, long blockIndex)
