@@ -43,4 +43,9 @@
     <Folder Include="Exceptions\" />
   </ItemGroup>
 
+  <!-- Exclude Mimir.Worker configuration files from publishing to avoid NETSDK1152 error -->
+  <ItemGroup>
+    <Content Remove="..\Mimir.Worker\appsettings*.json" />
+  </ItemGroup>
+
 </Project>
