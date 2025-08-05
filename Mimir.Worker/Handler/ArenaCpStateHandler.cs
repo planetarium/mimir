@@ -1,9 +1,10 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
 using Nekoyume;
 using Serilog;
@@ -15,7 +16,7 @@ public sealed class ArenaCpStateHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
+    IStateGetterService stateGetter)
     : BaseDiffHandler(
         "arena_cp",
         Addresses.ArenaCp,
@@ -24,5 +25,5 @@ public sealed class ArenaCpStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<ArenaCpStateHandler>(),
-        configuration);
+        stateGetter,
+        Log.ForContext<ArenaCpStateHandler>());

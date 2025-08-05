@@ -1,11 +1,14 @@
 using Bencodex.Types;
 using Libplanet.Crypto;
 
-namespace Mimir.Worker.Services;
+namespace Mimir.Shared.Services;
 
 public interface IStateService
 {
-    Task<long> GetLatestIndex(CancellationToken stoppingToken = default, Address? accountAddress = null);
+    Task<long> GetLatestIndex(
+        CancellationToken stoppingToken = default,
+        Address? accountAddress = null
+    );
     Task<IValue?> GetState(Address address, CancellationToken stoppingToken = default);
     Task<IValue?> GetState(
         Address address,

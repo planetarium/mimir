@@ -1,3 +1,6 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Lib9c.Models.Items;
 using Mimir.MongoDB.Bson;
 

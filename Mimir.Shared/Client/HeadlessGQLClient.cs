@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
-namespace Mimir.Worker.Client;
+namespace Mimir.Shared.Client;
 
 public class HeadlessGQLClient : IHeadlessGQLClient
 {

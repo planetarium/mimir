@@ -3,12 +3,13 @@ using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
-using Mimir.Worker.Client;
+using Mimir.MongoDB.Services;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
 using Mimir.Worker.Exceptions;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume;
@@ -23,7 +24,7 @@ public class TableSheetStateHandler(
     IMongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration
+    IStateGetterService stateGetterService
 )
     : BaseActionHandler<SheetDocument>(
         stateService,
@@ -32,7 +33,7 @@ public class TableSheetStateHandler(
         initializerManager,
         "^patch_table_sheet[0-9]*$",
         Log.ForContext<TableSheetStateHandler>(),
-        configuration
+        stateGetterService
     )
 {
     private static readonly ImmutableArray<Type> SheetTypes =
@@ -44,7 +45,7 @@ public class TableSheetStateHandler(
                 && @namespace.StartsWith($"{nameof(Nekoyume)}.{nameof(Nekoyume.TableData)}")
                 && !type.IsAbstract
                 && typeof(ISheet).IsAssignableFrom(type)
-            )
+            ),
     ];
 
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
@@ -68,10 +69,10 @@ public class TableSheetStateHandler(
         var tableName = ((Text)actionValues["table_name"]).ToDotnetString();
         var sheetType = tableName switch
         {
-            _ when tableName.StartsWith(nameof(StakeRegularRewardSheet))
-                => typeof(StakeRegularRewardSheet),
-            _ when tableName.StartsWith(nameof(StakeRegularFixedRewardSheet))
-                => typeof(StakeRegularFixedRewardSheet),
+            _ when tableName.StartsWith(nameof(StakeRegularRewardSheet)) =>
+                typeof(StakeRegularRewardSheet),
+            _ when tableName.StartsWith(nameof(StakeRegularFixedRewardSheet)) =>
+                typeof(StakeRegularFixedRewardSheet),
             _ => SheetTypes.FirstOrDefault(type => type.Name == tableName),
         };
         if (sheetType == null)
@@ -131,7 +132,7 @@ public class TableSheetStateHandler(
                 sheet,
                 sheetName,
                 sheetState
-            ).ToUpdateOneModel()
+            ).ToUpdateOneModel(),
         ];
     }
 }

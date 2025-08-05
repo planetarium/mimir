@@ -1,8 +1,9 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
 using Nekoyume;
 using Serilog;
@@ -14,7 +15,7 @@ public sealed class AllCombinationSlotStateHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
+    IStateGetterService stateGetter)
     : BaseDiffHandler("all_combination_slot",
         Addresses.CombinationSlot,
         new AllCombinationSlotStateDocumentConverter(),
@@ -22,5 +23,5 @@ public sealed class AllCombinationSlotStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<AllCombinationSlotStateHandler>(),
-        configuration);
+        stateGetter,
+        Log.ForContext<AllCombinationSlotStateHandler>());

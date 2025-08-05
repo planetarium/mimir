@@ -3,10 +3,11 @@ using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
@@ -14,13 +15,21 @@ using Serilog;
 namespace Mimir.Worker.ActionHandler;
 
 public class StakeStateHandler(
-    IStateService stateService, 
-    IMongoDbService store, 
-    IHeadlessGQLClient headlessGqlClient, 
+    IStateService stateService,
+    IMongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration) :
-    BaseActionHandler<StakeDocument>(
-        stateService, store, headlessGqlClient, initializerManager, "^stake[0-9]*$", Log.ForContext<StakeStateHandler>(), configuration)
+    IStateGetterService stateGetterService
+)
+    : BaseActionHandler<StakeDocument>(
+        stateService,
+        store,
+        headlessGqlClient,
+        initializerManager,
+        "^stake[0-9]*$",
+        Log.ForContext<StakeStateHandler>(),
+        stateGetterService
+    )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
@@ -29,7 +38,8 @@ public class StakeStateHandler(
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         const string amountKey = "am";
         if (actionPlainValueInternal is not Dictionary dictionary)
@@ -43,6 +53,7 @@ public class StakeStateHandler(
             blockIndex,
             signer,
             (Integer)dictionary[amountKey],
-            stoppingToken);
+            stoppingToken
+        );
     }
 }

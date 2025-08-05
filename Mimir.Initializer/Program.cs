@@ -6,7 +6,8 @@ using Mimir.Initializer;
 using Mimir.Initializer.Initializer;
 using Mimir.Initializer.Migrators;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Mimir.Worker.Services;
 using Serilog;
 
@@ -35,18 +36,28 @@ var host = Host.CreateDefaultBuilder(args)
                 var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
                 return new MongoDbService(
                     config.MongoDbConnectionString,
-                    config.PlanetType,
+                    config.PlanetType.ToString().ToLowerInvariant(),
                     config.MongoDbCAFile
                 );
             });
-            
+
             services.AddSingleton<IItemProductCalculationService, ItemProductCalculationService>();
-            
+
             services.AddSingleton<IStateService, HeadlessStateService>();
             services.AddSingleton<IHeadlessGQLClient, HeadlessGQLClient>(serviceProvider =>
             {
                 var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
-                return new HeadlessGQLClient(config.HeadlessEndpoints, config.JwtIssuer, config.JwtSecretKey);
+                return new HeadlessGQLClient(
+                    config.HeadlessEndpoints,
+                    config.JwtIssuer,
+                    config.JwtSecretKey
+                );
+            });
+            services.AddSingleton<IStateGetterService, StateGetterService>(serviceProvider =>
+            {
+                var stateService = serviceProvider.GetRequiredService<IStateService>();
+                var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
+                return new StateGetterService(stateService, config.PlanetType);
             });
             services.AddSingleton<ExecuteManager>();
             services.AddSingleton<IExecutor, AgentRefreshInitializer>();

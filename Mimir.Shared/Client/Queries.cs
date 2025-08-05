@@ -1,4 +1,4 @@
-namespace Mimir.Worker.Client;
+namespace Mimir.Shared.Client;
 
 public static class GraphQLQueries
 {

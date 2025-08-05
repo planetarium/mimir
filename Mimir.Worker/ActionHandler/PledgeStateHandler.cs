@@ -1,13 +1,13 @@
 using System.Text.RegularExpressions;
 using Bencodex.Types;
 using Libplanet.Crypto;
-using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
+using Mimir.Shared.Constants;
+using Mimir.Shared.Services;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nekoyume.Action;
@@ -16,11 +16,13 @@ using Serilog;
 namespace Mimir.Worker.ActionHandler;
 
 public class PledgeStateHandler(
-    IStateService stateService, 
-    IMongoDbService store, 
-    IHeadlessGQLClient headlessGqlClient, 
+    IStateService stateService,
+    IMongoDbService store,
+    IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
+    IStateGetterService stateGetterService,
+    PlanetType planetType
+)
     : BaseActionHandler<PledgeDocument>(
         stateService,
         store,
@@ -28,7 +30,8 @@ public class PledgeStateHandler(
         initializerManager,
         "^approve_pledge[0-9]*$|^end_pledge[0-9]*$|^request_pledge[0-9]*$",
         Log.ForContext<PledgeStateHandler>(),
-        configuration)
+        stateGetterService
+    )
 {
     protected override async Task<IEnumerable<WriteModel<BsonDocument>>> HandleActionAsync(
         long blockIndex,
@@ -37,13 +40,14 @@ public class PledgeStateHandler(
         string actionType,
         IValue? actionPlainValueInternal,
         IClientSessionHandle? session = null,
-        CancellationToken stoppingToken = default)
+        CancellationToken stoppingToken = default
+    )
     {
         if (Regex.IsMatch(actionType, "^approve_pledge[0-9]*$"))
         {
             var action = new ApprovePledge();
             action.LoadPlainValue(actionPlainValue);
-            return [PledgeCollectionUpdater.ApproveAsync(action.PatronAddress)];   
+            return [PledgeCollectionUpdater.ApproveAsync(action.PatronAddress)];
         }
 
         if (Regex.IsMatch(actionType, "^end_pledge[0-9]*$"))
@@ -64,7 +68,8 @@ public class PledgeStateHandler(
                     action.AgentAddress.GetPledgeAddress(),
                     signer,
                     false,
-                    action.RefillMead)
+                    action.RefillMead
+                ),
             ];
         }
 

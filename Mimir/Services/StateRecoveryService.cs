@@ -5,8 +5,8 @@ using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
 using Mimir.Options;
-using Mimir.Worker.Services;
-using Mimir.Worker.Util;
+using Mimir.Shared.Exceptions;
+using Mimir.Shared.Services;
 using Serilog;
 using StackExchange.Redis;
 using ILogger = Serilog.ILogger;
@@ -16,7 +16,7 @@ namespace Mimir.Services;
 public class StateRecoveryService : IStateRecoveryService
 {
     private readonly IConnectionMultiplexer _redis;
-    private readonly StateGetter _stateGetter;
+    private readonly IStateGetterService _stateGetter;
     private readonly IMongoDbService _dbService;
     private readonly ILogger _logger;
     private readonly HangfireOption _hangfireOption;
@@ -24,13 +24,13 @@ public class StateRecoveryService : IStateRecoveryService
     public StateRecoveryService(
         IConnectionMultiplexer redis,
         IStateService stateService,
-        IOptions<Worker.Configuration> configuration,
         IMongoDbService dbService,
-        IOptions<HangfireOption> hangfireOption
+        IOptions<HangfireOption> hangfireOption,
+        IStateGetterService stateGetterService
     )
     {
         _redis = redis;
-        _stateGetter = stateService.At(configuration);
+        _stateGetter = stateGetterService;
         _dbService = dbService;
         _hangfireOption = hangfireOption.Value;
         _logger = Log.ForContext<StateRecoveryService>();
@@ -65,7 +65,7 @@ public class StateRecoveryService : IStateRecoveryService
             );
             return true;
         }
-        catch (Mimir.Worker.Exceptions.StateNotFoundException)
+        catch (StateNotFoundException)
         {
             await SetStateExistsInCacheAsync(cacheKey);
             _logger.Information(
@@ -123,7 +123,7 @@ public class StateRecoveryService : IStateRecoveryService
             );
             return true;
         }
-        catch (Mimir.Worker.Exceptions.StateNotFoundException)
+        catch (StateNotFoundException)
         {
             await SetStateExistsInCacheAsync(cacheKey);
             _logger.Information(

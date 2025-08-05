@@ -3,9 +3,9 @@ using Bencodex.Types;
 using Libplanet.Action.State;
 using Libplanet.Crypto;
 using Libplanet.Types.Blocks;
-using Mimir.Worker.Client;
+using Mimir.Shared.Client;
 
-namespace Mimir.Worker.Services;
+namespace Mimir.Shared.Services;
 
 public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
 {

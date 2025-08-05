@@ -1,9 +1,10 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Lib9c;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using Serilog;
 
 namespace Mimir.Worker.Handler.Balance;
@@ -13,6 +14,15 @@ public sealed class MeadBalanceHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
-    : BaseBalanceHandler("balance_mead", dbService, stateService, headlessGqlClient, initializerManager,
-        Log.ForContext<MeadBalanceHandler>(), Currencies.Mead, configuration);
+    IStateGetterService stateGetter
+)
+    : BaseBalanceHandler(
+        "balance_mead",
+        dbService,
+        stateService,
+        headlessGqlClient,
+        initializerManager,
+        stateGetter,
+        Log.ForContext<MeadBalanceHandler>(),
+        Currencies.Mead
+    );

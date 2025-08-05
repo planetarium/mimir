@@ -1,8 +1,9 @@
+using Mimir.Shared.Constants;
+using Mimir.Shared.Client;
+using Mimir.Shared.Services;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Services;
-using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
-using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
 using Nekoyume;
 using Serilog;
@@ -14,7 +15,7 @@ public sealed class AllRuneStateHandler(
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
-    IOptions<Configuration> configuration)
+    IStateGetterService stateGetter)
     : BaseDiffHandler("all_rune",
         Addresses.RuneState,
         new AllRuneStateDocumentConverter(),
@@ -22,5 +23,5 @@ public sealed class AllRuneStateHandler(
         stateService,
         headlessGqlClient,
         initializerManager,
-        Log.ForContext<AllRuneStateHandler>(),
-        configuration);
+        stateGetter,
+        Log.ForContext<AllRuneStateHandler>());
