@@ -7,8 +7,9 @@ using Libplanet.Store;
 using Libplanet.Store.Trie;
 using Microsoft.Extensions.Options;
 using Mimir.Initializer.Util;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB;
 using Mimir.Worker.Services;
 using Mimir.Worker.StateDocumentConverter;
 using Serilog;
@@ -18,7 +19,7 @@ namespace Mimir.Initializer.Initializer;
 
 public class SnapshotInitializer : IExecutor
 {
-    private readonly MongoDbService _dbService;
+    private readonly IMongoDbService _dbService;
     private readonly ILogger _logger;
     private readonly string _chainStorePath;
     private readonly bool _shouldRun;
@@ -26,7 +27,7 @@ public class SnapshotInitializer : IExecutor
 
     public SnapshotInitializer(
         IOptions<Configuration> configuration,
-        MongoDbService dbService
+        IMongoDbService dbService
     )
     {
         _dbService = dbService;

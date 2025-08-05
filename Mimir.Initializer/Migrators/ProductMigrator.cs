@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -8,17 +8,18 @@ using MongoDB.Driver;
 using Nekoyume.Model.Market;
 using Serilog;
 using ItemProduct = Lib9c.Models.Market.ItemProduct;
+using Mimir.MongoDB;
 
 namespace Mimir.Initializer.Migrators;
 
 public class ProductMigrator : IExecutor
 {
     private readonly IOptions<Configuration> _configuration;
-    private readonly MongoDbService _dbService;
+    private readonly IMongoDbService _dbService;
     private readonly IItemProductCalculationService _itemProductCalculationService;
     private readonly ILogger _logger;
 
-    public ProductMigrator(IOptions<Configuration> configuration, MongoDbService dbService,
+    public ProductMigrator(IOptions<Configuration> configuration, IMongoDbService dbService,
         IItemProductCalculationService itemProductCalculationService, ILogger logger)
     {
         _configuration = configuration;

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Services;
 using ILogger = Serilog.ILogger;
 
@@ -7,11 +9,11 @@ public abstract class BaseInitializer : BackgroundService
 {
     protected IStateService _stateService;
 
-    protected MongoDbService _store;
+    protected IMongoDbService _store;
 
     protected readonly ILogger _logger;
 
-    protected BaseInitializer(IStateService stateService, MongoDbService store, ILogger logger)
+    protected BaseInitializer(IStateService stateService, IMongoDbService store, ILogger logger)
     {
         logger.Information("LOG");
         _stateService = stateService;

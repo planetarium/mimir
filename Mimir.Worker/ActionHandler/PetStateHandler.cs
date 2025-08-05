@@ -3,6 +3,7 @@ using Bencodex.Types;
 using Lib9c.Models.Extensions;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
+using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Exceptions;
@@ -16,7 +17,7 @@ namespace Mimir.Worker.ActionHandler;
 
 public class PetStateHandler(
     IStateService stateService,
-    MongoDbService store,
+    IMongoDbService store,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
     IOptions<Configuration> configuration

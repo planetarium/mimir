@@ -15,14 +15,21 @@ using Nekoyume.TableData;
 
 namespace Mimir.MongoDB.Repositories;
 
-public class TableSheetsRepository(IMongoDbService dbService)
+public class TableSheetsRepository
 {
+    private readonly IMongoDbService _dbService;
+
+    public TableSheetsRepository(IMongoDbService dbService)
+    {
+        _dbService = dbService;
+    }
+
     private static readonly Codec Codec = new();
 
     public async Task<string[]> GetSheetNamesAsync()
     {
         var collectionName = CollectionNames.GetCollectionName<SheetDocument>();
-        var collection = dbService.GetCollection<BsonDocument>(collectionName);
+        var collection = _dbService.GetCollection<BsonDocument>(collectionName);
         var filter = Builders<BsonDocument>.Filter.Exists("Name");
         var projection = Builders<BsonDocument>.Projection.Include("Name").Exclude("_id");
         var docs = await collection
@@ -37,8 +44,8 @@ public class TableSheetsRepository(IMongoDbService dbService)
         SheetFormat sheetFormat = SheetFormat.Csv)
     {
         var collectionName = CollectionNames.GetCollectionName<SheetDocument>();
-        var collection = dbService.GetCollection<BsonDocument>(collectionName);
-        return await GetSheetAsync(collection, dbService.GetDatabase(), sheetName, sheetFormat);
+        var collection = _dbService.GetCollection<BsonDocument>(collectionName);
+        return await GetSheetAsync(collection, _dbService.GetDatabase(), sheetName, sheetFormat);
     }
 
     public async Task<T> GetSheetAsync<T>(SheetFormat sheetFormat = SheetFormat.Csv)
@@ -56,7 +63,7 @@ public class TableSheetsRepository(IMongoDbService dbService)
         return (T)sheet;
     }
 
-    private static async Task<string> GetSheetAsync(
+    private async Task<string> GetSheetAsync(
         IMongoCollection<BsonDocument> collection,
         IMongoDatabase database,
         string sheetName,
@@ -81,8 +88,7 @@ public class TableSheetsRepository(IMongoDbService dbService)
 
         return sheetFormat switch
         {
-            SheetFormat.Csv => ((Text)Codec.Decode(await MongoDbService.RetrieveFromGridFs(
-                gridFs,
+            SheetFormat.Csv => ((Text)Codec.Decode(await _dbService.RetrieveFromGridFs(
                 document[fieldToInclude].AsObjectId))).Value,
             _ => document[fieldToInclude].ToJson(new JsonWriterSettings
             {

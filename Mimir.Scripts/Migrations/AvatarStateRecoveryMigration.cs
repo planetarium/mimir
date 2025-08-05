@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Mimir.MongoDB;
+using Mimir.MongoDB.Services;
 using Mimir.MongoDB.Bson;
 using Mimir.Worker.Client;
 using Mimir.Worker.Services;
@@ -13,12 +13,13 @@ using MongoDB.Driver;
 using System.Text.Json;
 using Libplanet.Crypto;
 using Lib9c.Models.Extensions;
+using Mimir.MongoDB;
 
 namespace Mimir.Scripts.Migrations;
 
 public class AvatarStateRecoveryMigration
 {
-    private readonly MongoDbService _mongoDbService;
+    private readonly IMongoDbService _mongoDbService;
     private readonly IHeadlessGQLClient _headlessGqlClient;
     private readonly IStateService _stateService;
     private readonly ILogger<AvatarStateRecoveryMigration> _logger;
@@ -27,7 +28,7 @@ public class AvatarStateRecoveryMigration
     private const int LIMIT = 50;
 
     public AvatarStateRecoveryMigration(
-        MongoDbService mongoDbService,
+        IMongoDbService mongoDbService,
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         ILogger<AvatarStateRecoveryMigration> logger,

@@ -8,6 +8,7 @@ using Mimir.Scripts.Migrations;
 using Mimir.Worker.Services;
 using Mimir.Worker.Client;
 using Serilog;
+using Mimir.MongoDB.Services;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(

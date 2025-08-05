@@ -3,6 +3,7 @@ using Bencodex.Types;
 using Libplanet.Crypto;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Client;
 using Mimir.Worker.CollectionUpdaters;
 using Mimir.Worker.Initializer.Manager;
@@ -16,7 +17,7 @@ namespace Mimir.Worker.ActionHandler;
 
 public class PledgeStateHandler(
     IStateService stateService, 
-    MongoDbService store, 
+    IMongoDbService store, 
     IHeadlessGQLClient headlessGqlClient, 
     IInitializerManager initializerManager,
     IOptions<Configuration> configuration)

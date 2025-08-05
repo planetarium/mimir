@@ -1,6 +1,7 @@
 using Libplanet.Types.Assets;
 using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
+using Mimir.MongoDB.Services;
 using Mimir.Worker.Client;
 using Mimir.Worker.Initializer.Manager;
 using Mimir.Worker.Services;
@@ -11,7 +12,7 @@ namespace Mimir.Worker.Handler.Balance;
 
 public abstract class BaseBalanceHandler(
     string collectionName,
-    MongoDbService dbService,
+    IMongoDbService dbService,
     IStateService stateService,
     IHeadlessGQLClient headlessGqlClient,
     IInitializerManager initializerManager,
