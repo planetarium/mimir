@@ -50,7 +50,13 @@ public class Query
     {
         try
         {
-            return (await repo.GetByAddressAsync(address)).Object;
+            var document = await repo.GetByAddressAsync(address);
+            if (document.Metadata.StoredBlockIndex != 0)
+            {
+                HangfireJobs.EnqueueAgentStateRecovery(address);
+            }
+
+            return document.Object;
         }
         catch (Mimir.MongoDB.Exceptions.DocumentNotFoundInMongoCollectionException)
         {
@@ -104,7 +110,9 @@ public class Query
                 return (await repo.GetByAddressAsync(currencyTicker.ToCurrency(), address)).Object;
             }
 
-            throw new GraphQLRequestException("Either currency or currencyTicker must be provided.");
+            throw new GraphQLRequestException(
+                "Either currency or currencyTicker must be provided."
+            );
         }
         catch (Mimir.MongoDB.Exceptions.DocumentNotFoundInMongoCollectionException)
         {

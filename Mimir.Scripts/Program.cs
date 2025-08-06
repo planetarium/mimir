@@ -36,7 +36,7 @@ var host = Host.CreateDefaultBuilder(args)
         {
             services.Configure<Configuration>(context.Configuration.GetSection("Configuration"));
 
-            services.AddSingleton(serviceProvider =>
+            services.AddSingleton<IMongoDbService, MongoDbService>(serviceProvider =>
             {
                 var config = serviceProvider.GetRequiredService<IOptions<Configuration>>().Value;
                 return new MongoDbService(
@@ -48,6 +48,7 @@ var host = Host.CreateDefaultBuilder(args)
 
             services.AddTransient<UpdateLastStageClearedIdMigration>();
             services.AddTransient<UpdateTransactionDocumentMigration>();
+            services.AddTransient<SignerToHexMigration>();
             services.AddTransient<UpdateActionTypeMigration>();
             services.AddTransient<BlockRecoveryMigration>();
             services.AddTransient<AgentStateRecoveryMigration>();
@@ -92,20 +93,22 @@ try
         Console.WriteLine("실행할 마이그레이션을 선택하세요:");
         Console.WriteLine("1. LastStageClearedId");
         Console.WriteLine("2. TransactionDocument");
-        Console.WriteLine("3. ActionType");
-        Console.WriteLine("4. BlockRecovery");
-        Console.WriteLine("5. AgentStateRecovery");
-        Console.WriteLine("6. AvatarStateRecovery");
+        Console.WriteLine("3. SignerToHex (빠른 실행)");
+        Console.WriteLine("4. ActionType");
+        Console.WriteLine("5. BlockRecovery");
+        Console.WriteLine("6. AgentStateRecovery");
+        Console.WriteLine("7. AvatarStateRecovery");
         Console.Write("번호 입력: ");
         var input = Console.ReadLine();
         migrationType = input switch
         {
             "1" => "laststage",
             "2" => "transaction",
-            "3" => "actiontype",
-            "4" => "blockrecovery",
-            "5" => "agentstaterecovery",
-            "6" => "avatarstaterecovery",
+            "3" => "signertohex",
+            "4" => "actiontype",
+            "5" => "blockrecovery",
+            "6" => "agentstaterecovery",
+            "7" => "avatarstaterecovery",
             _ => null,
         };
 
@@ -149,6 +152,17 @@ try
         logger.LogInformation(
             "TransactionDocument 마이그레이션 완료. 총 {Count}개 문서 수정됨",
             transactionResult
+        );
+    }
+    else if (migrationType == "signertohex")
+    {
+        logger.LogInformation("SignerToHex 마이그레이션 시작");
+        var signerToHexMigration =
+            host.Services.GetRequiredService<SignerToHexMigration>();
+        var signerToHexResult = await signerToHexMigration.ExecuteAsync();
+        logger.LogInformation(
+            "SignerToHex 마이그레이션 완료. 총 {Count}개 문서 수정됨",
+            signerToHexResult
         );
     }
     else if (migrationType == "actiontype")

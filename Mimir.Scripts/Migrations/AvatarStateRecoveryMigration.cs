@@ -25,6 +25,7 @@ public class AvatarStateRecoveryMigration
     private readonly IStateService _stateService;
     private readonly IStateGetterService _stateGetterService;
     private readonly ILogger<AvatarStateRecoveryMigration> _logger;
+    private readonly Configuration _configuration;
     private const string ProgressFileName = "avatar_state_recovery_progress.json";
     private const int LIMIT = 50;
 
@@ -33,7 +34,8 @@ public class AvatarStateRecoveryMigration
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         IStateGetterService stateGetterService,
-        ILogger<AvatarStateRecoveryMigration> logger
+        ILogger<AvatarStateRecoveryMigration> logger,
+        IOptions<Configuration> configuration
     )
     {
         _mongoDbService = mongoDbService;
@@ -41,6 +43,7 @@ public class AvatarStateRecoveryMigration
         _stateService = stateService;
         _stateGetterService = stateGetterService;
         _logger = logger;
+        _configuration = configuration.Value;
     }
 
     public async Task<int> ExecuteAsync()
@@ -203,11 +206,12 @@ public class AvatarStateRecoveryMigration
 
     private async Task<AvatarStateRecoveryProgress> LoadProgressAsync()
     {
-        if (File.Exists(ProgressFileName))
+        var fileName = $"{_configuration.PlanetType.ToString().ToLowerInvariant()}_{ProgressFileName}";
+        if (File.Exists(fileName))
         {
             try
             {
-                var json = await File.ReadAllTextAsync(ProgressFileName);
+                var json = await File.ReadAllTextAsync(fileName);
                 var progress = JsonSerializer.Deserialize<AvatarStateRecoveryProgress>(json);
                 _logger.LogInformation(
                     "진행상황 파일 로드 완료: ProcessedAgents={ProcessedAgents}, ProcessedAvatars={ProcessedAvatars}",
@@ -218,7 +222,7 @@ public class AvatarStateRecoveryMigration
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "진행상황 파일 로드 실패: {FileName}", ProgressFileName);
+                _logger.LogWarning(ex, "진행상황 파일 로드 실패: {FileName}", fileName);
             }
         }
 
@@ -229,13 +233,14 @@ public class AvatarStateRecoveryMigration
 
     private async Task SaveProgressAsync(AvatarStateRecoveryProgress progress)
     {
+        var fileName = $"{_configuration.PlanetType.ToString().ToLowerInvariant()}_{ProgressFileName}";
         try
         {
             var json = JsonSerializer.Serialize(
                 progress,
                 new JsonSerializerOptions { WriteIndented = true }
             );
-            await File.WriteAllTextAsync(ProgressFileName, json);
+            await File.WriteAllTextAsync(fileName, json);
             _logger.LogDebug(
                 "진행상황 저장 완료: ProcessedAgents={ProcessedAgents}, ProcessedAvatars={ProcessedAvatars}",
                 progress.ProcessedAgents,
@@ -244,7 +249,7 @@ public class AvatarStateRecoveryMigration
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "진행상황 저장 실패: {FileName}", ProgressFileName);
+            _logger.LogError(ex, "진행상황 저장 실패: {FileName}", fileName);
         }
     }
 }
