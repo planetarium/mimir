@@ -1,3 +1,4 @@
+using System.Numerics;
 using Bencodex.Types;
 using Lib9c.Models.Items;
 using Lib9c.Models.Market;
@@ -44,7 +45,7 @@ public class StateGetterService : IStateGetterService
     }
 
     public async Task<string> GetNCGBalanceAsync(
-        Address agentAddress,
+        Address address,
         CancellationToken stoppingToken = default
     )
     {
@@ -55,23 +56,22 @@ public class StateGetterService : IStateGetterService
             _ => throw new ArgumentOutOfRangeException(),
         };
 
-        var state = await GetStateWithLegacyAccount(
-            agentAddress,
-            currency.Minters?.FirstOrDefault() ?? ReservedAddresses.LegacyAccount,
-            stoppingToken
-        );
+        var state = await _service.GetNCGBalance(address, stoppingToken);
 
         if (state is null)
         {
-            throw new StateNotFoundException(agentAddress, typeof(long));
+            throw new StateNotFoundException(address, typeof(long));
         }
-
-        if (state is not Integer value)
-            throw new InvalidCastException(
-                $"{nameof(state)} Invalid state type. "
-                    + $"Expected {nameof(Integer)}, got {state.GetType().Name}."
-            );
-
+        var stateString = state.ToString();
+        BigInteger value;
+        if (stateString.Contains('.'))
+        {
+            value = BigInteger.Parse(stateString.Replace(".", ""));
+        }
+        else
+        {
+            value = BigInteger.Parse(stateString) * BigInteger.Pow(10, currency.DecimalPlaces);
+        }
         return FungibleAssetValue.FromRawValue(currency, value).GetQuantityString();
     }
 

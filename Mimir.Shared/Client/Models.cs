@@ -1,6 +1,6 @@
+using Lib9c.Models.Block;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Lib9c.Models.Block;
 
 namespace Mimir.Shared.Client;
 
@@ -32,6 +32,12 @@ public class GetBlocksResponse
 {
     [JsonProperty("blockQuery")]
     public BlockQuery BlockQuery { get; set; }
+}
+
+public class GetGoldBalanceResponse
+{
+    [JsonProperty("goldBalance")]
+    public string GoldBalance { get; set; }
 }
 
 public class BlockQuery

@@ -139,6 +139,49 @@ public class StateRecoveryService : IStateRecoveryService
         }
     }
 
+    public async Task<bool> TryRecoverNCGBalanceAsync(Address agentAddress)
+    {
+        var cacheKey =
+            $"{_hangfireOption.RedisPrefix}:ncg_balance_not_exists:{agentAddress.ToHex()}";
+
+        if (await IsStateExistsInCacheAsync(cacheKey))
+        {
+            _logger.Information(
+                "NCG balance for {AgentAddress} is cached as not exists, skipping recovery",
+                agentAddress
+            );
+            return false;
+        }
+
+        try
+        {
+            var ncgBalance = await _stateGetter.GetNCGBalanceAsync(agentAddress);
+            var document = new BalanceDocument(0, agentAddress, ncgBalance);
+
+            await _dbService.UpsertStateDataManyAsync("balance_ncg", [document]);
+
+            _logger.Information(
+                "Successfully recovered NCG balance for {AgentAddress}",
+                agentAddress
+            );
+            return true;
+        }
+        catch (StateNotFoundException)
+        {
+            await SetStateExistsInCacheAsync(cacheKey);
+            _logger.Information(
+                "NCG balance for {AgentAddress} does not exist in blockchain, cached for future",
+                agentAddress
+            );
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to recover NCG balance for {AgentAddress}", agentAddress);
+            return false;
+        }
+    }
+
     public async Task<bool> IsStateExistsInCacheAsync(string cacheKey)
     {
         var db = _redis.GetDatabase();

@@ -40,19 +40,25 @@ public class HeadlessStateService(IHeadlessGQLClient client) : IStateService
         CancellationToken stoppingToken = default
     )
     {
-        var (result, _) = await client.GetStateAsync(
-            accountAddress,
-            address,
-            stoppingToken
-        );
-        return result.State is null
-            ? null
-            : Codec.Decode(Convert.FromHexString(result.State));
+        var (result, _) = await client.GetStateAsync(accountAddress, address, stoppingToken);
+        return result.State is null ? null : Codec.Decode(Convert.FromHexString(result.State));
     }
 
-    public async Task<long> GetLatestIndex(CancellationToken stoppingToken = default, Address? accountAddress = null)
+    public async Task<long> GetLatestIndex(
+        CancellationToken stoppingToken = default,
+        Address? accountAddress = null
+    )
     {
         var (result, _) = await client.GetTipAsync(stoppingToken, accountAddress);
         return result.NodeStatus.Tip.Index;
+    }
+
+    public async Task<string> GetNCGBalance(
+        Address address,
+        CancellationToken stoppingToken = default
+    )
+    {
+        var (result, _) = await client.GetGoldBalanceAsync(address, stoppingToken);
+        return result.GoldBalance;
     }
 }

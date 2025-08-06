@@ -21,4 +21,5 @@ public interface IStateService
         Address accountAddress,
         CancellationToken stoppingToken = default
     );
+    Task<string> GetNCGBalance(Address address, CancellationToken stoppingToken = default);
 }
