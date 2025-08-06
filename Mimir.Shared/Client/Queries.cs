@@ -59,6 +59,12 @@ public static class GraphQLQueries
                 }
             }";
 
+    public const string GetGoldBalance =
+        @"
+            query GetGoldBalance($address: Address!) {
+                goldBalance(address: $address)
+            }";
+
     public const string GetState =
         @"
             query GetState($accountAddress: Address!, $address: Address!) {

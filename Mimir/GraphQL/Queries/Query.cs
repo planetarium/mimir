@@ -92,17 +92,28 @@ public class Query
         [Service] IBalanceRepository repo
     )
     {
-        if (currency is not null)
+        try
         {
-            return (await repo.GetByAddressAsync(currency.ToCurrency(), address)).Object;
-        }
+            if (currency is not null)
+            {
+                return (await repo.GetByAddressAsync(currency.ToCurrency(), address)).Object;
+            }
 
-        if (currencyTicker is not null)
+            if (currencyTicker is not null)
+            {
+                return (await repo.GetByAddressAsync(currencyTicker.ToCurrency(), address)).Object;
+            }
+
+            throw new GraphQLRequestException("Either currency or currencyTicker must be provided.");
+        }
+        catch (Mimir.MongoDB.Exceptions.DocumentNotFoundInMongoCollectionException)
         {
-            return (await repo.GetByAddressAsync(currencyTicker.ToCurrency(), address)).Object;
+            if (currencyTicker?.ToUpper() == "NCG")
+            {
+                HangfireJobs.EnqueueNCGBalanceRecovery(address);
+            }
+            throw;
         }
-
-        throw new GraphQLRequestException("Either currency or currencyTicker must be provided.");
     }
 
     /// <summary>

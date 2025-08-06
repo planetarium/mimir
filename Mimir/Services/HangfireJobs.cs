@@ -19,4 +19,11 @@ public static class HangfireJobs
             service.TryRecoverAvatarStateAsync(avatarAddress)
         );
     }
+
+    public static void EnqueueNCGBalanceRecovery(Address agentAddress)
+    {
+        BackgroundJob.Enqueue<IStateRecoveryService>(service =>
+            service.TryRecoverNCGBalanceAsync(agentAddress)
+        );
+    }
 }

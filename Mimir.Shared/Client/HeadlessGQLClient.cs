@@ -287,4 +287,17 @@ public class HeadlessGQLClient : IHeadlessGQLClient
             null
         );
     }
+
+    public async Task<(GetGoldBalanceResponse response, string jsonResponse)> GetGoldBalanceAsync(
+        Address address,
+        CancellationToken stoppingToken
+    )
+    {
+        return await PostGraphQLRequestAsync<GetGoldBalanceResponse>(
+            GraphQLQueries.GetGoldBalance,
+            new { address },
+            stoppingToken,
+            null
+        );
+    }
 }
