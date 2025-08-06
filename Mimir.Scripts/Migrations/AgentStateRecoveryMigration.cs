@@ -26,6 +26,7 @@ public class AgentStateRecoveryMigration
     private readonly IStateService _stateService;
     private readonly IStateGetterService _stateGetterService;
     private readonly ILogger<AgentStateRecoveryMigration> _logger;
+    private readonly Configuration _configuration;
     private const string ProgressFileName = "agent_state_recovery_progress.json";
     private const int LIMIT = 100;
 
@@ -34,7 +35,8 @@ public class AgentStateRecoveryMigration
         IHeadlessGQLClient headlessGqlClient,
         IStateService stateService,
         IStateGetterService stateGetterService,
-        ILogger<AgentStateRecoveryMigration> logger
+        ILogger<AgentStateRecoveryMigration> logger,
+        IOptions<Configuration> configuration
     )
     {
         _mongoDbService = mongoDbService;
@@ -42,6 +44,7 @@ public class AgentStateRecoveryMigration
         _stateService = stateService;
         _stateGetterService = stateGetterService;
         _logger = logger;
+        _configuration = configuration.Value;
     }
 
     public async Task<int> ExecuteAsync()
@@ -173,11 +176,12 @@ public class AgentStateRecoveryMigration
 
     private async Task<AgentStateRecoveryProgress> LoadProgressAsync()
     {
-        if (File.Exists(ProgressFileName))
+        var fileName = $"{_configuration.PlanetType.ToString().ToLowerInvariant()}_{ProgressFileName}";
+        if (File.Exists(fileName))
         {
             try
             {
-                var json = await File.ReadAllTextAsync(ProgressFileName);
+                var json = await File.ReadAllTextAsync(fileName);
                 var progress = JsonSerializer.Deserialize<AgentStateRecoveryProgress>(json);
                 _logger.LogInformation(
                     "진행상황 파일 로드 완료: ProcessedTransactions={ProcessedTransactions}, ProcessedAgents={ProcessedAgents}",
@@ -188,7 +192,7 @@ public class AgentStateRecoveryMigration
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "진행상황 파일 로드 실패: {FileName}", ProgressFileName);
+                _logger.LogWarning(ex, "진행상황 파일 로드 실패: {FileName}", fileName);
             }
         }
 
@@ -199,13 +203,14 @@ public class AgentStateRecoveryMigration
 
     private async Task SaveProgressAsync(AgentStateRecoveryProgress progress)
     {
+        var fileName = $"{_configuration.PlanetType.ToString().ToLowerInvariant()}_{ProgressFileName}";
         try
         {
             var json = JsonSerializer.Serialize(
                 progress,
                 new JsonSerializerOptions { WriteIndented = true }
             );
-            await File.WriteAllTextAsync(ProgressFileName, json);
+            await File.WriteAllTextAsync(fileName, json);
             _logger.LogDebug(
                 "진행상황 저장 완료: ProcessedTransactions={ProcessedTransactions}, ProcessedAgents={ProcessedAgents}",
                 progress.ProcessedTransactions,
@@ -214,7 +219,7 @@ public class AgentStateRecoveryMigration
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "진행상황 저장 실패: {FileName}", ProgressFileName);
+            _logger.LogError(ex, "진행상황 저장 실패: {FileName}", fileName);
         }
     }
 }

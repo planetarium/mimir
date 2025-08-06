@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Services;
@@ -14,15 +15,18 @@ public class UpdateTransactionDocumentMigration
 {
     private readonly IMongoDbService _mongoDbService;
     private readonly ILogger<UpdateTransactionDocumentMigration> _logger;
+    private readonly Configuration _configuration;
     private const string ProgressFileName = "migration_progress.json";
 
     public UpdateTransactionDocumentMigration(
         IMongoDbService mongoDbService,
-        ILogger<UpdateTransactionDocumentMigration> logger
+        ILogger<UpdateTransactionDocumentMigration> logger,
+        IOptions<Configuration> configuration
     )
     {
         _mongoDbService = mongoDbService;
         _logger = logger;
+        _configuration = configuration.Value;
     }
 
     public async Task<int> UpdateTransactionDocumentAsync(string databaseName)
@@ -160,7 +164,7 @@ public class UpdateTransactionDocumentMigration
 
     private async Task<MigrationProgress> LoadProgressAsync(string databaseName)
     {
-        var fileName = $"{databaseName}_{ProgressFileName}";
+        var fileName = $"{_configuration.PlanetType.ToString().ToLowerInvariant()}_{databaseName}_{ProgressFileName}";
         
         if (File.Exists(fileName))
         {
@@ -188,7 +192,7 @@ public class UpdateTransactionDocumentMigration
 
     private async Task SaveProgressAsync(string databaseName, MigrationProgress progress)
     {
-        var fileName = $"{databaseName}_{ProgressFileName}";
+        var fileName = $"{_configuration.PlanetType.ToString().ToLowerInvariant()}_{databaseName}_{ProgressFileName}";
         try
         {
             var json = JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true });
@@ -216,10 +220,10 @@ public class UpdateTransactionDocumentMigration
 
         await ProcessExtractedActionValues(doc, updates);
         await UpdateBlockHashAndTimestamp(doc, blockCollection, updates);
-        await UpdateSignerToHex(doc, updates);
+        UpdateSignerToHex(doc, updates);
     }
 
-    private async Task ProcessExtractedActionValues(
+    private Task ProcessExtractedActionValues(
         TransactionDocument doc,
         List<UpdateDefinition<TransactionDocument>> updates
     )
@@ -273,6 +277,8 @@ public class UpdateTransactionDocumentMigration
                 }
             }
         }
+        
+        return Task.CompletedTask;
     }
 
     private async Task UpdateBlockHashAndTimestamp(
@@ -363,7 +369,7 @@ public class UpdateTransactionDocumentMigration
         }
     }
 
-    private async Task UpdateSignerToHex(
+    private void UpdateSignerToHex(
         TransactionDocument doc,
         List<UpdateDefinition<TransactionDocument>> updates
     )
