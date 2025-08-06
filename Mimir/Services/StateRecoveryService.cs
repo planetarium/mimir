@@ -38,7 +38,7 @@ public class StateRecoveryService : IStateRecoveryService
 
     public async Task<bool> TryRecoverAgentStateAsync(Address agentAddress)
     {
-        var cacheKey = $"agent_not_exists:{agentAddress.ToHex()}";
+        var cacheKey = $"{_hangfireOption.RedisPrefix}:agent_not_exists:{agentAddress.ToHex()}";
 
         if (await IsStateExistsInCacheAsync(cacheKey))
         {
@@ -83,7 +83,7 @@ public class StateRecoveryService : IStateRecoveryService
 
     public async Task<bool> TryRecoverAvatarStateAsync(Address avatarAddress)
     {
-        var cacheKey = $"avatar_not_exists:{avatarAddress.ToHex()}";
+        var cacheKey = $"{_hangfireOption.RedisPrefix}:avatar_not_exists:{avatarAddress.ToHex()}";
 
         if (await IsStateExistsInCacheAsync(cacheKey))
         {
