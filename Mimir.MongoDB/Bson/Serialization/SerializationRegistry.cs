@@ -38,71 +38,71 @@ public static class SerializationRegistry
     private static void RegisterSerializers()
     {
         // System
-        BsonSerializer.RegisterSerializer(typeof(BigInteger), BigIntegerSerializer.Instance);
-        BsonSerializer.RegisterSerializer(
+        BsonSerializer.TryRegisterSerializer(typeof(BigInteger), BigIntegerSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(
             typeof(Guid),
             GuidSerializer.StandardInstance.WithRepresentation(BsonType.String));
 
         // Libplanet
-        BsonSerializer.RegisterSerializer(typeof(Address), AddressSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Currency), CurrencySerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(FungibleAssetValue), FungibleAssetValueSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Address), AddressSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Currency), CurrencySerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(FungibleAssetValue), FungibleAssetValueSerializer.Instance);
 
         // Lib9c.Models.AttachmentActionResults
-        BsonSerializer.RegisterSerializer(typeof(AttachmentActionResult), AttachmentActionResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Buy7BuyerResult), Buy7BuyerResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Buy7SellerResult), Buy7SellerResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(
+        BsonSerializer.TryRegisterSerializer(typeof(AttachmentActionResult), AttachmentActionResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Buy7BuyerResult), Buy7BuyerResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Buy7SellerResult), Buy7SellerResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(
             typeof(CombinationConsumable5Result),
             CombinationConsumable5ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(DailyReward2Result), DailyReward2ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemEnhancement7Result), ItemEnhancement7ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemEnhancement9Result), ItemEnhancement9ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemEnhancement11Result), ItemEnhancement11ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemEnhancement12Result), ItemEnhancement12ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemEnhancement13Result), ItemEnhancement13ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(MonsterCollectionResult), MonsterCollectionResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(RapidCombination0Result), RapidCombination0ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(RapidCombination5Result), RapidCombination5ResultSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(SellCancellationResult), SellCancellationResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(DailyReward2Result), DailyReward2ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemEnhancement7Result), ItemEnhancement7ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemEnhancement9Result), ItemEnhancement9ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemEnhancement11Result), ItemEnhancement11ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemEnhancement12Result), ItemEnhancement12ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemEnhancement13Result), ItemEnhancement13ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(MonsterCollectionResult), MonsterCollectionResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(RapidCombination0Result), RapidCombination0ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(RapidCombination5Result), RapidCombination5ResultSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(SellCancellationResult), SellCancellationResultSerializer.Instance);
 
         // Lib9c.Models.Items
-        BsonSerializer.RegisterSerializer(typeof(Armor), ArmorSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Aura), AuraSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Belt), BeltSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Consumable), ConsumableSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Costume), CostumeSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Equipment), EquipmentSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Grimoire), GrimoireSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemBase), ItemBaseSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemUsable), ItemUsableSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Material), MaterialSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Necklace), NecklaceSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Ring), RingSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ShopItem), ShopItemSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(TradableMaterial), TradableMaterialSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(Weapon), WeaponSerializer.Instance);
-        BsonSerializer.RegisterSerializer(
+        BsonSerializer.TryRegisterSerializer(typeof(Armor), ArmorSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Aura), AuraSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Belt), BeltSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Consumable), ConsumableSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Costume), CostumeSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Equipment), EquipmentSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Grimoire), GrimoireSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemBase), ItemBaseSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemUsable), ItemUsableSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Material), MaterialSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Necklace), NecklaceSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Ring), RingSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ShopItem), ShopItemSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(TradableMaterial), TradableMaterialSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Weapon), WeaponSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(
             typeof(Dictionary<Material, int>),
             new DictionaryInterfaceImplementerSerializer<Dictionary<Material, int>>()
                 .WithKeySerializer(MaterialSerializer.Instance));
 
         // Lib9c.Models.Market
-        BsonSerializer.RegisterSerializer(typeof(Product), ProductSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(FavProduct), FavProductSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(ItemProduct), ItemProductSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Product), ProductSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(FavProduct), FavProductSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(ItemProduct), ItemProductSerializer.Instance);
 
         // Lib9c.Models.Skills
-        BsonSerializer.RegisterSerializer(typeof(Skill), SkillSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(Skill), SkillSerializer.Instance);
 
         // Lib9c.Models.States
-        BsonSerializer.RegisterSerializer(typeof(CombinationSlotState), CombinationSlotStateSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(CombinationSlotState), CombinationSlotStateSerializer.Instance);
 
         // Lib9c.Models.Stats
-        BsonSerializer.RegisterSerializer(typeof(DecimalStat), DecimalStatSerializer.Instance);
-        BsonSerializer.RegisterSerializer(typeof(StatMap), StatMapSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(DecimalStat), DecimalStatSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(StatMap), StatMapSerializer.Instance);
 
         // Nekoyume.TableData
-        BsonSerializer.RegisterSerializer(typeof(SkillSheet.Row), SkillSheetRowSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(SkillSheet.Row), SkillSheetRowSerializer.Instance);
     }
 }
