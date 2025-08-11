@@ -11,6 +11,7 @@ using Libplanet.Common;
 using Libplanet.Crypto;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Mimir.Extensions;
 using Mimir.GraphQL;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Repositories;
@@ -121,47 +122,14 @@ builder.Services.AddSingleton<ICpRepository<RaidCpDocument>, CpRepository<RaidCp
 
 // ~MongoDB repositories.
 
-// Hangfire and Redis configuration
+// Hangfire configuration
 var hangfireOption = builder
     .Configuration.GetSection(HangfireOption.SectionName)
     .Get<HangfireOption>();
-if (hangfireOption != null)
+
+if (hangfireOption?.IsEnabled == true)
 {
-    var redisConfig = new ConfigurationOptions { DefaultDatabase = hangfireOption.RedisDatabase };
-
-    redisConfig.EndPoints.Add(hangfireOption.RedisHost, hangfireOption.RedisPort);
-
-    if (!string.IsNullOrEmpty(hangfireOption.RedisUsername))
-    {
-        redisConfig.User = hangfireOption.RedisUsername;
-    }
-
-    if (!string.IsNullOrEmpty(hangfireOption.RedisPassword))
-    {
-        redisConfig.Password = hangfireOption.RedisPassword;
-    }
-
-    var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfig);
-    builder.Services.AddSingleton<IConnectionMultiplexer>(connectionMultiplexer);
-
-    builder.Services.AddHangfire(
-        (provider, config) =>
-        {
-            config.UseRedisStorage(
-                connectionMultiplexer,
-                new RedisStorageOptions
-                {
-                    Prefix = hangfireOption.RedisPrefix,
-                    Db = hangfireOption.RedisDatabase,
-                }
-            );
-        }
-    );
-
-    builder.Services.AddHangfireServer(options =>
-    {
-        options.WorkerCount = hangfireOption.WorkerCount;
-    });
+    builder.Services.AddHangfireServices(hangfireOption);
 }
 
 // State recovery service
@@ -242,7 +210,7 @@ builder.Services.AddHttpClient<IWncgPriceService, WncgPriceService>(client =>
 var app = builder.Build();
 
 // Hangfire dashboard
-if (hangfireOption != null)
+if (hangfireOption?.IsEnabled == true)
 {
     app.UseHangfireDashboard(
         hangfireOption.DashboardPath,
