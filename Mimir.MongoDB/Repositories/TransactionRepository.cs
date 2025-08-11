@@ -56,7 +56,7 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
 
         if (filter?.Signer != null)
         {
-            var signerFilter = filterBuilder.Regex("Object.Signer", filter.Signer.Value.ToHex());
+            var signerFilter = filterBuilder.Eq("Object.Signer", filter.Signer.Value.ToHex());
             if (filter.IncludeInvolvedAddress == true)
             {
                 var involvedAddressFilter = filterBuilder.AnyEq("extractedActionValues.InvolvedAddresses", filter.Signer.Value.ToHex());
