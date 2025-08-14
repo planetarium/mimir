@@ -203,7 +203,7 @@ public class ProductStateHandler(
                 
                 int? crystal = null;
                 int? crystalPerPrice = null;
-                int? combatPoint = null;
+                long? combatPoint = null;
                 try
                 {
                     (crystal, crystalPerPrice) = await itemProductCalculationService.CalculateCrystalMetricsAsync(itemProduct);

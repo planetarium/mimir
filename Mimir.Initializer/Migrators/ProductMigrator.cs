@@ -63,7 +63,7 @@ public class ProductMigrator : IExecutor
 
             int? crystal = null;
             int? crystalPerPrice = null;
-            int? combatPoint = null;
+            long? combatPoint = null;
             try
             {
                 (crystal, crystalPerPrice) = await _itemProductCalculationService.CalculateCrystalMetricsAsync(itemProduct);

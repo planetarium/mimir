@@ -7,9 +7,7 @@ using Mimir.MongoDB.Services;
 using Mimir.Options;
 using Mimir.Shared.Exceptions;
 using Mimir.Shared.Services;
-using Serilog;
 using StackExchange.Redis;
-using ILogger = Serilog.ILogger;
 
 namespace Mimir.Services;
 
@@ -26,14 +24,15 @@ public class StateRecoveryService : IStateRecoveryService
         IStateService stateService,
         IMongoDbService dbService,
         IOptions<HangfireOption> hangfireOption,
-        IStateGetterService stateGetterService
+        IStateGetterService stateGetterService,
+        ILogger<StateRecoveryService> logger
     )
     {
         _redis = redis;
         _stateGetter = stateGetterService;
         _dbService = dbService;
         _hangfireOption = hangfireOption.Value;
-        _logger = Log.ForContext<StateRecoveryService>();
+        _logger = logger;
     }
 
     public async Task<bool> TryRecoverAgentStateAsync(Address agentAddress)
@@ -42,7 +41,7 @@ public class StateRecoveryService : IStateRecoveryService
 
         if (await IsStateExistsInCacheAsync(cacheKey))
         {
-            _logger.Information(
+            _logger.LogInformation(
                 "Agent {AgentAddress} is cached as not exists, skipping recovery",
                 agentAddress
             );
@@ -59,7 +58,7 @@ public class StateRecoveryService : IStateRecoveryService
                 [document]
             );
 
-            _logger.Information(
+            _logger.LogInformation(
                 "Successfully recovered agent state for {AgentAddress}",
                 agentAddress
             );
@@ -68,7 +67,7 @@ public class StateRecoveryService : IStateRecoveryService
         catch (StateNotFoundException)
         {
             await SetStateExistsInCacheAsync(cacheKey);
-            _logger.Information(
+            _logger.LogInformation(
                 "Agent {AgentAddress} does not exist in blockchain, cached for future",
                 agentAddress
             );
@@ -76,7 +75,7 @@ public class StateRecoveryService : IStateRecoveryService
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Failed to recover agent state for {AgentAddress}", agentAddress);
+            _logger.LogError(ex, "Failed to recover agent state for {AgentAddress}", agentAddress);
             return false;
         }
     }
@@ -87,7 +86,7 @@ public class StateRecoveryService : IStateRecoveryService
 
         if (await IsStateExistsInCacheAsync(cacheKey))
         {
-            _logger.Information(
+            _logger.LogInformation(
                 "Avatar {AvatarAddress} is cached as not exists, skipping recovery",
                 avatarAddress
             );
@@ -117,7 +116,7 @@ public class StateRecoveryService : IStateRecoveryService
                 [document]
             );
 
-            _logger.Information(
+            _logger.LogInformation(
                 "Successfully recovered avatar state for {AvatarAddress}",
                 avatarAddress
             );
@@ -126,7 +125,7 @@ public class StateRecoveryService : IStateRecoveryService
         catch (StateNotFoundException)
         {
             await SetStateExistsInCacheAsync(cacheKey);
-            _logger.Information(
+            _logger.LogInformation(
                 "Avatar {AvatarAddress} does not exist in blockchain, cached for future",
                 avatarAddress
             );
@@ -134,7 +133,7 @@ public class StateRecoveryService : IStateRecoveryService
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Failed to recover avatar state for {AvatarAddress}", avatarAddress);
+            _logger.LogError(ex, "Failed to recover avatar state for {AvatarAddress}", avatarAddress);
             return false;
         }
     }
@@ -146,7 +145,7 @@ public class StateRecoveryService : IStateRecoveryService
 
         if (await IsStateExistsInCacheAsync(cacheKey))
         {
-            _logger.Information(
+            _logger.LogInformation(
                 "NCG balance for {AgentAddress} is cached as not exists, skipping recovery",
                 agentAddress
             );
@@ -160,7 +159,7 @@ public class StateRecoveryService : IStateRecoveryService
 
             await _dbService.UpsertStateDataManyAsync("balance_ncg", [document]);
 
-            _logger.Information(
+            _logger.LogInformation(
                 "Successfully recovered NCG balance for {AgentAddress}",
                 agentAddress
             );
@@ -169,7 +168,7 @@ public class StateRecoveryService : IStateRecoveryService
         catch (StateNotFoundException)
         {
             await SetStateExistsInCacheAsync(cacheKey);
-            _logger.Information(
+            _logger.LogInformation(
                 "NCG balance for {AgentAddress} does not exist in blockchain, cached for future",
                 agentAddress
             );
@@ -177,7 +176,7 @@ public class StateRecoveryService : IStateRecoveryService
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Failed to recover NCG balance for {AgentAddress}", agentAddress);
+            _logger.LogError(ex, "Failed to recover NCG balance for {AgentAddress}", agentAddress);
             return false;
         }
     }

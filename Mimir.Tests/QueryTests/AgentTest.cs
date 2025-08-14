@@ -2,6 +2,7 @@
 using Libplanet.Crypto;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Repositories;
+using Mimir.Services;
 using Moq;
 using Nekoyume;
 

@@ -1,3 +1,4 @@
+using Hangfire;
 using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
@@ -46,21 +47,29 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the agent.</param>
     /// <returns>The agent state</returns>
-    public async Task<AgentState> GetAgentAsync(Address address, [Service] IAgentRepository repo)
+    public async Task<AgentState> GetAgentAsync(
+        Address address,
+        [Service] IAgentRepository repo,
+        [Service] IBackgroundJobClient jobClient
+    )
     {
         try
         {
             var document = await repo.GetByAddressAsync(address);
             if (document.Metadata.StoredBlockIndex != 0)
             {
-                HangfireJobs.EnqueueAgentStateRecovery(address);
+                jobClient.Enqueue<IStateRecoveryService>(service =>
+                    service.TryRecoverAgentStateAsync(address)
+                );
             }
 
             return document.Object;
         }
         catch (Mimir.MongoDB.Exceptions.DocumentNotFoundInMongoCollectionException)
         {
-            HangfireJobs.EnqueueAgentStateRecovery(address);
+            jobClient.Enqueue<IStateRecoveryService>(service =>
+                service.TryRecoverAgentStateAsync(address)
+            );
             throw;
         }
     }
@@ -70,7 +79,11 @@ public class Query
     /// </summary>
     /// <param name="address">The address of the avatar.</param>
     /// <returns>The avatar state</returns>
-    public async Task<AvatarState> GetAvatarAsync(Address address, [Service] IAvatarRepository repo)
+    public async Task<AvatarState> GetAvatarAsync(
+        Address address,
+        [Service] IAvatarRepository repo,
+        [Service] IBackgroundJobClient jobClient
+    )
     {
         try
         {
@@ -78,7 +91,9 @@ public class Query
         }
         catch (Mimir.MongoDB.Exceptions.DocumentNotFoundInMongoCollectionException)
         {
-            HangfireJobs.EnqueueAvatarStateRecovery(address);
+            jobClient.Enqueue<IStateRecoveryService>(service =>
+                service.TryRecoverAvatarStateAsync(address)
+            );
             throw;
         }
     }
@@ -95,7 +110,8 @@ public class Query
         CurrencyInput? currency,
         string? currencyTicker,
         Address address,
-        [Service] IBalanceRepository repo
+        [Service] IBalanceRepository repo,
+        [Service] IBackgroundJobClient jobClient
     )
     {
         try
@@ -118,7 +134,9 @@ public class Query
         {
             if (currencyTicker?.ToUpper() == "NCG")
             {
-                HangfireJobs.EnqueueNCGBalanceRecovery(address);
+                jobClient.Enqueue<IStateRecoveryService>(service =>
+                    service.TryRecoverNCGBalanceAsync(address)
+                );
             }
             throw;
         }
