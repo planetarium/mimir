@@ -9,5 +9,5 @@ namespace Mimir.MongoDB.Bson;
 public record RaidCpDocument(
     [property: BsonIgnore, JsonIgnore, GraphQLIgnore] long StoredBlockIndex,
     [property: BsonIgnore, JsonIgnore, GraphQLIgnore] Address Address,
-    int Cp
-) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(1, StoredBlockIndex)), ICpDocument;
+    long Cp
+) : MimirBsonDocument(Address.ToHex(), new DocumentMetadata(2, StoredBlockIndex)), ICpDocument;
