@@ -10,7 +10,7 @@ public record ProductDocument : MimirBsonDocument
     public Address AvatarAddress { get; init; }
     public Address ProductsStateAddress { get; init; }
     public Product Object { get; init; }
-    public int? CombatPoint { get; init; }
+    public long? CombatPoint { get; init; }
     public decimal? UnitPrice { get; init; }
     public int? Crystal { get; init; }
     public int? CrystalPerPrice { get; init; }
@@ -36,7 +36,7 @@ public record ProductDocument : MimirBsonDocument
         Address productsStateAddress,
         Product product,
         decimal unitPrice,
-        int? combatPoint,
+        long? combatPoint,
         int? crystal,
         int? crystalPerPrice
     )

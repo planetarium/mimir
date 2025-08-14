@@ -127,10 +127,7 @@ var hangfireOption = builder
     .Configuration.GetSection(HangfireOption.SectionName)
     .Get<HangfireOption>();
 
-if (hangfireOption?.IsEnabled == true)
-{
-    builder.Services.AddHangfireServices(hangfireOption);
-}
+builder.Services.AddHangfireServices(hangfireOption);
 
 // State recovery service
 builder.Services.AddScoped<IStateRecoveryService, StateRecoveryService>();
@@ -210,21 +207,18 @@ builder.Services.AddHttpClient<IWncgPriceService, WncgPriceService>(client =>
 var app = builder.Build();
 
 // Hangfire dashboard
-if (hangfireOption?.IsEnabled == true)
-{
-    app.UseHangfireDashboard(
-        hangfireOption.DashboardPath,
-        new DashboardOptions
+app.UseHangfireDashboard(
+    hangfireOption.DashboardPath,
+    new DashboardOptions
+    {
+        Authorization = new[]
         {
-            Authorization = new[]
-            {
-                new BasicAuthDashboardAuthorizationFilter(
-                    app.Services.GetRequiredService<IOptions<HangfireOption>>()
-                ),
-            },
-        }
-    );
-}
+            new BasicAuthDashboardAuthorizationFilter(
+                app.Services.GetRequiredService<IOptions<HangfireOption>>()
+            ),
+        },
+    }
+);
 
 app.UseRouting();
 app.MapGet("/", () => "Health Check").RequireRateLimiting("jwt");
