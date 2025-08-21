@@ -4,5 +4,5 @@ namespace Mimir.MongoDB.Bson;
 
 public interface ICpDocument
 {
-    int Cp { get; }
+    long Cp { get; }
 }

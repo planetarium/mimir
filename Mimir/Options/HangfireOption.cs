@@ -4,7 +4,6 @@ public class HangfireOption
 {
     public const string SectionName = "Hangfire";
     
-    public bool IsEnabled { get; set; } = false;
     public string RedisConnectionString { get; set; } = string.Empty;
     public string DashboardPath { get; set; } = "/hangfire";
     public int WorkerCount { get; set; } = Environment.ProcessorCount;

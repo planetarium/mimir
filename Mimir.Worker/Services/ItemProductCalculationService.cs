@@ -23,13 +23,13 @@ public class ItemProductCalculationService : IItemProductCalculationService
         _store = store;
     }
 
-    public async Task<int?> CalculateCombatPointAsync(ItemProduct itemProduct)
+    public async Task<long?> CalculateCombatPointAsync(ItemProduct itemProduct)
     {
         var costumeStatSheet = await _store.GetSheetAsync<CostumeStatSheet>();
 
         if (costumeStatSheet != null)
         {
-            int? cp = itemProduct.TradableItem switch
+            long? cp = itemProduct.TradableItem switch
             {
                 ItemUsable itemUsable => CPHelper.GetCP(
                     (Nekoyume.Model.Item.ItemUsable)

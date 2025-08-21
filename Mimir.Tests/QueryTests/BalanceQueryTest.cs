@@ -62,32 +62,6 @@ public class BalanceQueryTest
     }
 
     [Fact]
-    public async Task GraphQL_Query_Balance_NCG_Enqueues_Recovery_When_Not_Found()
-    {
-        var mockAddress = new Address("0x0000000000000000000000000000000000000000");
-        var mockRepo = new Mock<IBalanceRepository>();
-        var mockStateRecoveryService = new Mock<IStateRecoveryService>();
-
-        mockRepo
-            .Setup(repo => repo.GetByAddressAsync("NCG".ToCurrency(), mockAddress))
-            .ThrowsAsync(new DocumentNotFoundInMongoCollectionException("balance_ncg", mockAddress.ToHex()));
-
-        var serviceProvider = TestServices.Builder
-            .With(mockRepo.Object)
-            .With(mockStateRecoveryService.Object)
-            .Build();
-
-        var query = $$"""
-                          query {
-                            balance(currencyTicker: "NCG", address: "{{mockAddress}}")
-                          }
-                      """;
-
-        var result = await TestServices.ExecuteRequestAsync(serviceProvider, b => b.SetDocument(query));
-        await Verify(result);
-    }
-    
-    [Fact]
     public async Task GraphQL_Query_Balance_Throws_When_No_Inputs_Provided()
     {
         var mockRepo = new Mock<IBalanceRepository>();
