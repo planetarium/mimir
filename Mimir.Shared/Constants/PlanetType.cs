@@ -4,4 +4,5 @@ public enum PlanetType
 {
     Odin,
     Heimdall,
+    Thor,
 }
