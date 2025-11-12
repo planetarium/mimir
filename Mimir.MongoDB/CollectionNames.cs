@@ -18,6 +18,11 @@ namespace Mimir.MongoDB
             2,
             null);
 
+        private static readonly Currency ThorNCGCurrency = Currency.Legacy(
+            "NCG",
+            2,
+            null);
+
         public static readonly Dictionary<Type, string> CollectionAndStateTypeMappings = new();
         public static readonly Dictionary<Address, string> CollectionAndAddressMappings = new();
 

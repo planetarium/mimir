@@ -16,4 +16,10 @@ public static class NCGCurrency
         2,
         null
     );
+
+    public static readonly Currency ThorNCGCurrency = Currency.Legacy(
+        "NCG",
+        2,
+        null
+    );
 } 
