@@ -31,6 +31,7 @@ public sealed class NcgBalanceHandler(
         {
             PlanetType.Odin => NCGCurrency.OdinNCGCurrency,
             PlanetType.Heimdall => NCGCurrency.HeimdallNCGCurrency,
+            PlanetType.Thor => NCGCurrency.ThorNCGCurrency,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(configuration.Value.PlanetType),
                 configuration.Value.PlanetType,

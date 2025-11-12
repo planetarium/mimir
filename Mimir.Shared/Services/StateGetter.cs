@@ -53,6 +53,7 @@ public class StateGetterService : IStateGetterService
         {
             PlanetType.Odin => NCGCurrency.OdinNCGCurrency,
             PlanetType.Heimdall => NCGCurrency.HeimdallNCGCurrency,
+            PlanetType.Thor => NCGCurrency.ThorNCGCurrency,
             _ => throw new ArgumentOutOfRangeException(),
         };
 
