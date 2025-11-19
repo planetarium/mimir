@@ -276,7 +276,7 @@ public class BlockRecoveryMigration
             var document = new BalanceDocument(blockIndex, signer, ncgBalanceState);
             await _mongoDbService.UpsertStateDataManyAsync("balance_ncg", [document]);
         }
-        catch (Mimir.Worker.Exceptions.StateNotFoundException)
+        catch (Mimir.Shared.Exceptions.StateNotFoundException)
         {
             var document = new BalanceDocument(blockIndex, signer, "0");
             await _mongoDbService.UpsertStateDataManyAsync("balance_ncg", [document]);
@@ -303,7 +303,7 @@ public class BlockRecoveryMigration
                 [document]
             );
         }
-        catch (Mimir.Worker.Exceptions.StateNotFoundException)
+        catch (Mimir.Shared.Exceptions.StateNotFoundException)
         {
             var document = new DailyRewardDocument(blockIndex, avatarAddress, 0);
             await _mongoDbService.UpsertStateDataManyAsync(
@@ -324,7 +324,7 @@ public class BlockRecoveryMigration
                 [document]
             );
         }
-        catch (Mimir.Worker.Exceptions.StateNotFoundException)
+        catch (Mimir.Shared.Exceptions.StateNotFoundException)
         {
             var document = new AgentDocument(
                 blockIndex,

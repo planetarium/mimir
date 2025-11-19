@@ -590,6 +590,9 @@ public static class ActionParser
                 case IUpdateSellV1 updateSellV1:
                     avatarAddress = updateSellV1.SellerAvatarAddress;
                     break;
+                case InfiniteTowerBattle infiniteTowerBattle:
+                    avatarAddress = infiniteTowerBattle.AvatarAddress;
+                    break;
                 default:
                     break;
             }
