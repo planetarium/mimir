@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <Lib9cVersion>1.30.0-dev.c4bd7f8a1650132222cb6170c35660cd86c93a12</Lib9cVersion>
-        <LibplanetVersion>5.5.0</LibplanetVersion>
+        <Lib9cVersion>1.32.0-dev.856c927cd6d016e5ac0789da8661e3d628777f1c</Lib9cVersion>
+        <LibplanetVersion>5.5.2</LibplanetVersion>
     </PropertyGroup>
 </Project>

@@ -187,7 +187,7 @@ public class AvatarStateRecoveryMigration
             );
             _logger.LogDebug("Avatar State 삽입 완료: {AvatarAddress}", avatarAddress.ToHex());
         }
-        catch (Mimir.Worker.Exceptions.StateNotFoundException)
+        catch (Mimir.Shared.Exceptions.StateNotFoundException)
         {
             _logger.LogDebug(
                 "Avatar State를 찾을 수 없습니다: {AvatarAddress}",
