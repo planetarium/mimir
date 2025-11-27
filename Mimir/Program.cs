@@ -161,41 +161,48 @@ builder
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpResponseFormatter<HttpResponseFormatter>();
 
-builder.Services.AddRateLimiter(limiterOptions =>
+var rateLimitOption = builder
+    .Configuration.GetSection(RateLimitOption.SectionName)
+    .Get<RateLimitOption>();
+
+if (rateLimitOption?.IsEnabled == true)
 {
-    limiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    limiterOptions.AddPolicy(
-        policyName: "jwt",
-        partitioner: httpContext =>
-        {
-            var isAuthenticated = httpContext.User.Identity?.IsAuthenticated ?? false;
-            var rateLimitOptions = httpContext
-                .RequestServices.GetRequiredService<IOptions<RateLimitOption>>()
-                .Value;
-
-            if (isAuthenticated)
+    builder.Services.AddRateLimiter(limiterOptions =>
+    {
+        limiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        limiterOptions.AddPolicy(
+            policyName: "jwt",
+            partitioner: httpContext =>
             {
-                return RateLimitPartition.GetNoLimiter("NoLimit");
-            }
+                var isAuthenticated = httpContext.User.Identity?.IsAuthenticated ?? false;
+                var rateLimitOptions = httpContext
+                    .RequestServices.GetRequiredService<IOptions<RateLimitOption>>()
+                    .Value;
 
-            var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            return RateLimitPartition.GetTokenBucketLimiter(
-                ipAddress,
-                _ => new TokenBucketRateLimiterOptions
+                if (isAuthenticated)
                 {
-                    TokenLimit = rateLimitOptions.TokenLimit,
-                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                    QueueLimit = rateLimitOptions.QueueLimit,
-                    ReplenishmentPeriod = TimeSpan.FromSeconds(
-                        rateLimitOptions.ReplenishmentPeriod
-                    ),
-                    TokensPerPeriod = rateLimitOptions.TokensPerPeriod,
-                    AutoReplenishment = rateLimitOptions.AutoReplenishment,
+                    return RateLimitPartition.GetNoLimiter("NoLimit");
                 }
-            );
-        }
-    );
-});
+
+                var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                return RateLimitPartition.GetTokenBucketLimiter(
+                    ipAddress,
+                    _ => new TokenBucketRateLimiterOptions
+                    {
+                        TokenLimit = rateLimitOptions.TokenLimit,
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = rateLimitOptions.QueueLimit,
+                        ReplenishmentPeriod = TimeSpan.FromSeconds(
+                            rateLimitOptions.ReplenishmentPeriod
+                        ),
+                        TokensPerPeriod = rateLimitOptions.TokensPerPeriod,
+                        AutoReplenishment = rateLimitOptions.AutoReplenishment,
+                    }
+                );
+            }
+        );
+    });
+}
 
 builder.Services.AddMemoryCache();
 
@@ -221,11 +228,23 @@ app.UseHangfireDashboard(
 );
 
 app.UseRouting();
-app.MapGet("/", () => "Health Check").RequireRateLimiting("jwt");
-app.MapGraphQL().RequireRateLimiting("jwt");
+var rateLimitOptionValue = app.Services.GetRequiredService<IOptions<RateLimitOption>>().Value;
+if (rateLimitOptionValue.IsEnabled)
+{
+    app.MapGet("/", () => "Health Check").RequireRateLimiting("jwt");
+    app.MapGraphQL().RequireRateLimiting("jwt");
+}
+else
+{
+    app.MapGet("/", () => "Health Check");
+    app.MapGraphQL();
+}
 
 app.UseAuthorization();
-app.UseRateLimiter();
+if (rateLimitOptionValue.IsEnabled)
+{
+    app.UseRateLimiter();
+}
 app.UseHttpsRedirection();
 app.UseCors(policy =>
 {
