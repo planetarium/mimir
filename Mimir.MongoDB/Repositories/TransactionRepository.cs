@@ -4,6 +4,7 @@ using HotChocolate.Data.MongoDb;
 using Mimir.MongoDB.Bson;
 using Mimir.MongoDB.Exceptions;
 using Mimir.MongoDB.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mimir.MongoDB.Repositories;
@@ -19,6 +20,7 @@ public interface ITransactionRepository
     IExecutable<TransactionDocument> GetBySignerAsync(string signer);
     IExecutable<TransactionDocument> GetByAvatarAddressAsync(string avatarAddress);
     IExecutable<TransactionDocument> GetByActionTypeIdAsync(string actionTypeId);
+    Task<List<DailyActiveUser>> GetDailyActiveUsersAsync(DateTime? startDate = null, DateTime? endDate = null);
 }
 
 public class TransactionRepository(IMongoDbService dbService) : ITransactionRepository
@@ -127,5 +129,70 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
         var find = _collection.Find(filter);
         var sortDefinition = Builders<TransactionDocument>.Sort.Descending("BlockIndex");
         return find.Sort(sortDefinition).AsExecutable();
+    }
+
+    public async Task<List<DailyActiveUser>> GetDailyActiveUsersAsync(DateTime? startDate = null, DateTime? endDate = null)
+    {
+        var pipeline = new List<BsonDocument>();
+
+        var matchStage = new BsonDocument("$match", new BsonDocument
+        {
+            { "BlockTimestamp", new BsonDocument
+                {
+                    { "$ne", BsonNull.Value }
+                }
+            }
+        });
+
+        if (startDate.HasValue || endDate.HasValue)
+        {
+            var timestampFilter = new BsonDocument();
+            if (startDate.HasValue)
+            {
+                timestampFilter.Add("$gte", startDate.Value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
+            }
+            if (endDate.HasValue)
+            {
+                timestampFilter.Add("$lte", endDate.Value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
+            }
+            matchStage["$match"]["BlockTimestamp"] = timestampFilter;
+        }
+
+        pipeline.Add(matchStage);
+
+        var projectStage = new BsonDocument("$project", new BsonDocument
+        {
+            { "date", new BsonDocument("$substr", new BsonArray { "$BlockTimestamp", 0, 10 }) },
+            { "signer", "$Object.Signer" }
+        });
+        pipeline.Add(projectStage);
+
+        var groupStage = new BsonDocument("$group", new BsonDocument
+        {
+            { "_id", new BsonDocument
+                {
+                    { "date", "$date" },
+                    { "signer", "$signer" }
+                }
+            }
+        });
+        pipeline.Add(groupStage);
+
+        var groupByDateStage = new BsonDocument("$group", new BsonDocument
+        {
+            { "_id", "$_id.date" },
+            { "count", new BsonDocument("$sum", 1) }
+        });
+        pipeline.Add(groupByDateStage);
+
+        var sortStage = new BsonDocument("$sort", new BsonDocument("_id", 1));
+        pipeline.Add(sortStage);
+
+        var results = await _collection.Aggregate<BsonDocument>(pipeline).ToListAsync();
+
+        return results.Select(doc => new DailyActiveUser(
+            doc["_id"].AsString,
+            doc["count"].AsInt32
+        )).ToList();
     }
 } 

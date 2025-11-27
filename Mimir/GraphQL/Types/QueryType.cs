@@ -165,5 +165,18 @@ public class QueryType : ObjectType<Query>
                     Rank = rank
                 };
             });
+
+        descriptor
+            .Field("dailyActiveUsers")
+            .Description("Get daily active users count grouped by date.")
+            .Argument("startDate", a => a.Type<DateTimeType>())
+            .Argument("endDate", a => a.Type<DateTimeType>())
+            .Type<ListType<DailyActiveUserType>>()
+            .Resolve(async context =>
+            {
+                var startDate = context.ArgumentValue<DateTime?>("startDate");
+                var endDate = context.ArgumentValue<DateTime?>("endDate");
+                return await context.Service<ITransactionRepository>().GetDailyActiveUsersAsync(startDate, endDate);
+            });
     }
 }

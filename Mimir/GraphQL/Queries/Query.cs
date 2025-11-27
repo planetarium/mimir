@@ -11,6 +11,7 @@ using Mimir.GraphQL.Objects;
 using Mimir.GraphQL.Types;
 using Mimir.MongoDB;
 using Mimir.MongoDB.Bson;
+using Mimir.MongoDB.Models;
 using Mimir.MongoDB.Repositories;
 using Mimir.Services;
 using Nekoyume;
@@ -161,6 +162,18 @@ public class Query
         Address avatarAddress,
         [Service] IAllCombinationSlotStateRepository repo
     ) => (await repo.GetByAddressAsync(avatarAddress)).Object.CombinationSlots;
+
+    /// <summary>
+    /// Get daily active users count grouped by date.
+    /// </summary>
+    /// <param name="startDate">Optional start date filter</param>
+    /// <param name="endDate">Optional end date filter</param>
+    /// <returns>List of daily active users with date and count</returns>
+    public async Task<List<DailyActiveUser>> GetDailyActiveUsersAsync(
+        DateTime? startDate,
+        DateTime? endDate,
+        [Service] ITransactionRepository repo
+    ) => await repo.GetDailyActiveUsersAsync(startDate, endDate);
 
     /// <summary>
     /// Get the daily reward received block index by address.

@@ -3,6 +3,7 @@ namespace Mimir.Options;
 public class RateLimitOption
 {
     public const string SectionName = "RateLimit";
+    public bool IsEnabled { get; set; } = true;
     public int PermitLimit { get; set; } = 50;
     public int Window { get; set; } = 10;
     public int ReplenishmentPeriod { get; set; } = 10;
