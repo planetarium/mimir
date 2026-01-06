@@ -97,6 +97,7 @@ public static class SerializationRegistry
 
         // Lib9c.Models.States
         BsonSerializer.TryRegisterSerializer(typeof(CombinationSlotState), CombinationSlotStateSerializer.Instance);
+        BsonSerializer.TryRegisterSerializer(typeof(InfiniteTowerInfo), InfiniteTowerInfoSerializer.Instance);
 
         // Lib9c.Models.Stats
         BsonSerializer.TryRegisterSerializer(typeof(DecimalStat), DecimalStatSerializer.Instance);

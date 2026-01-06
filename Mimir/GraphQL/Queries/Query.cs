@@ -1,4 +1,6 @@
 using Hangfire;
+using HotChocolate;
+using HotChocolate.Data;
 using HotChocolate.AspNetCore;
 using Lib9c.GraphQL.Extensions;
 using Lib9c.GraphQL.InputObjects;
@@ -194,6 +196,36 @@ public class Query
         Address address,
         [Service] IInventoryRepository repo
     ) => (await repo.GetByAddressAsync(address)).Object;
+
+    /// <summary>
+    /// Get infinite tower info by avatar address and tower ID.
+    /// </summary>
+    /// <param name="avatarAddress">The address of the avatar.</param>
+    /// <param name="infiniteTowerId">The infinite tower ID (season).</param>
+    /// <returns>The infinite tower info for the specified avatar address and tower ID.</returns>
+    public async Task<InfiniteTowerInfo> GetInfiniteTowerInfoAsync(
+        Address avatarAddress,
+        int infiniteTowerId,
+        [Service] IInfiniteTowerInfoRepository repo
+    )
+    {
+        // #region agent log
+        try { System.IO.File.AppendAllText("/workspace/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "Query.cs:204", message = "GetInfiniteTowerInfoAsync entry", data = new { avatarAddressHex = avatarAddress.ToHex(), avatarAddressString = avatarAddress.ToString(), infiniteTowerId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        return (await repo.GetByAvatarAddressAndTowerIdAsync(avatarAddress, infiniteTowerId)).Object;
+    }
+
+    /// <summary>
+    /// Get infinite tower infos by tower ID (season) with filtering and sorting.
+    /// </summary>
+    /// <param name="filter">The filter containing infinite tower ID and sorting options.</param>
+    /// <param name="repo">The infinite tower info repository.</param>
+    /// <returns>An executable query for infinite tower infos.</returns>
+    [GraphQLIgnore]
+    public IExecutable<InfiniteTowerInfoDocument> GetInfiniteTowerInfosAsync(
+        InfiniteTowerInfoFilter? filter,
+        [Service] IInfiniteTowerInfoRepository repo
+    ) => repo.Get(filter);
 
     /// <summary>
     /// Get metadata by collection name.

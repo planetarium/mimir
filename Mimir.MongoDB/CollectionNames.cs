@@ -98,7 +98,7 @@ namespace Mimir.MongoDB
         /// </summary>
         private static void RegisterCollectionAndStateMappings()
         {
-            // Sort in alphabetical order. 
+            // Sort in alphabetical order.
             CollectionAndStateTypeMappings.Add(typeof(ActionPointDocument), "action_point");
             // CollectionAndStateTypeMappings.Add(typeof(BountyBoardDocument), "adventure_boss_bounty_board");
             // CollectionAndStateTypeMappings.Add(typeof(ExplorerDocument), "adventure_boss_explorer");
@@ -134,6 +134,7 @@ namespace Mimir.MongoDB
                 "world_boss_kill_reward_record");
             CollectionAndStateTypeMappings.Add(typeof(WorldInformationDocument), "world_information");
             CollectionAndStateTypeMappings.Add(typeof(StakeDocument), "stake");
+            CollectionAndStateTypeMappings.Add(typeof(InfiniteTowerInfoDocument), "infinite_tower_info");
         }
 
         public static string GetCollectionName<T>()
