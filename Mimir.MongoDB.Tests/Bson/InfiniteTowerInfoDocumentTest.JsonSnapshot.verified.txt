@@ -1,0 +1,1 @@
+﻿{"AvatarAddress":"1234567890123456789012345678901234567890","InfiniteTowerId":1,"Object":{"Address":"1234567890123456789012345678901234567890","InfiniteTowerId":1,"ClearedFloor":10,"RemainingTickets":5,"TotalTicketsUsed":15,"NumberOfTicketPurchases":2,"LastResetBlockIndex":1000,"LastTicketRefillBlockIndex":2000},"Metadata":{"SchemaVersion":1,"StoredBlockIndex":0}}

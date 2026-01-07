@@ -1,0 +1,14 @@
+﻿{
+  "data": {
+    "infiniteTowerInfo": {
+      "address": "0x1234567890123456789012345678901234567890",
+      "infiniteTowerId": 1,
+      "clearedFloor": 10,
+      "remainingTickets": 5,
+      "totalTicketsUsed": 15,
+      "numberOfTicketPurchases": 2,
+      "lastResetBlockIndex": 1000,
+      "lastTicketRefillBlockIndex": 2000
+    }
+  }
+}

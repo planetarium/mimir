@@ -64,15 +64,15 @@ public class QueryType : ObjectType<Query>
             {
                 var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<IWorldInformationRankingRepository>().GetUserWithRanking(address);
-                
+
                 if (result == null)
                     return null;
-                    
+
                 var (userDocument, rank) = result.Value;
-                return new UserWorldInformationRanking 
-                { 
-                    UserDocument = userDocument, 
-                    Rank = rank 
+                return new UserWorldInformationRanking
+                {
+                    UserDocument = userDocument,
+                    Rank = rank
                 };
             });
 
@@ -94,10 +94,10 @@ public class QueryType : ObjectType<Query>
             {
                 var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<ICpRepository<AdventureCpDocument>>().GetUserWithRanking(address);
-                
+
                 if (result == null)
                     return null;
-                    
+
                 var (userDocument, rank) = result.Value;
                 return new UserAdventureRanking
                 {
@@ -124,10 +124,10 @@ public class QueryType : ObjectType<Query>
             {
                 var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<ICpRepository<ArenaCpDocument>>().GetUserWithRanking(address);
-                
+
                 if (result == null)
                     return null;
-                    
+
                 var (userDocument, rank) = result.Value;
                 return new UserArenaRanking
                 {
@@ -154,10 +154,10 @@ public class QueryType : ObjectType<Query>
             {
                 var address = context.ArgumentValue<Address>("address");
                 var result = await context.Service<ICpRepository<RaidCpDocument>>().GetUserWithRanking(address);
-                
+
                 if (result == null)
                     return null;
-                    
+
                 var (userDocument, rank) = result.Value;
                 return new UserRaidRanking
                 {
@@ -177,6 +177,17 @@ public class QueryType : ObjectType<Query>
                 var startDate = context.ArgumentValue<DateTime?>("startDate");
                 var endDate = context.ArgumentValue<DateTime?>("endDate");
                 return await context.Service<ITransactionRepository>().GetDailyActiveUsersAsync(startDate, endDate);
+            });
+
+        descriptor
+            .Field("infiniteTowerInfos")
+            .Description("Retrieves a list of infinite tower infos by tower ID (season) with filtering and sorting.")
+            .Argument("filter", a => a.Type<InfiniteTowerInfoFilterInputType>())
+            .UseOffsetPaging<InfiniteTowerInfoDocumentType>()
+            .Resolve(context =>
+            {
+                var filter = context.ArgumentValue<InfiniteTowerInfoFilter?>("filter");
+                return context.Service<IInfiniteTowerInfoRepository>().Get(filter);
             });
     }
 }
