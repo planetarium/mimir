@@ -10,8 +10,3 @@ public class InfiniteTowerInfoType : ObjectType<InfiniteTowerInfo>
         // 기본 필드들은 자동으로 매핑됩니다
     }
 }
-
-
-
-
-
