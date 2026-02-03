@@ -26,8 +26,3 @@ public class InfiniteTowerInfoTest
         Assert.Equal(serialized, serialized2);
     }
 }
-
-
-
-
-

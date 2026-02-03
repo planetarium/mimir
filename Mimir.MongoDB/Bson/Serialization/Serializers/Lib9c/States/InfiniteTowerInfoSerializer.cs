@@ -35,8 +35,3 @@ public class InfiniteTowerInfoSerializer : ClassSerializerBase<InfiniteTowerInfo
     //     base.Serialize(context, args, value);
     // }
 }
-
-
-
-
-

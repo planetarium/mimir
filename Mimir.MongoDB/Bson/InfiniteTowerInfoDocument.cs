@@ -14,8 +14,3 @@ public record InfiniteTowerInfoDocument(
     int InfiniteTowerId,
     InfiniteTowerInfo Object
 ) : MimirBsonDocument($"{AvatarAddress.ToHex()}_{InfiniteTowerId}", new DocumentMetadata(1, StoredBlockIndex));
-
-
-
-
-

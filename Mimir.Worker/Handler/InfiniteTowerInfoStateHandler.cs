@@ -19,7 +19,7 @@ public sealed class InfiniteTowerInfoStateHandler(
     : BaseDiffHandler(
         "infinite_tower_info",
         Addresses.InfiniteTowerInfo.Derive($"{infiniteTowerId}"),
-        new InfiniteTowerInfoStateDocumentConverter(),
+        new InfiniteTowerInfoStateDocumentConverter(infiniteTowerId),
         dbService,
         stateService,
         headlessGqlClient,

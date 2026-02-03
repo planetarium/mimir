@@ -60,8 +60,3 @@ public record InfiniteTowerInfo : IBencodable
         LastTicketRefillBlockIndex = l[7].ToLong();
     }
 }
-
-
-
-
-
