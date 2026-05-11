@@ -30,7 +30,7 @@ public class ItemSlotStateHandler(
         store,
         headlessGqlClient,
         initializerManager,
-        "^hack_and_slash[0-9]*$|^hack_and_slash_sweep[0-9]*$|^battle_arena[0-9]*$|^event_dungeon_battle[0-9]*$|^join_arena[0-9]*$|^raid[0-9]*$",
+        "^hack_and_slash[0-9]*$|^hack_and_slash_sweep[0-9]*$|^battle_arena[0-9]*$|^event_dungeon_battle[0-9]*$|^event_dungeon_battle_sweep[0-9]*$|^join_arena[0-9]*$|^raid[0-9]*$",
         Log.ForContext<ItemSlotStateHandler>(),
         stateGetterService
     )
@@ -87,6 +87,19 @@ public class ItemSlotStateHandler(
         if (Regex.IsMatch(actionType, "^event_dungeon_battle[0-9]*$"))
         {
             var action = new EventDungeonBattle();
+            action.LoadPlainValue(actionPlainValue);
+            return await ItemSlotCollectionUpdater.UpdateAsync(
+                StateService,
+                blockIndex,
+                BattleType.Adventure,
+                action.AvatarAddress,
+                stoppingToken
+            );
+        }
+
+        if (Regex.IsMatch(actionType, "^event_dungeon_battle_sweep[0-9]*$"))
+        {
+            var action = new EventDungeonBattleSweep();
             action.LoadPlainValue(actionPlainValue);
             return await ItemSlotCollectionUpdater.UpdateAsync(
                 StateService,

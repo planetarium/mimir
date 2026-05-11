@@ -30,7 +30,7 @@ public class RuneSlotStateHandler(
         store,
         headlessGqlClient,
         initializerManager,
-        "^(battle_arena[0-9]*|event_dungeon_battle[0-9]*|hack_and_slash[0-9]*|hack_and_slash_sweep[0-9]*|join_arena[0-9]*|raid[0-9]*|unlock_rune_slot[0-9]*)$",
+        "^(battle_arena[0-9]*|event_dungeon_battle[0-9]*|event_dungeon_battle_sweep[0-9]*|hack_and_slash[0-9]*|hack_and_slash_sweep[0-9]*|join_arena[0-9]*|raid[0-9]*|unlock_rune_slot[0-9]*)$",
         Log.ForContext<RuneSlotStateHandler>(),
         stateGetterService
     )
@@ -86,6 +86,13 @@ public class RuneSlotStateHandler(
             return await TryProcessRuneSlotStateAsync(blockIndex, action, stoppingToken);
         }
 
+        if (Regex.IsMatch(actionType, "^event_dungeon_battle_sweep[0-9]*$"))
+        {
+            var action = new EventDungeonBattleSweep();
+            action.LoadPlainValue(actionPlainValue);
+            return await TryProcessRuneSlotStateAsync(blockIndex, action, stoppingToken);
+        }
+
         if (Regex.IsMatch(actionType, "^hack_and_slash[0-9]*$"))
         {
             var action = new HackAndSlash();
@@ -135,6 +142,21 @@ public class RuneSlotStateHandler(
     private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
         long blockIndex,
         EventDungeonBattle action,
+        CancellationToken stoppingToken = default
+    )
+    {
+        return await RuneSlotCollectionUpdater.UpdateAsync(
+            blockIndex,
+            StateService,
+            BattleType.Adventure,
+            action.AvatarAddress,
+            stoppingToken
+        );
+    }
+
+    private async Task<IEnumerable<WriteModel<BsonDocument>>> TryProcessRuneSlotStateAsync(
+        long blockIndex,
+        EventDungeonBattleSweep action,
         CancellationToken stoppingToken = default
     )
     {
