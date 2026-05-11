@@ -469,6 +469,9 @@ public static class ActionParser
                 case IEventDungeonBattleV2 eventDungeonBattle2:
                     avatarAddress = eventDungeonBattle2.AvatarAddress;
                     break;
+                case IEventDungeonBattleSweep eventDungeonBattleSweep:
+                    avatarAddress = eventDungeonBattleSweep.AvatarAddress;
+                    break;
                 case IEventMaterialItemCraftsV1 eventMaterialItemCrafts:
                     avatarAddress = eventMaterialItemCrafts.AvatarAddress;
                     break;
