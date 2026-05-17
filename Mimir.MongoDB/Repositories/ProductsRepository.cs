@@ -22,7 +22,7 @@ public class ProductsRepository(IMongoDbService dbService) : IProductsRepository
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{avatarAddress.ToHex()}'");
+                $"'AvatarAddress' equals to '{avatarAddress.ToHex()}'");
         }
 
         return document;

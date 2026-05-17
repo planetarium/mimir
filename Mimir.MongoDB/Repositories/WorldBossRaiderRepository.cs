@@ -18,7 +18,7 @@ public class WorldBossRaiderRepository(IMongoDbService dbService)
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{address.ToHex()}'");
+                $"'_id' equals to '{address.ToHex()}'");
         }
 
         return document;

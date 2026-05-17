@@ -37,7 +37,7 @@ public class TransactionRepository(IMongoDbService dbService) : ITransactionRepo
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 _collection.CollectionNamespace.CollectionName,
-                $"'TxId' equals to '{txId}'"
+                $"'_id' equals to '{txId}'"
             );
         }
 

@@ -31,7 +31,7 @@ public class ItemSlotRepository(IMongoDbService dbService) : IItemSlotRepository
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{itemSlotAddress.ToHex()}'"
+                $"'_id' equals to '{itemSlotAddress.ToHex()}'"
             );
         }
 

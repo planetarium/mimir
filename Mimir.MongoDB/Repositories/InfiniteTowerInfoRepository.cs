@@ -45,7 +45,7 @@ public class InfiniteTowerInfoRepository(IMongoDbService dbService) : IInfiniteT
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'AvatarAddress' equals to '{avatarAddress.ToHex()}' and 'InfiniteTowerId' equals to '{infiniteTowerId}'"
+                $"'_id' equals to '{id}'"
             );
         }
 
