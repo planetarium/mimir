@@ -23,7 +23,7 @@ public class CollectionRepository(IMongoDbService dbService) : ICollectionReposi
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{address.ToHex()}'");
+                $"'_id' equals to '{address.ToHex()}'");
         }
 
         return document;

@@ -31,7 +31,7 @@ public class RuneSlotRepository(IMongoDbService dbService) : IRuneSlotRepository
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{runeSlotAddress.ToHex()}'"
+                $"'_id' equals to '{runeSlotAddress.ToHex()}'"
             );
         }
 

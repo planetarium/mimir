@@ -23,7 +23,7 @@ public class AgentRepository(IMongoDbService dbService) : IAgentRepository
         {
             throw new DocumentNotFoundInMongoCollectionException(
                 collection.CollectionNamespace.CollectionName,
-                $"'Address' equals to '{agentAddress.ToHex()}'");
+                $"'_id' equals to '{agentAddress.ToHex()}'");
         }
 
         return document;
