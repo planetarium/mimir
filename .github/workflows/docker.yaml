@@ -11,6 +11,7 @@ on:
 
 jobs:
   buildx:
+    if: ${{ !startsWith(github.head_ref || github.event.workflow_run.head_branch || github.ref_name, 'donggeul/') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
