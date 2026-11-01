@@ -383,6 +383,18 @@ public class BlockHandler(
                 avatarAddress
             );
         }
+        catch (InvalidCastException e)
+        {
+            // Actions can name a non-avatar address (e.g. a failed daily_reward7 with
+            // Addresses.Ranking); its legacy state isn't an avatar, so skip it instead of
+            // retrying the whole block forever.
+            Logger.Warning(
+                e,
+                "Not an avatar state, block index: {BlockIndex}, avatar address: {AvatarAddress}",
+                blockIndex,
+                avatarAddress
+            );
+        }
     }
 
     private async Task UpdateTransactionStatuses(
