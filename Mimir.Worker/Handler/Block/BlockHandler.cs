@@ -307,6 +307,17 @@ public class BlockHandler(
                 [document]
             );
         }
+        catch (ArgumentException e)
+        {
+            // GetDailyRewardAsync falls back to the legacy account, which holds unrelated
+            // state for system addresses (see InsertAvatar).
+            Logger.Warning(
+                e,
+                "Not a daily reward state, block index: {BlockIndex}, avatar address: {AvatarAddress}",
+                blockIndex,
+                avatarAddress
+            );
+        }
     }
 
     private async Task InsertAgentIfNotExist(Address signer, long blockIndex)
@@ -354,7 +365,25 @@ public class BlockHandler(
     {
         try
         {
-            var avatarState = await stateGetterService.GetAvatarStateAsync(avatarAddress);
+            AvatarState avatarState;
+            try
+            {
+                avatarState = await stateGetterService.GetAvatarStateAsync(avatarAddress);
+            }
+            catch (InvalidCastException e)
+            {
+                // Actions can name a non-avatar address (e.g. a failed daily_reward7 with
+                // Addresses.Ranking); its legacy state isn't an avatar, so skip it instead of
+                // retrying the whole block forever.
+                Logger.Warning(
+                    e,
+                    "Not an avatar state, block index: {BlockIndex}, avatar address: {AvatarAddress}",
+                    blockIndex,
+                    avatarAddress
+                );
+                return;
+            }
+
             var inventoryState = await stateGetterService.GetInventoryState(
                 avatarAddress,
                 CancellationToken.None
@@ -379,18 +408,6 @@ public class BlockHandler(
         {
             Logger.Information(
                 "Avatar state not found, block index: {BlockIndex}, avatar address: {AvatarAddress}",
-                blockIndex,
-                avatarAddress
-            );
-        }
-        catch (InvalidCastException e)
-        {
-            // Actions can name a non-avatar address (e.g. a failed daily_reward7 with
-            // Addresses.Ranking); its legacy state isn't an avatar, so skip it instead of
-            // retrying the whole block forever.
-            Logger.Warning(
-                e,
-                "Not an avatar state, block index: {BlockIndex}, avatar address: {AvatarAddress}",
                 blockIndex,
                 avatarAddress
             );
